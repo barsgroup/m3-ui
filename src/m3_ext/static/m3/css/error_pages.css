@@ -1,0 +1,31 @@
+html, body {
+    padding:0;
+    margin: 0;
+    line-height:1.2;
+    font-family:Tahoma,Sans;
+}
+.message{
+    width: 580px;
+    height: 260px;
+    margin:auto;
+    bottom:0;
+    left:0;
+    right:0;
+    top:0;
+    overflow:hidden;
+    position:absolute;
+}
+.beautiful-text{
+    text-shadow: 0px 1px 0px #e5e5ee;
+    /*для ie7*/
+    filter: dropshadow(color=#e5e5ee,offX=0,of<span class="hilite">f</span>Y=1);
+}
+.message_header{
+    font-size: 33pt;
+    color: #999999;
+    margin-bottom:20px;
+    text-align: center;
+}
+.message_body{
+    font-size:11pt;
+}

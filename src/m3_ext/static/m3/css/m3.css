@@ -1,0 +1,289 @@
+.add_item {
+    background-image:url(../images/add_item.png) !important;
+}
+.edit_item {
+    background-image:url(../images/edit_item.png) !important;
+}
+.delete_item {
+    background-image:url(../images/delete_item.png) !important;
+}
+
+.table_refresh {
+    background-image:url(../images/table_refresh.png) !important;
+}
+
+.refresh-icon-16 {
+    background-image:url(../images/table_refresh.png) !important;
+}
+
+.user-icon-16 {
+    background-image:url(../images/user-16.png) !important;
+}
+
+.select{
+    background-image:url(../images/select_value.gif) !important;
+}
+.clear{
+    background-image:url(../images/clear_field.gif) !important;
+}
+.search{
+    background-image:url(../images/search.png) !important;
+}
+q:before,q:after{content:'';}.m3-el-mask {
+	position: absolute;	
+	z-index: 100;
+    -moz-opacity: 0.5;
+    opacity: .50;
+    filter: alpha(opacity=50);
+    zoom: 1;
+}
+.ext-gecko2 .ext-mb-fix-cursor {
+    overflow:auto;
+    
+}.m3-el-mask {
+    background-color: #ccc;
+}
+
+.x-form-select-trigger {
+	background-image:url(../images/select-dict.gif) !important;
+}
+.x-form-edit-trigger {
+	background-image:url(../images/trigger-edit-form.gif) !important;
+}
+.x-form-current-date-trigger {
+	background-image:url(../images/trigger-current-date.gif) !important;
+}
+
+.x-toolbar-ct .x-btn-focus em button{
+	border: 1px dotted;
+}
+
+td.x-grid3-cell .x-grid3-hd-inner {
+    background-color:#f9f9f9;
+	background-image:url(../../vendor/extjs/resources/images/default/grid/grid3-hrow.gif);
+}
+
+td.x-grid3-hd-over .x-grid3-hd-inner, td.sort-desc .x-grid3-hd-inner, td.sort-asc .x-grid3-hd-inner, td.x-grid3-hd-menu-open .x-grid3-hd-inner {
+    background-color:#ebf3fd;
+    background-image:url(../../vendor/extjs/resources/images/default/grid/grid3-hrow-over.gif);
+
+}
+.m3-form-invalid {
+    border-color: #B5B8C8 !important;
+    background-color: #fffdee !important;
+    background-image: url(../images/required-field.png) !important;
+}
+
+/*Стиль для неверно заполненного композитного поля. В эксте он обрабатывается
+ иначе*/
+.m3-composite-field-invalid{
+    background-color: #DFE8F6;
+}
+/*============================================================*/
+
+.x-grid-with-col-lines .x-grid3-row td.x-grid3-cell {
+    border-right-color: #D0D0D0;
+}
+
+.x-form-file-icon {
+    background-image:url(../images/file_add.png) !important;
+}
+
+.x-form-file-clear-icon {
+    background-image:url(../images/file_del.png) !important;
+}
+
+.x-form-file-download-icon {
+    background-image:url(../images/file_download.png) !important;
+}
+
+.x-form-image-icon {
+    background-image:url(../images/image_add.png) !important;
+}
+
+.x-form-image-clear-icon {
+    background-image:url(../images/image_del.png) !important;
+}
+
+.x-form-image-preview-icon {
+    background-image:url(../images/image_download.png) !important;
+}
+
+.x-form-file-clear {
+    position: absolute;
+    
+    right: 22px;
+    z-index: 3;
+}
+
+.x-form-file-download {
+    position: absolute;
+    
+    right: 44px;
+    z-index: 3;
+}
+
+/*Класс для MultiCombo*/
+.x-multi-combo-item img {
+    width:16px;
+    height:16px;
+    float:left;
+    background-color: transparent;
+    background-position: -1px -1px !important;
+    background-repeat:no-repeat !important;
+}
+
+
+.m3-grey-field{
+    border-color: #B5B8C8 !important;
+    background-color: #f4f4f4 !important;
+    background-image: url(../images/read-only-field.png) !important;
+}
+
+/*Стиль редактора кода в браузере*/
+.CodeMirror {
+  line-height: 14pt;
+  font-family: Consolas, monospace;
+  height: 100%;
+}
+
+.CodeMirror-scroll {
+  overflow: auto;
+  height: 100%;
+}
+
+.CodeMirror-gutter {
+  position: absolute; left: 0; top: 0;
+  background-color: #f7f7f7;
+  border-right: 1px solid #eee;
+  min-width: 2em;
+  height: 100%;
+}
+.CodeMirror-gutter-text {
+  color: #aaa;
+  text-align: right;
+  padding: .4em .2em .4em .4em;
+}
+.CodeMirror-lines {
+  padding: .4em;
+}
+
+.CodeMirror pre {
+  -moz-border-radius: 0;
+  -webkit-border-radius: 0;
+  -o-border-radius: 0;
+  border-radius: 0;
+  border-width: 0; margin: 0; padding: 0; background: transparent;
+  font-family: inherit;
+  font-size: inherit;
+  padding: 0; margin: 0;
+  white-space: pre;
+  word-wrap: normal;
+}
+
+.CodeMirror textarea {
+  font-family: inherit !important;
+  font-size: inherit !important;
+}
+
+.CodeMirror-cursor {
+  z-index: 10;
+  position: absolute;
+  visibility: hidden;
+  border-left: 1px solid black !important;
+}
+.CodeMirror-focused .CodeMirror-cursor {
+  visibility: visible;
+}
+
+span.CodeMirror-selected {
+  background: #ccc !important;
+  color: HighlightText !important;
+}
+.CodeMirror-focused span.CodeMirror-selected {
+  background: Highlight !important;
+}
+
+.CodeMirror-matchingbracket {color: #0f0 !important;}
+.CodeMirror-nonmatchingbracket {color: #f22 !important;}
+
+
+/*Перегружаем стили для м3-календаря рабочих дат*/
+.x-work-date-picker .x-date-selected a{
+    background: #fff none;
+    border: none;
+}
+
+.x-work-date-picker .x-date-selected span{
+    font-weight:normal;
+}
+
+.x-work-date-picker .x-date-left a,
+.x-work-date-picker .x-date-right a
+{
+    background-image:none;
+}
+
+.x-date-dayoff{
+    background-color: #f1c2c2
+}
+
+.x-date-holiday{
+    background-color: #6b8ef1
+}
+/*CodeMirror default theme*/
+.cm-s-default span.cm-keyword {color: #708;}
+.cm-s-default span.cm-atom {color: #219;}
+.cm-s-default span.cm-number {color: #164;}
+.cm-s-default span.cm-def {color: #00f;}
+.cm-s-default span.cm-variable {color: black;}
+.cm-s-default span.cm-variable-2 {color: #05a;}
+.cm-s-default span.cm-variable-3 {color: #0a5;}
+.cm-s-default span.cm-property {color: black;}
+.cm-s-default span.cm-operator {color: black;}
+.cm-s-default span.cm-comment {color: #a50;}
+.cm-s-default span.cm-string {color: #a11;}
+.cm-s-default span.cm-meta {color: #555;}
+.cm-s-default span.cm-error {color: #f00;}
+.cm-s-default span.cm-qualifier {color: #555;}
+.cm-s-default span.cm-builtin {color: #30a;}
+.cm-s-default span.cm-bracket {color: #cc7;}
+.cm-s-default span.cm-tag {color: #170;}
+.cm-s-default span.cm-attribute {color: #00c;}
+
+.cm-s-default { background: white;}
+
+
+/*Paging node styles*/
+.gs_tree_pgbtn {
+    float:left;
+    overflow:hidden;
+    padding:0 5px;
+    zoom:1;
+}
+.gs_tree_pgbtn :hover {
+  background-color:#99bbe8;
+}
+.gs_tree_pgbtn_sel {
+  background-color:#d6e3f2;
+}
+
+.x-tree-pagingnode:hover{
+  background-color:#ffffff; !important
+}
+.x-tree-pagingnode{
+  border-color:#ccc; !important
+}
+.x-tree-pagingnode-td:hover{
+  border-right: solid;
+  border-width: 1px;
+  border-color: #EDEDED;
+}
+/*-------------------------*/
+
+.x-grid-group-hd div.x-grid-group-title {
+    min-height: 15px;
+}
+.ext-ie6 .x-grid-group-hd div.x-grid-group-title {
+    height: 15px;
+}

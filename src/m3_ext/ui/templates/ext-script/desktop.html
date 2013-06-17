@@ -1,0 +1,70 @@
+{% block desktop_elements %}
+<script type="text/javascript">
+  // Формируем набор объектов
+  AppDesktop = new Ext.app.App({
+    getModules: function(){
+      return [
+        // Элементы меню "Пуск"
+        {% for menu_item in components.start_menu %}
+          {% if not forloop.first %},{% endif %}new AppDesktop.MenuItem_{{ forloop.counter }}()
+        {% endfor %}
+        // Значки на рабочем столе
+        {% if components.start_menu and components.desktop %},{% endif %}
+        {% for desktop_item in components.desktop %}
+          {% if not forloop.first %},{% endif %}new AppDesktop.DesktopItem_{{ forloop.counter }}()
+        {% endfor %}
+        
+        // Включаются элементы верхней панели
+        {% if components.start_menu or components.desktop %}
+          {% if components.toptoolbar %},{% endif %}
+        {% endif %}
+        {% for desktop_item in components.toptoolbar %}
+          {% if not forloop.first %},{% endif %}new AppDesktop.TopToolbarItem_{{ forloop.counter }}()
+        {% endfor %}
+      ];
+    },
+    // Обязательные настройки меню "Пуск"
+    getStartConfig: function(){
+      return {
+        title: '{{ user }}',
+        iconCls: '{{ user_icon }}',
+        toolItems: [
+          {% for tool in components.toolbox %}
+            {% if not forloop.first%},{%endif%}{% ifequal tool '"-"'%}'-'{% else %}{{ tool.render|safe }}{%endifequal%}
+          {% endfor %}
+        ]
+      };
+    }
+  });
+
+  // Обрабатываются модулю, находящиеся в меню Пуск
+  {% for menu_item in components.start_menu %}
+    AppDesktop.MenuItem_{{ forloop.counter }} = Ext.extend(Ext.app.Module, {
+      id: 'menu-item-{{ forloop.counter }}',
+      init: function(){
+        this.launcher = Ext.applyIf({{ menu_item.render|safe }} || {}, { in_start_menu: true });
+      }
+    });
+  {% endfor %}
+  
+  // Обрабатываются модули, находящиеся на Рабочем Столе, не пересекаются с меню Пуск
+  {% for desktop_item in components.desktop %}
+    AppDesktop.DesktopItem_{{ forloop.counter }} = Ext.extend(Ext.app.Module, {
+      id: 'desktop-item-{{ forloop.counter }}',
+      init: function(){
+        this.launcher = {{ desktop_item.render|safe }};
+      }
+    });
+  {% endfor %}
+  
+  // элементы верхней панельки                
+  {% for toptoolbar_item in components.toptoolbar %}
+    AppDesktop.TopToolbarItem_{{ forloop.counter }} = Ext.extend(Ext.app.Module, {
+      id: 'toptoolbar-item-{{ forloop.counter }}',
+      init : function(){
+        this.launcher = {{ toptoolbar_item.render|safe}};
+        }
+    });
+  {% endfor %}
+</script>
+{% endblock %}
