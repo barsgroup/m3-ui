@@ -1,16 +1,21 @@
 #coding:utf-8
-'''
+"""
 Классы для работы первично отображаемого интерфейса MIS.
 Включают список модулей в меню "Пуск" и список модулей на "Рабочем столе"
 
 Created on Nov 18, 2010
 
 @author: prefer
-'''
+"""
 import threading
 import copy
 import inspect
 from uuid import uuid4
+
+from django.conf import settings
+from django.utils.importlib import import_module
+from django.contrib.auth.models import User, AnonymousUser
+from django.utils.log import logger
 
 try:
     from m3_users import GENERIC_USER, SUPER_ADMIN
@@ -36,15 +41,8 @@ except ImportError:
     def get_metarole(code):
         return UserMetarole()
 
-from django.conf import settings
-from django.utils.importlib import import_module
-from django.contrib.auth.models import User, AnonymousUser
-
-from m3.helpers.datastructures import TypedList
-from m3.helpers import logger
-
-from m3.ui.actions import ControllerCache, Action, ActionPack
-from m3.core.json import M3JSONEncoder
+from m3.actions import ControllerCache, Action, ActionPack
+from m3 import M3JSONEncoder
 
 
 # Константы: "Разделитель", "Блок с текущим временем", "Заполняющий блок"
@@ -74,10 +72,10 @@ class DesktopModel(object):
         @param desktop: список модулей на Рабочем столе
         @param toptoolbar: список модулей на верхней панели
         """
-        self.start_menu = TypedList(BaseDesktopElement)
-        self.toolbox = TypedList(BaseDesktopElement)
-        self.desktop = TypedList(DesktopLauncher)
-        self.toptoolbar = TypedList(BaseDesktopElement)
+        self.start_menu = []
+        self.toolbox = []
+        self.desktop = []
+        self.toptoolbar = []
 
 
 class BaseDesktopElement(object):
@@ -123,7 +121,7 @@ class DesktopLaunchGroup(BaseDesktopElement):
         subitem: Хранит список модулей и список подменю
         '''
         super(DesktopLaunchGroup, self).__init__(*args, **kwargs)
-        self.subitems = TypedList(BaseDesktopElement)
+        self.subitems = []
         self.index = 10
         self.icon = 'default-launch-group'
         self._init_component(*args, **kwargs)

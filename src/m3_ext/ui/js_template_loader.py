@@ -3,8 +3,8 @@
 Загрузчик шаблонов (темплейтов) для генерации пользовательского интерфейса
 для m3.ui.ext.
 
-Необходимость данного шаблона обусловлена спецификой реализации template-loaders
-в django.
+Необходимость данного шаблона обусловлена спецификой реализации
+template-loaders в django.
 
 Для корректной работы загрузчика в settings.py прикладного приложения
 необходимо добавить строку 'm3.ui.ext.js_template_loader.load_template_source'
@@ -24,12 +24,15 @@ from django.utils._os import safe_join
 
 # At compile time, cache the directories to search.
 fs_encoding = sys.getfilesystemencoding() or sys.getdefaultencoding()
-template_dir_ext = os.path.join(os.path.dirname(__file__), 'templates')
-template_dir_gears = os.path.join(os.path.dirname(__file__), '../gears/templates')
+template_dir_ext = os.path.join(
+    os.path.dirname(__file__), 'templates')
+template_dir_gears = os.path.join(
+    os.path.dirname(__file__), '../gears/templates')
 app_template_dirs = (
     template_dir_ext.decode(fs_encoding),
     template_dir_gears.decode(fs_encoding),
 )
+
 
 def get_template_sources(template_name, template_dirs=None):
     """
@@ -49,11 +52,15 @@ def get_template_sources(template_name, template_dirs=None):
             # The joined path was located outside of template_dir.
             pass
 
+
 def load_template_source(template_name, template_dirs=None):
     for filepath in get_template_sources(template_name, template_dirs):
         try:
-            return (open(filepath).read().decode(settings.FILE_CHARSET), filepath)
+            return (
+                open(filepath).read().decode(settings.FILE_CHARSET), filepath
+            )
         except IOError:
             pass
-    raise TemplateDoesNotExist, template_name
+    raise TemplateDoesNotExist(template_name)
+
 load_template_source.is_usable = True

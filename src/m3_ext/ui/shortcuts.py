@@ -6,22 +6,31 @@ Created on 24.03.2010
 
 @author: akvarats
 '''
-from m3.ui.ext.containers.forms import ExtForm
-from m3.ui.ext.windows.base import BaseExtWindow
 import json
+
 from django import http
 
-def js_submit_form(form, success_handler='', failure_handler='', invalid_handler='', params=None):
-    '''
-    @deprecated: Использовать методы окна, например, в ExtEditWindow метод submitForm
-    
+from m3.ui.ext.containers.forms import ExtForm
+from m3.ui.ext.windows.base import BaseExtWindow
+
+
+def js_submit_form(
+        form, success_handler='', failure_handler='',
+        invalid_handler='', params=None):
+    """
+    @deprecated: Использовать методы окна, например,
+    в ExtEditWindow метод submitForm
+
     Шорткат, который позволяет назначить хендлер для обработки субмита формы
     @param form: экземпляр ExtForm
-    @param success_handler: анонимная JS функция срабатывающая при успешном исходе субмита 
-    @param failure_handler: анонимная JS функция срабатывающая ошибке
-    @param invalid_handler: JS действия при отказе сабмита из-за неверных значений полей
+    @param success_handler:
+        анонимная JS функция срабатывающая при успешном исходе субмита
+    @param failure_handler:
+        анонимная JS функция срабатывающая ошибке
+    @param invalid_handler:
+        JS действия при отказе сабмита из-за неверных значений полей
     @param params: словарь с доп. параметрами передаваемыми через POST
-    '''
+    """
     assert isinstance(form, ExtForm)
     template = u'''
 function(){
@@ -31,7 +40,7 @@ function(){
         return;
     }
     form.submit({
-        %(submit_params)s        
+        %(submit_params)s
     });
 }
 '''
@@ -55,16 +64,16 @@ function(){
 def js_success_response():
     '''
     @deprecated: Использовать OperationResult
-    
+
     Возвращает Ext Ajax ответ что операция прошла успешно
     @deprecated: Нужно использовать OperationResult
     '''
     return http.HttpResponse('{success: true}')
-    
+
 def js_failure_response():
     '''
     @deprecated: Использовать OperationResult
-    
+
     Возвращает Ext Ajax ответ что операция прервана
     @deprecated: Нужно использовать OperationResult
     '''
@@ -73,18 +82,18 @@ def js_failure_response():
 def js_close_window(win, forceClose=False):
     '''
     @deprecated: Использовать методы окна, например, в ExtEditWindow метод calcelForm
-    
+
     Возвращает JS код закрывающий окно win
     '''
     assert isinstance(win, BaseExtWindow)
     forceClose = 'true' if forceClose else 'false'
-    return 'function(){Ext.getCmp("%s").close(%s);}' % (win.client_id, 
+    return 'function(){Ext.getCmp("%s").close(%s);}' % (win.client_id,
                                                         forceClose,)
 
 def js_submit_ajax(url, params = {}, success_handler = None, failure_handler = None):
     '''
     @deprecated: Использовать sendRequest из m3.js
-    
+
     Возвращает JS код посылающий AJAX запрос
     '''
     template = u'''
@@ -97,7 +106,7 @@ function(){
     });
 }
     '''
-    return template % {'url': url, 
+    return template % {'url': url,
                        'success_handler': ', success:' + success_handler if success_handler else '',
                        'failure_handler': ', failure:' + failure_handler if failure_handler else '',
                        'params': ', params:' + json.JSONEncoder().encode(params) if params else ''}
@@ -115,11 +124,11 @@ function(){
     %(win_close)s
 }
     '''
-    return template % {'event_name': event_name, 
+    return template % {'event_name': event_name,
                        'params': (',"%s"' % '","'.join(args)) if args else '',
                        'win_close' : 'win.close(true);' if close_after_fire else ''
                        }
-    
+
 def js_fire_event(component, event_name, *args):
     '''
     Генерирует вызов события для любого компонента
@@ -134,10 +143,10 @@ function(){
 }
     '''
     return template % {'client_id':component.client_id,
-                       'event_name': event_name, 
+                       'event_name': event_name,
                        'params': (',"%s"' % '","'.join(args)) if args else '',
                        }
-    
+
 def js_on_key_enter(function, *args):
     return '''
 function(field, e){
@@ -159,14 +168,14 @@ class MessageBox(object):
     ICON_ERROR    = 'Ext.MessageBox.ERROR'
     ICON_QUESTION = 'Ext.MessageBox.QUESTION'
     ICON_WARNING  = 'Ext.MessageBox.WARNING'
-    
+
     # Константы определяющие доступные кнопки
     BTN_OK          = 'Ext.Msg.OK'
     BTN_CANCEL      = 'Ext.Msg.CANCEL'
     BTN_OKCANCEL    = 'Ext.Msg.OKCANCEL'
     BTN_YESNO       = 'Ext.Msg.YESNO'
     BTN_YESNOCANCEL = 'Ext.Msg.YESNOCANCEL'
-    
+
     def __init__(self, title = '', msg = '', icon = ICON_INFO, buttons = BTN_OK):
         self.title = title
         self.msg = msg
@@ -177,7 +186,7 @@ class MessageBox(object):
         self.handler_cancel = ''
         self.handler_yes = ''
         self.handler_no = ''
-        
+
     def get_script(self):
         template = '''
 Ext.Msg.show({
@@ -219,4 +228,4 @@ function(buttonId, text, opt){
                              'icon': self.icon,
                              'handler': handler}
         return result
-    
+
