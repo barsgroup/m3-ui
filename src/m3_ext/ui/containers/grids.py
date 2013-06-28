@@ -1,25 +1,24 @@
 #coding:utf-8
-'''
+"""
 Created on 3.3.2010
 
 @author: prefer
-'''
+"""
 from django.conf import settings
 from django.utils.datastructures import SortedDict
 
-from m3.ui.ext.base import ExtUIComponent, BaseExtComponent
+from m3_ext.ui.base import ExtUIComponent, BaseExtComponent
 from base import BaseExtPanel
 
 
-#===============================================================================
+#==============================================================================
 class ExtPivotGrid(BaseExtPanel):
-    '''
+    """
     Сводная таблица
-    '''
-
-    def __init__(self,*args, **kwargs):
-        super(ExtPivotGrid, self).__init__(*args,**kwargs)
-        self.template = 'ext-grids/ext-pivot-grid.js' #FIXME: Не нужно
+    """
+    def __init__(self, *args, **kwargs):
+        super(ExtPivotGrid, self).__init__(*args, **kwargs)
+        self.template = 'ext-grids/ext-pivot-grid.js'
         self.__store = None
         self.aggregator = None
         self.renderer = None
@@ -33,7 +32,7 @@ class ExtPivotGrid(BaseExtPanel):
         self.auto_fill = True
         self.__view = None
         self._view_config = {}
-        self.init_component(*args,**kwargs)
+        self.init_component(*args, **kwargs)
 
     def t_render_store(self):
         return self.__store.render(self.columns)
@@ -54,16 +53,19 @@ class ExtPivotGrid(BaseExtPanel):
         super(ExtPivotGrid, self).render_base_config()
         self._view_config['forceFit'] = self.force_fit
         self._view_config['autoFill'] = self.auto_fill
-        self._put_config_value('store',self.t_render_store,self.get_store())
-        self._put_config_value('measure',self.measure)
-        self._put_config_value('aggregator',self.aggregator)
-        self._put_config_value('renderer',self.renderer)
-        self._put_config_value('leftAxis',self.t_render_left_axis)
-        self._put_config_value('topAxis',self.t_render_top_axis)
+        for args in (
+            ('store', self.t_render_store, self.get_store()),
+            ('measure', self.measure),
+            ('aggregator', self.aggregator),
+            ('renderer', self.renderer),
+            ('leftAxis', self.t_render_left_axis),
+            ('topAxis', self.t_render_top_axis),
 
-        self._put_config_value('colModel', self.col_model.render)
-        self._put_config_value('view', self.t_render_view, self.view)
-        self._put_config_value('viewConfig', self._view_config)
+            ('colModel', self.col_model.render),
+            ('view', self.t_render_view, self.view),
+            ('viewConfig', self._view_config),
+        ):
+            self._put_config_value(*args)
 
     @property
     def columns(self):
@@ -113,73 +115,76 @@ class ExtPivotGrid(BaseExtPanel):
         return self.view.render()
 
     def t_render_left_axis(self):
-        return '[%s]' % ','.join(['''{
+        return '[%s]' % ','.join(
+            ['''{
             dataIndex:"%s",
             header:"%s",
             width:%d,
             defaultHeaderWidth:%d,
             orientation:"%s"
-        }'''  % (
+            }''' % (
             axe.data_index,
             axe.header,
             axe.width,
             axe.default_header_width,
-            axe.orientation
-        ) for axe in self.left_axis])
+            axe.orientation) for axe in self.left_axis])
 
     def t_render_top_axis(self):
-        return '[%s]' % ','.join(['''{
+        return '[%s]' % ','.join(
+            ['''{
             dataIndex:"%s",
             header:"%s",
             width:%d,
             defaultHeaderWidth:%d,
             orientation:"%s"
-        }'''  % (
+            }''' % (
             axe.data_index,
             axe.header,
             axe.width,
             axe.default_header_width,
-            axe.orientation
-        ) for axe in self.top_axis])
+            axe.orientation) for axe in self.top_axis])
 
 
-#===============================================================================
+#==============================================================================
 class ExtGrid(BaseExtPanel):
     """
     Таблица (Grid)
-    Внимание! Грид реализует двуличное поведение в зависимости от атрибута editor.
+    Внимание! Грид реализует двуличное поведение
+    в зависимости от атрибута editor.
     Порождающая его функция createGridPanel может вернуть экземпляр
-    Ext.m3.GridPanel (False) или Ext.m3.EditorGridPanel (True), поэтому некоторые
-    атрибуты могут действовать в одном, но не действовать в другом гриде.
+    Ext.m3.GridPanel (False) или Ext.m3.EditorGridPanel (True),
+    поэтому некоторые атрибуты могут действовать в одном,
+    но не действовать в другом гриде.
     """
-    
+
     # TODO: Реализовать человеческий MVC грид
-    
+
     def __init__(self, *args, **kwargs):
-        super(ExtGrid, self).__init__(*args, **kwargs)        
+        super(ExtGrid, self).__init__(*args, **kwargs)
         self._items = []
         self.__store = None
-        
+
         # Будет ли редактироваться
         self.editor = False
-        
+
         # Объект маскирования, который будет отображаться при загрузке
         self.load_mask = False
 
-        # Сколько раз нужно щелкнуть для редактирования ячейки. Только для EditorGridPanel
+        # Сколько раз нужно щелкнуть для редактирования ячейки.
+        # Только для EditorGridPanel
         self.clicks_to_edit = 2
-        
+
         self.drag_drop = False
         self.drag_drop_group = None
-        
+
         # Разворачивать колонки грида по всей ширине (True)
         self.force_fit = True
-        
+
         # selection model
         self.__sm = None
-                
+
         self.__view = None
-        
+
         # Колонка для авторасширения
         self.auto_expand_column = None
 
@@ -189,24 +194,24 @@ class ExtGrid(BaseExtPanel):
 
         # перечень плагинов
         self.plugins = []
-        
+
         # модель колонок
         self.__cm = None
-        
+
         self.col_model = ExtGridDefaultColumnModel()
-        
+
         # Конфигурация для уровня view
-        self._view_config = {}        
-        self.show_preview = False        
+        self._view_config = {}
+        self.show_preview = False
         self.enable_row_body = False
         self.get_row_class = None
-        
+
         # признак отображения вертикальных линий в гриде
-        self.column_lines = True 
-        
+        self.column_lines = True
+
         #Если True не рендерим drag and drop, выключаем editor
-        self.read_only = False 
-        
+        self.read_only = False
+
         # Метка. Использовать только если задан layout=form
         self.label = None
 
@@ -228,8 +233,8 @@ class ExtGrid(BaseExtPanel):
         '''
         result = []
         for level_list in self.banded_columns.values():
-            result.append('[%s]' % ','.join([ column.render() \
-                                             for column in level_list ]))
+            result.append('[%s]' % ','.join(
+                [column.render() for column in level_list]))
         return '[%s]' % ','.join(result)
 
     def t_render_columns(self):
@@ -275,15 +280,20 @@ class ExtGrid(BaseExtPanel):
         @param column: Колонка грида (ExtGridColumn)
         @param colspan: Количество колонок которые находятся
             под данной колонкой (int)
-        @param level: Уровень учейки где 0 - самый верхний, 1-ниже, и т.д. (int)
+        @param level: Уровень учейки где
+          0 - самый верхний,
+          1-ниже, и т.д. (int)
 
         upd:26.10.2010 kirov
-        колонка может быть не указана, т.е. None, в этом случае на указанном уровне будет "дырка"
+        колонка может быть не указана, т.е. None,
+        в этом случае на указанном уровне будет "дырка"
         '''
         class BlankBandColumn():
             colspan = 0
+
             def render(self):
-                return '{%s}' % (('colspan:%s' % self.colspan) if self.colspan else '')
+                return '{%s}' % (
+                    ('colspan:%s' % self.colspan) if self.colspan else '')
 
         assert isinstance(level, int)
         assert isinstance(colspan, int)
@@ -314,36 +324,37 @@ class ExtGrid(BaseExtPanel):
 
     store = property(get_store, set_store)
 
-    def make_read_only(self, access_off=True, exclude_list=[], *args, **kwargs):
+    def make_read_only(
+            self, access_off=True, exclude_list=[], *args, **kwargs):
         # Описание в базовом классе ExtUiComponent.
         # Обрабатываем исключения.
-        access_off = self.pre_make_read_only(access_off, exclude_list, 
-                                             *args, **kwargs)
+        access_off = self.pre_make_read_only(
+            access_off, exclude_list, *args, **kwargs)
         # Выключаем\включаем компоненты.
-        super(ExtGrid, self).make_read_only(access_off, exclude_list, 
-                                            *args, **kwargs)
+        super(ExtGrid, self).make_read_only(
+            access_off, exclude_list, *args, **kwargs)
         self.read_only = access_off
         if self.columns:
             for column in self.columns:
-                column.make_read_only(self.read_only, exclude_list, 
-                                                    *args, **kwargs)
+                column.make_read_only(
+                    self.read_only, exclude_list, *args, **kwargs)
         #убираем редактирование записи по даблклику
         self.handler_dblclick = 'Ext.emptyFn'
-        
+
         # контекстное меню.
-        context_menu_items = [self.handler_contextmenu, 
+        context_menu_items = [self.handler_contextmenu,
                               self.handler_rowcontextmenu]
         for context_menu in context_menu_items:
-            if (context_menu and
-                hasattr(context_menu,'items') and
+            if (
+                context_menu and
+                hasattr(context_menu, 'items') and
                 context_menu.items and
-                hasattr(context_menu.items,'__iter__')):
+                hasattr(context_menu.items, '__iter__')
+            ):
                 for item in context_menu.items:
                     if isinstance(item, ExtUIComponent):
-                        item.make_read_only(self.read_only, 
-                                            exclude_list, 
-                                            *args, **kwargs)
-            
+                        item.make_read_only(
+                            self.read_only, exclude_list, *args, **kwargs)
 
     @property
     def columns(self):
@@ -420,8 +431,6 @@ class ExtGrid(BaseExtPanel):
         menu.container = self
         self._listeners['rowcontextmenu'] = menu
 
-    #----------------------------------------------------------------------------
-
     def render_base_config(self):
         super(ExtGrid, self).render_base_config()
         if self.force_fit:
@@ -432,48 +441,63 @@ class ExtGrid(BaseExtPanel):
             self._view_config['enableRowBody'] = self.enable_row_body
         if self.get_row_class:
             self._view_config['getRowClass'] = self.get_row_class
-        
-        self._put_config_value('stripeRows', True)
-        self._put_config_value('stateful', True)
-        self._put_config_value('loadMask', self.load_mask)
-        self._put_config_value('autoExpandColumn', self.auto_expand_column)
-        if not self.read_only:
-            self._put_config_value('enableDragDrop', self.drag_drop)
-            self._put_config_value('ddGroup', self.drag_drop_group)
-        self._put_config_value('editor', self.editor)
-        self._put_config_value('view', self.t_render_view, self.view)
-        self._put_config_value('store', self.t_render_store, self.get_store())
-        self._put_config_value('viewConfig', self._view_config)
-        self._put_config_value('columnLines', self.column_lines, self.column_lines)
-        if self.label:
-            self._put_config_value('fieldLabel', self.label)
-        if self.editor:
-            self._put_config_value('clicksToEdit', self.clicks_to_edit, self.clicks_to_edit != 2)
+
+        for args in (
+            ('stripeRows', True),
+            ('stateful', True),
+            ('loadMask', self.load_mask),
+            ('autoExpandColumn', self.auto_expand_column),
+            ('editor', self.editor),
+            ('view', self.t_render_view, self.view),
+            ('store', self.t_render_store, self.get_store()),
+            ('viewConfig', self._view_config),
+            ('columnLines', self.column_lines, self.column_lines),
+            ('enableDragDrop', self.drag_drop) if self.read_only else (),
+            ('ddGroup', self.drag_drop_group) if self.read_only else (),
+            ('fieldLabel', self.label) if self.label else (),
+            (
+                'clicksToEdit',
+                self.clicks_to_edit, self.clicks_to_edit != 2
+            ) if self.editor else (),
+        ):
+            if args:
+                self._put_config_value(*args)
 
     def render_params(self):
         super(ExtGrid, self).render_params()
 
-        handler_cont_menu = self.handler_contextmenu.render \
-                        if self.handler_contextmenu else ''
+        handler_cont_menu = (
+            self.handler_contextmenu.render
+            if self.handler_contextmenu else ''
+        )
+        handler_rowcontextmenu = (
+            self.handler_rowcontextmenu.render
+            if self.handler_rowcontextmenu else ''
+        )
 
-        handler_rowcontextmenu = self.handler_rowcontextmenu.render \
-                        if self.handler_rowcontextmenu else ''
-
-        self._put_params_value('menus', {'contextMenu': handler_cont_menu,
-                                         'rowContextMenu': handler_rowcontextmenu})
+        self._put_params_value(
+            'menus',
+            {
+                'contextMenu': handler_cont_menu,
+                'rowContextMenu': handler_rowcontextmenu
+            }
+        )
         if self.sm:
             self._put_params_value('selModel', self.sm.render)
 
         self._put_params_value('colModel', self.col_model.render)
-        # проверим набор колонок на наличие фильтров, если есть, то добавим плагин с фильтрами
+        # проверим набор колонок на наличие фильтров,
+        # если есть, то добавим плагин с фильтрами
         for col in self.columns:
             if col.filter:
-                self.plugins.append(u"new Ext.ux.grid.GridFilters({menuFilterText:'Фильтр'})")
-                break                
+                self.plugins.append(
+                    u"new Ext.ux.grid.GridFilters({menuFilterText:'Фильтр'})")
+                break
         self._put_params_value('plugins', self.t_render_plugins)
 
         if self.show_banded_columns:
-            self._put_params_value('bundedColumns', self.t_render_banded_columns)
+            self._put_params_value(
+                'bundedColumns', self.t_render_banded_columns)
 
     def render(self):
         try:
@@ -484,20 +508,19 @@ class ExtGrid(BaseExtPanel):
         except UnicodeDecodeError as msg:
             raise Exception(msg)
 
-
         config = self._get_config_str()
         params = self._get_params_str()
         return 'createGridPanel({%s}, {%s})' % (config, params)
 
 
-#===============================================================================
+#==============================================================================
 # Оси к пивот гриду
-#===============================================================================
+#==============================================================================
 class ExtPivotGridAxis(ExtUIComponent):
     DEFAULT_HEADER_WIDTH = 100
 
-    def __init__(self,*args, **kwargs):
-        super(ExtPivotGridAxis,self).__init__(*args,**kwargs)
+    def __init__(self, *args, **kwargs):
+        super(ExtPivotGridAxis, self).__init__(*args, **kwargs)
         self.width = ExtPivotGridAxis.DEFAULT_HEADER_WIDTH
         self.data_index = None
         self.orientation = 'horizontal'
@@ -506,59 +529,59 @@ class ExtPivotGridAxis(ExtUIComponent):
         self.init_component(*args, **kwargs)
 
 
-#===============================================================================
+#==============================================================================
 class BaseExtGridColumn(ExtUIComponent):
-    
+
     # Умолчательная ширина колонок
     GRID_COLUMN_DEFAULT_WIDTH = 100
-    
+
     # Рендерер для цен и сумм
     THOUSAND_CURRENCY_RENDERER = 'thousandCurrencyRenderer'
 
     def __init__(self, *args, **kwargs):
         super(BaseExtGridColumn, self).__init__(*args, **kwargs)
-        
+
         # Заголовок
         self.header = None
-        
+
         # Возможность сортировки
         self.sortable = False
-        
+
         # Уникальное название колонки в пределах column model
         self.data_index = None
-        
+
         # Расположение
         self.align = None
-        
+
         # Ширина
         self.width = BaseExtGridColumn.GRID_COLUMN_DEFAULT_WIDTH
-        
+
         # Редактор, если колонка может быть редактируемой
         self.editor = None
-        
+
         # Список рендереров колонки
         self._column_renderer = []
-        
+
         # Всплывающая подсказка
         self.tooltip = None
-        
+
         # Признак того, скрыта ли колонка или нет
         self.hidden = False
-        
+
         # Признак не активности
         self.read_only = False
-        
+
         # TODO: В версии 3.3 нет такого свойства
         self.colspan = None
-        
+
         # Запрет на изменение ширины колонки
         self.fixed = False
-        
+
         # дополнительные атрибуты колонки
         self.extra = {}
-        
+
         # Настройки фильтра колонки для плагина Ext.ux.grid.GridFilters
-        self.filter = None 
+        self.filter = None
 
         self.menu_disabled = False
 
@@ -567,128 +590,139 @@ class BaseExtGridColumn(ExtUIComponent):
         for key in self.extra.keys():
             val = self.extra[key]
 
-            if isinstance(val,BaseExtComponent):
-                lst.append('%s:%s' % (key,val.render()))
-            elif isinstance(val,bool):
-                lst.append('%s:%s' % (key,str(val).lower()))
-            elif isinstance(val, (int,str,unicode)):
-                lst.append('%s:%s' % (key,val))
-            else: # пусть как хочет так и рендерится
-                lst.append('%s:%s' % (key,val))        
+            if isinstance(val, BaseExtComponent):
+                lst.append('%s:%s' % (key, val.render()))
+            elif isinstance(val, bool):
+                lst.append('%s:%s' % (key, str(val).lower()))
+            elif isinstance(val, (int, str, unicode)):
+                lst.append('%s:%s' % (key, val))
+            else:  # пусть как хочет так и рендерится
+                lst.append('%s:%s' % (key, val))
         return ','.join(lst)
 
     def render_editor(self):
         return self.editor.render()
 
-    def make_read_only(self, access_off=True, exclude_list=[], *args, **kwargs):
+    def make_read_only(
+            self, access_off=True, exclude_list=[], *args, **kwargs):
         # Описание в базовом классе ExtUiComponent.
         # Обрабатываем исключения.
-        access_off = self.pre_make_read_only(access_off, exclude_list, *args, **kwargs)
+        access_off = self.pre_make_read_only(
+            access_off, exclude_list, *args, **kwargs)
         self.read_only = access_off
         if self.editor and isinstance(self.editor, ExtUIComponent):
-            self.editor.make_read_only(self.read_only, exclude_list, *args, **kwargs)
-        
+            self.editor.make_read_only(
+                self.read_only, exclude_list, *args, **kwargs)
+
     def render_base_config(self):
         super(BaseExtGridColumn, self).render_base_config()
-        self._put_config_value('header', self.header)
-        self._put_config_value('sortable', self.sortable)
-        self._put_config_value('dataIndex', self.data_index)
-        self._put_config_value('align', self.align)
-        self._put_config_value('editor', self.editor.render if self.editor else None)
-        self._put_config_value('hidden', self.hidden)
-        self._put_config_value('readOnly', self.read_only)
-        self._put_config_value('colspan', self.colspan)
-        self._put_config_value('fixed', self.fixed)
-        
+        for args in (
+            ('header', self.header),
+            ('sortable', self.sortable),
+            ('dataIndex', self.data_index),
+            ('align', self.align),
+            ('editor', self.editor.render if self.editor else None),
+            ('hidden', self.hidden),
+            ('readOnly', self.read_only),
+            ('colspan', self.colspan),
+            ('fixed', self.fixed),
+            ('renderer', self.render_column_renderer),
+            ('tooltip', self.tooltip),
+            ('filter', self.filter),
+            ('menuDisabled', self.menu_disabled),
+        ):
+            self._put_config_value(*args)
+
         for i, render in enumerate(self._column_renderer):
             if BaseExtGridColumn.THOUSAND_CURRENCY_RENDERER == render:
-                #Финансовый формат для Сумм и Цен подразумевает прижимание к правому краю.             
-                thousand_column_renderer = \
-                '(function(val, metaData){ metaData.attr="style=text-align:right"; return %s.apply(this, arguments);}) ' \
-                    % BaseExtGridColumn.THOUSAND_CURRENCY_RENDERER
-                    
+                # Финансовый формат для Сумм и Цен
+                # подразумевает прижимание к правому краю.
+                thousand_column_renderer = (
+                    '(function(val, metaData){ '
+                    'metaData.attr="style=text-align:right"; '
+                    'return %s.apply(this, arguments);}) '
+                ) % BaseExtGridColumn.THOUSAND_CURRENCY_RENDERER
                 self._column_renderer[i] = thousand_column_renderer
-            
-        self._put_config_value('renderer', self.render_column_renderer)
-        self._put_config_value('tooltip', self.tooltip)
-        self._put_config_value('filter', self.filter)
-        self._put_config_value('menuDisabled', self.menu_disabled)
-        
+
     @property
     def column_renderer(self):
         return ','.join(self._column_renderer)
-    
+
     @column_renderer.setter
     def column_renderer(self, value):
         self._column_renderer.append(value)
-        
+
     def render_column_renderer(self):
         '''
         Кастомный рендеринг функций-рендерера колонок
         '''
         if self._column_renderer:
             self._column_renderer.reverse()
-            val =  self._get_renderer_func(self._column_renderer)
-            return  'function(val, metaData, record, rowIndex, colIndex, store){return %s}' % val
+            val = self._get_renderer_func(self._column_renderer)
+            return (
+                'function(val, metaData, record, rowIndex, '
+                'colIndex, store){return %s}'
+            ) % val
         return None
-    
-    def _get_renderer_func(self, list_renderers):        
+
+    def _get_renderer_func(self, list_renderers):
         '''
         Рекурсивная функция, оборачивающая друг в друга рендереры колонок
         '''
-        if list_renderers:            
-            return '%s(%s, metaData, record, rowIndex, colIndex, store)' \
-                % (list_renderers[0], self._get_renderer_func(list_renderers[1:]) )
+        if list_renderers:
+            return '%s(%s, metaData, record, rowIndex, colIndex, store)' % (
+                list_renderers[0],
+                self._get_renderer_func(list_renderers[1:])
+            )
         else:
             return 'val'
-        
-        
-#===============================================================================
+
+
 class ExtGridColumn(BaseExtGridColumn):
     def __init__(self, *args, **kwargs):
-        super(ExtGridColumn, self).__init__(*args, **kwargs)        
+        super(ExtGridColumn, self).__init__(*args, **kwargs)
         self.init_component(*args, **kwargs)
 
     def render(self):
         try:
-            self.render_base_config()            
+            self.render_base_config()
         except UnicodeDecodeError as msg:
             raise Exception(msg)
-        
-        config = self._get_config_str()        
-        extra = self.t_render_extra()
-        return '{%s}' % (config + ',' + extra if extra else config)    
 
-#===============================================================================
+        config = self._get_config_str()
+        extra = self.t_render_extra()
+        return '{%s}' % (config + ',' + extra if extra else config)
+
+
 class ExtGridBooleanColumn(BaseExtGridColumn):
     def __init__(self, *args, **kwargs):
         super(ExtGridBooleanColumn, self).__init__(*args, **kwargs)
-        self.template = 'ext-grids/ext-bool-column.js' #TODO: Отрефакторить под внутриклассовый рендеринг
+        self.template = 'ext-grids/ext-bool-column.js'
         self.text_false = None
         self.text_true = None
         self.text_undefined = None
         self.init_component(*args, **kwargs)
 
-#===============================================================================
+
 class ExtGridCheckColumn(BaseExtGridColumn):
     def __init__(self, *args, **kwargs):
         super(ExtGridCheckColumn, self).__init__(*args, **kwargs)
-        self.template = 'ext-grids/ext-check-column.js' #TODO: Отрефакторить под внутриклассовый рендеринг
+        self.template = 'ext-grids/ext-check-column.js'
         self.init_component(*args, **kwargs)
 
-#===============================================================================
+
 class ExtGridNumberColumn(BaseExtGridColumn):
     def __init__(self, *args, **kwargs):
         super(ExtGridNumberColumn, self).__init__(*args, **kwargs)
-        self.template = 'ext-grids/ext-number-column.js' #TODO: Отрефакторить под внутриклассовый рендеринг
+        self.template = 'ext-grids/ext-number-column.js'
         self.format = None
         self.init_component(*args, **kwargs)
 
-#===============================================================================
+
 class ExtGridDateColumn(BaseExtGridColumn):
     def __init__(self, *args, **kwargs):
         super(ExtGridDateColumn, self).__init__(*args, **kwargs)
-        self.template = 'ext-grids/ext-date-column.js' #TODO: Отрефакторить под внутриклассовый рендеринг
+        self.template = 'ext-grids/ext-date-column.js'
         try:
             self.format = settings.DATE_FORMAT.replace('%', '')
         except:
@@ -696,17 +730,16 @@ class ExtGridDateColumn(BaseExtGridColumn):
 
         self.init_component(*args, **kwargs)
 
-#==============================================================================
-# Column Model для грида
+
 class BaseExtGridSelModel(BaseExtComponent):
     def __init__(self, *args, **kwargs):
         super(BaseExtGridSelModel, self).__init__(*args, **kwargs)
 
-#===============================================================================
+
 class ExtGridCheckBoxSelModel(BaseExtGridSelModel):
-    '''
+    """
     Модель для грида с возможностью выбора ячейки
-    '''
+    """
     def __init__(self, *args, **kwargs):
         super(ExtGridCheckBoxSelModel, self).__init__(*args, **kwargs)
         self.single_select = False
@@ -716,13 +749,14 @@ class ExtGridCheckBoxSelModel(BaseExtGridSelModel):
     def render(self):
         self._put_config_value('singleSelect', self.single_select)
         self._put_config_value('checkOnly', self.check_only)
-        return 'new Ext.grid.CheckboxSelectionModel({ %s })' %self._get_config_str()
+        return 'new Ext.grid.CheckboxSelectionModel({ %s })' % (
+            self._get_config_str())
 
-#===============================================================================
+
 class ExtGridRowSelModel(BaseExtGridSelModel):
-    '''
+    """
     Модель для грида с выбором строк
-    '''
+    """
     def __init__(self, *args, **kwargs):
         super(ExtGridRowSelModel, self).__init__(*args, **kwargs)
         self.single_select = False
@@ -732,11 +766,11 @@ class ExtGridRowSelModel(BaseExtGridSelModel):
         single_sel = 'singleSelect: true' if self.single_select else ''
         return 'new Ext.grid.RowSelectionModel({ %s })' % single_sel
 
-#===============================================================================
+
 class ExtGridCellSelModel(BaseExtGridSelModel):
-    '''
+    """
     Модель для грида с выбором ячеек
-    '''
+    """
     def __init__(self, *args, **kwargs):
         super(ExtGridCellSelModel, self).__init__(*args, **kwargs)
         self.init_component(*args, **kwargs)
@@ -744,25 +778,26 @@ class ExtGridCellSelModel(BaseExtGridSelModel):
     def render(self):
         return 'new Ext.grid.CellSelectionModel()'
 
-#===============================================================================
+
 class ExtGridDefaultColumnModel(BaseExtComponent):
-    '''
+    """
     Модель колонок для грида по-умолчанию
-    '''
+    """
     # TODO: Этот класс, т.к. ссылка на грид порождает цикличную связь
     def __init__(self, *args, **kwargs):
         super(ExtGridDefaultColumnModel, self).__init__(*args, **kwargs)
-        self.grid = None 
+        self.grid = None
         self.init_component(*args, **kwargs)
 
     def render(self):
-        return 'new Ext.grid.ColumnModel({columns:%s})' % self.grid.t_render_columns()
+        return 'new Ext.grid.ColumnModel({columns:%s})' % (
+            self.grid.t_render_columns())
 
-#===============================================================================
+
 class ExtGridLockingColumnModel(BaseExtComponent):
-    '''
-    Модель колонок для грида блокрирования 
-    '''
+    """
+    Модель колонок для грида блокрирования
+    """
     # TODO: Этот класс, т.к. ссылка на грид порождает цикличную связь
     def __init__(self, *args, **kwargs):
         super(ExtGridLockingColumnModel, self).__init__(*args, **kwargs)
@@ -770,29 +805,30 @@ class ExtGridLockingColumnModel(BaseExtComponent):
         self.init_component(*args, **kwargs)
 
     def render(self):
-        return 'new Ext.ux.grid.LockingColumnModel({columns:%s})' % self.grid.t_render_columns()
+        return 'new Ext.ux.grid.LockingColumnModel({columns:%s})' % (
+            self.grid.t_render_columns())
 
-#===============================================================================
+
 class ExtGridLockingHeaderGroupColumnModel(BaseExtComponent):
     # TODO: Этот класс, т.к. ссылка на грид порождает цикличную связь
     def __init__(self, *args, **kwargs):
-        super(ExtGridLockingHeaderGroupColumnModel, self).__init__(*args, **kwargs)
+        super(ExtGridLockingHeaderGroupColumnModel, self).__init__(
+            *args, **kwargs)
         self.grid = None
         self.init_component(*args, **kwargs)
 
     def render(self):
-        return 'new Ext.ux.grid.LockingGroupColumnModel({columns:%s})' % self.grid.t_render_columns()
+        return 'new Ext.ux.grid.LockingGroupColumnModel({columns:%s})' % (
+            self.grid.t_render_columns())
 
-#===============================================================================
-# Компонент - расширенное дерево, включающее колонки, с возможностью добавлять
-# view и column model
+
 class ExtAdvancedTreeGrid(ExtGrid):
-    '''
+    """
     Расширенное дерево на базе Ext.ux.maximgb.TreeGrid
-    '''
+    """
     def __init__(self, *args, **kwargs):
         super(ExtAdvancedTreeGrid, self).__init__(*args, **kwargs)
-        self.template = 'ext-grids/ext-advanced-treegrid.js' # FIXME: Данный атрибут можно удалить
+        self.template = 'ext-grids/ext-advanced-treegrid.js'
         self.url = None
         self.master_column_id = None
 
@@ -801,18 +837,21 @@ class ExtAdvancedTreeGrid(ExtGrid):
 
         # Свойства для внутеннего bottom bara:
         self.use_bbar = False
-        
+
         # Количество записей
         self.bbar_page_size = 10
 
         self.init_component(*args, **kwargs)
 
     def t_render_columns_to_record(self):
-        return '[%s]' % ','.join(['{name:"%s"}'  % col.data_index \
-                                  for col in self.columns])
+        return '[%s]' % ','.join([
+            '{name:"%s"}' % col.data_index
+            for col in self.columns
+        ])
 
     def add_column(self, **kwargs):
-        # FIXME: Хак, с сгенерированным client_id компонент отказывается работать
+        # FIXME: Хак, с сгенерированным client_id
+        # компонент отказывается работать
         if kwargs.get('data_index'):
             kwargs['client_id'] = kwargs.get('data_index')
         super(ExtAdvancedTreeGrid, self).add_column(**kwargs)
@@ -823,10 +862,15 @@ class ExtAdvancedTreeGrid(ExtGrid):
 
     def render_params(self):
         super(ExtAdvancedTreeGrid, self).render_params()
-        self._put_params_value('storeParams', {'url': self.url,
-                                               'root': self.store_root})
-
-        self._put_params_value('columnsToRecord', self.t_render_columns_to_record)
+        self._put_params_value(
+            'storeParams',
+            {
+                'url': self.url,
+                'root': self.store_root
+            }
+        )
+        self._put_params_value(
+            'columnsToRecord', self.t_render_columns_to_record)
 
         if self.use_bbar:
             self._put_params_value('bbar', {'pageSize': self.bbar_page_size})
@@ -840,14 +884,14 @@ class ExtAdvancedTreeGrid(ExtGrid):
 
         base_config = self._get_config_str()
         params = self._get_params_str()
-        return 'createAdvancedTreeGrid({%s},{%s})' %(base_config, params)
+        return 'createAdvancedTreeGrid({%s},{%s})' % (
+            base_config, params)
 
-#===============================================================================
-# Компоненты view для грида
+
 class ExtGridGroupingView(BaseExtComponent):
-    '''
+    """
     Компонент используемый для группировки
-    '''
+    """
     def __init__(self, *args, **kwargs):
         super(ExtGridGroupingView, self).__init__(*args, **kwargs)
         self.force_fit = True
@@ -879,17 +923,11 @@ class ExtGridGroupingView(BaseExtComponent):
         params = self._get_params_str()
         return 'new Ext.grid.GroupingView({%s})' % (params)
 
-    # если требуется вывести какое-либо слово после количества, шаблон должен
-    #иметь след вид:
-    # 'group_text_tpl': """groupTextTpl:'{text} ({[values.rs.length]}
-    #    {[values.rs.length > 1 ? "Объекта" : "Объект"]})'"""
-    # но проблемы с обработкой двойных кавычек
 
-#===============================================================================
 class ExtGridLockingView(BaseExtComponent):
-    '''
+    """
     Компонент используемый для блокирования колонок
-    '''
+    """
     def __init__(self, *args, **kwargs):
         super(ExtGridLockingView, self).__init__(*args, **kwargs)
         self.init_component(*args, **kwargs)
@@ -898,24 +936,26 @@ class ExtGridLockingView(BaseExtComponent):
         result = 'new Ext.ux.grid.LockingGridView()'
         return result
 
-#===============================================================================
+
 class ExtGridLockingHeaderGroupView(BaseExtComponent):
-    '''
+    """
     Компонент используемый для блокирования колонок и их группировки
-    '''
+    """
     def __init__(self, *args, **kwargs):
         super(ExtGridLockingHeaderGroupView, self).__init__(*args, **kwargs)
         self.grid = None
         self.init_component(*args, **kwargs)
 
     def render(self):
-        result = 'new Ext.ux.grid.LockingHeaderGroupGridView({rows:%s})' % self.grid.t_render_banded_columns()
+        result = 'new Ext.ux.grid.LockingHeaderGroupGridView({rows:%s})' % (
+            self.grid.t_render_banded_columns())
         return result
 
+
 class ExtLiveGridCheckBoxSelModel(ExtGridCheckBoxSelModel):
-    '''
+    """
     Модель выбора для live-грида с возможностью отметки чек-боксом
-    '''
+    """
     def __init__(self, *args, **kwargs):
         super(ExtLiveGridCheckBoxSelModel, self).__init__(*args, **kwargs)
         self.single_select = False
@@ -925,13 +965,14 @@ class ExtLiveGridCheckBoxSelModel(ExtGridCheckBoxSelModel):
     def render(self):
         self._put_config_value('singleSelect', self.single_select)
         self._put_config_value('checkOnly', self.check_only)
-        return 'new Ext.ux.grid.livegrid.CheckboxSelectionModel({ %s })' %self._get_config_str()
+        return 'new Ext.ux.grid.livegrid.CheckboxSelectionModel({ %s })' % (
+            self._get_config_str())
 
 
 class ExtLiveGridRowSelModel(ExtGridRowSelModel):
-    '''
+    """
     Модель выбора для live-грида с выбором строк
-    '''
+    """
     def __init__(self, *args, **kwargs):
         super(ExtLiveGridRowSelModel, self).__init__(*args, **kwargs)
         self.single_select = False
@@ -939,4 +980,5 @@ class ExtLiveGridRowSelModel(ExtGridRowSelModel):
 
     def render(self):
         single_sel = 'singleSelect: true' if self.single_select else ''
-        return 'new Ext.ux.grid.livegrid.RowSelectionModel({ %s })' % single_sel
+        return 'new Ext.ux.grid.livegrid.RowSelectionModel({ %s })' % (
+            single_sel)

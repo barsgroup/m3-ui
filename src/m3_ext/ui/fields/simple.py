@@ -1,17 +1,21 @@
 #coding: utf-8
-'''
+"""
 Created on 27.02.2010
 
 @author: akvarats
 @author: prefer
-'''
+"""
+
+from datetime import datetime, date
 
 from django.conf import settings
-from datetime import datetime, date
+
+from m3 import date2str
 
 from base import BaseExtField, BaseExtTriggerField
 
-#===============================================================================
+
+#==============================================================================
 class ExtStringField(BaseExtField):
     '''
     Поле ввода простого текстового значения
@@ -21,7 +25,7 @@ class ExtStringField(BaseExtField):
         super(ExtStringField, self).__init__(*args, **kwargs)
 
         #
-        self.enable_key_events = False # Разрешает перехват нажатий клавиш
+        self.enable_key_events = False  # Разрешает перехват нажатий клавиш
 
         #
         self.input_type = None
@@ -84,7 +88,7 @@ class ExtDateField(BaseExtField):
         self.hide_today_btn = False
 
         #
-        self.enable_key_events = False # Разрешает перехват нажатий клавиш
+        self.enable_key_events = False  # Разрешает перехват нажатий клавиш
 
         #
         self.max_value = None
@@ -105,7 +109,7 @@ class ExtDateField(BaseExtField):
 
     def render_base_config(self):
         if isinstance(self.value, datetime) or isinstance(self.value, date):
-            value = self.value.strftime(settings.DATE_FORMAT or '%d.%m.%Y')
+            value = date2str(self.value)
         else:
             value = self.value
 

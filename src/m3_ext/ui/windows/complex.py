@@ -1,27 +1,29 @@
 #coding: utf-8
 
-'''
+"""
 Created on 9.03.10
 
 @author: prefer
-'''
+"""
 
+from m3_ext.ui.containers.grids import ExtGridCheckBoxSelModel
+from m3_ext.ui.fields import ExtSearchField
+from m3_ext.ui.controls import ExtButton
+from m3_ext.ui.containers import (
+    ExtContextMenu,
+    ExtPanel,
+    ExtListView,
+    ExtToolBar,
+    ExtTree,
+    ExtGrid
+)
 from base import BaseExtWindow
-from m3.ui.ext.fields import ExtSearchField
-from m3.ui.ext.controls import ExtButton
-from m3.ui.ext.containers import (ExtContextMenu,
-                                ExtPanel,
-                                ExtListView,
-                                ExtToolBar,
-                                ExtTree,
-                                ExtGrid)
 
-from m3.ui.ext.containers.grids import ExtGridCheckBoxSelModel
-        
-#===============================================================================
+
+#==============================================================================
 # TODO: Необходимо отрефакторить данный класс под внутриклассовый рендеринг
 class ExtDictionaryWindow(BaseExtWindow):
-    ''' 
+    '''
     Базовое окно для линейного, иерархичесого и совмещенного справочника
     '''
 
@@ -33,18 +35,21 @@ class ExtDictionaryWindow(BaseExtWindow):
 
     # Режим множественного выбора
     MULTI_SELECT_MODE = 2
-    
+
     def __init__(self, *args, **kwargs):
         super(ExtDictionaryWindow, self).__init__(*args, **kwargs)
-        self.template = 'ext-windows/ext-window.js' # TODO: Отрефакторить под внутриклассовый рендеринг
-        self.template_globals = 'ext-script/ext-dictionary-window-globals.js' # TODO: Отрефакторить под внутриклассовый рендеринг
+        # TODO: Отрефакторить под внутриклассовый рендеринг
+        self.template = 'ext-windows/ext-window.js'
+        # TODO: Отрефакторить под внутриклассовый рендеринг
+        self.template_globals = 'ext-script/ext-dictionary-window-globals.js'
 
-        # Специальный layout для корректного отображения 
+        # Специальный layout для корректного отображения
         self.layout = 'border'
 
-        # Кнопка "Закрыть" по-умолчанию 
-        self.buttons.append(ExtButton(name='close_btn', text=u'Закрыть',
-                                      handler='function(){Ext.getCmp("%s").close();}' % self.client_id))
+        # Кнопка "Закрыть" по-умолчанию
+        self.buttons.append(ExtButton(
+            name='close_btn', text=u'Закрыть',
+            handler='function(){Ext.getCmp("%s").close();}' % self.client_id))
 
         # Основные контролы должны быть доступны для изменения
         # Грид
@@ -68,7 +73,8 @@ class ExtDictionaryWindow(BaseExtWindow):
         # TODO: не используется. т.к не используется list_view
         self._panel_list_view = None
 
-        # Окно может находится в двух положениях: просто список записей и список выбора записи/записей
+        # Окно может находится в двух положениях:
+        # просто список записей и список выбора записи/записей
         # По умолчанию справочник открыт в режиме списка
         self._mode = 0
 
@@ -107,7 +113,8 @@ class ExtDictionaryWindow(BaseExtWindow):
 
         # Наименования атрибута при создании/редактировании элемента в дереве
         # Если элемент создается/редактируется в корне, то id=''
-        # Если элемент создается/редактирвется внутри дерева, то id= parent_node.id - 
+        # Если элемент создается/редактирвется внутри дерева,
+        # то id= parent_node.id -
         # id родительского узла
         self.contextTreeIdName = 'id'
 
@@ -121,11 +128,15 @@ class ExtDictionaryWindow(BaseExtWindow):
 
     @mode.setter
     def mode(self, value):
-        assert value in (ExtDictionaryWindow.LIST_MODE, ExtDictionaryWindow.SELECT_MODE,ExtDictionaryWindow.MULTI_SELECT_MODE), \
-            'Mode value should be 0(list), 1(select) or 2(multi select)'
+        assert value in (
+            ExtDictionaryWindow.LIST_MODE,
+            ExtDictionaryWindow.SELECT_MODE,
+            ExtDictionaryWindow.MULTI_SELECT_MODE
+        ), 'Mode value should be 0(list), 1(select) or 2(multi select)'
 
         if value == ExtDictionaryWindow.SELECT_MODE:
-            select_btn = ExtButton(name = 'select_btn',text = u'Выбрать', disabled=True)
+            select_btn = ExtButton(
+                name='select_btn', text=u'Выбрать', disabled=True)
             self.buttons.insert(0, select_btn)
             self.select_button = select_btn
 
@@ -139,31 +150,41 @@ class ExtDictionaryWindow(BaseExtWindow):
                 self.select_button = None
 
         if value == ExtDictionaryWindow.MULTI_SELECT_MODE:
-            select_btn = ExtButton(name = 'select_btn',text = u'Выбрать', disabled=True)
+            select_btn = ExtButton(
+                name='select_btn', text=u'Выбрать', disabled=True)
             self.buttons.insert(0, select_btn)
             self.select_button = select_btn
 
         # панель с историей выбора пока отключена
-        if value == ExtDictionaryWindow.SELECT_MODE or value == ExtDictionaryWindow.MULTI_SELECT_MODE:
-            button_panel = ExtPanel(title='История выбора',
-                                region='south',min_height=100, collapsible=True, split=True)
+        if value in (
+            ExtDictionaryWindow.SELECT_MODE,
+            ExtDictionaryWindow.MULTI_SELECT_MODE
+        ):
+            button_panel = ExtPanel(
+                title='История выбора',
+                region='south',
+                min_height=100,
+                collapsible=True,
+                split=True
+            )
             list_view = ExtListView()
             button_panel.items.append(list_view)
-#            self.items.append(button_panel)
             self._panel_list_view = button_panel
             self.list_view = list_view
 
-
         self._mode = value
 
-    def make_read_only(self, access_off=True, exclude_list=[], *args, **kwargs):
+    def make_read_only(
+            self, access_off=True, exclude_list=[], *args, **kwargs):
         # Описание в базовом классе ExtUIComponent.
         # Обрабатываем исключения.
-        access_off = self.pre_make_read_only(access_off, exclude_list, *args, **kwargs)
+        access_off = self.pre_make_read_only(
+            access_off, exclude_list, *args, **kwargs)
         # Выключаем\включаем компоненты.
         # Задаем собственный атрибут окна.
         self.read_only = access_off
-        super(ExtDictionaryWindow, self).make_read_only(self.read_only, exclude_list, *args, **kwargs)
+        super(ExtDictionaryWindow, self).make_read_only(
+            self.read_only, exclude_list, *args, **kwargs)
         if self.tree:
             # Включаем обратно refresh, ибо он нужен.
             for component in self._components_refresh_tree:
@@ -171,7 +192,8 @@ class ExtDictionaryWindow(BaseExtWindow):
             # И поиск тоже включаем
             if self.search_text_tree:
                 exclude_list.append(self.search_text_tree)
-            self.tree.make_read_only(self.read_only, exclude_list, *args, **kwargs)
+            self.tree.make_read_only(
+                self.read_only, exclude_list, *args, **kwargs)
 
         if self.grid:
             # Включаем обратно refresh, ибо он нужен.
@@ -180,18 +202,20 @@ class ExtDictionaryWindow(BaseExtWindow):
             # И поиск тоже включаем
             if self.search_text_grid:
                 exclude_list.append(self.search_text_grid)
-            self.grid.make_read_only(self.read_only, exclude_list, *args, **kwargs)
-
+            self.grid.make_read_only(
+                self.read_only, exclude_list, *args, **kwargs)
 
         # Оставим кнопку Закрыть и Выбрать
         for btn in self.buttons:
             if btn.name in ['close_btn', 'select_btn']:
                 btn.make_read_only(False)
 
-    def _add_menu_item_grid(self, to_tbar=True, to_row_menu=True, to_grid_menu=True, to_menu=None, **kwargs):
-        '''
+    def _add_menu_item_grid(
+            self, to_tbar=True, to_row_menu=True,
+            to_grid_menu=True, to_menu=None, **kwargs):
+        """
         Добавление контролов управления в грид
-        '''
+        """
         ret = []
 
         if to_menu:
@@ -213,8 +237,12 @@ class ExtDictionaryWindow(BaseExtWindow):
 
         return ret
 
-    def _add_separator_grid(self, to_tbar=True, to_row_menu=True, to_grid_menu=True, to_menu=None):
-        '''Добавление разделителя в контролы грида'''
+    def _add_separator_grid(
+            self, to_tbar=True, to_row_menu=True,
+            to_grid_menu=True, to_menu=None):
+        """
+        Добавление разделителя в контролы грида
+        """
         if to_menu:
             to_menu.add_separator()
         if to_tbar:
@@ -224,10 +252,12 @@ class ExtDictionaryWindow(BaseExtWindow):
         if to_grid_menu:
             self.grid.handler_contextmenu.add_separator()
 
-    def _add_menu_item_tree(self, to_tbar=True, to_node_menu=True, to_tree_menu=True, to_menu=None, **kwargs):
-        '''
-        Добавление контролов управления в дерево        
-        '''
+    def _add_menu_item_tree(
+            self, to_tbar=True, to_node_menu=True,
+            to_tree_menu=True, to_menu=None, **kwargs):
+        """
+        Добавление контролов управления в дерево
+        """
         ret = []
 
         if to_menu:
@@ -249,7 +279,9 @@ class ExtDictionaryWindow(BaseExtWindow):
 
         return ret
 
-    def _add_separator_tree(self, to_tbar=True, to_node_menu=True, to_tree_menu=True, to_menu=None):
+    def _add_separator_tree(
+            self, to_tbar=True, to_node_menu=True,
+            to_tree_menu=True, to_menu=None):
         '''Добавление разделителя в контролы дерева'''
         if to_menu:
             to_menu.add_separator()
@@ -266,7 +298,7 @@ class ExtDictionaryWindow(BaseExtWindow):
         return self._url_new_grid
 
     @url_new_grid.setter
-    def  url_new_grid(self, value):
+    def url_new_grid(self, value):
         self.init_grid_components()
         if value:
             self._set_handler(self._components_new_grid, 'newValueGrid')
@@ -321,11 +353,13 @@ class ExtDictionaryWindow(BaseExtWindow):
         return self._url_new_tree
 
     @url_new_tree.setter
-    def  url_new_tree(self, value):
+    def url_new_tree(self, value):
         self.init_tree_components()
         if value:
-            self._set_handler(self._components_new_tree, 'newValueTreeRoot')
-            self._set_handler(self._components_new_tree_child, 'newValueTreeChild')
+            self._set_handler(
+                self._components_new_tree, 'newValueTreeRoot')
+            self._set_handler(
+                self._components_new_tree_child, 'newValueTreeChild')
         else:
             self._clear_handler(self._components_new_tree)
             self._clear_handler(self._components_new_tree_child)
@@ -372,9 +406,9 @@ class ExtDictionaryWindow(BaseExtWindow):
             handler = 'multiSelectValues'
 
         if value:
-            self._set_handler([self.select_button,],handler)
+            self._set_handler([self.select_button], handler)
         else:
-            self._clear_handler([self.select_button, ])
+            self._clear_handler([self.select_button])
         self._text_on_select = value
 
     def _set_handler(self, components, handler):
@@ -382,7 +416,8 @@ class ExtDictionaryWindow(BaseExtWindow):
             components = [components]
         for component in components:
             component.handler = handler
-            # Если окно в режиме только для чтения, все контролы будут отключены.
+            # Если окно в режиме только для чтения,
+            # все контролы будут отключены.
             component.disabled = self.read_only
 
     def _clear_handler(self, components):
@@ -402,28 +437,51 @@ class ExtDictionaryWindow(BaseExtWindow):
             grid.handler_rowcontextmenu = ExtContextMenu()
             grid.handler_contextmenu = ExtContextMenu()
             grid.top_bar = ExtToolBar()
-            
-            search_grid = ExtSearchField(empty_text = u'Поиск', width=180, component_for_search = grid)
-            
+
+            search_grid = ExtSearchField(
+                empty_text=u'Поиск',
+                width=180, component_for_search=grid)
+
             self.grid = grid
             self.search_text_grid = search_grid
             self.items.append(grid)
 
-            # Добавляются пункты в меню грида и на тулбар грида 
-            self._components_new_grid = self._add_menu_item_grid(text=u'Добавить', icon_cls='add_item', disabled=True)
-            self._components_edit_grid = self._add_menu_item_grid(to_grid_menu=False, text=u'Изменить', icon_cls='edit_item', disabled=True)
+            # Добавляются пункты в меню грида и на тулбар грида
+            self._components_new_grid = self._add_menu_item_grid(
+                text=u'Добавить',
+                icon_cls='add_item',
+                disabled=True
+            )
+            self._components_edit_grid = self._add_menu_item_grid(
+                to_grid_menu=False,
+                text=u'Изменить',
+                icon_cls='edit_item',
+                disabled=True
+            )
             if self.allow_copy:
-                self._components_copy_grid = self._add_menu_item_grid(text=u'Копировать', icon_cls='icon-page-copy')
-            self._components_delete_grid = self._add_menu_item_grid(to_grid_menu=False, text=u'Удалить', icon_cls='delete_item', disabled=True)
+                self._components_copy_grid = self._add_menu_item_grid(
+                    text=u'Копировать',
+                    icon_cls='icon-page-copy'
+                )
+            self._components_delete_grid = self._add_menu_item_grid(
+                to_grid_menu=False,
+                text=u'Удалить',
+                icon_cls='delete_item',
+                disabled=True
+            )
             self._add_separator_grid()
-            self._components_refresh_grid = self._add_menu_item_grid(text=u'Обновить', icon_cls='table_refresh', handler='refreshGridStore')
+            self._components_refresh_grid = self._add_menu_item_grid(
+                text=u'Обновить',
+                icon_cls='table_refresh',
+                handler='refreshGridStore'
+            )
 
             grid.top_bar.add_fill()
             grid.top_bar.items.append(search_grid)
 
             if self.mode == ExtDictionaryWindow.MULTI_SELECT_MODE:
                 self.grid.sm = ExtGridCheckBoxSelModel()
-            
+
     def init_tree_components(self):
         '''
         Идентификация дерева
@@ -435,21 +493,50 @@ class ExtDictionaryWindow(BaseExtWindow):
             tree.handler_click = 'onClickNode'
             tree.top_bar = ExtToolBar()
 
-            search_tree = ExtSearchField(empty_text=u'Поиск', width=200, component_for_search=tree)
+            search_tree = ExtSearchField(
+                empty_text=u'Поиск', width=200, component_for_search=tree)
 
             self.tree = tree
             self.search_text_tree = search_tree
             self.items.append(tree)
 
             menu = ExtContextMenu()
-            self.tree.top_bar.add_menu(icon_cls="add_item", menu=menu, text=u'Добавить')
+            self.tree.top_bar.add_menu(
+                icon_cls="add_item", menu=menu, text=u'Добавить')
 
-            self._components_new_tree = self._add_menu_item_tree(to_tbar=False, to_menu=menu, text=u'Новый в корне', icon_cls='add_item', disabled=True)
-            self._components_new_tree_child = self._add_menu_item_tree(to_tbar=False, to_tree_menu=False, to_menu=menu, text=u'Новый дочерний', icon_cls='add_item', disabled=True)
-            self._components_edit_tree = self._add_menu_item_tree(to_tree_menu=False, text=u'Изменить', icon_cls='edit_item', disabled=True)
-            self._components_delete_tree = self._add_menu_item_tree(to_tree_menu=False, text=u'Удалить', icon_cls='delete_item', disabled=True)
+            self._components_new_tree = self._add_menu_item_tree(
+                to_tbar=False,
+                to_menu=menu,
+                text=u'Новый в корне',
+                icon_cls='add_item',
+                disabled=True
+            )
+            self._components_new_tree_child = self._add_menu_item_tree(
+                to_tbar=False,
+                to_tree_menu=False,
+                to_menu=menu,
+                text=u'Новый дочерний',
+                icon_cls='add_item',
+                disabled=True
+            )
+            self._components_edit_tree = self._add_menu_item_tree(
+                to_tree_menu=False,
+                text=u'Изменить',
+                icon_cls='edit_item',
+                disabled=True
+            )
+            self._components_delete_tree = self._add_menu_item_tree(
+                to_tree_menu=False,
+                text=u'Удалить',
+                icon_cls='delete_item',
+                disabled=True
+            )
             self._add_separator_tree()
-            self._components_refresh_tree = self._add_menu_item_tree(text=u'Обновить', icon_cls='table_refresh', handler='refreshTreeLoader')
+            self._components_refresh_tree = self._add_menu_item_tree(
+                text=u'Обновить',
+                icon_cls='table_refresh',
+                handler='refreshTreeLoader'
+            )
 
     def pre_render(self):
         if self.grid:
@@ -467,7 +554,8 @@ class ExtDictionaryWindow(BaseExtWindow):
 
         elif self.tree:
             self.tree.region = 'west'
-            menu = ExtContextMenu(style=dict(overflow='visible')) # overflow='visible' -- для того, чтобы комбобокс отображался
+            # overflow='visible' -- для того, чтобы комбобокс отображался
+            menu = ExtContextMenu(style=dict(overflow='visible'))
             menu.items.append(self.search_text_tree)
             self.tree.top_bar.add_fill()
             self.tree.top_bar.add_menu(icon_cls="search", menu=menu)

@@ -1,19 +1,19 @@
 #coding: utf-8
-'''
+"""
 Загрузчик шаблонов (темплейтов) для генерации пользовательского интерфейса
-для m3.ui.ext.
+для m3_ext.ui.
 
 Необходимость данного шаблона обусловлена спецификой реализации
 template-loaders в django.
 
 Для корректной работы загрузчика в settings.py прикладного приложения
-необходимо добавить строку 'm3.ui.ext.js_template_loader.load_template_source'
+необходимо добавить строку 'm3_ext.ui.js_template_loader.load_template_source'
 в tuple TEMPLATE_LOADERS
 
 Created on 22.02.2010
 
 @author: akvarats
-'''
+"""
 
 import os
 import sys

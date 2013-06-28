@@ -1,7 +1,7 @@
 #coding: utf-8
-from m3.ui.ext.containers.forms import ExtPanel
 
-__author__ = 'daniil-ganiev'
+from m3_ext.ui.containers.forms import ExtPanel
+
 
 class ExtCodeEditor(ExtPanel):
     '''
@@ -10,10 +10,10 @@ class ExtCodeEditor(ExtPanel):
 
     def __init__(self, *args, **kwargs):
         super(ExtCodeEditor, self).__init__(*args, **kwargs)
-        
-        # Исходный код  
+
+        # Исходный код
         self.source_code = '#Put some code here'
-        
+
         # Признак: только чтение
         self.read_only = False
 

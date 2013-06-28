@@ -1,17 +1,17 @@
 #coding:utf-8
-'''
-Модуль шорткатов для подсистемы m3.ui.ext
+"""
+Модуль шорткатов для подсистемы m3_ext.ui
 
 Created on 24.03.2010
 
 @author: akvarats
-'''
+"""
 import json
 
 from django import http
 
-from m3.ui.ext.containers.forms import ExtForm
-from m3.ui.ext.windows.base import BaseExtWindow
+from m3_ext.ui.containers.forms import ExtForm
+from m3_ext.ui.windows.base import BaseExtWindow
 
 
 def js_submit_form(
@@ -56,46 +56,52 @@ function(){
     if params:
         submit_params.append("params: " + json.JSONEncoder().encode(params))
     submit_params.append("submitEmptyText: false")
-    return template % {'form_id': form.client_id,
-                       'invalid_handler': invalid_handler,
-                       'submit_params': ",".join(submit_params)}
+    return template % {
+        'form_id': form.client_id,
+        'invalid_handler': invalid_handler,
+        'submit_params': ",".join(submit_params)
+    }
 
 
 def js_success_response():
-    '''
+    """
     @deprecated: Использовать OperationResult
 
     Возвращает Ext Ajax ответ что операция прошла успешно
     @deprecated: Нужно использовать OperationResult
-    '''
+    """
     return http.HttpResponse('{success: true}')
 
+
 def js_failure_response():
-    '''
+    """
     @deprecated: Использовать OperationResult
 
     Возвращает Ext Ajax ответ что операция прервана
     @deprecated: Нужно использовать OperationResult
-    '''
+    """
     return http.HttpResponse('{success: false}')
 
+
 def js_close_window(win, forceClose=False):
-    '''
-    @deprecated: Использовать методы окна, например, в ExtEditWindow метод calcelForm
+    """
+    @deprecated: Использовать методы окна, например,
+    в ExtEditWindow метод calcelForm
 
     Возвращает JS код закрывающий окно win
-    '''
+    """
     assert isinstance(win, BaseExtWindow)
     forceClose = 'true' if forceClose else 'false'
-    return 'function(){Ext.getCmp("%s").close(%s);}' % (win.client_id,
-                                                        forceClose,)
+    return 'function(){Ext.getCmp("%s").close(%s);}' % (
+        win.client_id, forceClose)
 
-def js_submit_ajax(url, params = {}, success_handler = None, failure_handler = None):
-    '''
+
+def js_submit_ajax(url, params={}, success_handler=None, failure_handler=None):
+    """
     @deprecated: Использовать sendRequest из m3.js
 
     Возвращает JS код посылающий AJAX запрос
-    '''
+    """
     template = u'''
 function(){
     Ext.Ajax.request({
@@ -106,46 +112,56 @@ function(){
     });
 }
     '''
-    return template % {'url': url,
-                       'success_handler': ', success:' + success_handler if success_handler else '',
-                       'failure_handler': ', failure:' + failure_handler if failure_handler else '',
-                       'params': ', params:' + json.JSONEncoder().encode(params) if params else ''}
+    return template % {
+        'url': url,
+        'success_handler': (
+            ', success:' + success_handler if success_handler else ''),
+        'failure_handler': (
+            ', failure:' + failure_handler if failure_handler else ''),
+        'params': (
+            ', params:' + json.JSONEncoder().encode(params) if params else '')
+    }
+
 
 def js_fire_event_window(event_name, close_after_fire=True, *args):
-    '''
+    """
     Генерирует вызов события для окна
     @param event_name: Название события
     @param close_after_fire: Закрывать ли окно после вызова события?
     @param *args: Параметры, которые будут переданы при генерации события
-    '''
+    """
     template = u'''
 function(){
     win.fireEvent("%(event_name)s" %(params)s);
     %(win_close)s
 }
     '''
-    return template % {'event_name': event_name,
-                       'params': (',"%s"' % '","'.join(args)) if args else '',
-                       'win_close' : 'win.close(true);' if close_after_fire else ''
-                       }
+    return template % {
+        'event_name': event_name,
+        'params': (',"%s"' % '","'.join(args)) if args else '',
+        'win_close': 'win.close(true);' if close_after_fire else ''
+    }
+
 
 def js_fire_event(component, event_name, *args):
-    '''
+    """
     Генерирует вызов события для любого компонента
     @param component: Компонент, от чьего лица генерируется событие
     @param event_name: Название события
     @param *args: Параметры, которые будут переданы при генерации события
-    '''
+    """
     template = u'''
 function(){
     var component = Ext.getCmp("%(client_id)s");
     component.fireEvent("%(event_name)s" %(params)s);
 }
     '''
-    return template % {'client_id':component.client_id,
-                       'event_name': event_name,
-                       'params': (',"%s"' % '","'.join(args)) if args else '',
-                       }
+    return template % {
+        'client_id': component.client_id,
+        'event_name': event_name,
+        'params': (',"%s"' % '","'.join(args)) if args else '',
+    }
+
 
 def js_on_key_enter(function, *args):
     return '''
@@ -154,29 +170,31 @@ function(field, e){
         return (%(function)s)(%(params)s);
     };
 }
-''' % {'function':function,
-       'params': '"%s"' % '","'.join(args)
-      }
+''' % {
+        'function': function,
+        'params': '"%s"' % '","'.join(args)
+    }
+
 
 # Временно лежит тут. Не знаю пока куда засунуть.
 class MessageBox(object):
-    '''
+    """
     Обёртка над стандартным MessageBox ExtJS
-    '''
+    """
     # Константы определяющие значек формы
-    ICON_INFO     = 'Ext.MessageBox.INFO'
-    ICON_ERROR    = 'Ext.MessageBox.ERROR'
+    ICON_INFO = 'Ext.MessageBox.INFO'
+    ICON_ERROR = 'Ext.MessageBox.ERROR'
     ICON_QUESTION = 'Ext.MessageBox.QUESTION'
-    ICON_WARNING  = 'Ext.MessageBox.WARNING'
+    ICON_WARNING = 'Ext.MessageBox.WARNING'
 
     # Константы определяющие доступные кнопки
-    BTN_OK          = 'Ext.Msg.OK'
-    BTN_CANCEL      = 'Ext.Msg.CANCEL'
-    BTN_OKCANCEL    = 'Ext.Msg.OKCANCEL'
-    BTN_YESNO       = 'Ext.Msg.YESNO'
+    BTN_OK = 'Ext.Msg.OK'
+    BTN_CANCEL = 'Ext.Msg.CANCEL'
+    BTN_OKCANCEL = 'Ext.Msg.OKCANCEL'
+    BTN_YESNO = 'Ext.Msg.YESNO'
     BTN_YESNOCANCEL = 'Ext.Msg.YESNOCANCEL'
 
-    def __init__(self, title = '', msg = '', icon = ICON_INFO, buttons = BTN_OK):
+    def __init__(self, title='', msg='', icon=ICON_INFO, buttons=BTN_OK):
         self.title = title
         self.msg = msg
         self.icon = icon

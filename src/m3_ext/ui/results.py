@@ -2,8 +2,7 @@
 """
 Результаты выполнения Action`s
 """
-import http
-
+from django import http
 
 from m3.actions import (
     ActionResult as _ActionResult,
@@ -43,7 +42,7 @@ class ExtUIComponentResult(_BaseContextedResult):
     """
     Результат выполнения операции,
     описанный в виде отдельного компонента пользовательского интерфейса.
-    В self.data хранится некоторый наследник класса m3.ui.ext.ExtUiComponent.
+    В self.data хранится некоторый наследник класса m3_ext.ui.ExtUiComponent.
     Метод get_http_response выполняет метод render у объекта в self.data.
     """
     def get_http_response(self):

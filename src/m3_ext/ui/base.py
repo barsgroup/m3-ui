@@ -1,13 +1,13 @@
 #coding:utf-8
-'''
+"""
 Модуль с базовыми классами/интерфейсами, которые необходимы
-для работы подсистемы m3.ui.ext
+для работы подсистемы m3_ext.ui
 
 Created on 01.03.2010
 
 @author: akvarats
 @author: prefer
-'''
+"""
 
 import datetime
 import decimal
@@ -16,8 +16,11 @@ import collections
 from django import template as django_template
 from django.conf import settings
 
-from m3.ui.ext import render_template, render_component
-from m3.helpers import js, generate_client_id, normalize
+from m3_ext.ui import render_template, render_component
+from m3_ext.ui import generate_client_id, normalize
+from m3 import date2str
+
+import js
 
 
 class ExtComponentException(Exception):
@@ -87,11 +90,12 @@ class BaseExtComponent(object):
         self.client_id = generate_client_id()
 
         # action context of the component (normally, this is
-        # an instance of m3.ui.actions.ActionContext class
+        # an instance of m3.actions.ActionContext class
         self.action_context = None
 
         # рендерер, используемый для вывода соответствующего компонента
         self.renderer = ExtUIScriptRenderer()
+        #self.renderer.component = self
 
         # Словарь обработчиков на события
         self._listeners = {}
@@ -243,7 +247,7 @@ class BaseExtComponent(object):
             res = item
 
         elif isinstance(item, datetime.date):
-            res = "'%s'" % item.strftime(settings.DATE_FORMAT or '%d.%m.%Y')
+            res = "'%s'" % date2str(item)
 
         elif isinstance(item, dict):
             # рекурсивный обход вложенных свойств

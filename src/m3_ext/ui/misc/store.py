@@ -1,29 +1,29 @@
 #coding:utf-8
-'''
+"""
 Created on 3.3.2010
 
 @author: prefer
-'''
+"""
 import json
 import abc
 import datetime
 
 from decimal import Decimal
 
-from m3.helpers import normalize
+from m3_ext.ui import normalize
 
-from m3.ui.ext.base import BaseExtComponent
+from m3_ext.ui.base import BaseExtComponent
 
 from base_store import BaseExtStore
 
 
-#===============================================================================
+#==============================================================================
 class ExtDataStore(BaseExtStore):
-    '''
-    Хранилище данных, которое не генерирует запрос на сервер, а принимает данные
-    в массиве data, либо через метод load_data
-    '''
-    def __init__(self, data = None, *args, **kwargs):
+    """
+    Хранилище данных, которое не генерирует запрос на сервер,
+    а принимает данные в массиве data, либо через метод load_data
+    """
+    def __init__(self, data=None, *args, **kwargs):
         super(ExtDataStore, self).__init__(*args, **kwargs)
 
         # По умолчанию первым параметром передаются данные на заполнение store
@@ -96,7 +96,8 @@ class ExtDataStore(BaseExtStore):
     def render_data(self):
         return self.reader._render_data(self.data)
 
-#===============================================================================
+
+#==============================================================================
 class ExtJsonStore(BaseExtStore):
     '''
     Хранилище данных, которое отправляет запрос на сервер и ждет, что данные
@@ -104,15 +105,18 @@ class ExtJsonStore(BaseExtStore):
     '''
     def __init__(self, *args, **kwargs):
         super(ExtJsonStore, self).__init__(*args, **kwargs)
-        self.template = 'ext-misc/ext-json-store.js' # TODO: Отрефакторить под внутриклассовый рендеринг
+        # TODO: Отрефакторить под внутриклассовый рендеринг
+        self.template = 'ext-misc/ext-json-store.js'
 
         # Для заполнения полей в шаблоне
         self.__columns = []
 
-        # Начальная позиция для показа, если используется постраничная навигация
+        # Начальная позиция для показа,
+        # если используется постраничная навигация
         self.__start = 0
 
-        # Количество записей для показа, если используется постраничная навигация
+        # Количество записей для показа,
+        # если используется постраничная навигация
         self.__limit = -1
 
         #
@@ -150,7 +154,7 @@ class ExtJsonStore(BaseExtStore):
             else:
                 if col.data_index != self.id_property:
                     d = {'name': col.data_index}
-                    if hasattr(col, 'format'): # ExtDateField
+                    if hasattr(col, 'format'):  # ExtDateField
                         d['type'] = 'date'
                         d['dateFormat'] = col.format
 
@@ -175,19 +179,23 @@ class ExtJsonStore(BaseExtStore):
 
     limit = property(_get_limit, _set_limit)
 
-#===============================================================================
+
+#==============================================================================
 class ExtJsonWriter(BaseExtStore):
-    '''
-    Предназначен для отправки и преобразования новых и измененных записей Store на сервер
-    '''
+    """
+    Предназначен для отправки и преобразования
+    новых и измененных записей Store на сервер
+    """
     def __init__(self, *args, **kwargs):
         super(ExtJsonWriter, self).__init__(*args, **kwargs)
 
-        # Если True, записи (records) переводится в хешированные данные, имя беруться из
-        # ридера (Reader). Подробности http://extjs.docs/d/?class=Ext.data.JsonWriter
+        # Если True, записи (records) переводится в хешированные данные,
+        # имя беруться из ридера (Reader).
+        # Подробности http://extjs.docs/d/?class=Ext.data.JsonWriter
         self.encode = True
 
-        # Если False, при удалении будет отправляться только id записи на сервер
+        # Если False, при удалении будет отправляться
+        # только id записи на сервер
         self.encode_delete = False
 
         # Если True, то сохраняются все записи, а не только измененные
@@ -202,13 +210,16 @@ new Ext.data.JsonWriter({
     %(encode)s
     %(encodeDelete)s
 })
-        ''' % {'writeAllFields': 'writeAllFields: true' if self.write_all_fields else '',
-               'encode': 'encode: false' if not self.encode else '',
-               'encodeDelete': 'encodeDelete: true' if self.encode_delete else ''}
+''' % {
+            'writeAllFields': (
+                'writeAllFields: true' if self.write_all_fields else ''),
+            'encode': 'encode: false' if not self.encode else '',
+            'encodeDelete': 'encodeDelete: true' if self.encode_delete else ''}
 
         return result
 
-#===============================================================================
+
+#==============================================================================
 class ExtDataReader(BaseExtComponent):
     """
     Получает ответ от сервера и декодирует его в  массив Record-ов
@@ -248,7 +259,7 @@ class ExtDataReader(BaseExtComponent):
             res_value = '""'
         elif isinstance(value, bool):
             res_value = str(value).lower()
-        elif isinstance(value, int) or isinstance(value, Decimal) or isinstance(value, float):
+        elif isinstance(value, (int, Decimal, float)):
             res_value = str(value)
         elif isinstance(value, datetime.date):
             res_value = 'new Date("%s")' % value.ctime()
@@ -311,7 +322,10 @@ class ExtJsonReader(ExtDataReader):
 
     def _render_fields(self):
 
-        res = ['{name: "%s", mapping: "%s"}' % (self.id_property, self.id_property)]
+        res = [
+            '{name: "%s", mapping: "%s"}' %
+            (self.id_property, self.id_property)
+        ]
         for col in self.get_fields():
             if isinstance(col, basestring):
                 if col != self.id_property:
@@ -319,7 +333,7 @@ class ExtJsonReader(ExtDataReader):
             else:
                 if col.data_index != self.id_property:
                     d = {'name': col.data_index}
-                    if hasattr(col, 'format'): # ExtDateField
+                    if hasattr(col, 'format'):  # ExtDateField
                         d['type'] = 'date'
                         d['dateFormat'] = col.format
                     if hasattr(col, 'mapping'):
@@ -333,7 +347,8 @@ class ExtJsonReader(ExtDataReader):
     def render(self):
         super(ExtJsonReader, self).render()
 
-        return 'new Ext.data.JsonReader({%s}, %s)' % (self._get_config_str(), self._render_fields())
+        return 'new Ext.data.JsonReader({%s}, %s)' % (
+            self._get_config_str(), self._render_fields())
 
 
 class ExtArrayReader(ExtDataReader):
@@ -347,9 +362,6 @@ class ExtArrayReader(ExtDataReader):
         super(ExtArrayReader, self).__init__(*args, **kwargs)
 
     def _render_data(self, data):
-        """
-        """
-
         res = []
         for item in data:
             res_tmp = []
@@ -359,15 +371,20 @@ class ExtArrayReader(ExtDataReader):
 
                 res_tmp.append(res_value)
 
-            res.append( '[%s]' % ','.join(res_tmp) )
+            res.append('[%s]' % ','.join(res_tmp))
 
         return '[%s]' % ','.join(res)
 
     def _render_fields(self):
-
-        '''Прописывается в шаблоне и заполняется при рендеринге'''
-        res = ['{name: "%s", mapping: %d}' % (self.id_property, 0)] # ID
-        # чтобы правильно выставить mapping надо определить, есть ли в списке колонок поле с таким же именем
+        """
+        Прописывается в шаблоне и заполняется при рендеринге
+        """
+        res = [
+            '{name: "%s", mapping: %d}' %
+            (self.id_property, 0)
+        ]  # ID
+        # чтобы правильно выставить mapping надо определить,
+        # есть ли в списке колонок поле с таким же именем
         # если такая колонка встречается, то пропускаем её
         ind = 1
         for i, col in enumerate(self.get_fields()):
@@ -378,8 +395,9 @@ class ExtArrayReader(ExtDataReader):
                     ind = 0
             else:
                 if col.data_index != self.id_property:
-                    d = {'name': col.data_index, 'mapping': ind+i} # 1-ое поле - ID
-                    if hasattr(col, 'format'): # ExtDateField
+                    # 1-ое поле - ID
+                    d = {'name': col.data_index, 'mapping': ind+i}
+                    if hasattr(col, 'format'):  # ExtDateField
                         d['type'] = 'date'
                         d['dateFormat'] = col.format
                     res.append(json.dumps(d))
@@ -394,16 +412,18 @@ class ExtArrayReader(ExtDataReader):
     def render(self):
         super(ExtArrayReader, self).render()
 
-        return 'new Ext.data.ArrayReader({%s}, %s)' % (self._get_config_str(), self._render_fields())
+        return 'new Ext.data.ArrayReader({%s}, %s)' % (
+            self._get_config_str(), self._render_fields())
 
-#===============================================================================
+
+#==============================================================================
 class ExtGroupingStore(ExtJsonStore):
-    '''
+    """
     Хранилище используемое для группировки по определенным полям в гриде
-    '''
+    """
     def __init__(self, *args, **kwargs):
         super(ExtGroupingStore, self).__init__(*args, **kwargs)
-        self.template = 'ext-misc/ext-grouping-store.js' # TODO: Отрефакторить под внутриклассовый рендеринг
+        self.template = 'ext-misc/ext-grouping-store.js'
 
         # Серверная группировка
         self.remote_group = False
@@ -417,20 +437,23 @@ class ExtGroupingStore(ExtJsonStore):
         self.init_component(*args, **kwargs)
 
     def render(self, columns):
-        assert self.sort_info in self.reader.get_fields(), \
-        'can`t find sortfield "%s" in %s' % (self.sort_info,self.reader.get_fields(),)
-        assert self.group_field in self.reader.get_fields(), \
-        'can`t find groupfield "%s" in %s' % (self.group_field,self.reader.get_fields(),)
+        assert self.sort_info in self.reader.get_fields(), (
+            'can`t find sortfield "%s" in %s' % (
+                self.sort_info, self.reader.get_fields()))
+        assert self.group_field in self.reader.get_fields(), (
+            'can`t find groupfield "%s" in %s' % (
+                self.group_field, self.reader.get_fields()))
         return super(ExtGroupingStore, self).render(columns)
 
-#===============================================================================
+
+#==============================================================================
 class ExtMultiGroupingStore(ExtJsonStore):
-    '''
+    """
     Хранилище используемое для грида с множественной серверной группировкой
-    '''
+    """
     def __init__(self, *args, **kwargs):
         super(ExtMultiGroupingStore, self).__init__(*args, **kwargs)
-        self.template = 'ext-misc/ext-livegrid-store.js' # TODO: Отрефакторить под внутриклассовый рендеринг
+        self.template = 'ext-misc/ext-livegrid-store.js'
         self.version_property = 'version'
         self.bufferSize = 200
         self.init_component(*args, **kwargs)

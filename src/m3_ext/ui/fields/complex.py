@@ -1,31 +1,29 @@
 #coding:utf-8
-'''
+"""
 Created on 27.02.2010
 
 @author: prefer
-'''
+"""
 import os
 import json
 
-from django.db import models
 from django.conf import settings
 
 from base import BaseExtField
 
-from m3.ui import actions
-from m3.ui.ext.fields.simple import ExtComboBox
-from m3.ui.ext.misc import ExtJsonStore
-from m3.ui.ext.fields.base import BaseExtTriggerField
-from m3.ui.ext.base import BaseExtComponent, ExtUIComponent
-from m3.ui.actions import ControllerCache
-from m3.ui.actions.interfaces import ISelectablePack, IMultiSelectablePack
-from m3.helpers.datastructures import TypedList
+from m3 import actions
+from m3_ext.ui.misc import ExtJsonStore
+from m3_ext.ui.fields.base import BaseExtTriggerField
+from m3_ext.ui.base import BaseExtComponent, ExtUIComponent
+from m3.actions import ControllerCache
+from m3.actions.interfaces import ISelectablePack, IMultiSelectablePack
 
-#===============================================================================
+
+#==============================================================================
 class ExtDictSelectField(BaseExtTriggerField):
-    '''
+    """
     Поле с выбором из справочника
-    '''
+    """
     class ExtTrigger(BaseExtComponent):
         def __init__(self, *args, **kwargs):
             self.icon_cls = None
@@ -42,12 +40,17 @@ class ExtDictSelectField(BaseExtTriggerField):
         self.template = 'ext-fields/ext-dict-select-field.js'
 
         # Эти атрибуты отвечают за отображение кнопок действий в строке выбора:
-        self.hide_trigger = True              # Выпадающий список
-        self.hide_clear_trigger = False       # Очистка поля
-        self.hide_edit_trigger = False        # Редактирование выбранного элемента
-        self.hide_dict_select_trigger = False # Выбора из справочника
+        # Выпадающий список
+        self.hide_trigger = True
+        # Очистка поля
+        self.hide_clear_trigger = False
+        # Редактирование выбранного элемента
+        self.hide_edit_trigger = False
+        # Выбора из справочника
+        self.hide_dict_select_trigger = False
 
-        self.min_chars = 2 # количество знаков, с которых начинаются запросы на autocomplete
+        # количество знаков, с которых начинаются запросы на autocomplete
+        self.min_chars = 2
 
         self.set_store(ExtJsonStore())
 
@@ -60,9 +63,13 @@ class ExtDictSelectField(BaseExtTriggerField):
         self.edit_url = None
         self.autocomplete_url = None
 
-        self.value_field = 'id'     # это взято из магического метода configure_edit_field из mis.users.forms
-        self.query_param = 'filter' # и это тоже взято оттуда же
-        self.display_field = 'name' # по умолчанию отображаем значение поля name
+        # это взято из магического метода configure_edit_field
+        # из mis.users.forms
+        self.value_field = 'id'
+        # и это тоже взято оттуда же
+        self.query_param = 'filter'
+        # по умолчанию отображаем значение поля name
+        self.display_field = 'name'
 
         # Из-за ошибки убраны свойства по умолчанию
         self.total = 'total'
@@ -71,7 +78,7 @@ class ExtDictSelectField(BaseExtTriggerField):
         # значение, которое будет передано в store
         self.__record_value = {}
 
-        self._triggers = TypedList(ExtDictSelectField.ExtTrigger)
+        self._triggers = []
 
         self._pack = None
 
@@ -188,22 +195,25 @@ class ExtDictSelectField(BaseExtTriggerField):
         self.__value = val
 
     def configure_by_dictpack(self, pack, controller=None):
-        '''
+        """
         Метод настройки поля выбора из справочника на основе
         переданного ActionPack работы со справочниками.
         @param pack: Имя класса или класс пака.
-        @controller: Контроллер в котором будет искаться пак. Если не задан, то ищем во всех.
+        @controller: Контроллер в котором будет искаться пак.
+        Если не задан, то ищем во всех.
         @deprecated: 0.4
-        '''
+        """
         if controller:
             registered_pack = controller.find_pack(pack)
         else:
             registered_pack = ControllerCache.find_pack(pack)
         if not registered_pack:
-            raise Exception('Pack %s not found in controller %s' % (controller, pack))
+            raise Exception(
+                'Pack %s not found in controller %s' % (controller, pack))
         self.url = registered_pack.get_select_url()
         self.autocomplete_url = registered_pack.rows_action.get_absolute_url()
-        self.bind_pack = registered_pack # TODO: можно ли обойтись без bind_back?
+        # TODO: можно ли обойтись без bind_back?
+        self.bind_pack = registered_pack
 
     def set_value_from_model(self, obj):
         """
@@ -211,7 +221,6 @@ class ExtDictSelectField(BaseExtTriggerField):
         Причем они могут быть методами, например обернутыми json_encode.
         Это позволяет избежать двойного присваивания в коде.
         """
-        #assert isinstance(obj, models.Model), '%s must be a Django model instance.' % obj
 
         value = getattr(obj, self.value_field)
         self.value = value() if callable(value) else value
@@ -253,28 +262,35 @@ class ExtDictSelectField(BaseExtTriggerField):
     def root(self, value):
         self.get_store().root = value
 
-    def add_trigger(self, *args,**kwargs):
-        self._triggers.append( ExtDictSelectField.ExtTrigger(*args,**kwargs) )
+    def add_trigger(self, *args, **kwargs):
+        self._triggers.append(ExtDictSelectField.ExtTrigger(*args, **kwargs))
 
     def t_render_triggers(self):
-        return '[%s]' % ','.join(['{%s}' % item.render() for item in self._triggers])
+        return '[%s]' % ','.join(
+            ['{%s}' % item.render() for item in self._triggers])
 
-    def _set_urls_from_pack(self,ppack):
-        '''
-           Настраивает поле выбора под указанный экшенпак ppack. Причем в качестве аргумента может быть
-        как сам класс пака так и если имя. Это связано с тем, что не во всех формах можно импортировать
-        паки и может произойти кроссимпорт.
-           Поиск пака производится по всем экшенконтроллерам в системе. Используется первый найденный, т.к.
-        при правильном дизайне один и тот же пак не должен быть в нескольких контроллерах одновременно.
+    def _set_urls_from_pack(self, ppack):
+        """
+        Настраивает поле выбора под указанный экшенпак ppack.
+        Причем в качестве аргумента может быть как сам класс пака,
+        так и имя. Это связано с тем, что не во всех формах можно
+        импортировать паки и может произойти кроссимпорт.
+        Поиск пака производится по всем экшенконтроллерам в системе.
+        Используется первый найденный, т.к. при правильном дизайне
+        один и тот же пак не должен быть в нескольких
+        контроллерах одновременно.
         @param ppack: Имя класса пака или класс пака.
-        '''
-        assert isinstance(ppack, basestring) or hasattr(ppack, '__bases__'), 'Argument %s must be a basestring or class' % ppack
+        """
+        assert isinstance(ppack, basestring) or hasattr(ppack, '__bases__'), (
+            'Argument %s must be a basestring or class' % ppack)
         ppack = ControllerCache.find_pack(ppack)
         assert ppack, 'Pack %s not found in ControllerCache' % ppack
-        assert isinstance(ppack, ISelectablePack), 'Pack %s must provide ISelectablePack interface' % ppack
+        assert isinstance(ppack, ISelectablePack), (
+            'Pack %s must provide ISelectablePack interface' % ppack)
         self._pack = ppack
 
-        # старый спосом подключения Pack теперь не действует - всё должно быть в рамках интерфейса ISelectablePack
+        # старый спосом подключения Pack теперь не действует
+        # - всё должно быть в рамках интерфейса ISelectablePack
 
         # url формы редактирования элемента
         self.edit_url = ppack.get_edit_url()
@@ -283,30 +299,6 @@ class ExtDictSelectField(BaseExtTriggerField):
         # url формы выбора
         self.url = ppack.get_select_url()
 
-#        # hasattr используется вместо isinstance, иначе будет перекрестный импорт.
-#        # Для линейного справочника и иерархического спр., если задана списочная модель, значит выбирать будут из неё.
-#        if hasattr(ppack, 'model') or (hasattr(ppack, 'tree_model') and ppack.list_model):
-#            # url формы редактирования элемента
-#            self.edit_url = ppack.get_edit_url()
-#            # url автокомплита и данных
-#            self.autocomplete_url = ppack.get_rows_url()
-#
-#        # Для иерархических справочников без списочной модели
-#        elif hasattr(ppack, 'tree_model') and ppack.tree_model:
-#            self.edit_url = ppack.get_edit_node_url()
-#            self.autocomplete_url = ppack.get_nodes_like_rows_url()
-#
-#        else:
-#            # для иных случаев (например паки без моделей) попробуем найти соответствующие методы
-#            if hasattr(ppack, 'get_rows_url') or hasattr(ppack, 'get_edit_url'):
-#                if hasattr(ppack, 'get_rows_url'):
-#                    self.autocomplete_url = ppack.get_rows_url()
-#                if hasattr(ppack, 'get_edit_url'):
-#                    self.edit_url = ppack.get_edit_url()
-#            else:
-#                raise Exception('Pack %s must be a dictionary pack instance.' % ppack)
-
-
     def render_params(self):
         action_context = None
         # FIXME: Почему то нет в конструкторе.
@@ -314,21 +306,21 @@ class ExtDictSelectField(BaseExtTriggerField):
             # функция
             action_context = self.action_context.json
 
-        self._put_params_value('askBeforeDeleting', self.ask_before_deleting)
-        self._put_params_value('actions', {'actionSelectUrl': self.url,
-                                           'actionEditUrl':self.edit_url,
-                                           'contextJson':  action_context})
-
-        self._put_params_value('defaultText', self.default_text)
-
-        self._put_params_value('hideClearTrigger', self.hide_clear_trigger)
-        self._put_params_value('hideEditTrigger', self.hide_edit_trigger)
-        self._put_params_value('hideDictSelectTrigger', self.hide_dict_select_trigger)
-
-        self._put_params_value('defaultValue', self.value)
-        self._put_params_value('customTriggers', self.t_render_triggers, self._triggers )
-        self._put_params_value('recordValue', json.dumps(self.record_value), self.record_value)
-
+        for args in (
+            ('askBeforeDeleting', self.ask_before_deleting),
+            ('actions', {
+                'actionSelectUrl': self.url,
+                'actionEditUrl': self.edit_url,
+                'contextJson':  action_context}),
+            ('defaultText', self.default_text),
+            ('hideClearTrigger', self.hide_clear_trigger),
+            ('hideEditTrigger', self.hide_edit_trigger),
+            ('hideDictSelectTrigger', self.hide_dict_select_trigger),
+            ('defaultValue', self.value),
+            ('customTriggers', self.t_render_triggers, self._triggers),
+            ('recordValue', json.dumps(self.record_value), self.record_value),
+        ):
+            self._put_params_value(*args)
 
     def render(self):
         self.render_base_config()
@@ -338,7 +330,8 @@ class ExtDictSelectField(BaseExtTriggerField):
         params = self._get_params_str()
         return 'createAdvancedComboBox({%s},{%s})' % (base_config, params)
 
-#===============================================================================
+
+#==============================================================================
 class ExtSearchField(BaseExtField):
     '''Поле поиска'''
     def __init__(self, *args, **kwargs):
@@ -358,15 +351,17 @@ class ExtSearchField(BaseExtField):
         self.render_base_config()
         base_config = self._get_config_str()
         # Строка рендера как в шаблоне
-        s = 'new Ext.app.form.SearchField({%s, getComponentForSearch: function(){return Ext.getCmp("%s");}})'\
-            % (base_config, self.component_for_search.client_id)
-        return s
+        return (
+            'new Ext.app.form.SearchField({%s, '
+            'getComponentForSearch: function(){return Ext.getCmp("%s");}})'
+        ) % (base_config, self.component_for_search.client_id)
 
-#===============================================================================
+
+#==============================================================================
 class ExtFileUploadField(BaseExtField):
-    '''
+    """
     Компонент загрузки файлов на сервер.
-    '''
+    """
 
     # Префикс добавляется к скрытому полю, где передается файл
     PREFIX = 'file_'
@@ -387,23 +382,26 @@ class ExtFileUploadField(BaseExtField):
 
     def render_possible_file_extensions(self):
         p = self.possible_file_extensions
-        assert isinstance(p, (basestring, list, tuple)), \
-                    u'File extensions argument must be type of basestring, tuple or list'
+        assert isinstance(p, (basestring, list, tuple)), (
+            u'File extensions argument must be '
+            u'type of basestring, tuple or list'
+        )
         return ','.join(p) if not isinstance(p, basestring) else p
 
     def render_params(self):
         super(ExtFileUploadField, self).render_params()
         self._put_params_value('prefixUploadField', ExtFileUploadField.PREFIX)
         self._put_params_value('fileUrl', self.file_url)
-        self._put_params_value('possibleFileExtensions', self.render_possible_file_extensions())
+        self._put_params_value(
+            'possibleFileExtensions', self.render_possible_file_extensions())
 
     def render(self):
         self.render_base_config()
         self.render_params()
         base_config = self._get_config_str()
         params_config = self._get_params_str()
-        return 'new Ext.ux.form.FileUploadField({%s}, {%s})' % (base_config,
-                                                          params_config)
+        return 'new Ext.ux.form.FileUploadField({%s}, {%s})' % (
+            base_config, params_config)
 
     @property
     def memory_file(self):
@@ -522,24 +520,30 @@ class ExtImageUploadField(ExtFileUploadField):
                     file_name
                 ))).replace('//', '/')
 
-
     @staticmethod
     def get_image_url(name):
         return '%s/%s' % (settings.MEDIA_URL, name)
 
-#===============================================================================
-class ExtMultiSelectField(ExtDictSelectField):
-    '''
-    Множественный выбор из справочника. Может использоваться также как стандартный ExtDictSelectField,
-    При использовании следует обратить внимание, что биндиться к полям формы этот компонент не будет, тк в качестве
-    value принимается список чего-либо, откуда на клиенте будут извлекаться объекты по value_field и display_field.
-    Не рекомендуются передавать в value список моделей, тк все что передано будет преобразовано в json строку для
-    отдачи на клиент, а от полной сериализации моделей хорошего мало. Лушче отдавать список словарей.
 
-    Кроме того можно использовать как локальный комбокс с галочками, для этого достаточно задать Store методом
+#==============================================================================
+class ExtMultiSelectField(ExtDictSelectField):
+    """
+    Множественный выбор из справочника.
+    Может использоваться также как стандартный ExtDictSelectField,
+    При использовании следует обратить внимание,
+    что биндиться к полям формы этот компонент не будет,
+    тк в качестве value принимается список чего-либо,
+    откуда на клиенте будут извлекаться объекты по value_field и display_field.
+    Не рекомендуются передавать в value список моделей,
+    тк все что передано будет преобразовано в json строку для
+    отдачи на клиент, а от полной сериализации моделей хорошего мало.
+    Лушче отдавать список словарей.
+
+    Кроме того можно использовать как локальный комбокс с галочками,
+    для этого достаточно задать Store методом
     set_store и в value, если нужно, передать список со значениями value_field.
 
-    '''
+    """
     def __init__(self, *args, **kwargs):
         self.delimeter = ','
         self.multiple_display_value = None
@@ -568,7 +572,8 @@ class ExtMultiSelectField(ExtDictSelectField):
         if isinstance(value, (list, tuple)):
             self._value = json.dumps(value)
         else:
-            raise TypeError(u'ExtMultiSelectField value must be list or tuple of values')
+            raise TypeError(
+                u'ExtMultiSelectField value must be list or tuple of values')
 
     @property
     def pack(self):
@@ -576,15 +581,13 @@ class ExtMultiSelectField(ExtDictSelectField):
 
     @pack.setter
     def pack(self, ppack):
-        assert isinstance(ppack, basestring) or hasattr(ppack, '__bases__'), 'Argument %s must be a basestring or class' % ppack
+        assert isinstance(ppack, basestring) or hasattr(ppack, '__bases__'), (
+            'Argument %s must be a basestring or class' % ppack)
         ppack_class = ControllerCache.find_pack(ppack)
-        assert isinstance(ppack_class, IMultiSelectablePack), 'Pack %s must provide IMultiSelectablePack interface' % ppack
+        assert isinstance(ppack_class, IMultiSelectablePack), (
+            'Pack %s must provide IMultiSelectablePack interface' % ppack)
         self._set_urls_from_pack(ppack)
         self.url = self._pack.get_multi_select_url()
-#        if hasattr(self._pack, 'get_multi_select_url'):
-#            self.url = self._pack.get_multi_select_url()
-#        else:
-#            raise Exception('Pack %s hasn\'t multiselect url defined')
 
     def render(self):
         self.render_base_config()
@@ -592,7 +595,8 @@ class ExtMultiSelectField(ExtDictSelectField):
 
         base_config = self._get_config_str()
         params = self._get_params_str()
-        return 'new Ext.m3.MultiSelectField({%s}, {%s})' % (base_config, params)
+        return 'new Ext.m3.MultiSelectField({%s}, {%s})' % (
+            base_config, params)
 
     def render_base_config(self):
         self.pre_render()
@@ -600,5 +604,6 @@ class ExtMultiSelectField(ExtDictSelectField):
         super(ExtMultiSelectField, self).render_base_config()
         self._put_config_value('delimeter', self.delimeter)
         if self.multiple_display_value:
-            self._put_config_value('multipleDisplayValue', self.multiple_display_value)
+            self._put_config_value(
+                'multipleDisplayValue', self.multiple_display_value)
         self._put_config_value('delimeter', self.delimeter)
