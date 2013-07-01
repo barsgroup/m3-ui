@@ -60,7 +60,6 @@ class ExtPivotGrid(BaseExtPanel):
             ('renderer', self.renderer),
             ('leftAxis', self.t_render_left_axis),
             ('topAxis', self.t_render_top_axis),
-
             ('colModel', self.col_model.render),
             ('view', self.t_render_view, self.view),
             ('viewConfig', self._view_config),

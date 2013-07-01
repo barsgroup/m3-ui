@@ -14,6 +14,26 @@ from m3_ext.ui import render_template
 
 from m3_ext.ui.containers.base import BaseExtContainer
 from m3_ext.ui.controls.base import BaseExtControl
+from m3_ext.ui.base import ExtUIScriptRenderer
+from m3_ext.ui import js
+
+
+class ExtWindowRenderer(ExtUIScriptRenderer):
+    """
+    Рендерер для скрипта на показ окна
+    """
+    def __init__(self):
+        self.template = 'ext-script/ext-windowscript.js'
+        self.window = None
+
+    def get_script(self):
+        self.window.render()
+        script = render_template(
+            self.template, {'renderer': self, 'window': self.window}
+        )
+        if settings.DEBUG:
+            script = js.JSNormalizer().normalize(script)
+        return script
 
 
 class BaseExtWindow(ExtUIComponent):
@@ -22,13 +42,9 @@ class BaseExtWindow(ExtUIComponent):
     """
 
     #deprecated: Использовать атрибуты с верхним регистром
-    align_left = 'left'
-    align_center = 'center'
-    align_right = 'right'
-
-    ALIGN_LEFT = align_left
-    ALIGN_CENTER = align_center
-    ALIGN_RIGHT = align_right
+    ALIGN_LEFT = align_left = 'left'
+    ALIGN_CENTER = align_center = 'center'
+    ALIGN_RIGHT = align_right = 'right'
 
     def __init__(self, *args, **kwargs):
         super(BaseExtWindow, self).__init__(*args, **kwargs)
@@ -36,6 +52,9 @@ class BaseExtWindow(ExtUIComponent):
 
         # Шаблон, который будет отрендерен после основного
         self.template_globals = ''
+
+        self.renderer = ExtWindowRenderer()
+        self.renderer.window = self
 
         # Название
         self._ext_name = 'Ext.m3.Window'
@@ -137,8 +156,8 @@ class BaseExtWindow(ExtUIComponent):
             ('bodyStyle', self.body_style),
             ('layout', self.layout),
             ('tbar', self.t_render_top_bar, self.top_bar),
-            ('bbar', self.t_render_bottom_bar, self.bottom_bar)
-            ('fbar', self.t_render_footer_bar, self.footer_bar)
+            ('bbar', self.t_render_bottom_bar, self.bottom_bar),
+            ('fbar', self.t_render_footer_bar, self.footer_bar),
             ('items', self.t_render_items),
             ('buttons', self.t_render_buttons, self.buttons),
             ('border', self.border),
