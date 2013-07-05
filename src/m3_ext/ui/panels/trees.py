@@ -174,17 +174,14 @@ class ExtObjectTree(containers.ExtTree):
         #======================================================================
         # Настройка top bar
         #======================================================================
-        if not self.action_new:
-            self.top_bar.items.remove(self.top_bar.add_menu)
-
-        if not self.action_edit:
-            self.top_bar.items.remove(self.top_bar.button_edit)
-
-        if not self.action_delete:
-            self.top_bar.items.remove(self.top_bar.button_delete)
-
-        if not self.action_data:
-            self.top_bar.items.remove(self.top_bar.button_refresh)
+        for action, btn in (
+            (self.action_new, self.top_bar.add_menu),
+            (self.action_edit, self.top_bar.button_edit),
+            (self.action_delete, self.top_bar.button_delete),
+            (self.action_data, self.top_bar.button_refresh),
+        ):
+            if not action and btn in self.top_bar.items:
+                self.top_bar.items.remove(btn)
 
         # тонкая настройка self.store
         if not self.url and self.action_data:

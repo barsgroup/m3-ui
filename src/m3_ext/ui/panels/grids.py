@@ -250,22 +250,26 @@ class ExtObjectGrid(containers.ExtGrid):
         #======================================================================
         # Настройка top bar
         #======================================================================
+        def remove(this):
+            if this in self.top_bar.items:
+                self.top_bar.items.remove(this)
+
         # @TODO: Отрефакторить данный метод, чтобы он был не в рендеринге
         if (not self.action_data and not self.url_data and
                 self.top_bar.button_refresh in self.top_bar.items):
-            self.top_bar.items.remove(self.top_bar.button_refresh)
+            remove(self.top_bar.button_refresh)
 
         if (not self.action_delete and not self.url_delete and
                 self.top_bar.button_delete in self.top_bar.items):
-            self.top_bar.items.remove(self.top_bar.button_delete)
+            remove(self.top_bar.button_delete)
 
         if (not self.action_edit and not self.url_edit and
                 self.top_bar.button_edit in self.top_bar.items):
-            self.top_bar.items.remove(self.top_bar.button_edit)
+            remove(self.top_bar.button_edit)
 
         if (not self.action_new and not self.url_new and
                 self.top_bar.button_new in self.top_bar.items):
-            self.top_bar.items.remove(self.top_bar.button_new)
+            remove(self.top_bar.button_new)
 
         # тонкая настройка self.store
         if not self.store.url and self.action_data:
@@ -513,55 +517,64 @@ class ExtMultiGroupinGrid(containers.ExtGrid):
         data_url = self.url_data or (get_url(
             self.action_data) if self.action_data else None)
 
+        def remove(this):
+            if this in self._top_bar.items:
+                self._top_bar.items.remove(this)
+
         new_url = self.url_new or (get_url(
             self.action_new) if self.action_new else None)
         if not new_url:
-            self._top_bar.items.remove(self._top_bar.button_new)
+            remove(self._top_bar.button_new)
 
         edit_url = self.url_edit or (get_url(
             self.action_edit) if self.action_edit else None)
         if not edit_url:
-            self._top_bar.items.remove(self._top_bar.button_edit)
+            remove(self._top_bar.button_edit)
         else:
             self.handler_dblclick = self.dblclick_handler
 
         delete_url = self.url_delete or (get_url(
             self.action_delete) if self.action_delete else None)
         if not delete_url:
-            self._top_bar.items.remove(self._top_bar.button_delete)
+            remove(self._top_bar.button_delete)
 
         export_url = get_url(
             self.action_export) if self.action_export else None
         if not self.action_export:
-            self._top_bar.items.remove(self._top_bar.button_export)
+            remove(self._top_bar.button_export)
         context_json = (
             self.action_context.json if self.action_context else None)
 
-        self._put_params_value(
-            'actions',
-            {
-                'dataUrl': data_url,
-                'newUrl': new_url,
-                'editUrl': edit_url,
-                'deleteUrl': delete_url,
-                'exportUrl': export_url,
-                'contextJson': context_json
-            }
-        )
-        self._put_params_value('dataIdField', self.data_id_field)
-        self._put_params_value('dataDisplayField', self.data_display_field)
-        self._put_params_value(
-            'groupedColumns',
-            lambda: '[%s]' % ','.join(
-                ["'%s'" % (col) for col in self.grouped]))
-        self._put_params_value('toolbar', self._top_bar.t_render_items)
-        self._put_params_value('rowIdName', self.row_id_name)
-        self._put_params_value('localEdit', self.local_edit)
-        self._put_params_value('groupable', self.groupable)
-        self._put_params_value('displayInfo', self.display_info)
-        self._put_params_value('displayMsg', self.display_message)
-        self._put_params_value('bufferSize', self.buffer_size)
-        self._put_params_value('nearLimit', self.near_limit)
+        for args in (
+            (
+                'actions',
+                {
+                    'dataUrl': data_url,
+                    'newUrl': new_url,
+                    'editUrl': edit_url,
+                    'deleteUrl': delete_url,
+                    'exportUrl': export_url,
+                    'contextJson': context_json
+                }
+            ),
+            (
+                'groupedColumns',
+                lambda: '[%s]' % ','.join(
+                    ["'%s'" % (col) for col in self.grouped]
+                )
+            ),
+            ('dataIdField', self.data_id_field),
+            ('dataDisplayField', self.data_display_field),
+            ('toolbar', self._top_bar.t_render_items),
+            ('rowIdName', self.row_id_name),
+            ('localEdit', self.local_edit),
+            ('groupable', self.groupable),
+            ('displayInfo', self.display_info),
+            ('displayMsg', self.display_message),
+            ('bufferSize', self.buffer_size),
+            ('nearLimit', self.near_limit),
+        ):
+            self._put_params_value(*args)
 
     def t_render_base_config(self):
         return self._get_config_str()
