@@ -7,7 +7,7 @@ PROJECT_PATH = os.path.abspath(__file__)
 M3_PROJECT_PATH = os.path.dirname(os.path.dirname(PROJECT_PATH))
 
 # Путь до статики m3
-STATIC_PATH = os.path.join(M3_PROJECT_PATH, 'src', 'm3', 'static')
+STATIC_PATH = os.path.join(M3_PROJECT_PATH, 'src', 'm3_ext', 'static')
 
 # Путь до внешних js
 OUTER_JS_FOLDER = os.path.join(STATIC_PATH, 'ext', 'js')
