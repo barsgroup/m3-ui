@@ -183,7 +183,12 @@ class ExtForm(BaseExtPanel):
                         bind_pack
                     )
                     if hasattr(bind_pack, 'get_record'):
-                        item.set_value_from_model(bind_pack.get_record(value))
+                        record = bind_pack.get_record(value)
+                        if record:
+                            item.set_value_from_model(record)
+                        # TODO: возможно, здесь нужно возбуждать исключение
+                        # else:
+                        #     raise bind_pack.model.DoesNotExist()
                     else:
                         item.default_text = bind_pack.get_display_text(
                             value, item.display_field)
