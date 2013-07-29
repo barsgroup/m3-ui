@@ -27,7 +27,6 @@ class ExtWindowRenderer(ExtUIScriptRenderer):
         self.window = None
 
     def get_script(self):
-        self.window.render()
         script = render_template(
             self.template, {'renderer': self, 'window': self.window}
         )
