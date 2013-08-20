@@ -243,6 +243,9 @@ class ExtGrid(BaseExtPanel):
         assert self.__store, 'Store is not define'
         return self.__store.render(self.columns)
 
+    def t_render_col_model(self):
+        return self.__cm.render()
+
     def add_column(self, **kwargs):
         '''
         Добавляет стандартную колонку
@@ -448,6 +451,7 @@ class ExtGrid(BaseExtPanel):
             ('autoExpandColumn', self.auto_expand_column),
             ('editor', self.editor),
             ('view', self.t_render_view, self.view),
+            ('colModel', self.t_render_col_model, self.col_model),
             ('store', self.t_render_store, self.get_store()),
             ('viewConfig', self._view_config),
             ('columnLines', self.column_lines, self.column_lines),
@@ -576,6 +580,10 @@ class BaseExtGridColumn(ExtUIComponent):
         # Запрет на изменение ширины колонки
         self.fixed = False
 
+        # Признак зафиксированности колонки
+        # используется вместе с ExtGridLockingView + ExtGridLockingColumnModel
+        self.locked = False
+
         # дополнительные атрибуты колонки
         self.extra = {}
 
@@ -625,6 +633,7 @@ class BaseExtGridColumn(ExtUIComponent):
             ('readOnly', self.read_only),
             ('colspan', self.colspan),
             ('fixed', self.fixed),
+            ('locked', self.locked),
             ('renderer', self.render_column_renderer),
             ('tooltip', self.tooltip),
             ('filter', self.filter),
