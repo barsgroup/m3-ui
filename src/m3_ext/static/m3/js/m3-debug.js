@@ -6385,9 +6385,9 @@ Ext.m3.AdvancedTreeGrid = Ext.extend(Ext.ux.maximgb.tg.GridPanel, {
  */
 Ext.m3.AddrField = Ext.extend(Ext.Container, {
 	constructor: function(baseConfig, params){
-		
+
 		var items = params.items || [];
-		
+
 		var place_store = new Ext.data.JsonStore({
 			url: params.kladr_url,
 			idProperty: 'code',
@@ -6407,8 +6407,8 @@ Ext.m3.AddrField = Ext.extend(Ext.Container, {
 			var rec = Ext.util.JSON.decode(params.place_record);
     		place_store.loadData({total:1, rows:[rec]});
 		}
-		if (params.read_only) 
-			var field_cls = 'm3-grey-field' 
+		if (params.read_only)
+			var field_cls = 'm3-grey-field'
 		else
 			var field_cls = ''
 		this.place = new Ext.form.ComboBox({
@@ -6429,9 +6429,9 @@ Ext.m3.AddrField = Ext.extend(Ext.Container, {
 			hiddenName: params.place_field_name,
 			valueNotFoundText: '',
             invalidClass: params.invalid_class
-		});		
+		});
 		this.place.setValue(params.place_value);
-		
+
         this.zipcode = new Ext.form.TextField({
             name: params.zipcode_field_name,
             value: params.zipcode_value,
@@ -6441,7 +6441,7 @@ Ext.m3.AddrField = Ext.extend(Ext.Container, {
             width: 55,
             maskRe: /[0-9]/
         });
-		
+
 		if (params.level > 1) {
 			var street_store = new Ext.data.JsonStore({
 				url: params.street_url,
@@ -6482,7 +6482,7 @@ Ext.m3.AddrField = Ext.extend(Ext.Container, {
                 invalidClass: params.invalid_class
 			});
 			this.street.setValue(params.street_value);
-			
+
 			if (params.level > 2) {
 				this.house = new Ext.form.TextField({
 					name: params.house_field_name,
@@ -6542,7 +6542,7 @@ Ext.m3.AddrField = Ext.extend(Ext.Container, {
     		} else {
 	    		var row_items = [this.place];
 	    	}
-	    		
+
 			if (params.level > 1) {
 				this.street.flex = 1;
 				this.street.fieldLabel = params.street_label;
@@ -6714,7 +6714,7 @@ Ext.m3.AddrField = Ext.extend(Ext.Container, {
 				items.push(this.addr);
 			}
 		}
-						
+
 		var config = Ext.applyIf({
 			items: items
 			, get_addr_url: params.get_addr_url
@@ -6723,14 +6723,16 @@ Ext.m3.AddrField = Ext.extend(Ext.Container, {
 			, addr_visible: params.addr_visible
 			, style: {overflow: 'hidden'}
 		}, baseConfig);
-		
+
 		Ext.Container.superclass.constructor.call(this, config);
 	}
 	, beforeStreetQuery: function(qe) {
-		this.street.getStore().baseParams.place_code = this.place.value;		
+		this.street.getStore().baseParams.place_code = this.place.value;
 	}
-	, clearStreet: function() {		
-    	this.street.setValue('');		
+	, clearStreet: function() {
+		if (this.street != undefined) {
+            this.street.setValue('');
+		}
 	}
     , afterRenderAddr: function(){
         //вашем обработчик dbl click через DOM елемент
@@ -6740,7 +6742,7 @@ Ext.m3.AddrField = Ext.extend(Ext.Container, {
     }
 
 	, initComponent: function(){
-		Ext.m3.AddrField.superclass.initComponent.call(this);		
+		Ext.m3.AddrField.superclass.initComponent.call(this);
 		this.mon(this.place, 'change', this.onChangePlace, this);
 		if (this.level > 1) {
 			this.mon(this.street, 'change', this.onChangeStreet, this);
@@ -6762,7 +6764,7 @@ Ext.m3.AddrField = Ext.extend(Ext.Container, {
         if (this.addr_visible) {
     		this.addr.on('afterrender', this.afterRenderAddr, this)
     	}
-		
+
 		this.addEvents(
             /**
              * @event change
@@ -6820,7 +6822,7 @@ Ext.m3.AddrField = Ext.extend(Ext.Container, {
              * @param {Event} Событие
              */
 			'before_query_place');
-	}	
+	}
 	, getNewAddr: function (){
 		var place_id;
 		if (this.place != undefined) {
@@ -6852,11 +6854,13 @@ Ext.m3.AddrField = Ext.extend(Ext.Container, {
 			place = place_data.data;
 		}
 		var street = null;
-		var street_data =  this.street.getStore().data.get(street_id);
-		if (street_data != undefined) {
+        if (this.street != undefined){
+           var street_data = this.street.getStore().data.get(street_id);
+        };
+        if (street_data != undefined) {
 			street = street_data.data;
 		}
-		
+
 		var new_addr = this.generateTextAddr(place, street, house_num, corps_num, flat_num, zipcode);
 		if (this.addr != undefined) {
 			this.addr.setValue(new_addr);
@@ -6866,7 +6870,7 @@ Ext.m3.AddrField = Ext.extend(Ext.Container, {
     }
 	, generateTextAddr: function(place, street, house, corps, flat, zipcode) {
 		/* Формирование текстового представления полного адреса */
-		
+
 		var addr_text = '';
 		if (street != undefined) {
 			addr_text = place.addr_name+', '+street.socr+' '+street.name;
@@ -6960,7 +6964,7 @@ Ext.m3.AddrField = Ext.extend(Ext.Container, {
             this.addr.setReadOnly(false);
         }
     }
-            
+
 });
 
 'use strict';
