@@ -26,4 +26,4 @@ relre:^src/env
 syntax: glob
 build/*
 dist/*
-src/m3.egg-info/*
+src/m3_ext3.egg-info/*
