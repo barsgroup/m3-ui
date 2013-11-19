@@ -2910,8 +2910,10 @@ Ext.extend(Ext.ux.grid.livegrid.Store, Ext.data.Store, {
         if (this.bufferRange[0] <= -1) {
             this.bufferRange[0] = 0;
         }
-        if (this.bufferRange[1] < (this.bufferSize-1)) {
-            this.bufferRange[1] = Math.min(this.bufferRange[1] + insertRecords.length, this.bufferSize-1);
+        // kirov: fix increment buffer size
+        if ((this.bufferRange[1] - this.bufferRange[0]) < (this.bufferSize-1)) {
+            this.bufferRange[1] = this.bufferRange[0] + Math.min(this.bufferRange[1] - this.bufferRange[0] +
+                insertRecords.length, this.bufferSize-1);
         }
 
         for (var i = 0, len = insertRecords.length; i < len; i++) {

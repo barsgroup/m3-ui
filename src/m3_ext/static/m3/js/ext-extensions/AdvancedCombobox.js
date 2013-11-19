@@ -198,13 +198,17 @@ Ext.m3.AdvancedComboBox = Ext.extend(Ext.m3.ComboBox, {
             t.hide = function(){
                 var w = triggerField.wrap.getWidth();
                 this.dom.style.display = 'none';
-                triggerField.el.setWidth(w-triggerField.trigger.getWidth());
+                if (w != 0 ) {
+                    triggerField.el.setWidth(w-triggerField.trigger.getWidth());
+                }
                 this['hidden' + triggerIndex] = true;
             };
             t.show = function(){
                 var w = triggerField.wrap.getWidth();
                 this.dom.style.display = '';
-                triggerField.el.setWidth(w-triggerField.trigger.getWidth());
+                if (w != 0 ) {
+                    triggerField.el.setWidth(w-triggerField.trigger.getWidth());
+                }
                 this['hidden' + triggerIndex] = false;
             };
 
@@ -280,11 +284,12 @@ Ext.m3.AdvancedComboBox = Ext.extend(Ext.m3.ComboBox, {
             var triggerIndex = 'Trigger' + (index + 1),
                 w = t.getWidth();
 
-            if(w === 0 && !this['hidden' + triggerIndex]){
-                tw += this.defaultTriggerWidth;
-            }else{
-                tw += w;
-            }
+            //if(w === 0 && !this['hidden' + triggerIndex]){
+            //    tw += this.defaultTriggerWidth;
+            //}else{
+            //    tw += w;
+            //}
+            tw += w;
         }, this);
         return tw;
     },
@@ -404,11 +409,17 @@ Ext.m3.AdvancedComboBox = Ext.extend(Ext.m3.ComboBox, {
 	 * кнопку очистки
 	 */
 	clearValue: function(){
+		if (this.rendered) {
+			var width = this.getWidth();
+		}
 		var oldValue = this.getValue();
 		Ext.m3.AdvancedComboBox.superclass.clearValue.call(this);
 		this.hideClearBtn();
 		this.hideEditBtn();
-		
+		if (this.rendered && width != 0 ) {
+			this.el.setWidth(width-this.getTriggerWidth());
+			if (this.wrap) this.wrap.setWidth(width);
+		}
 		this.fireEvent('change', this, '', oldValue);
 		this.fireEvent('changed', this);
 	},
@@ -417,10 +428,17 @@ Ext.m3.AdvancedComboBox = Ext.extend(Ext.m3.ComboBox, {
 	 * кнопку очистки
 	 */
 	setValue: function(value){
+		if (this.rendered) {
+			var width = this.getWidth();
+		}
 		Ext.m3.AdvancedComboBox.superclass.setValue.call(this, value);
 		if (value) {
 			this.showClearBtn();
 			this.showEditBtn();
+		}
+		if (this.rendered && width != 0 ) {
+			this.el.setWidth(width-this.getTriggerWidth());
+			if (this.wrap) this.wrap.setWidth(width);
 		}
 	},
 	/**
@@ -429,29 +447,50 @@ Ext.m3.AdvancedComboBox = Ext.extend(Ext.m3.ComboBox, {
 	 */
 	onSelectInDictionary: function(){
 		assert( this.actionSelectUrl, 'actionSelectUrl is undefined' );
-		
-		if(this.fireEvent('beforerequest', this)) { 
-			var scope = this;
-			Ext.Ajax.request({
-				url: this.actionSelectUrl,
-				method: 'POST',
-				params: this.actionContextJson,
-				success: function(response, opts){
-				    var win = smart_eval(response.responseText);
-				    if (win){
-				        win.on('closed_ok',function(id, displayText){
-							if (scope.fireEvent('afterselect', scope, id, displayText)) {
-								scope.addRecordToStore(id, displayText);
-							}
-							
-				        });
-				    }
-				},
-				failure: function(response, opts){
-					uiAjaxFailMessage.apply(this, arguments);
-				}
-			});
+		if(this.fireEvent('beforerequest', this)) {
+			this.selectInDictionary();
 		}
+	},
+
+	/**
+	 * Ajax-запрос выбора из справочника.
+	 */
+	selectInDictionary: function() {
+		var scope = this;
+		Ext.Ajax.request({
+			url: this.actionSelectUrl,
+			method: 'POST',
+			params: this.actionContextJson,
+			success: function(response, opts){
+				var win = smart_eval(response.responseText);
+				if (win){
+					var selectedItems = [];
+					if(scope.getRecord()){
+						selectedItems = [scope.getRecord()];
+					}
+					win.checkSelectedItems(selectedItems);
+					win.on('closed_ok',function(id, displayText){
+						if (scope.fireEvent('afterselect', scope, id, displayText)){
+							// если это выбор записи из грида
+							if (id instanceof Ext.data.Record) {
+								scope.setRecord(id);
+							} else {
+								// если это выбор элемента из дерева
+								if (id instanceof Ext.tree.TreeNode) {
+									var record = new Ext.data.Record(id.attributes);
+									scope.setRecord(record);
+								} else {
+									scope.addRecordToStore(id, displayText);
+								}
+							}
+						}
+					});
+				}
+			},
+			failure: function(response, opts){
+				uiAjaxFailMessage.apply(this, arguments);
+			}
+		});
 	},
 	/**
 	 * Добавляет запись в хранилище и устанавливает ее в качестве выбранной
@@ -542,8 +581,12 @@ Ext.m3.AdvancedComboBox = Ext.extend(Ext.m3.ComboBox, {
 		if(this.focusClass){
             this.el.removeClass(this.focusClass);
         }
-		if(this.wrap){
-            this.wrap.removeClass(this.wrapFocusClass);
+        if (this.isValid()) {
+            Ext.m3.AdvancedComboBox.superclass.triggerBlur.call(this);
+        } else {
+            if (this.getValue() !== '') {
+                this.clearValue();
+            }
         }
         // Очистка значения, если введено пустое значение
         if (!this.getRawValue() && this.getValue()) {
@@ -605,13 +648,18 @@ Ext.m3.AdvancedComboBox = Ext.extend(Ext.m3.ComboBox, {
         this.disableTriggers(readOnly);
         Ext.m3.AdvancedComboBox.superclass.setReadOnly.call(this, readOnly);
         if (readOnly){
-            this.el.setWidth(width);
-            if (this.wrap) this.wrap.setWidth(width);
+            if (width != 0 ) {
+                this.el.setWidth(width);
+                if (this.wrap) this.wrap.setWidth(width);
+            }
         } else {
 
             this.showTriggers(!readOnly);
 
-            this.onResize(width);
+            if (width != 0 ) {
+                this.el.setWidth(width-this.getTriggerWidth());
+                if (this.wrap) this.wrap.setWidth(width);
+            }
         }
     }
 });

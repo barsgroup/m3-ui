@@ -361,17 +361,23 @@ Ext.m3.AddrField = Ext.extend(Ext.Container, {
     }
 
 	, initComponent: function(){
-		Ext.m3.AddrField.superclass.initComponent.call(this);
+                Ext.m3.AddrField.superclass.initComponent.call(this);
+                this.mon(this.place, 'select', this.onChangePlace, this);
 		this.mon(this.place, 'change', this.onChangePlace, this);
 		if (this.level > 1) {
+			this.mon(this.street, 'select', this.onChangeStreet, this);
 			this.mon(this.street, 'change', this.onChangeStreet, this);
 			if (this.level > 2) {
+				this.mon(this.house, 'select', this.onChangeHouse, this);
 				this.mon(this.house, 'change', this.onChangeHouse, this);
 				if (this.use_corps) {
+					this.mon(this.corps, 'select', this.onChangeCorps, this);
 					this.mon(this.corps, 'change', this.onChangeCorps, this);
 				}
+				this.mon(this.zipcode, 'select', this.onChangeZipcode, this);
 				this.mon(this.zipcode, 'change', this.onChangeZipcode, this);
 				if (this.level > 3) {
+					this.mon(this.flat, 'select', this.onChangeFlat, this);
 					this.mon(this.flat, 'change', this.onChangeFlat, this);
 				}
 			}
