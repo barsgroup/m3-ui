@@ -110,15 +110,10 @@ class ExtContainerTable(BaseExtContainer):
             for d in self._properties.values():
                 d[row_num].update(kwargs)
 
-    def make_read_only(
+    def _make_read_only(
             self, access_off=True, exclude_list=[], *args, **kwargs):
-        # Описание в базовом классе ExtUiComponent.
-        # Обрабатываем исключения.
-        access_off = self.pre_make_read_only(
-            access_off, exclude_list, *args, **kwargs)
-        # Выключаем\включаем компоненты.
         for item in self.items:
-            item.make_read_only(access_off, exclude_list, *args, **kwargs)
+            item._make_read_only(access_off, exclude_list, *args, **kwargs)
 
     @property
     def items(self):

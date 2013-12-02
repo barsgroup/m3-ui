@@ -173,12 +173,8 @@ class ExtObjectGrid(containers.ExtGrid):
 
         self.init_component()
 
-    def make_read_only(
+    def _make_read_only(
             self, access_off=True, exclude_list=[], *args, **kwargs):
-        # Описание в базовом классе ExtUiComponent.
-        # Обрабатываем исключения.
-        access_off = self.pre_make_read_only(
-            access_off, exclude_list, *args, **kwargs)
         self.read_only = access_off
         # Выключаем\включаем компоненты.
         for item in (
@@ -190,14 +186,14 @@ class ExtObjectGrid(containers.ExtGrid):
             self.context_menu_row.menuitem_delete,
             self.context_menu_row,
         ):
-            item.make_read_only(
+            item._make_read_only(
                 access_off, exclude_list, *args, **kwargs
             )
         if hasattr(self.top_bar, 'items') and self.top_bar.items:
             for item in self.top_bar.items:
                 if hasattr(item, 'make_read_only') and callable(
-                        item.make_read_only):
-                    item.make_read_only(
+                        item._make_read_only):
+                    item._make_read_only(
                         access_off, exclude_list, *args, **kwargs)
 
         # убираем редактирование записи по даблклику
@@ -598,24 +594,18 @@ class ExtMultiGroupinGrid(containers.ExtGrid):
     def handler_beforeedit(self, function):
         self._listeners['beforeeditrequest'] = function
 
-    def make_read_only(
+    def _make_read_only(
             self, access_off=True, exclude_list=[], *args, **kwargs):
-        # Описание в базовом классе ExtUiComponent.
-        # Обрабатываем исключения.
-        access_off = self.pre_make_read_only(access_off, exclude_list,
-                                             *args, **kwargs)
-        # Выключаем\включаем компоненты.
-        super(
-            ExtMultiGroupinGrid, self).make_read_only(access_off, exclude_list,
-                                                      *args, **kwargs)
 
-        if (self._top_bar and
-            hasattr(self._top_bar, 'items') and
-            self._top_bar.items and
-                hasattr(self._top_bar.items, '__iter__')):
+        super(ExtMultiGroupinGrid, self)._make_read_only(
+            access_off, exclude_list, *args, **kwargs)
+
+        if (self._top_bar and hasattr(self._top_bar, 'items')
+            and self._top_bar.items and hasattr(
+                self._top_bar.items, '__iter__')):
             for item in self._top_bar.items:
                 if isinstance(item, ExtUIComponent):
-                    item.make_read_only(
+                    item._make_read_only(
                         self.read_only,
                         exclude_list,
                         *args, **kwargs

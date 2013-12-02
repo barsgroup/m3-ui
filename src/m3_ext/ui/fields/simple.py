@@ -269,7 +269,8 @@ class ExtCheckBox(BaseExtField):
 
     def __init__(self, *args, **kwargs):
         super(ExtCheckBox, self).__init__(*args, **kwargs)
-        self.template = 'ext-fields/ext-checkbox.js' #TODO: Необходимо отрефакторить под внутриклассовый рендеринг
+        #TODO: Необходимо отрефакторить под внутриклассовый рендеринг
+        self.template = 'ext-fields/ext-checkbox.js'
 
         # Признак того, что значение выбрано
         self.checked = False
@@ -287,14 +288,11 @@ class ExtCheckBox(BaseExtField):
     def handler_check(self, function):
         self._listeners['check'] = function
 
-    def make_read_only(self, access_off=True, exclude_list=[], *args, **kwargs):
-        # Описание в базовом классе ExtUiComponent.
-        # Обрабатываем исключения.
-        access_off = self.pre_make_read_only(access_off, exclude_list, *args, **kwargs)
-        # Выключаем\включаем компоненты.
+    def _make_read_only(self, access_off=True, *args, **kwargs):
         self.read_only = access_off
 
-#===============================================================================
+
+#==============================================================================
 class ExtRadio(BaseExtField):
     '''
     Радио-поле

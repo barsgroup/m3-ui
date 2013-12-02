@@ -125,18 +125,13 @@ class BaseExtContainer(ExtUIComponent):
 
         return nested
 
-    def make_read_only(
+    def _make_read_only(
             self, access_off=True, exclude_list=[], *args, **kwargs):
-        # Описание в базовом классе ExtUiComponent.
-        # Обрабатываем исключения.
-        access_off = self.pre_make_read_only(
-            access_off, exclude_list, *args, **kwargs)
-        # Выключаем\включаем компоненты.
         if self._items:
             for item in self._items:
                 if hasattr(item, "make_read_only") and callable(
-                        item.make_read_only):
-                    item.make_read_only(
+                        item._make_read_only):
+                    item._make_read_only(
                         access_off, exclude_list, *args, **kwargs)
 
 
@@ -197,19 +192,13 @@ class BaseExtPanel(BaseExtContainer):
         if not self.title or not self.header is None:
             self._put_config_value('header', self.header)
 
-    def make_read_only(
+    def _make_read_only(
             self, access_off=True, exclude_list=[], *args, **kwargs):
         #FIXME: нельзя использовать в качестве умолчательных параметров
         # изменяемые типы. Это может привести к неприятным side эффектам
+        super(BaseExtPanel, self)._make_read_only(
+            access_off, exclude_list, *args, **kwargs)
 
-        # Описание в базовом классе ExtUiComponent.
-        # вызываем родительский метод для итемов.
-        # Обрабатываем исключения.
-        access_off = self.pre_make_read_only(
-            access_off, exclude_list, *args, **kwargs)
-        # Выключаем\включаем компоненты.
-        super(BaseExtPanel, self).make_read_only(
-            access_off, exclude_list, *args, **kwargs)
         bar_typle = (self.footer_bar, self.bottom_bar, self.top_bar)
         for bar in bar_typle:
             if bar and bar._items:
@@ -217,6 +206,6 @@ class BaseExtPanel(BaseExtContainer):
                 assert isinstance(bar, BaseExtContainer)
                 for item in bar._items:
                     if hasattr(item, "make_read_only") and callable(
-                            item.make_read_only):
-                        item.make_read_only(
+                            item._make_read_only):
+                        item._make_read_only(
                             access_off, exclude_list, *args, **kwargs)

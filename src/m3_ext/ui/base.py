@@ -12,6 +12,7 @@ Created on 01.03.2010
 import datetime
 import decimal
 import collections
+import warnings
 
 from django import template as django_template
 from django.conf import settings
@@ -592,20 +593,7 @@ class ExtUIComponent(BaseExtComponent):
 
     def pre_make_read_only(
             self, access_off=True, exclude_list=[], *args, **kwargs):
-        """
-        Выполняется перед методом make_read_only, определяет находится ли
-        данный компонент в списке исключений
-        (в список может передаваться имя объекта, или даже сам объект).
-        Если компонент в списке исключенний, то
-        действие метода становится противопложным.
-        Т.е. если вызывали make_read_only - компонент не будет отключаться, и
-        наоборот, если вызывали make_read_only(False) объект будет отключен.
-        """
-        if (
-            (self in exclude_list) or
-            (hasattr(self, 'name') and self.name and self.name in exclude_list)
-        ):
-            access_off = not access_off
+        warnings.warn("Don't do this!", DeprecationWarning)
         return access_off
 
     def make_read_only(
@@ -619,9 +607,20 @@ class ExtUIComponent(BaseExtComponent):
         При вызове метода без параметров, используется параметр по-умолчанию
         access_off=True, в этом случае метод делает компонент, и все контролы
         расположенные на нем неизменяемыми.
-        make_read_only(False) соответственно делает компонент доступным для
+        _make_read_only(False) соответственно делает компонент доступным для
         изменения, так же как и все контролы на нем.
         """
-        excp_name = self.__class__.__name__
-        raise NotImplementedError(
-            u'В компоненте %s не переопределен базовый метод.' % excp_name)
+        if (
+            (self in exclude_list) or
+            (hasattr(self, 'name') and self.name and self.name in exclude_list)
+        ):
+            actual_access_off = not access_off
+        else:
+            actual_access_off = access_off
+
+        return self._make_read_only(
+            actual_access_off, exclude_list, *args, **kwargs)
+
+    def _make_read_only(
+            self, access_off=True, exclude_list=[], *args, **kwargs):
+        raise NotImplementedError()

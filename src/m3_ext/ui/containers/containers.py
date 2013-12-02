@@ -197,7 +197,7 @@ class ExtStaticToolBarItem(ExtUIComponent):
     def render(self):
         return self.static_value
 
-    def make_read_only(
+    def _make_read_only(
             self, access_off=True, exclude_list=[], *args, **kwargs):
         # Описание в базовом классе ExtUiComponent.
         pass
@@ -220,7 +220,7 @@ class ExtTextToolBarItem(ExtUIComponent):
     def render(self):
         return "{xtype: 'tbtext', text: '%s'}" % self.text
 
-    def make_read_only(
+    def _make_read_only(
             self, access_off=True, exclude_list=[], *args, **kwargs):
         # Описание в базовом классе ExtUiComponent.
         pass
@@ -301,12 +301,11 @@ class ExtToolbarMenu(ExtUIComponent):
 
         return '{%s}' % res
 
-    def make_read_only(
+    def _make_read_only(
             self, access_off=True, exclude_list=[], *args, **kwargs):
-        access_off = self.pre_make_read_only(
-            access_off, exclude_list, *args, **kwargs)
         if self.menu:
-            self.menu.make_read_only(access_off, exclude_list, *args, **kwargs)
+            self.menu._make_read_only(
+                access_off, exclude_list, *args, **kwargs)
 
 
 #==============================================================================

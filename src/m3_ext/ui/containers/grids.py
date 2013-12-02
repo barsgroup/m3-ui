@@ -326,21 +326,17 @@ class ExtGrid(BaseExtPanel):
 
     store = property(get_store, set_store)
 
-    def make_read_only(
+    def _make_read_only(
             self, access_off=True, exclude_list=[], *args, **kwargs):
-        # Описание в базовом классе ExtUiComponent.
-        # Обрабатываем исключения.
-        access_off = self.pre_make_read_only(
-            access_off, exclude_list, *args, **kwargs)
-        # Выключаем\включаем компоненты.
-        super(ExtGrid, self).make_read_only(
+        super(ExtGrid, self)._make_read_only(
             access_off, exclude_list, *args, **kwargs)
         self.read_only = access_off
         if self.columns:
             for column in self.columns:
-                column.make_read_only(
+                column._make_read_only(
                     self.read_only, exclude_list, *args, **kwargs)
-        #убираем редактирование записи по даблклику
+
+        # убираем редактирование записи по даблклику
         self.handler_dblclick = 'Ext.emptyFn'
 
         # контекстное меню.
@@ -355,7 +351,7 @@ class ExtGrid(BaseExtPanel):
             ):
                 for item in context_menu.items:
                     if isinstance(item, ExtUIComponent):
-                        item.make_read_only(
+                        item._make_read_only(
                             self.read_only, exclude_list, *args, **kwargs)
 
     @property
@@ -610,15 +606,11 @@ class BaseExtGridColumn(ExtUIComponent):
     def render_editor(self):
         return self.editor.render()
 
-    def make_read_only(
+    def _make_read_only(
             self, access_off=True, exclude_list=[], *args, **kwargs):
-        # Описание в базовом классе ExtUiComponent.
-        # Обрабатываем исключения.
-        access_off = self.pre_make_read_only(
-            access_off, exclude_list, *args, **kwargs)
         self.read_only = access_off
         if self.editor and isinstance(self.editor, ExtUIComponent):
-            self.editor.make_read_only(
+            self.editor._make_read_only(
                 self.read_only, exclude_list, *args, **kwargs)
 
     def render_base_config(self):

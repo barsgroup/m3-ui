@@ -174,16 +174,10 @@ class ExtDictionaryWindow(BaseExtWindow):
 
         self._mode = value
 
-    def make_read_only(
+    def _make_read_only(
             self, access_off=True, exclude_list=[], *args, **kwargs):
-        # Описание в базовом классе ExtUIComponent.
-        # Обрабатываем исключения.
-        access_off = self.pre_make_read_only(
-            access_off, exclude_list, *args, **kwargs)
-        # Выключаем\включаем компоненты.
-        # Задаем собственный атрибут окна.
         self.read_only = access_off
-        super(ExtDictionaryWindow, self).make_read_only(
+        super(ExtDictionaryWindow, self)._make_read_only(
             self.read_only, exclude_list, *args, **kwargs)
         if self.tree:
             # Включаем обратно refresh, ибо он нужен.
@@ -192,7 +186,7 @@ class ExtDictionaryWindow(BaseExtWindow):
             # И поиск тоже включаем
             if self.search_text_tree:
                 exclude_list.append(self.search_text_tree)
-            self.tree.make_read_only(
+            self.tree._make_read_only(
                 self.read_only, exclude_list, *args, **kwargs)
 
         if self.grid:
@@ -202,13 +196,13 @@ class ExtDictionaryWindow(BaseExtWindow):
             # И поиск тоже включаем
             if self.search_text_grid:
                 exclude_list.append(self.search_text_grid)
-            self.grid.make_read_only(
+            self.grid._make_read_only(
                 self.read_only, exclude_list, *args, **kwargs)
 
         # Оставим кнопку Закрыть и Выбрать
         for btn in self.buttons:
             if btn.name in ['close_btn', 'select_btn']:
-                btn.make_read_only(False)
+                btn._make_read_only(False)
 
     def _add_menu_item_grid(
             self, to_tbar=True, to_row_menu=True,

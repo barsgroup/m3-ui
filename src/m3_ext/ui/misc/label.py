@@ -22,7 +22,7 @@ class ExtLabel(ExtUIComponent):
 
         self.init_component(*args, **kwargs)
 
-    def make_read_only(
+    def _make_read_only(
             self, access_off=True, exclude_list=[], *args, **kwargs):
         # Описание в базовом классе ExtUiComponent.
         pass
