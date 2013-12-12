@@ -1,12 +1,12 @@
-String.prototype.repeat = function( num )
-{
-    return new Array( num + 1 ).join( this );
-}
+String.prototype.repeat = function (num) {
+    return new Array(num + 1).join(this);
+};
 
 Ext.ns('Ext.ux.grid');
 Ext.ux.grid.MultiGrouping = function(config) {
-	if (config) Ext.apply(this, config);
-}
+    if (config) Ext.apply(this, config);
+};
+
 /**
  * Плагин для LiveGrid, работающий с группировкой столбцов
  */
@@ -86,7 +86,7 @@ Ext.extend(Ext.ux.grid.MultiGrouping, Ext.util.Observable, {
             
        		// Добавим плугин подсказок
 			var tipConf = [];
-			Ext.each(this.cm.columns,function(column,index){
+			Ext.each(this.cm.columns, function(column,index){
                 if (column.tooltip != undefined) {
                     // если задана настройка подсказок, то укажем ее
                     tipConf.push(column.tooltip);
@@ -94,7 +94,7 @@ Ext.extend(Ext.ux.grid.MultiGrouping, Ext.util.Observable, {
                     // иначе собственные подсказки
                     tipConf.push({
                         field: column.dataIndex,
-                        tpl: '{'+column.dataIndex+'}'
+                        tpl: '{' + column.dataIndex + '}'
                     });
                 }
 	        });
@@ -322,8 +322,8 @@ Ext.extend(Ext.ux.grid.MultiGrouping, Ext.util.Observable, {
                         }
                     });
                     toolItems.push(butt);
-            	};
-            };
+            	}
+            }
             toolItems.push(new Ext.Toolbar.Separator());
             
             if (this.grid.getTopToolbar()){
@@ -742,7 +742,7 @@ Ext.extend(Ext.ux.grid.MultiGrouping, Ext.util.Observable, {
     		e.stopEvent();
     		}
     }
-})
+});
 
 Ext.ns('Ext.m3');
 /**
@@ -782,7 +782,7 @@ Ext.m3.MultiGroupingGridPanel = Ext.extend(Ext.ux.grid.livegrid.GridPanel, {
 				e.stopEvent();
 				if (!this.getSelectionModel().isSelected(index)) {
 						this.getSelectionModel().selectRow(index);
-				};
+				}
                 params.menus.rowContextMenu.showAt(e.getXY())
 			}
 		} else {

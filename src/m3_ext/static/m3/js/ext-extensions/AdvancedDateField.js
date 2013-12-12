@@ -24,7 +24,7 @@ Ext.m3.AdvancedDataField = Ext.extend(Ext.form.DateField, {
 
 		if (params.hideTriggerToday) {
 			this.hideTriggerToday = true;
-		};
+		}
 
 		Ext.m3.AdvancedDataField.superclass.constructor.call(this, baseConfig);
 	}
@@ -76,9 +76,11 @@ Ext.m3.AdvancedDataField = Ext.extend(Ext.form.DateField, {
 	,initBaseTrigger: function(){
 		this.baseTriggers[0].handler = this.onTriggerClick;
 		this.baseTriggers[1].handler = function(){
-			var today = new Date();
-			this.setValue( today );
-			this.fireEvent('select', this, today);
+            if (!this.readOnly && !this.disabled) {
+                var today = new Date();
+                this.setValue(today);
+                this.fireEvent('select', this, today);
+            }
 		};
 		this.baseTriggers[1].hide = this.hideTriggerToday;
 	},

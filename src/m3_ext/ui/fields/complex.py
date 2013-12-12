@@ -54,7 +54,7 @@ class ExtDictSelectField(BaseExtTriggerField):
 
         self.set_store(ExtJsonStore())
 
-        self.width = 150
+        #self.width = 150
         self.default_text = None
 
         self.ask_before_deleting = True

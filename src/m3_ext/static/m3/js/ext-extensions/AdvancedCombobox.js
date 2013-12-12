@@ -219,11 +219,6 @@ Ext.m3.AdvancedComboBox = Ext.extend(Ext.m3.ComboBox, {
         this.triggers = ts.elements;
     },
 
-    getWidth: function() {
-        // неверно пересчитывался размер поля
-        //Ext.m3.AdvancedComboBox.superclass.getWidth.call(this);
-        return(this.el.getWidth() + this.getTriggerWidth());
-    },
     /**
      * Устанавливает или снимает с кнопок обработчики,
      * в зависимости от того, доступно ли поле.
@@ -329,7 +324,7 @@ Ext.m3.AdvancedComboBox = Ext.extend(Ext.m3.ComboBox, {
 	            msg: 'Вы действительно хотите очистить выбранное значение?',
 	            icon: Ext.Msg.QUESTION,
 	            buttons: Ext.Msg.YESNO,
-	            fn: function(btn,text,opt){
+	            fn: function(btn, text, opt){
 	                if (btn === 'yes') {
 	                    scope.clearValue(); 
 	                }
@@ -596,23 +591,16 @@ Ext.m3.AdvancedComboBox = Ext.extend(Ext.m3.ComboBox, {
         // Отображаем триггеры при disabled=false, т.е. поле вновь активно.
         this.showTriggers(!disabled);
      },
-     
+
     /**
      * При изменении доступности поля, нужно также поменять доступность всех его кнопок
      */
     setReadOnly: function(readOnly){
-        var width = this.getWidth();
         this.disableTriggers(readOnly);
         Ext.m3.AdvancedComboBox.superclass.setReadOnly.call(this, readOnly);
-        if (readOnly){
-            this.el.setWidth(width);
-            if (this.wrap) this.wrap.setWidth(width);
-        } else {
 
-            this.showTriggers(!readOnly);
-
-            this.onResize(width);
-        }
+        // Отображаем триггеры при readOnly=false, т.е. поле вновь активно.
+        this.showTriggers(!readOnly);
     }
 });
 

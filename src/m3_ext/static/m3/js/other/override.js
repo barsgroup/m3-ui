@@ -461,17 +461,11 @@ var restoreClass = function(readOnly){
     } else {
         this.removeClass('m3-grey-field');
     }
-}
+};
+
 Ext.override(Ext.form.Field, {
     setReadOnly : function(readOnly){
         setReadOnlyField.call(this, readOnly);
-        restoreClass.call(this, readOnly);
-    }
-});
-var setReadOnlyTriggerField = Ext.form.TriggerField.prototype.setReadOnly;
-Ext.override(Ext.form.TriggerField, {
-    setReadOnly : function(readOnly){
-        setReadOnlyTriggerField.call(this, readOnly);
         restoreClass.call(this, readOnly);
     }
 });

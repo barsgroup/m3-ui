@@ -9,4 +9,4 @@ Ext.m3.ComboBox =  Ext.extend(Ext.form.ComboBox,{
 	getText: function(){
 		return this.lastSelectionText;
 	}
-})
+});
