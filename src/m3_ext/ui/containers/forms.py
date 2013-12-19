@@ -10,7 +10,13 @@ import decimal
 import os
 import json
 
-from PIL import Image  # require PIL module
+try:
+    from PIL import Image  # require PIL module
+except ImportError:
+    class _FakeImage(object):
+        def __getattr__(self, attr):
+            raise ImportError("PIL not installed!")
+    Image = _FakeImage
 
 from django.core.files.base import ContentFile
 from django.conf import settings
