@@ -337,11 +337,11 @@ class BaseExtWindow(ExtUIComponent):
                 assert isinstance(bar, BaseExtContainer)
                 for item in bar._items:
                     if hasattr(item, 'make_read_only'):
-                        item._make_read_only(
+                        item.make_read_only(
                             self.read_only, exclude_list, *args, **kwargs)
         # Перебираем кнопки.
         if self.__buttons and self.__buttons:
             for button in self.__buttons:
                 assert isinstance(button, BaseExtControl)
-                button._make_read_only(
+                button.make_read_only(
                     self.read_only, exclude_list, *args, **kwargs)
