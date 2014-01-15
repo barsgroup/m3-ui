@@ -99,10 +99,10 @@ class ExtDataStore(BaseExtStore):
 
 #==============================================================================
 class ExtJsonStore(BaseExtStore):
-    '''
+    """
     Хранилище данных, которое отправляет запрос на сервер и ждет, что данные
     вернуться в формате json
-    '''
+    """
     def __init__(self, *args, **kwargs):
         super(ExtJsonStore, self).__init__(*args, **kwargs)
         # TODO: Отрефакторить под внутриклассовый рендеринг
@@ -142,9 +142,9 @@ class ExtJsonStore(BaseExtStore):
         return super(ExtJsonStore, self).render()
 
     def t_render_fields(self):
-        '''
+        """
         Прописывается в шаблоне и заполняется при рендеринге
-        '''
+        """
 
         res = ['{name: "%s"}' % self.id_property]
         for col in self.__columns:
@@ -425,6 +425,8 @@ class ExtGroupingStore(ExtJsonStore):
         super(ExtGroupingStore, self).__init__(*args, **kwargs)
         self.template = 'ext-misc/ext-grouping-store.js'
 
+        self.reader = None
+
         # Серверная группировка
         self.remote_group = False
 
@@ -435,15 +437,6 @@ class ExtGroupingStore(ExtJsonStore):
         # см: http://extjs.docs/d/?class=Ext.data.GroupingStore
         self.sort_info = None
         self.init_component(*args, **kwargs)
-
-    def render(self, columns):
-        assert self.sort_info in self.reader.get_fields(), (
-            'can`t find sortfield "%s" in %s' % (
-                self.sort_info, self.reader.get_fields()))
-        assert self.group_field in self.reader.get_fields(), (
-            'can`t find groupfield "%s" in %s' % (
-                self.group_field, self.reader.get_fields()))
-        return super(ExtGroupingStore, self).render(columns)
 
 
 #==============================================================================
