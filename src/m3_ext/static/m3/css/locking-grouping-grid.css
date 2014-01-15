@@ -1,0 +1,22 @@
+﻿.x-grid3-total-summary{
+    background-color:#f9f9f9;
+    background-image:url(../images/grid3-hrow-180.gif);
+    background-repeat: repeat-x;
+    background-position: left top;
+}
+
+.x-grid3-total-summary-inner {
+    overflow:hidden;
+    zoom:1;
+    float:left;
+}
+
+.x-grid3-total-summary-offset {
+    padding-left:1px;
+    text-align: left;
+}
+
+.x-grid3-total-summary-row {
+    border-left-color:#eee;
+    border-right-color:#d0d0d0;
+}
