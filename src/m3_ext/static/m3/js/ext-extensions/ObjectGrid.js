@@ -107,29 +107,25 @@ Ext.m3.ObjectGrid = Ext.extend(Ext.m3.GridPanel, {
 			params: params,
 			success: function(res, opt){
 				if (scope.fireEvent('afternewrequest', scope, res, opt)) {
-				    try { 
+				    try {
 				        var child_win = scope.onNewRecordWindowOpenHandler(res, opt);
-				    } finally { 
+				    } finally {
     				    mask.hide();
-    				    scope.disableToolbars(false);
 				    }
 					return child_win;
 				}
 				mask.hide();
-				scope.disableToolbars(false);
 			}
-           ,failure: function(){ 
+           ,failure: function(){
                uiAjaxFailMessage.apply(this, arguments);
                mask.hide();
-               scope.disableToolbars(false);
-               
+
            }
 		};
 		
 		if (this.fireEvent('beforenewrequest', this, req)) {
 			var scope = this;
 
-			this.disableToolbars(true);
 			mask.show();
 			Ext.Ajax.request(req);
 		}
@@ -141,7 +137,7 @@ Ext.m3.ObjectGrid = Ext.extend(Ext.m3.GridPanel, {
 	,onEditRecord: function (){
 		assert(this.actionEditUrl, 'actionEditUrl is not define');
 		assert(this.rowIdName, 'rowIdName is not define');
-		
+
 	    if (this.getSelectionModel().hasSelection()) {
 	    	// при локальном редактировании запросим также текущую строку
 			var baseConf = this.getSelectionContext(this.localEdit);
@@ -151,27 +147,24 @@ Ext.m3.ObjectGrid = Ext.extend(Ext.m3.GridPanel, {
 				params: baseConf,
 				success: function(res, opt){
 					if (scope.fireEvent('aftereditrequest', scope, res, opt)) {
-					    try { 
+					    try {
 						    var child_win = scope.onEditRecordWindowOpenHandler(res, opt);
-						} finally { 
+						} finally {
     						mask.hide();
-    						scope.disableToolbars(false);
 						}
 						return child_win;
 					}
 					mask.hide();
-                    scope.disableToolbars(false);
 				}
-               ,failure: function(){ 
+               ,failure: function(){
                    uiAjaxFailMessage.apply(this, arguments);
                    mask.hide();
-                   scope.disableToolbars(false);
                }
 			};
-			
+
 			if (this.fireEvent('beforeeditrequest', this, req)) {
 				var scope = this;
-				this.disableToolbars(true);
+
 				mask.show();
 				Ext.Ajax.request(req);
 			}
@@ -211,21 +204,18 @@ Ext.m3.ObjectGrid = Ext.extend(Ext.m3.GridPanel, {
 		                		       var child_win =  scope.deleteOkHandler(res, opt);
 		                		   } finally { 
     		                		   mask.hide();
-    		                		   scope.disableToolbars(false);
     		                	   }
 		                		   return child_win;
 		                	   }
 		                	   mask.hide();
-                               scope.disableToolbars(false);
 						   }
                            ,failure: function(){ 
                                uiAjaxFailMessage.apply(this, arguments);
                                mask.hide();
-                               scope.disableToolbars(false);
                            }
 		                };
 						if (scope.fireEvent('beforedeleterequest', scope, req)) {
-						    scope.disableToolbars(true);
+
 						    mask.show();
 							Ext.Ajax.request(req);
 						}
@@ -350,15 +340,6 @@ Ext.m3.ObjectGrid = Ext.extend(Ext.m3.GridPanel, {
 		}
 
 	}
-	,disableToolbars: function(disabled){
-        var toolbars = [this.getTopToolbar(), this.getFooterToolbar(), 
-                       this.getBottomToolbar()]
-        for (var i=0; i<toolbars.length; i++){
-            if (toolbars[i]&&!this.readOnly){
-                toolbars[i].setDisabled(disabled);
-            }
-        }
-    }
     /**
      * Получение основного контекста грида
      * Используется при ajax запросах
@@ -419,8 +400,6 @@ Ext.m3.ObjectGrid = Ext.extend(Ext.m3.GridPanel, {
 
 Ext.m3.EditorObjectGrid = Ext.extend(Ext.m3.EditorGridPanel, {
 	constructor: function(baseConfig, params){
-//		console.log(baseConfig);
-//		console.log(params);
 		
 		assert(params.allowPaging !== undefined,'allowPaging is undefined');
 		assert(params.rowIdName !== undefined,'rowIdName is undefined');

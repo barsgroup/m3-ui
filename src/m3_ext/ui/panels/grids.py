@@ -48,7 +48,6 @@ class ExtObjectGrid(containers.ExtGrid):
             self.init_component()
 
     class GridTopBar(containers.ExtToolBar):
-
         """
         Внутренний класс для удобной работы топбаром грида
         """
@@ -174,7 +173,7 @@ class ExtObjectGrid(containers.ExtGrid):
         self.init_component()
 
     def _make_read_only(
-            self, access_off=True, exclude_list=[], *args, **kwargs):
+            self, access_off=True, exclude_list=(), *args, **kwargs):
         self.read_only = access_off
         # Выключаем\включаем компоненты.
         for item in (
@@ -376,10 +375,9 @@ class ExtMultiGroupinGrid(containers.ExtGrid):
             self.init_component()
 
     class LiveGridTopBar(containers.ExtToolBar):
-
-        '''
+        """
         Внутренний класс для удобной работы топбаром грида
-        '''
+        """
         def __init__(self, *args, **kwargs):
             super(ExtMultiGroupinGrid.LiveGridTopBar, self).__init__(
                 *args, **kwargs)
@@ -556,7 +554,7 @@ class ExtMultiGroupinGrid(containers.ExtGrid):
             (
                 'groupedColumns',
                 lambda: '[%s]' % ','.join(
-                    ["'%s'" % (col) for col in self.grouped]
+                    ["'%s'" % col for col in self.grouped]
                 )
             ),
             ('dataIdField', self.data_id_field),
@@ -595,7 +593,7 @@ class ExtMultiGroupinGrid(containers.ExtGrid):
         self._listeners['beforeeditrequest'] = function
 
     def _make_read_only(
-            self, access_off=True, exclude_list=[], *args, **kwargs):
+            self, access_off=True, exclude_list=(), *args, **kwargs):
 
         super(ExtMultiGroupinGrid, self)._make_read_only(
             access_off, exclude_list, *args, **kwargs)
