@@ -8,6 +8,7 @@ import os
 import json
 
 from django.conf import settings
+from django.utils.html import escapejs
 
 from base import BaseExtField
 
@@ -223,7 +224,7 @@ class ExtDictSelectField(BaseExtTriggerField):
         """
 
         value = getattr(obj, self.value_field)
-        self.value = value() if callable(value) else value
+        self.value = escapejs(value() if callable(value) else value)
 
         value = getattr(obj, self.display_field)
         self.default_text = value() if callable(value) else value
