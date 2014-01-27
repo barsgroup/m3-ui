@@ -469,3 +469,76 @@ Ext.override(Ext.form.Field, {
         restoreClass.call(this, readOnly);
     }
 });
+
+/**
+ * #77796 Фикс для корректировки последней колонки в гриде
+ * Было:
+ *     colModel.setColumnWidth(i, Math.max(grid.minColumnWidth, Math.floor(colWidth + colWidth * fraction)), true);
+ * стало:
+ *     colModel.setColumnWidth(i, Math.floor(colWidth + colWidth * fraction), true);
+ */
+Ext.override(Ext.grid.GridView, {
+    fitColumns : function(preventRefresh, onlyExpand, omitColumn) {
+        var grid          = this.grid,
+            colModel      = this.cm,
+            totalColWidth = colModel.getTotalWidth(false),
+            gridWidth     = this.getGridInnerWidth(),
+            extraWidth    = gridWidth - totalColWidth,
+            columns       = [],
+            extraCol      = 0,
+            width         = 0,
+            colWidth, fraction, i;
+
+
+        if (gridWidth < 20 || extraWidth === 0) {
+            return false;
+        }
+
+        var visibleColCount = colModel.getColumnCount(true),
+            totalColCount   = colModel.getColumnCount(false),
+            adjCount        = visibleColCount - (Ext.isNumber(omitColumn) ? 1 : 0);
+
+        if (adjCount === 0) {
+            adjCount = 1;
+            omitColumn = undefined;
+        }
+
+
+        for (i = 0; i < totalColCount; i++) {
+            if (!colModel.isFixed(i) && i !== omitColumn) {
+                colWidth = colModel.getColumnWidth(i);
+                columns.push(i, colWidth);
+
+                if (!colModel.isHidden(i)) {
+                    extraCol = i;
+                    width += colWidth;
+                }
+            }
+        }
+
+        fraction = (gridWidth - colModel.getTotalWidth()) / width;
+
+        while (columns.length) {
+            colWidth = columns.pop();
+            i        = columns.pop();
+
+            colModel.setColumnWidth(i, Math.floor(colWidth + colWidth * fraction), true);
+        }
+
+
+        totalColWidth = colModel.getTotalWidth(false);
+
+        if (totalColWidth > gridWidth) {
+            var adjustCol = (adjCount == visibleColCount) ? extraCol : omitColumn,
+                newWidth  = Math.max(1, colModel.getColumnWidth(adjustCol) - (totalColWidth - gridWidth));
+
+            colModel.setColumnWidth(adjustCol, newWidth, true);
+        }
+
+        if (preventRefresh !== true) {
+            this.updateAllColumnWidths();
+        }
+
+        return true;
+    }
+});
