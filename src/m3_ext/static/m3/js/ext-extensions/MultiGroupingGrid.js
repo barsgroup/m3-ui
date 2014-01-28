@@ -448,14 +448,7 @@ Ext.extend(Ext.ux.grid.MultiGrouping, Ext.util.Observable, {
             var startItemCount = this.tbar.items.length;
             for (var ind = 0; ind < this.toolItems.length; ind++) {
             	item = this.toolItems[ind];
-            	this.tbar.items.add(item);
-            }
-            // для корректной работы нужно перевставить элементы, иначе они не работают 
-            // (виновато то, что мы вставили их динамически после подключения новых плагинов)
-            for (var ind = 0; ind < this.toolItems.length; ind++) {
-            	item = this.toolItems[ind];
-            	this.tbar.remove(item,false);
-            	this.tbar.insert(startItemCount+3, item);
+                this.tbar.insert(startItemCount+ind, item);
             }
 	    }
 	    this.grid.enableDragDrop = true;
