@@ -23,9 +23,9 @@ from base import BaseExtWindow
 #==============================================================================
 # TODO: Необходимо отрефакторить данный класс под внутриклассовый рендеринг
 class ExtDictionaryWindow(BaseExtWindow):
-    '''
+    """
     Базовое окно для линейного, иерархичесого и совмещенного справочника
-    '''
+    """
 
     # Режим отображения
     LIST_MODE = 0
@@ -119,6 +119,8 @@ class ExtDictionaryWindow(BaseExtWindow):
         self.contextTreeIdName = 'id'
 
         self.allow_copy = False
+
+        self._text_on_select = None
 
         self.init_component(*args, **kwargs)
 
@@ -276,7 +278,7 @@ class ExtDictionaryWindow(BaseExtWindow):
     def _add_separator_tree(
             self, to_tbar=True, to_node_menu=True,
             to_tree_menu=True, to_menu=None):
-        '''Добавление разделителя в контролы дерева'''
+        """Добавление разделителя в контролы дерева"""
         if to_menu:
             to_menu.add_separator()
         if to_tbar:
@@ -422,9 +424,9 @@ class ExtDictionaryWindow(BaseExtWindow):
             component.disabled = True
 
     def init_grid_components(self):
-        '''
+        """
         Идентификация грида
-        '''
+        """
         if not self.grid:
             grid = ExtGrid(region='center')
             grid.load_mask = True
@@ -477,9 +479,9 @@ class ExtDictionaryWindow(BaseExtWindow):
                 self.grid.sm = ExtGridCheckBoxSelModel()
 
     def init_tree_components(self):
-        '''
+        """
         Идентификация дерева
-        '''
+        """
         if not self.tree:
             tree = ExtTree(width=180)
             tree.handler_contextmenu = ExtContextMenu()

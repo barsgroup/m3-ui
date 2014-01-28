@@ -38,7 +38,6 @@ class ExtDictSelectField(BaseExtTriggerField):
 
     def __init__(self, *args, **kwargs):
         super(ExtDictSelectField, self).__init__(*args, **kwargs)
-        self.template = 'ext-fields/ext-dict-select-field.js'
 
         # Эти атрибуты отвечают за отображение кнопок действий в строке выбора:
         # Выпадающий список
@@ -334,7 +333,7 @@ class ExtDictSelectField(BaseExtTriggerField):
 
 #==============================================================================
 class ExtSearchField(BaseExtField):
-    '''Поле поиска'''
+    """Поле поиска"""
     def __init__(self, *args, **kwargs):
         super(ExtSearchField, self).__init__(*args, **kwargs)
         self.query_param = None
@@ -415,9 +414,9 @@ class ExtFileUploadField(BaseExtField):
 
 #==============================================================================
 class ExtImageUploadField(ExtFileUploadField):
-    '''
+    """
     Компонент загрузки изображений
-    '''
+    """
     MAX = 'max'
     MIN = 'min'
     MIDDLE = 'middle'
@@ -498,18 +497,18 @@ class ExtImageUploadField(ExtFileUploadField):
     @staticmethod
     def get_thumbnail_path(path, size=None):
         if os.path.exists(path):
-            dir = os.path.dirname(path)
+            _dir = os.path.dirname(path)
             name = os.path.basename(path)
             prefix = ExtImageUploadField._prefix_by_type(size)
-            return os.path.join(dir, prefix + name)
+            return os.path.join(_dir, prefix + name)
 
     @staticmethod
     def get_thumbnail_url(name, type_img=None):
-        '''
+        """
         Возвращает url до thumbnail
         @param name: Имя
         @param size: Размер
-        '''
+        """
         base_url, file_name = os.path.split(name)
         prefix = ExtImageUploadField._prefix_by_type(type_img)
         return (
