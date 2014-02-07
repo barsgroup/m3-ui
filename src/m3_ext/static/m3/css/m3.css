@@ -287,3 +287,9 @@ span.CodeMirror-selected {
 .ext-ie6 .x-grid-group-hd div.x-grid-group-title {
     height: 15px;
 }
+
+/* фикс для группирующих колонок в хроме */
+.x-grid3-hd-row td.x-grid3-gcell {
+    -webkit-box-sizing: border-box;
+}
+
