@@ -6,10 +6,12 @@ Created on 26.05.2010
 
 @author: akvarats
 """
+import json
 
 from m3_ext.ui import containers, controls, menus, misc, render_component
-from m3_ext.ui.base import ExtUIComponent
+from m3_ext.ui.base import ExtUIComponent, BaseExtComponent
 from m3.actions.urls import get_url
+from m3_ext.ui.containers.grids import ExtGridCheckBoxSelModel
 
 
 class ExtObjectGrid(containers.ExtGrid):
@@ -608,3 +610,51 @@ class ExtMultiGroupinGrid(containers.ExtGrid):
                         exclude_list,
                         *args, **kwargs
                     )
+
+
+class ExtObjectSelectionPanel(containers.ExtContainer):
+    """
+    Класс, совмещающий возможность ObjectGrid'a и возможности выбора и запоминания значений
+    в случае Paging'a
+    """
+
+    def __init__(self,
+                 grid=None,
+                 selection_columns=None,
+                 selection_grid_conf=None,
+                 *args,
+                 **kwargs):
+        super(ExtObjectSelectionPanel, self).__init__(*args, **kwargs)
+
+        #self.xtype = 'object-selection-panel'
+        self.layout = 'border'
+        self.grid = grid
+        self.selection_grid_conf = selection_grid_conf or {}
+        self.selection_columns = selection_columns or []
+
+        self._ext_name = 'Ext.m3.ObjectSelectionPanel'
+
+    def render_base_config(self):
+        super(ExtObjectSelectionPanel, self).render_base_config()
+        assert self.grid, 'Grid should be define'
+
+        if not isinstance(self.grid.sm, ExtGridCheckBoxSelModel):
+            self.grid.sm = ExtGridCheckBoxSelModel()
+
+        self._put_config_value('grid', self.grid.render)
+        self._put_config_value('selectionColumns', lambda: json.dumps(self.selection_columns))
+        self._put_config_value('selectionGridConf', self._render_selection_conf)
+
+    def _render_selection_conf(self):
+        """
+        Рендеринг параметров грида для выделения записей
+        :return: str
+        """
+        res = []
+        for k, v in self.selection_grid_conf.items():
+            if isinstance(v, BaseExtComponent):
+                res.append('%s:%s' % (k, v.render()))
+            else:
+                res.append('%s:%s' % (k, json.dumps(v)))
+
+        return '{%s}' % ','.join(res)
