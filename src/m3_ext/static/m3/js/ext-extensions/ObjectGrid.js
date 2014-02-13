@@ -517,7 +517,7 @@ Ext.m3.EditorObjectGrid = Ext.extend(Ext.m3.EditorGridPanel, {
 
 	    if (this.getSelectionModel().hasSelection()) {
 	    	// грязный хак
-			if (baseConf[this.rowIdName].contains(",")) {
+			if (baseConf[this.rowIdName].indexOf(",") != -1) {
 				Ext.Msg.show({
 					title: 'Редактирование',
 					msg: 'Редактирование возможно лишь в том случае, если выбран только один элемент!',
