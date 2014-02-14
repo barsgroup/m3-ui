@@ -1,7 +1,7 @@
 #coding:utf-8
-'''
+"""
 В данный пакет включаются контейнерные компоненты
-'''
+"""
 from forms import ExtForm, ExtPanel, ExtTabPanel, ExtFieldSet
 from container_complex import ExtContainerTable
 from grids import (ExtGrid,
@@ -24,3 +24,4 @@ from containers import (ExtContainer,
                         ExtRadioGroup)
 from context_menu import ExtContextMenu, ExtContextMenuItem
 from list_view import ExtListView
+from ribbon import ExtElementGroup, ExtRibbon, ExtRibbonTab

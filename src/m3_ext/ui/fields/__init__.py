@@ -15,3 +15,5 @@ from complex import (ExtDictSelectField,
                      ExtSearchField,
                      ExtFileUploadField,
                      ExtImageUploadField)
+
+from base import BaseExtField, BaseExtTriggerField

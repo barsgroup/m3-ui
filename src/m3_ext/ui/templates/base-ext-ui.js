@@ -13,7 +13,5 @@ id: '{{ component.client_id }}'
 {% if component.max_width %} ,boxMaxWidth: {{ component.max_width }} {% endif %}
 {% if component.min_width %} ,boxMinWidth: {{ component.min_width }} {% endif %}
 {% if component.anchor %} ,anchor: '{{ component.anchor|safe }}' {% endif %}
-
-// Атрибуты vbox/hbox layout
 {% if component.flex %} ,flex: {{ component.flex }} {% endif %}
 {% if component.cls %} ,cls: '{{ component.cls }}' {% endif %}

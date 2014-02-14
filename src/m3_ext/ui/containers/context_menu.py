@@ -11,9 +11,9 @@ from base import BaseExtContainer
 
 #==============================================================================
 class ExtContextMenu(BaseExtContainer):
-    '''
+    """
     Контекстное меню
-    '''
+    """
     __SEPARATOR = '"-"'
 
     def __init__(self, *args, **kwargs):
@@ -31,17 +31,17 @@ class ExtContextMenu(BaseExtContainer):
         self.init_component(*args, **kwargs)
 
     def add_item(self, **kwargs):
-        '''
+        """
         Добавляет элемент с параметрами **kwargs
-        '''
+        """
         item = ExtContextMenuItem(**kwargs)
         self.items.append(item)
         return item
 
     def add_separator(self):
-        '''
+        """
         Добавляет разделитель
-        '''
+        """
         self.items.append(ExtContextMenuSeparator())
 
     def t_render_items(self):
@@ -131,7 +131,7 @@ class ExtContextMenuItem(ExtUIComponent):
         return '{%s}' % ','.join(res)
 
     def _make_read_only(
-            self, access_off=True, exclude_list=[], *args, **kwargs):
+            self, access_off=True, exclude_list=(), *args, **kwargs):
         self.disabled = access_off
 
 
@@ -150,5 +150,5 @@ class ExtContextMenuSeparator(ExtUIComponent):
         return '"-"'
 
     def _make_read_only(
-            self, access_off=True, exclude_list=[], *args, **kwargs):
+            self, access_off=True, exclude_list=(), *args, **kwargs):
         pass

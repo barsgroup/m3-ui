@@ -25,8 +25,6 @@ Ext.m3.ObjectSelectionPanel = Ext.extend(Ext.Container, {
 
         var sm = new Ext.grid.CheckboxSelectionModel();
         this.selectionColumns.unshift(sm);
-        console.log(this.selectionColumns);
-
 
         var selectionConf = Ext.applyIf(this.selectionGridConf, {
              region: 'east',
