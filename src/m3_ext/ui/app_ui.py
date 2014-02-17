@@ -79,21 +79,21 @@ class DesktopModel(object):
 
 
 class BaseDesktopElement(object):
-    '''
+    """
     Базовый класс для объекта модулей и объекта подменю
-    '''
+    """
     def __init__(self, *args, **kwargs):
-        '''
+        """
         @param name: Название модуля или подменю
         @param icon: Класс CSS, отвечающий за отрисовку иконки
-        '''
+        """
         self.name = ''
         self.icon = ''
         self.index = 0
         self.id = str(uuid4())[0:8]
 
     def _init_component(self, *args, **kwargs):
-        '''Заполняет атрибуты экземпляра значениями из kwargs'''
+        """Заполняет атрибуты экземпляра значениями из kwargs"""
         for k, v in kwargs.items():
             assert k in self.__dict__, (
                 'Instance attribute "%s" should be defined in class "%s"!' %
@@ -102,9 +102,9 @@ class BaseDesktopElement(object):
             self.__setattr__(k, v)
 
     def render(self):
-        '''
+        """
         Должен быть переопределен в классе-наследнике
-        '''
+        """
         raise NotImplementedError()
 
     def __cmp__(self, obj):
@@ -113,13 +113,13 @@ class BaseDesktopElement(object):
 
 
 class DesktopLaunchGroup(BaseDesktopElement):
-    '''
+    """
     Класс для работы подменю по нажатию на кнопку Пуск
-    '''
+    """
     def __init__(self, *args, **kwargs):
-        '''
+        """
         subitem: Хранит список модулей и список подменю
-        '''
+        """
         super(DesktopLaunchGroup, self).__init__(*args, **kwargs)
         self.subitems = []
         self.index = 10
@@ -127,15 +127,15 @@ class DesktopLaunchGroup(BaseDesktopElement):
         self._init_component(*args, **kwargs)
 
     def t_is_subitems(self):
-        '''
+        """
         Для удобства понимания что рендерить. Используется в шаблонах.
-        '''
+        """
         return True
 
     def render(self):
-        '''
+        """
         Рендерит имеющийся объект. Вызывается из функции render.
-        '''
+        """
         if self.subitems:
             return '{%s}' % ','.join([
                 'text: "%s"' % self.name.replace('"', "&quot;"),
@@ -159,9 +159,9 @@ class DesktopLaunchGroup(BaseDesktopElement):
         return clone
 
     def render_items(self):
-        '''
+        """
         Рендерит имеющийся список объектов. Вызывается из шаблона.
-        '''
+        """
         res = []
         for item in self.subitems:
             rendered = item.render()
@@ -174,16 +174,16 @@ class DesktopLaunchGroup(BaseDesktopElement):
 
 
 class DesktopLauncher(BaseDesktopElement):
-    '''
+    """
     Класс для работы модулей.
     Модули могут находится в меню Пуск, на рабочем столе.
     Данные модули могут включать в себя класс
     DesktopLaunchGroup в атрибут subitems
-    '''
+    """
     def __init__(self, *args, **kwargs):
-        '''
+        """
         @param url: url-адрес, запрос по которому возвратит форму
-        '''
+        """
         super(DesktopLauncher, self).__init__(*args, **kwargs)
         self.url = ''
         self.icon = 'default-launcher'
@@ -202,19 +202,19 @@ class DesktopLauncher(BaseDesktopElement):
         )
 
     def t_is_subitems(self):
-        '''
+        """
         Для удобства понимания что рендерить. Используется в шаблонах.
-        '''
+        """
         return False
 
     def t_render_context(self):
         return M3JSONEncoder().encode(self.context)
 
     def render(self):
-        '''
+        """
         Рендерит текущий объект.
         Вызывается из метода render_items класса DesktopLaunchGroup
-        '''
+        """
         return '{%s}' % ','.join([
             'text:"%s"' % self.name.replace('"', "&quot;"),
             'iconCls:"%s"' % self.icon,
@@ -286,9 +286,9 @@ SORTING = lambda x: x.index
 
 
 class DesktopLoader(object):
-    '''
+    """
     Загрузчик значков и меню для веб-десктопа
-    '''
+    """
     _lock = threading.RLock()
     _cache = None
     # Флаг того, что кэш загружен.
@@ -332,16 +332,16 @@ class DesktopLoader(object):
 
     @classmethod
     def add_el_to_desktop(cls, desktop, metarole_code):
-        '''
+        """
         Добавляет элементы к интерфейсу в зависимости от метароли
-        '''
+        """
         def join_list(existing_list, in_list):
-            '''
+            """
             Складывает два списка с объектами
             DesktopLaunchGroup и DesktopLauncher
             произвольного уровня вложенности.
             Критерием равенства является имя элемента!
-            '''
+            """
             names_dict = {}
             for existing_el in existing_list:
                 assert isinstance(existing_el, BaseDesktopElement)
@@ -380,9 +380,9 @@ class DesktopLoader(object):
 
     @classmethod
     def sort_desktop(cls, desktop_list, sorting=SORTING):
-        '''
+        """
         Сортирует все контейнеры десктопа в зависимости от индекса (index)
-        '''
+        """
 
         desktop_list.sort(key=sorting)
         for item in desktop_list:
@@ -391,11 +391,11 @@ class DesktopLoader(object):
 
     @classmethod
     def populate(cls, user, desktop, sorting=SORTING):
-        '''
+        """
         Метод, который выполняет всю работу по настройке десктопа во вьюшке
         @user - пользователь или None
         @desktop - экземпляр DesktopModel
-        '''
+        """
         assert isinstance(user, (User, AnonymousUser))
 
         roles = []
@@ -427,13 +427,13 @@ class DesktopLoader(object):
 
     @classmethod
     def add(cls, metarole, place, element):
-        '''
+        """
         Добавление элемента дектопа в кэш заданной метароли
-        '''
+        """
         def find_by_name(existed_list, name):
-            '''
+            """
             Поиск внутри списка группы с заданным именем name
-            '''
+            """
             for item in existed_list:
                 if isinstance(item, DesktopLaunchGroup):
                     assert isinstance(item.name, unicode), (
@@ -504,7 +504,7 @@ class DesktopLoader(object):
 
 def add_desktop_launcher(
         name='', url='', icon='', path=None, metaroles=None, places=None):
-    '''
+    """
     Шорткат для добавления ланчеров в элементы рабочего стола.
 
     @param name: подпись ланчера на рабочем столе/в меню
@@ -517,7 +517,7 @@ def add_desktop_launcher(
                      "(название, иконка,)",
                      "(название, иконка, индекс)"
     @param metaroles: список метаролей (либо одиночная метароль)
-    '''
+    """
     if not metaroles or not places:
         return
 

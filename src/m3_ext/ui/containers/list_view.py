@@ -52,9 +52,9 @@ class ExtDataView(ExtUIComponent):
 
 
 class ExtListView(ExtDataView):
-    '''
+    """
     Класс list view в соответствии с Ext.list.ListView
-    '''
+    """
     def __init__(self, *args, **kwargs):
         super(ExtListView, self).__init__(*args, **kwargs)
         self.column_resize = True

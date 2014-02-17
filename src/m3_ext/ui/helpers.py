@@ -25,17 +25,17 @@ def paginated_json_data(query, start=0, limit=25):
 
 
 def grid_json_data(query):
-    '''
+    """
     Выдает данные, упакованные в формате, пригодном для хаванья стором грида
-    '''
+    """
     return M3JSONEncoder().encode({'rows': list(query)})
 
 
 def mptt_json_data(query, parent_obj='parent', start=0, limit=25):
-    '''
+    """
     Добавляет к иерархической структуре _lft, _rgt, _level для отдачи в Ext.m3.
     AdvancedTreeGrid
-    '''
+    """
     # Список для хранения элементов дерева
     res_data = []
 

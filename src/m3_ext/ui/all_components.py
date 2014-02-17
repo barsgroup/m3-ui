@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
-'''
+"""
 Created on 13.04.2011
 
 @author: prefer
-'''
+"""
 
 from containers import *
 from controls import *

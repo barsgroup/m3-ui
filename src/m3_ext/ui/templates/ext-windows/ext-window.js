@@ -30,8 +30,7 @@
 		{% if component.buttom_bar %} ,bbar: {{ component.t_render_buttom_bar|safe }} {% endif %}
 		{% if component.footer_bar %} ,fbar: {{ component.t_render_footer_bar|safe }} {% endif %}
 	    ,items:{{ component.t_render_items|safe }}
-	    {% if component.buttons %} ,buttons: {{ component.t_render_buttons|safe }}{% endif %}	
-//	    {% if not component.resizable %} ,resizable: false {% endif %}
+	    {% if component.buttons %} ,buttons: {{ component.t_render_buttons|safe }}{% endif %}
 		{% if component.parent_window_id %} ,parentWindowID: '{{ component.parent_window_id }}' {% endif %}
 		{% if component.keys %} ,keys: [{{ component.t_render_keys|safe }}] {% endif %}
 		{% if component.auto_load %} ,autoLoad: {{ component.auto_load|safe}} {% endif %}

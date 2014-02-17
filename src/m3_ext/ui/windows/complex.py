@@ -21,7 +21,10 @@ from base import BaseExtWindow
 
 
 #==============================================================================
-# TODO: Необходимо отрефакторить данный класс под внутриклассовый рендеринг
+# TODO: Необходимо отрефакторить данный класс под внутриклассовый рендеринг 15.08.11
+# TODO: Необходимо отрефакторить нахер все тут 29.01.13
+# TODO: Кто-нибудь, выкиньте уже этот код <near future>
+# deprecated: use objectpack
 class ExtDictionaryWindow(BaseExtWindow):
     """
     Базовое окно для линейного, иерархичесого и совмещенного справочника
@@ -177,8 +180,10 @@ class ExtDictionaryWindow(BaseExtWindow):
         self._mode = value
 
     def _make_read_only(
-            self, access_off=True, exclude_list=[], *args, **kwargs):
+            self, access_off=True, exclude_list=None, *args, **kwargs):
+        exclude_list = exclude_list or []
         self.read_only = access_off
+
         super(ExtDictionaryWindow, self)._make_read_only(
             self.read_only, exclude_list, *args, **kwargs)
         if self.tree:
