@@ -20,10 +20,10 @@ class ExtContainerTable(BaseExtContainer):
     _DEFAULT_HEIGHT = 36
 
     def __init__(self, columns=0, rows=0, *args, **kwargs):
-        '''
+        """
         @param columns: Количество колонок
         @param rows: Количество строк
-        '''
+        """
         super(ExtContainerTable, self).__init__(*args, **kwargs)
         self.template = 'ext-containers/ext-container.js'
 
@@ -111,7 +111,7 @@ class ExtContainerTable(BaseExtContainer):
                 d[row_num].update(kwargs)
 
     def _make_read_only(
-            self, access_off=True, exclude_list=[], *args, **kwargs):
+            self, access_off=True, exclude_list=(), *args, **kwargs):
         for item in self.items:
             item._make_read_only(access_off, exclude_list, *args, **kwargs)
 

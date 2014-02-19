@@ -73,16 +73,6 @@ def js_success_response():
     return http.HttpResponse('{success: true}')
 
 
-def js_failure_response():
-    """
-    @deprecated: Использовать OperationResult
-
-    Возвращает Ext Ajax ответ что операция прервана
-    @deprecated: Нужно использовать OperationResult
-    """
-    return http.HttpResponse('{success: false}')
-
-
 def js_close_window(win, forceClose=False):
     """
     @deprecated: Использовать методы окна, например,
@@ -94,33 +84,6 @@ def js_close_window(win, forceClose=False):
     forceClose = 'true' if forceClose else 'false'
     return 'function(){Ext.getCmp("%s").close(%s);}' % (
         win.client_id, forceClose)
-
-
-def js_submit_ajax(url, params={}, success_handler=None, failure_handler=None):
-    """
-    @deprecated: Использовать sendRequest из m3.js
-
-    Возвращает JS код посылающий AJAX запрос
-    """
-    template = u'''
-function(){
-    Ext.Ajax.request({
-        url: '%(url)s'
-        %(success_handler)s
-        %(failure_handler)s
-        %(params)s
-    });
-}
-    '''
-    return template % {
-        'url': url,
-        'success_handler': (
-            ', success:' + success_handler if success_handler else ''),
-        'failure_handler': (
-            ', failure:' + failure_handler if failure_handler else ''),
-        'params': (
-            ', params:' + json.JSONEncoder().encode(params) if params else '')
-    }
 
 
 def js_fire_event_window(event_name, close_after_fire=True, *args):
@@ -140,26 +103,6 @@ function(){
         'event_name': event_name,
         'params': (',"%s"' % '","'.join(args)) if args else '',
         'win_close': 'win.close(true);' if close_after_fire else ''
-    }
-
-
-def js_fire_event(component, event_name, *args):
-    """
-    Генерирует вызов события для любого компонента
-    @param component: Компонент, от чьего лица генерируется событие
-    @param event_name: Название события
-    @param *args: Параметры, которые будут переданы при генерации события
-    """
-    template = u'''
-function(){
-    var component = Ext.getCmp("%(client_id)s");
-    component.fireEvent("%(event_name)s" %(params)s);
-}
-    '''
-    return template % {
-        'client_id': component.client_id,
-        'event_name': event_name,
-        'params': (',"%s"' % '","'.join(args)) if args else '',
     }
 
 

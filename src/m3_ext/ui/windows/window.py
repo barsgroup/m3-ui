@@ -1,17 +1,17 @@
 #coding: utf-8
-'''
+"""
 Created on 25.02.2010
 
 @author: akvarats
-'''
+"""
 
 from base import BaseExtWindow
 
-#===============================================================================
+
 class ExtWindow(BaseExtWindow):
-    '''
+    """
     Окно
-    '''
+    """
     def __init__(self, *args, **kwargs):
         super(ExtWindow, self).__init__(*args, **kwargs)
         self._ext_name = 'Ext.m3.Window'
@@ -35,9 +35,9 @@ class ExtWindow(BaseExtWindow):
         
         base_config = self._get_config_str()
         params = self._get_params_str()
-        res = '%(ext_name)s({%(base_config)s},{%(params)s})' \
-                            % {'ext_name': self._ext_name,
-                            'base_config': base_config,
-                            'params': params }
+        res = '%(ext_name)s({%(base_config)s},{%(params)s})' % {
+            'ext_name': self._ext_name,
+            'base_config': base_config,
+            'params': params}
                             
         return 'new %s' % res if not self._is_function_render else res

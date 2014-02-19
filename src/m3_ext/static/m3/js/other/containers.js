@@ -2,14 +2,6 @@
  * Функции рендера компонентов-контейнеров
  * @author: prefer
  */
-/**
- * Создание расширенного дерева, на базе внешего компонента
- * @param {Object} baseConfig Базовый конфиг для компонента
- * @param {Object} params Дрополнительные параметра для правильной конф-ии
- */
-function createAdvancedTreeGrid(baseConfig, params){
-	return new Ext.m3.AdvancedTreeGrid(baseConfig, params);
-}
 
 /**
  * Создание грида
@@ -54,33 +46,7 @@ function createObjectTree(baseConfig, params){
  * @param {Object} params
  */
 function createAdvancedComboBox(baseConfig, params){
-	var adv_combo = new Ext.m3.AdvancedComboBox(baseConfig, params);
-//	adv_combo.on('beforeselect',function(){
-//		console.log('beforeselect');
-//	});
-//	adv_combo.on('beforequery',function(e){
-//		
-//		//e.cancel = true;
-//		console.log('beforequery');
-//	});
-//	adv_combo.on('change',function(){
-//		console.log('change');
-//	});
-//	adv_combo.on('beforerequest',function(){
-//		console.log('beforerequest');
-//		return false;
-//	});
-//	adv_combo.on('changed',function(){
-//		console.log('changed');
-//		//return false;
-//	});
-//		adv_combo.on('afterselect',function(){
-//		console.log(arguments);
-//		console.log('afterselect');
-//		//return false;
-//	});
-	
-	return adv_combo;
+	return new Ext.m3.AdvancedComboBox(baseConfig, params);
 }
 
 /**

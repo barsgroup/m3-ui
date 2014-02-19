@@ -87,7 +87,7 @@ class ExtObjectTree(containers.ExtTree):
             menu = menus.ExtContextMenu()
             menu.items.append(self.button_new)
             menu.items.append(self.button_new_child)
-            self.add_menu = containers.containers.ExtToolbarMenu(
+            self.add_menu = containers.ExtToolbarMenu(
                 icon_cls="add_item",
                 menu=menu,
                 text=u'Добавить'

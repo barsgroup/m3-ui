@@ -5,7 +5,6 @@ Created on 15.03.2010
 @author: prefer
 """
 from m3_ext.ui.base import ExtUIComponent
-from m3_ext.ui.misc import ExtConnection
 from base import BaseExtContainer
 
 
@@ -123,11 +122,7 @@ class ExtContextMenuItem(ExtUIComponent):
             if self.custom_handler:
                 res.append('handler: %s' % self.handler)
             else:
-                if isinstance(self.handler, ExtConnection):
-                    res.append(
-                        'handler: function(){%s} ' % self.handler.render())
-                else:
-                    res.append('handler: %s' % self.handler)
+                res.append('handler: %s' % self.handler)
         return '{%s}' % ','.join(res)
 
     def _make_read_only(

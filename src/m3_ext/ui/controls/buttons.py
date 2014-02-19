@@ -5,7 +5,6 @@ Created on 25.02.2010
 @author: akvarats
 """
 
-from m3_ext.ui.misc import ExtConnection
 from base import BaseExtControl
 
 
@@ -61,10 +60,7 @@ class ExtButton(BaseExtControl):
         self.init_component(*args, **kwargs)
 
     def t_render_handler(self):
-        if isinstance(self.handler, ExtConnection):
-            return 'function(){%s}' % self.handler.render()
-        else:
-            return self.handler
+        return self.handler
 
     def t_render_tooltip(self):
         res = ''

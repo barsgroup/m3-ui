@@ -15,7 +15,6 @@ from m3_ext.ui import render_template
 from m3_ext.ui.containers.base import BaseExtContainer
 from m3_ext.ui.controls.base import BaseExtControl
 from m3_ext.ui.base import ExtUIScriptRenderer
-from m3_ext.ui import js
 
 
 class ExtWindowRenderer(ExtUIScriptRenderer):
@@ -30,8 +29,6 @@ class ExtWindowRenderer(ExtUIScriptRenderer):
         script = render_template(
             self.template, {'renderer': self, 'window': self.window}
         )
-        if settings.DEBUG:
-            script = js.JSNormalizer().normalize(script)
         return script
 
 

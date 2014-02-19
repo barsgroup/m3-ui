@@ -234,16 +234,16 @@ class BaseExtTriggerField(BaseExtField):
 
     @property
     def trigger_action_all(self):
-        '''
+        """
         Для обратной совместимости
-        '''
+        """
         return self.trigger_action == BaseExtTriggerField.ALL
 
     @trigger_action_all.setter
     def trigger_action_all(self, value):
-        '''
+        """
         Для обратной совместимости
-        '''
+        """
         self.trigger_action = BaseExtTriggerField.ALL if value else \
             BaseExtTriggerField.QUERY
 
@@ -255,9 +255,6 @@ class BaseExtTriggerField(BaseExtField):
     def name(self, value):
         self.hidden_name = value
 
-    #//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\
-    # Врапперы над событиями listeners[...]
-    #------------------------------------------------------------------------
     @property
     def handler_change(self):
         return self._listeners.get('change')

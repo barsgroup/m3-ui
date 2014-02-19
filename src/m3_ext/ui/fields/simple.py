@@ -18,9 +18,9 @@ from base import BaseExtField, BaseExtTriggerField
 
 #==============================================================================
 class ExtStringField(BaseExtField):
-    '''
+    """
     Поле ввода простого текстового значения
-    '''
+    """
 
     def __init__(self, *args, **kwargs):
         super(ExtStringField, self).__init__(*args, **kwargs)
@@ -51,14 +51,13 @@ class ExtStringField(BaseExtField):
         # Кавычки, апострафы, символы переноса строки и т.д. отрежутся функцией normalize в helpers/__init__.py
         # TODO нужно разобраться почему иногда по-умолчанию приходит None, вместо пустой строки.
         if self.value:
-            self.value = self.value.replace('\\','\\\\')
+            self.value = self.value.replace('\\', '\\\\')
 
         super(ExtStringField, self).render_base_config()
         self._put_config_value('inputType', self.input_type)
         self._put_config_value('maskRe', self.t_render_mask_re, self.mask_re)
         self._put_config_value('selectOnFocus', self.select_on_focus)
         self._put_config_value('enableKeyEvents', self.enable_key_events, self.enable_key_events)
-
 
     def t_render_mask_re(self):
         return '/%s/' % self.mask_re
@@ -72,17 +71,17 @@ class ExtStringField(BaseExtField):
         base_config = self._get_config_str()
         return 'new Ext.form.TextField({%s})' % base_config
 
-#===============================================================================
+
 class ExtDateField(BaseExtField):
-    '''
+    """
     Поле ввода даты
-    '''
+    """
 
     def __init__(self, *args, **kwargs):
         super(ExtDateField, self).__init__(*args, **kwargs)
 
         #
-        self.start_day = 1 # атрибут задает с какого дня начинается неделя в календаре.
+        self.start_day = 1  # атрибут задает с какого дня начинается неделя в календаре.
                             # 0-Воскресенье, 1-Понедельник, 2-Вторник и т.д.
 
         #
@@ -139,11 +138,11 @@ class ExtDateField(BaseExtField):
         params = self._get_params_str()
         return 'createAdvancedDataField({%s},{%s})' % (base_config, params)
 
-#===============================================================================
+
 class ExtNumberField(BaseExtField):
-    '''
+    """
     Поле ввода числового значения
-    '''
+    """
 
     def __init__(self, *args, **kwargs):
         super(ExtNumberField, self).__init__(*args, **kwargs)
@@ -181,7 +180,6 @@ class ExtNumberField(BaseExtField):
 
         self.init_component(*args, **kwargs)
 
-
     def render_base_config(self):
         super(ExtNumberField, self).render_base_config()
         self._put_config_value('decimalSeparator', self.decimal_separator)
@@ -207,10 +205,9 @@ class ExtNumberField(BaseExtField):
 
 #===============================================================================
 class ExtHiddenField(BaseExtField):
-    '''
+    """
     Скрытое поле, которое не видно пользователю на форме, но хранит значение
-     и передает его при submit'е
-     '''
+    и передает его при submit'е"""
 
     # Тип поля - integer
     INT = 0
@@ -220,18 +217,18 @@ class ExtHiddenField(BaseExtField):
 
     def __init__(self, *args, **kwargs):
         super(ExtHiddenField, self).__init__(*args, **kwargs)
-        self.template = 'ext-fields/ext-hidden-field.js' #TODO: Необходимо отрефакторить под внутриклассовый рендеринг
+        self.template = 'ext-fields/ext-hidden-field.js'  # TODO: Необходимо отрефакторить под внутриклассовый рендеринг
 
         # Тип поля
         self.type = ExtHiddenField.INT
 
         self.init_component(*args, **kwargs)
 
-#===============================================================================
+
 class ExtTextArea(BaseExtField):
-    '''
+    """
     Большое :) Текстовое поле
-    '''
+    """
 
     def __init__(self, *args, **kwargs):
         super(ExtTextArea, self).__init__(*args, **kwargs)
@@ -261,14 +258,15 @@ class ExtTextArea(BaseExtField):
         base_config = self._get_config_str()
         return 'new Ext.form.TextArea({%s})' % base_config
 
-#===============================================================================
+
 class ExtCheckBox(BaseExtField):
-    '''
+    """
     Галочка выбора значения
-    '''
+    """
 
     def __init__(self, *args, **kwargs):
         super(ExtCheckBox, self).__init__(*args, **kwargs)
+
         #TODO: Необходимо отрефакторить под внутриклассовый рендеринг
         self.template = 'ext-fields/ext-checkbox.js'
 
@@ -292,11 +290,10 @@ class ExtCheckBox(BaseExtField):
         self.read_only = access_off
 
 
-#==============================================================================
 class ExtRadio(BaseExtField):
-    '''
+    """
     Радио-поле
-    '''
+    """
 
     def __init__(self, *args, **kwargs):
         super(ExtRadio, self).__init__(*args, **kwargs)
@@ -328,11 +325,11 @@ class ExtRadio(BaseExtField):
         base_config = self._get_config_str()
         return 'new %s({%s})' % (self._ext_name, base_config)
 
-#===============================================================================
+
 class ExtComboBox(BaseExtTriggerField):
-    '''
+    """
     Поле выпадающий список - combobox
-    '''
+    """
 
     def __init__(self, *args, **kwargs):
         super(ExtComboBox, self).__init__(*args, **kwargs)
@@ -380,11 +377,11 @@ class ExtTimeField(BaseExtField):
         base_config = self._get_config_str()
         return 'new Ext.form.TimeField({%s})' % base_config
 
-#===============================================================================
+
 class ExtHTMLEditor(BaseExtField):
-    '''
+    """
     Поле HTML-редактор
-    '''
+    """
 
     def __init__(self, *args, **kwargs):
         super(ExtHTMLEditor, self).__init__(*args, **kwargs)
@@ -402,11 +399,11 @@ class ExtHTMLEditor(BaseExtField):
         base_config = self._get_config_str()
         return 'new Ext.form.HtmlEditor({%s})' % base_config
 
-#===============================================================================
+
 class ExtDisplayField(BaseExtField):
-    '''
+    """
     Поле отображающее значение (не проверяется и не сабмитится)
-    '''
+    """
     def __init__(self, *args, **kwargs):
         super(ExtDisplayField, self).__init__(*args, **kwargs)
         self.init_component(*args, **kwargs)
@@ -444,6 +441,7 @@ class ExtDateTimeField(ExtDateField):
         base_config = self._get_config_str()
         params = self._get_params_str()
         return 'new Ext.ux.form.DateTimeField({%s},{%s})' % (base_config, params)
+
 
 class ExtAdvTimeField(BaseExtField):
 

@@ -47,8 +47,6 @@ class ExtContainer(BaseExtContainer):
             self.render_params()
         except UnicodeDecodeError:
             raise Exception('Some attribute is not unicode')
-#        except Exception as msg:
-#            raise Exception(msg)
 
         base_config = self._get_config_str()
         params = self._get_params_str()
@@ -111,36 +109,36 @@ class ExtToolBar(BaseExtContainer):
         return '[%s]' % ','.join(res)
 
     def add_fill(self):
-        '''
+        """
         Переносит все последующие компоненты направо
-        '''
+        """
         self.items.append(ExtToolBar.Fill())
 
     def add_separator(self):
-        '''
+        """
         Добавляет разделитель
-        '''
+        """
         self.items.append(ExtToolBar.Separator())
 
     def add_spacer(self, width=2):
-        '''
+        """
         Добавляет дополнительное расстояние с шириной width
         @param width: расстояние
-        '''
+        """
         self.items.append(ExtToolBar.Spacer(width))
 
     def add_text_item(self, text_item):
-        '''
+        """
         Добавляет текст
         @text_item: текст
-        '''
+        """
         self.items.append(ExtToolBar.TextItem(text_item))
 
     def add_menu(self, **kwargs):
-        '''
+        """
         Добавляет меню
         @param **kwargs: конфиг для меню
-        '''
+        """
         self.items.append(ExtToolbarMenu(**kwargs))
 
     @property
@@ -198,12 +196,11 @@ class ExtStaticToolBarItem(ExtUIComponent):
         return self.static_value
 
     def _make_read_only(
-            self, access_off=True, exclude_list=[], *args, **kwargs):
+            self, access_off=True, exclude_list=(), *args, **kwargs):
         # Описание в базовом классе ExtUiComponent.
         pass
 
 
-#==============================================================================
 class ExtTextToolBarItem(ExtUIComponent):
     """
     @deprecated: Нужно использовать встроенные подклассы в качестве элементов
@@ -221,12 +218,11 @@ class ExtTextToolBarItem(ExtUIComponent):
         return "{xtype: 'tbtext', text: '%s'}" % self.text
 
     def _make_read_only(
-            self, access_off=True, exclude_list=[], *args, **kwargs):
+            self, access_off=True, exclude_list=(), *args, **kwargs):
         # Описание в базовом классе ExtUiComponent.
         pass
 
 
-#==============================================================================
 class ExtPagingBar(BaseExtContainer):
     """
     Класс, имитирующий работу Ext.PagingToolbar
@@ -275,7 +271,6 @@ class ExtPagingBar(BaseExtContainer):
         return 'new %s' % res if not self._is_function_render else res
 
 
-#==============================================================================
 class ExtToolbarMenu(ExtUIComponent):
     """
     Класс, позволяющий легко вставлять меню в ToolBar
@@ -302,40 +297,12 @@ class ExtToolbarMenu(ExtUIComponent):
         return '{%s}' % res
 
     def _make_read_only(
-            self, access_off=True, exclude_list=[], *args, **kwargs):
+            self, access_off=True, exclude_list=(), *args, **kwargs):
         if self.menu:
             self.menu._make_read_only(
                 access_off, exclude_list, *args, **kwargs)
 
 
-#==============================================================================
-class ExtButtonGroup(BaseExtContainer):
-    """
-    Класс, имитирующий работу Ext.ButtonGroup
-    """
-    def __init__(self, *args, **kwargs):
-        super(ExtButtonGroup, self).__init__(*args, **kwargs)
-        self.template = 'ext-containers/ext-button-group.js'
-        self.columns_number = None
-        self.title = None
-        self.init_component(*args, **kwargs)
-
-    def add_button(self, **kwargs):
-        """
-        Добавляет кнопку на компонент
-        """
-        self.buttons.append(ExtButton(**kwargs))
-
-    def t_render_buttons(self):
-        # FIXME: Использовать внутриклассовый рендеринг компонентов
-        return '[%s]' % self.t_render_items()
-
-    @property
-    def buttons(self):
-        return self._items
-
-
-#==============================================================================
 class ExtRadioGroup(BaseExtContainer):
     """
     Компонент-контейнер для радио-полей
@@ -372,26 +339,3 @@ class ExtRadioGroup(BaseExtContainer):
 
         base_config = self._get_config_str()
         return 'new %s({%s})' % (self._ext_name, base_config)
-
-
-#==============================================================================
-class ExtStatusBar(ExtToolBar):
-    """
-    Рассширенный тулбар с иконкой, текстом статуса и другими причиндалами.
-    Примеры использования:
-    http://dev.sencha.com/deploy/ext-3.4.0/
-        examples/statusbar/statusbar-demo.html
-    http://dev.sencha.com/deploy/ext-3.4.0/
-        examples/statusbar/statusbar-advanced.html
-    """
-    def __init__(self, *args, **kwargs):
-        super(ExtStatusBar, self).__init__(*args, **kwargs)
-        self._ext_name = 'Ext.ux.StatusBar'
-        self.icon_cls = None
-        self.text = None
-        self.init_component(*args, **kwargs)
-
-    def render_base_config(self):
-        super(ExtStatusBar, self).render_base_config()
-        self._put_config_value('iconCls', self.icon_cls)
-        self._put_config_value('text', self.text)

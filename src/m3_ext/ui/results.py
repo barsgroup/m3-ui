@@ -65,24 +65,3 @@ class ExtGridDataQueryResult(_ActionResult):
         return http.HttpResponse(
             _helpers.paginated_json_data(
                 self.data, self.start, self.limit))
-
-
-class ExtAdvancedTreeGridDataQueryResult(_ActionResult):
-    '''
-    Результат выполнения операции в формате, удобным для отображения в
-    Ext.m3.AdvancedTreeGrid
-    '''
-    def __init__(self, data=None, start=-1, limit=-1):
-        super(ExtAdvancedTreeGridDataQueryResult, self).__init__(data)
-        self.start = start
-        self.limit = limit
-
-    def get_http_response(self):
-        return http.HttpResponse(
-            _helpers.mptt_json_data(
-                query=self.data,
-                start=self.start,
-                limit=self.limit
-            ),
-            mimetype='application/json'
-        )

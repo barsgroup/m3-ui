@@ -11,8 +11,6 @@ from m3_ext.ui.fields import ExtSearchField
 from m3_ext.ui.controls import ExtButton
 from m3_ext.ui.containers import (
     ExtContextMenu,
-    ExtPanel,
-    ExtListView,
     ExtToolBar,
     ExtTree,
     ExtGrid
@@ -61,9 +59,6 @@ class ExtDictionaryWindow(BaseExtWindow):
         # Дерево
         self.tree = None
 
-        # TODO: не используется, убрать
-        self.list_view = None
-
         # Контрол поиска для грида
         self.search_text_grid = None
 
@@ -72,9 +67,6 @@ class ExtDictionaryWindow(BaseExtWindow):
 
         # Кнопка выбора, если mode = SELECT_MODE
         self.select_button = None
-
-        # TODO: не используется. т.к не используется list_view
-        self._panel_list_view = None
 
         # Окно может находится в двух положениях:
         # просто список записей и список выбора записи/записей
@@ -146,10 +138,6 @@ class ExtDictionaryWindow(BaseExtWindow):
             self.select_button = select_btn
 
         elif value == ExtDictionaryWindow.LIST_MODE:
-            if self._panel_list_view:
-                self.items.remove(self._panel_list_view)
-                self.list_view = None
-                self._panel_list_view = None
             if self.select_button:
                 self.buttons.remove(self.select_button)
                 self.select_button = None
@@ -159,23 +147,6 @@ class ExtDictionaryWindow(BaseExtWindow):
                 name='select_btn', text=u'Выбрать', disabled=True)
             self.buttons.insert(0, select_btn)
             self.select_button = select_btn
-
-        # панель с историей выбора пока отключена
-        if value in (
-            ExtDictionaryWindow.SELECT_MODE,
-            ExtDictionaryWindow.MULTI_SELECT_MODE
-        ):
-            button_panel = ExtPanel(
-                title='История выбора',
-                region='south',
-                min_height=100,
-                collapsible=True,
-                split=True
-            )
-            list_view = ExtListView()
-            button_panel.items.append(list_view)
-            self._panel_list_view = button_panel
-            self.list_view = list_view
 
         self._mode = value
 

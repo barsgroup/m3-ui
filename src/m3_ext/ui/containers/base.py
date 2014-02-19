@@ -117,16 +117,16 @@ class BaseExtContainer(ExtUIComponent):
         self._put_config_value('labelPad', self.label_pad)
 
     def nested_components(self):
-        '''
+        """
         Возвращаем список вложенных компонентов
-        '''
+        """
         nested = super(BaseExtContainer, self).nested_components()
         nested.extend(self._items)
 
         return nested
 
     def _make_read_only(
-            self, access_off=True, exclude_list=[], *args, **kwargs):
+            self, access_off=True, exclude_list=(), *args, **kwargs):
         if self._items:
             for item in self._items:
                 if hasattr(item, "make_read_only") and callable(
@@ -136,9 +136,9 @@ class BaseExtContainer(ExtUIComponent):
 
 
 class BaseExtPanel(BaseExtContainer):
-    '''
+    """
     Базовый класс для визуальных контейнерных компонентов
-    '''
+    """
     def __init__(self, *args, **kwargs):
         super(BaseExtPanel, self).__init__(*args, **kwargs)
 
@@ -193,7 +193,7 @@ class BaseExtPanel(BaseExtContainer):
             self._put_config_value('header', self.header)
 
     def _make_read_only(
-            self, access_off=True, exclude_list=[], *args, **kwargs):
+            self, access_off=True, exclude_list=(), *args, **kwargs):
         #FIXME: нельзя использовать в качестве умолчательных параметров
         # изменяемые типы. Это может привести к неприятным side эффектам
         super(BaseExtPanel, self)._make_read_only(
@@ -207,5 +207,6 @@ class BaseExtPanel(BaseExtContainer):
                 for item in bar._items:
                     if hasattr(item, "make_read_only") and callable(
                             item._make_read_only):
+
                         item._make_read_only(
                             access_off, exclude_list, *args, **kwargs)

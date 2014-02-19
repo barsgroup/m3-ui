@@ -334,7 +334,7 @@ class ExtGrid(BaseExtPanel):
     store = property(get_store, set_store)
 
     def _make_read_only(
-            self, access_off=True, exclude_list=[], *args, **kwargs):
+            self, access_off=True, exclude_list=(), *args, **kwargs):
         super(ExtGrid, self)._make_read_only(
             access_off, exclude_list, *args, **kwargs)
         self.read_only = access_off
@@ -613,7 +613,7 @@ class BaseExtGridColumn(ExtUIComponent):
         return self.editor.render()
 
     def _make_read_only(
-            self, access_off=True, exclude_list=[], *args, **kwargs):
+            self, access_off=True, exclude_list=(), *args, **kwargs):
         self.read_only = access_off
         if self.editor and isinstance(self.editor, ExtUIComponent):
             self.editor._make_read_only(
@@ -826,72 +826,6 @@ class ExtGridLockingHeaderGroupColumnModel(BaseExtComponent):
     def render(self):
         return 'new Ext.ux.grid.LockingGroupColumnModel({columns:%s})' % (
             self.grid.t_render_columns())
-
-
-class ExtAdvancedTreeGrid(ExtGrid):
-    """
-    Расширенное дерево на базе Ext.ux.maximgb.TreeGrid
-    """
-    def __init__(self, *args, **kwargs):
-        super(ExtAdvancedTreeGrid, self).__init__(*args, **kwargs)
-        self.template = 'ext-grids/ext-advanced-treegrid.js'
-        self.url = None
-        self.master_column_id = None
-
-        # Свойства для внутреннего store:
-        self.store_root = 'rows'
-
-        # Свойства для внутеннего bottom bara:
-        self.use_bbar = False
-
-        # Количество записей
-        self.bbar_page_size = 10
-
-        self.init_component(*args, **kwargs)
-
-    def t_render_columns_to_record(self):
-        return '[%s]' % ','.join([
-            '{name:"%s"}' % col.data_index
-            for col in self.columns
-        ])
-
-    def add_column(self, **kwargs):
-        # FIXME: Хак, с сгенерированным client_id
-        # компонент отказывается работать
-        if kwargs.get('data_index'):
-            kwargs['client_id'] = kwargs.get('data_index')
-        super(ExtAdvancedTreeGrid, self).add_column(**kwargs)
-
-    def render_base_config(self):
-        super(ExtAdvancedTreeGrid, self).render_base_config()
-        self._put_config_value('master_column_id', self.master_column_id)
-
-    def render_params(self):
-        super(ExtAdvancedTreeGrid, self).render_params()
-        self._put_params_value(
-            'storeParams',
-            {
-                'url': self.url,
-                'root': self.store_root
-            }
-        )
-        self._put_params_value(
-            'columnsToRecord', self.t_render_columns_to_record)
-
-        if self.use_bbar:
-            self._put_params_value('bbar', {'pageSize': self.bbar_page_size})
-
-    def t_render_base_config(self):
-        return self._get_config_str()
-
-    def render(self):
-        self.render_base_config()
-        self.render_params()
-
-        base_config = self._get_config_str()
-        params = self._get_params_str()
-        return 'createAdvancedTreeGrid({%s},{%s})' % (
-            base_config, params)
 
 
 class ExtGridGroupingView(BaseExtComponent):

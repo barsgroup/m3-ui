@@ -12,8 +12,8 @@ def render_component(component):
     return template.render(context)
 
 
-def render_template(template_name, variables={}):
-    context = Context(variables)
+def render_template(template_name, variables=None):
+    context = Context(variables or {})
     template = get_template(template_name)
     return template.render(context)
 

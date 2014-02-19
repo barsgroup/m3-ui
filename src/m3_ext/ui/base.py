@@ -21,8 +21,6 @@ from m3_ext.ui import render_template, render_component
 from m3_ext.ui import generate_client_id, normalize
 from m3 import date2str
 
-import js
-
 
 class ExtComponentException(Exception):
     """
@@ -69,8 +67,6 @@ class ExtUIScriptRenderer(object):
         context = django_template.Context({'renderer': self})
         template = django_template.loader.get_template(self.template)
         script = template.render(context)
-        if settings.DEBUG:
-            script = js.JSNormalizer().normalize(script)
         return script
 
 
@@ -592,12 +588,12 @@ class ExtUIComponent(BaseExtComponent):
         self._put_config_value('hideLabel', self.hide_label, self.hide_label)
 
     def pre_make_read_only(
-            self, access_off=True, exclude_list=[], *args, **kwargs):
+            self, access_off=True, exclude_list=(), *args, **kwargs):
         warnings.warn("Don't do this!", DeprecationWarning)
         return access_off
 
     def make_read_only(
-            self, access_off=True, exclude_list=[], *args, **kwargs):
+            self, access_off=True, exclude_list=(), *args, **kwargs):
         """
         @access_off - переменная регулирует вкл\выкл режима для чтения.
         @exclude_list - список, содержит в себе имена элементов,
@@ -622,5 +618,5 @@ class ExtUIComponent(BaseExtComponent):
             actual_access_off, exclude_list, *args, **kwargs)
 
     def _make_read_only(
-            self, access_off=True, exclude_list=[], *args, **kwargs):
+            self, access_off=True, exclude_list=(), *args, **kwargs):
         raise NotImplementedError()

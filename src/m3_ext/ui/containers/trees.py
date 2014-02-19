@@ -14,9 +14,9 @@ from m3_ext.ui.containers import (
 
 #==============================================================================
 class ExtTree(BaseExtPanel):
-    '''
+    """
     Дерево с колонками
-    '''
+    """
     def __init__(self, *args, **kwargs):
         super(ExtTree, self).__init__(*args, **kwargs)
         self.template = 'ext-trees/ext-tree.js'
@@ -88,6 +88,7 @@ class ExtTree(BaseExtPanel):
             ):
                 for item in context_menu.items:
                     if isinstance(item, ExtUIComponent):
+
                         item._make_read_only(
                             self.read_only, exclude_list, *args, **kwargs)
 
@@ -121,39 +122,39 @@ class ExtTree(BaseExtPanel):
         return self.t_render_items()
 
     def add_nodes(self, *args):
-        '''
+        """
         Добавляет переданные узлы дерева
         @param *args: Узлы дерева
-        '''
+        """
         for node in args:
             self.nodes.append(node)
 
     def add_column(self, **kwargs):
-        '''
+        """
         Добавляет колонку с аргументами
         @param **kwargs: Аргументы
-        '''
+        """
         self.columns.append(ExtGridColumn(**kwargs))
 
     def add_bool_column(self, **kwargs):
-        '''
+        """
         Добавляет колонку с аргументами
         @param **kwargs: Аргументы
-        '''
+        """
         self.columns.append(ExtGridBooleanColumn(**kwargs))
 
     def add_number_column(self, **kwargs):
-        '''
+        """
         Добавляет колонку с аргументами
         @param **kwargs: Аргументы
-        '''
+        """
         self.columns.append(ExtGridNumberColumn(**kwargs))
 
     def add_date_column(self, **kwargs):
-        '''
+        """
         Добавляет колонку с аргументами
         @param **kwargs: Аргументы
-        '''
+        """
         self.columns.append(ExtGridDateColumn(**kwargs))
 
     @property
@@ -350,9 +351,9 @@ class ExtTreeNode(ExtUIComponent):
 
 #==============================================================================
 class ExtTreeLoader(BaseExtComponent):
-    '''
+    """
     Загрузчик данных для ExtTree
-    '''
+    """
     def __init__(self, *args, **kwargs):
         super(ExtTreeLoader, self).__init__(*args, **kwargs)
         self.template = 'ext-trees/ext-tree-loader.js'
