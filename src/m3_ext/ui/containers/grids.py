@@ -927,144 +927,55 @@ class ExtLiveGridRowSelModel(ExtGridRowSelModel):
 class ExtGridLockingHeaderGroupPlugin(BaseExtComponent):
     """
     Плагин для группировки и одновременного закрепления колонок
-
-    columnModelConfig: {
-
-        /**
-         * lockedCount начальное количество блокированных столбцов
-         */
-        lockedCount: 0,
-
-        /**
-         * rows строки с объединениями для построения многоуровневой шапки
-         */
-        rows: [],
-
-        hierarchicalColMenu: true
-    },
-
-    viewConfig: {
-
-        //LockingView config****************************************************************
-
-        lockText: 'Lock',
-        unlockText: 'Unlock',
-        rowBorderWidth: 1,
-        lockedBorderWidth: 1,
-        /*
-         * This option ensures that height between the rows is synchronized
-         * between the locked and unlocked sides. This option only needs to be used
-         * when the row heights aren't predictable.
-         */
-        syncHeights: false,
-
-        //GroupingView config*****************************************************************
-
-        /**
-         * @cfg {String} groupByText Text displayed in the grid header menu for grouping by a column
-         * (defaults to 'Group By This Field').
-         */
-        groupByText: 'Group By This Field',
-        /**
-         * @cfg {String} showGroupsText Text displayed in the grid header for enabling/disabling grouping
-         * (defaults to 'Show in Groups').
-         */
-        showGroupsText: 'Show in Groups',
-        /**
-         * @cfg {Boolean} hideGroupedColumn <tt>true</tt> to hide the column that is currently grouped (defaults to <tt>false</tt>)
-         */
-        hideGroupedColumn: false,
-        /**
-         * @cfg {Boolean} showGroupName If <tt>true</tt> will display a prefix plus a ': ' before the group field value
-         * in the group header line.  The prefix will consist of the <tt><b>{@link Ext.grid.Column#groupName groupName}</b></tt>
-         * (or the configured <tt><b>{@link Ext.grid.Column#header header}</b></tt> if not provided) configured in the
-         * {@link Ext.grid.Column} for each set of grouped rows (defaults to <tt>true</tt>).
-         */
-        showGroupName: true,
-        /**
-         * @cfg {Boolean} startCollapsed <tt>true</tt> to start all groups collapsed (defaults to <tt>false</tt>)
-         */
-        startCollapsed: false,
-        /**
-         * @cfg {Boolean} enableGrouping <tt>false</tt> to disable grouping functionality (defaults to <tt>true</tt>)
-         */
-        enableGrouping: true,
-        /**
-         * @cfg {Boolean} enableGroupingMenu <tt>true</tt> to enable the grouping control in the column menu (defaults to <tt>true</tt>)
-         */
-        enableGroupingMenu: true,
-        /**
-         * @cfg {Boolean} enableNoGroups <tt>true</tt> to allow the user to turn off grouping (defaults to <tt>true</tt>)
-         */
-        enableNoGroups: true,
-        /**
-         * @cfg {String} emptyGroupText The text to display when there is an empty group value (defaults to <tt>'(None)'</tt>).
-         * May also be specified per column, see {@link Ext.grid.Column}.{@link Ext.grid.Column#emptyGroupText emptyGroupText}.
-         */
-        emptyGroupText: '(None)',
-        /**
-         * @cfg {Boolean} ignoreAdd <tt>true</tt> to skip refreshing the view when new rows are added (defaults to <tt>false</tt>)
-         */
-        ignoreAdd: false,
-        /**
-         * @cfg {String} groupTextTpl The template used to render the group header (defaults to <tt>'{text}'</tt>).
-         * This is used to format an object which contains the following properties:
-         * <div class="mdetail-params"><ul>
-         * <li><b>group</b> : String<p class="sub-desc">The <i>rendered</i> value of the group field.
-         * By default this is the unchanged value of the group field. If a <tt><b>{@link Ext.grid.Column#groupRenderer groupRenderer}</b></tt>
-         * is specified, it is the result of a call to that function.</p></li>
-         * <li><b>gvalue</b> : Object<p class="sub-desc">The <i>raw</i> value of the group field.</p></li>
-         * <li><b>text</b> : String<p class="sub-desc">The configured header (as described in <tt>{@link #showGroupName})</tt>
-         * if <tt>{@link #showGroupName}</tt> is <tt>true</tt>) plus the <i>rendered</i> group field value.</p></li>
-         * <li><b>groupId</b> : String<p class="sub-desc">A unique, generated ID which is applied to the
-         * View Element which contains the group.</p></li>
-         * <li><b>startRow</b> : Number<p class="sub-desc">The row index of the Record which caused group change.</p></li>
-         * <li><b>rs</b> : Array<p class="sub-desc">Contains a single element: The Record providing the data
-         * for the row which caused group change.</p></li>
-         * <li><b>cls</b> : String<p class="sub-desc">The generated class name string to apply to the group header Element.</p></li>
-         * <li><b>style</b> : String<p class="sub-desc">The inline style rules to apply to the group header Element.</p></li>
-         * </ul></div></p>
-         * See {@link Ext.XTemplate} for information on how to format data using a template. Possible usage:<pre><code>
-         var grid = new Ext.grid.GridPanel({
-         ...
-         view: new Ext.grid.GroupingView({
-         groupTextTpl: '{text} ({[values.rs.length]} {[values.rs.length > 1 ? "Items" : "Item"]})'
-         }),
-         });
-         * </code></pre>
-         */
-        groupTextTpl: '{text}',
-
-        /**
-         * @cfg {String} groupMode Indicates how to construct the group identifier. <tt>'value'</tt> constructs the id using
-         * raw value, <tt>'display'</tt> constructs the id using the rendered value. Defaults to <tt>'value'</tt>.
-         */
-        groupMode: 'value',
-
-        /**
-         * @cfg {Function} groupRenderer This property must be configured in the {@link Ext.grid.Column} for
-         * each column.
-         */
-
-        /**
-         * @cfg {Boolean} cancelEditOnToggle True to cancel any editing when the group header is toggled. Defaults to <tt>true</tt>.
-         */
-        cancelEditOnToggle: true,
-
-        /**
-         * @cfg {Boolean} totalSummaryRowEnabled True to render total summary row. Defaults to <tt>true</tt>.
-         */
-        totalSummaryEnabled: true
-    }
     """
 
     def __init__(self, config):
         """
         :param dict config: Конфигурация плагина, описание выше
         """
-        super(BaseExtComponent, self).__init__()
+        super(ExtGridLockingHeaderGroupPlugin, self).__init__()
         self._ext_name = 'Ext.ux.grid.LockingGridColumnWithHeaderGroup'
         self.config = config
 
     def render(self):
         return 'new %s(%s)' % (self._ext_name, json.dumps(self.config))
+
+    @classmethod
+    def configure_grid(cls, grid, locked_count=1, config=None):
+        """
+        Конфигурирует grid для работы с собой, как плагином
+        :param ExtGrid grid: Конфигурируемый grid
+        :param int locked_count: Кол-во фиксируемых колонок
+        :param dict config: дополнительная конфигурация
+        """
+        # адаптация колонок
+        rows = [
+            [
+                {'header': c.header, 'colspan': c.colspan, 'align': c.align}
+                for c in cs
+            ]
+            for cs in grid.banded_columns.values()
+        ]
+        grid.banded_columns = {}
+
+        # нестройка плагина
+        plugin_config = {
+            'columnModelCfg': {
+                'rows': rows,
+                'lockedCount': locked_count
+            },
+            'viewCfg': {
+                'hideGroupedColumn': True
+            }
+        }
+        if config is not None:
+            plugin_config.update(config)
+        grid.plugins.append(cls(plugin_config))
+
+        # настройка store
+        from m3_ext.ui.misc.store import ExtGroupingStore, ExtJsonReader
+        store = ExtGroupingStore(
+            url=grid.store.url, auto_load=grid.store.auto_load)
+        store.reader = ExtJsonReader(total_property='total', root='rows')
+        store.reader.set_fields(*grid.columns)
+        grid.set_store(store)
