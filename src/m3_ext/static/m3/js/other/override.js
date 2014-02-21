@@ -461,7 +461,7 @@ var restoreClass = function(readOnly){
     } else {
         this.removeClass('m3-grey-field');
     }
-//};
+};
 
 Ext.override(Ext.form.Field, {
     setReadOnly : function(readOnly){
