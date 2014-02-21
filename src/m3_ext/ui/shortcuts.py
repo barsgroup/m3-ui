@@ -119,7 +119,6 @@ function(field, e){
     }
 
 
-# Временно лежит тут. Не знаю пока куда засунуть.
 class MessageBox(object):
     """
     Обёртка над стандартным MessageBox ExtJS

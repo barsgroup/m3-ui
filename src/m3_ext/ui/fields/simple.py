@@ -428,9 +428,6 @@ class ExtDisplayField(BaseExtField):
 
 class ExtDateTimeField(ExtDateField):
 
-    def __init__(self, *args, **kwargs):
-        super(ExtDateTimeField, self).__init__(*args, **kwargs)
-
     def render(self):
         try:
             self.render_base_config()

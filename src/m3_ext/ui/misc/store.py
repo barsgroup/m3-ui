@@ -17,7 +17,6 @@ from m3_ext.ui.base import BaseExtComponent
 from base_store import BaseExtStore
 
 
-#==============================================================================
 class ExtDataStore(BaseExtStore):
     """
     Хранилище данных, которое не генерирует запрос на сервер,
@@ -97,7 +96,6 @@ class ExtDataStore(BaseExtStore):
         return self.reader._render_data(self.data)
 
 
-#==============================================================================
 class ExtJsonStore(BaseExtStore):
     """
     Хранилище данных, которое отправляет запрос на сервер и ждет, что данные
@@ -180,7 +178,6 @@ class ExtJsonStore(BaseExtStore):
     limit = property(_get_limit, _set_limit)
 
 
-#==============================================================================
 class ExtJsonWriter(BaseExtStore):
     """
     Предназначен для отправки и преобразования
@@ -219,7 +216,6 @@ new Ext.data.JsonWriter({
         return result
 
 
-#==============================================================================
 class ExtDataReader(BaseExtComponent):
     """
     Получает ответ от сервера и декодирует его в  массив Record-ов
@@ -298,26 +294,17 @@ class ExtJsonReader(ExtDataReader):
         self._put_config_value('totalProperty', self.total_property)
 
     def _render_data(self, data):
-        """
-        """
-
         res = []
         for item in data:
 
             res_tmp = []
-
             for key, value in item.items():
-
                 res_value = self.convert_value(value)
-
                 res_tmp.append('%s: %s' % (key, res_value))
 
             res_tmp = ','.join(res_tmp)
-
             res_tmp = '{%s}' % res_tmp
-
             res.append(res_tmp)
-
         return '[%s]' % ','.join(res)
 
     def _render_fields(self):
@@ -416,7 +403,6 @@ class ExtArrayReader(ExtDataReader):
             self._get_config_str(), self._render_fields())
 
 
-#==============================================================================
 class ExtGroupingStore(ExtJsonStore):
     """
     Хранилище используемое для группировки по определенным полям в гриде
@@ -439,7 +425,6 @@ class ExtGroupingStore(ExtJsonStore):
         self.init_component(*args, **kwargs)
 
 
-#==============================================================================
 class ExtMultiGroupingStore(ExtJsonStore):
     """
     Хранилище используемое для грида с множественной серверной группировкой

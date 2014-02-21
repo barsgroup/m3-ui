@@ -456,12 +456,12 @@ Ext.override(Ext.form.ComboBox, {
  */
 var setReadOnlyField = Ext.form.Field.prototype.setReadOnly;
 var restoreClass = function(readOnly){
-    if(readOnly) {         
+    if(readOnly) {
         this.addClass('m3-grey-field');
     } else {
         this.removeClass('m3-grey-field');
     }
-};
+//};
 
 Ext.override(Ext.form.Field, {
     setReadOnly : function(readOnly){

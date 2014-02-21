@@ -92,17 +92,7 @@ class ExtTree(BaseExtPanel):
                         item._make_read_only(
                             self.read_only, exclude_list, *args, **kwargs)
 
-    @staticmethod
-    def nodes_auto_check(node):
-        node.auto_check = True
-        for child in node.children:
-            ExtTree.nodes_auto_check(child)
-
     def t_render_tree_loader(self):
-        if not self.tree_loader.url:
-            # Проставим у всех узлов автопроверку
-            for node in self.nodes:
-                ExtTree.nodes_auto_check(node)
         return self.tree_loader.render()
 
     def t_render_nodes(self):

@@ -4,6 +4,7 @@ Created on 25.02.2010
 
 @author: akvarats
 """
+import weakref
 
 from django.conf import settings
 
@@ -14,22 +15,19 @@ from m3_ext.ui import render_template
 
 from m3_ext.ui.containers.base import BaseExtContainer
 from m3_ext.ui.controls.base import BaseExtControl
-from m3_ext.ui.base import ExtUIScriptRenderer
 
 
-class ExtWindowRenderer(ExtUIScriptRenderer):
+class ExtWindowRenderer(object):
     """
     Рендерер для скрипта на показ окна
     """
-    def __init__(self):
-        self.template = 'ext-script/ext-windowscript.js'
-        self.window = None
+    def __init__(self, common_template):
+        self.common_template = common_template
 
-    def get_script(self):
-        script = render_template(
-            self.template, {'renderer': self, 'window': self.window}
+    def get_script(self, window):
+        return render_template(
+            self.common_template, {'window': window}
         )
-        return script
 
 
 class BaseExtWindow(ExtUIComponent):
@@ -49,8 +47,7 @@ class BaseExtWindow(ExtUIComponent):
         # Шаблон, который будет отрендерен после основного
         self.template_globals = ''
 
-        self.renderer = ExtWindowRenderer()
-        self.renderer.window = self
+        self.renderer = ExtWindowRenderer('ext-script/ext-windowscript.js')
 
         # Название
         self._ext_name = 'Ext.m3.Window'
@@ -284,9 +281,9 @@ class BaseExtWindow(ExtUIComponent):
         return str(self.closable)
 
     def t_render_keys(self):
-        '''
+        """
         Биндинг множества кнопок к их действиям
-        '''
+        """
         return '[%s]' % ','.join([
             '{%s}' % ','.join([
                 '%s:%s' % i for i in key.items()
@@ -295,9 +292,9 @@ class BaseExtWindow(ExtUIComponent):
         ])
 
     def _help_topic_full_path(self):
-        '''
+        """
         Возвращает квалицифирующее имя топика помощи
-        '''
+        """
         if not self.help_topic:
             return ''
         assert isinstance(self.help_topic, tuple)
@@ -306,22 +303,9 @@ class BaseExtWindow(ExtUIComponent):
             '#' + self.help_topic[1] if len(self.help_topic) > 1 else ''
         )
 
-    def nested_components(self):
-        '''
-        Возвращает список вложенных компонентов
-        '''
-        nested = super(BaseExtWindow, self).nested_components()
-        # произвольные вложенные элементы
-        nested.extend(self.items)
-        # кнопки
-        nested.extend(self.buttons)
-        # топ и футтер бары как контейнет
-        nested.extend([self.top_bar, self.footer_bar])
+    def _make_read_only(self, access_off=True, exclude_list=None, *args, **kwargs):
+        exclude_list = exclude_list or []
 
-        return nested
-
-    def _make_read_only(
-            self, access_off=True, exclude_list=[], *args, **kwargs):
         self.read_only = access_off
         # Перебираем итемы.
         for item in self.__items:
@@ -342,3 +326,6 @@ class BaseExtWindow(ExtUIComponent):
                 assert isinstance(button, BaseExtControl)
                 button.make_read_only(
                     self.read_only, exclude_list, *args, **kwargs)
+
+    def get_script(self):
+        return self.renderer.get_script(self)

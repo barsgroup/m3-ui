@@ -59,7 +59,6 @@ class ExtContainer(BaseExtContainer):
         return 'new %s' % res if not self._is_function_render else res
 
 
-#==============================================================================
 class ExtToolBar(BaseExtContainer):
     """
     Класс, имитирующий работу Ext.Toolbar
@@ -178,7 +177,6 @@ class ExtToolBar(BaseExtContainer):
         return 'new %s' % res if not self._is_function_render else res
 
 
-#==============================================================================
 class ExtStaticToolBarItem(ExtUIComponent):
     """
     @deprecated: Нужно использовать встроенные подклассы в качестве элементов
@@ -328,8 +326,6 @@ class ExtRadioGroup(BaseExtContainer):
             self._put_config_value('items', self.t_render_items)
         if self.columns:
             self._put_config_value('columns', self.columns)
-        if self.label:
-            self._put_config_value('fieldLabel', self.label)
 
     def render(self):
         try:

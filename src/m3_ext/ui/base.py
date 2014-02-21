@@ -11,11 +11,8 @@ Created on 01.03.2010
 
 import datetime
 import decimal
-import collections
-import warnings
 
 from django import template as django_template
-from django.conf import settings
 
 from m3_ext.ui import render_template, render_component
 from m3_ext.ui import generate_client_id, normalize
@@ -29,48 +26,6 @@ class ExtComponentException(Exception):
     pass
 
 
-#==============================================================================
-class ExtUIScriptRenderer(object):
-    """
-    @deprecated: Использовать метод render конечного компонента
-
-    Класс, отвечающий за рендер файла скрипта, который
-    будет отправлен клиенту.
-    """
-    def __init__(self):
-        # шаблон, в который осуществляется вывод содержимого
-        # скрипта
-        self.template = 'ext-script/ext-ui-script.js'
-        # компонент, содержимое которого выводится в шаблон
-        self.component = None
-
-    def render(self):
-        result = ''
-        try:
-            result = self.component.render()
-        except AttributeError:
-            result = ''
-        return result
-
-    def render_globals(self):
-        result = ''
-        try:
-            result = self.component.render_globals()
-        except AttributeError:
-            result = ''
-        return result
-
-    def get_script(self):
-        """
-        Генерация скрипта для отправки на клиентское рабочее место.
-        """
-        context = django_template.Context({'renderer': self})
-        template = django_template.loader.get_template(self.template)
-        script = template.render(context)
-        return script
-
-
-#==============================================================================
 class BaseExtComponent(object):
     """
     Базовый класс для всех компонентов пользовательского интерфейса
@@ -90,10 +45,6 @@ class BaseExtComponent(object):
         # an instance of m3.actions.ActionContext class
         self.action_context = None
 
-        # рендерер, используемый для вывода соответствующего компонента
-        self.renderer = ExtUIScriptRenderer()
-        #self.renderer.component = self
-
         # Словарь обработчиков на события
         self._listeners = {}
 
@@ -109,15 +60,6 @@ class BaseExtComponent(object):
         # Имя компонента в нотации ExtJs (Например Ext.form.Panel)
         self._ext_name = None
 
-        # квалифицирующее имя контрола
-        # (в пределах некоторого базового компонента)
-        # формируется путем присоединения
-        # к имени текущего компонента квалифицирующих
-        # имен родительских контейнеров.
-        # квалицирющее имя текущего компонента
-        # формируется из наименования атрибута
-        self.qname = ''
-
     def render(self):
         """
         Возвращает "кусок" javascript кода, который используется для
@@ -131,7 +73,6 @@ class BaseExtComponent(object):
         """
         Рендерит и возвращает js-код, который помещен в template_globals
         """
-        self.pre_render_globals()
         if self.template_globals:
             return render_template(
                 self.template_globals,
@@ -143,18 +84,6 @@ class BaseExtComponent(object):
         Вызывается перед началом работы метода render
         """
         pass
-
-    def pre_render_globals(self):
-        """
-        Вызывается перед началом работы метода render_globals
-        """
-        pass
-
-    def get_script(self):
-        """
-        Генерация скрипта для отправки на клиентское рабочее место.
-        """
-        return self.renderer.get_script()
 
     def init_component(self, *args, **kwargs):
         """
@@ -379,110 +308,7 @@ class BaseExtComponent(object):
         """
         return self._get_base_str(self._param_list)
 
-    def nested_components(self):
-        """
-        Метод получения списка внутренних (по отношению
-        к текущему) компонентов.
 
-        Данный метод следует переопределять в унаследованных классах
-        """
-        return []
-
-    def prepare_qnames(self):
-        """
-        Метод вычисляет квалицицирующие имена контролов.
-
-        Квалифицирующие имена не вычисляются неявно. Т.е. для получения
-        qname контрола необходимо явно вызвать данный метод.
-
-        Примеры того, как формируются квалифицирующие имена контролов см. в
-        m3/src/tests/ui/ext_tests/tests.py (test case: QNamesTests)
-        """
-        if self.qname:
-            # квалицицирующие имена этого и вложенных в него контролов
-            # типа были вычислены заранееы
-            return
-
-        # вычисляем квалицицирующее имя для текущего компонента.
-        self.qname = self.__class__.__name__
-
-        # очередь компонентов, для которых необходимо определить qnames
-        # очередь состоит из кортежей (компонент, родительский компонент)
-        queue = collections.deque([self])
-
-        # основной цикл, в котором происходит вычисление
-        # квалифицирующих имен
-        while len(queue) > 0:
-            cmp = queue.popleft()
-            # проверяем, может быть, квалифицирующее имя
-            # уже было вычислено ранее
-            if not cmp:
-                continue
-
-            if not cmp.qname:
-                # формируем имя компонента на основе его типа,
-                # qname родительского контрола
-                # и индекса внутри компонентов базового контрола
-                pass
-
-            # получаем вложенные компоненты
-            nested = cmp.nested_components()
-            # словарь, в котором в качестве ключей будут классы контролов,
-            # а в значениях - количество контролов указанного типа.
-            # это необходимо для того, чтобы формировать имена
-            # типа ...__ExtButton0
-            cmp_indicies = {}
-            # формируем транспонированный словарь атрибутов
-            # ключом будут вложенные атрибуты BaseExtComponent
-            transposed_cmp_dict = {}
-            for name, value in cmp.__dict__.iteritems():
-                if isinstance(value, BaseExtComponent):
-                    transposed_cmp_dict[value] = name
-
-            for nested_cmp in nested:
-                if nested_cmp and not nested_cmp.qname:
-                    attr_name = transposed_cmp_dict.get(nested_cmp, '')
-                    if attr_name:
-                        # вложенный компонент присутствует в атрибутах
-                        # родительского контейнера.
-                        if '__' in attr_name and hasattr(
-                                cmp, attr_name + '_qname'):
-                            qname = getattr(cmp, attr_name + '_qname')
-                        else:
-                            qname = attr_name
-                        nested_cmp.qname = cmp.qname + '__' + qname
-                    else:
-                        component_index = cmp_indicies.get(
-                            nested_cmp.__class__, -1) + 1
-                        nested_cmp.qname = '%s__%s%s' % (
-                            cmp.qname,
-                            nested_cmp.__class__.__name__,
-                            component_index
-                        )
-                        cmp_indicies[nested_cmp.__class__] = component_index
-
-                    # включаем компонент в очередь на дальнейшую обработку
-                    queue.append(nested_cmp)
-
-            # теперь мы должны пройтись по необработанным ранее компонентам и
-            # выставить у них qname
-            for cmp_in_attr, attr_name in transposed_cmp_dict.iteritems():
-                if not cmp_in_attr.qname:
-                    cmp_in_attr.qname = cmp.qname + '__' + attr_name
-
-            # У ДАННОГО МЕХАНИЗМА ЕСТЬ ОДИН НЕПРИЯТНЫЙ САЙД ЭФФЕКТ.
-            # в случае, если в атрибуты этого или одно из вложенных компонентов
-            # попадет нечто левое унаследованное от BaseExtComponent,
-            # то его qname будет заполнен некоторым значением.
-            # чтобы избежать этого, возможно, стоит предусмотреть нечто,
-            # что будет описывать именно те компоненты,
-            # которые подлежат обработке.
-            # но хождение по этому нечту приведет
-            # к замедлению времени вычисления
-            # квалифицирующих имен компонентов.
-
-
-#==============================================================================
 class ExtUIComponent(BaseExtComponent):
     """
     Базовый класс для компонентов визуального интерфейса
@@ -586,11 +412,6 @@ class ExtUIComponent(BaseExtComponent):
         if self.label_style:
             self._put_config_value('labelStyle', self.t_render_label_style())
         self._put_config_value('hideLabel', self.hide_label, self.hide_label)
-
-    def pre_make_read_only(
-            self, access_off=True, exclude_list=(), *args, **kwargs):
-        warnings.warn("Don't do this!", DeprecationWarning)
-        return access_off
 
     def make_read_only(
             self, access_off=True, exclude_list=(), *args, **kwargs):

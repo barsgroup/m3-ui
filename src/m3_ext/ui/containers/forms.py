@@ -667,7 +667,6 @@ class ExtPanel(BaseExtPanel):
         """
         Рендерит и возвращает js-код, который помещен в template_globals
         """
-        self.pre_render_globals()
         if self.template_globals:
             return render_template(
                 self.template_globals,

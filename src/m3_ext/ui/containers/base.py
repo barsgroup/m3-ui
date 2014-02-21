@@ -116,15 +116,6 @@ class BaseExtContainer(ExtUIComponent):
         self._put_config_value('labelAlign', self.label_align)
         self._put_config_value('labelPad', self.label_pad)
 
-    def nested_components(self):
-        """
-        Возвращаем список вложенных компонентов
-        """
-        nested = super(BaseExtContainer, self).nested_components()
-        nested.extend(self._items)
-
-        return nested
-
     def _make_read_only(
             self, access_off=True, exclude_list=(), *args, **kwargs):
         if self._items:

@@ -12,140 +12,6 @@ from m3_ext.ui.base import ExtUIComponent, BaseExtComponent
 from base import BaseExtPanel
 
 
-#==============================================================================
-class ExtPivotGrid(BaseExtPanel):
-    """
-    Сводная таблица
-    """
-    def __init__(self, *args, **kwargs):
-        super(ExtPivotGrid, self).__init__(*args, **kwargs)
-        self.template = 'ext-grids/ext-pivot-grid.js'
-        self.__store = None
-        self.aggregator = None
-        self.renderer = None
-        self.measure = None
-        self._left_axis = []
-        self._top_axis = []
-        self._items = []
-        self.__cm = None
-        self.col_model = ExtGridDefaultColumnModel()
-        self.force_fit = True
-        self.auto_fill = True
-        self.__view = None
-        self._view_config = {}
-        self.init_component(*args, **kwargs)
-
-    def t_render_store(self):
-        return self.__store.render(self.columns)
-
-    def t_render_columns(self):
-        return self.t_render_items()
-
-    def add_column(self, **kwargs):
-        self.columns.append(ExtGridColumn(**kwargs))
-
-    def add_left_axis(self, **kwargs):
-        self.left_axis.append(ExtPivotGridAxis(**kwargs))
-
-    def add_top_axis(self, **kwargs):
-        self.top_axis.append(ExtPivotGridAxis(**kwargs))
-
-    def render_base_config(self):
-        super(ExtPivotGrid, self).render_base_config()
-        self._view_config['forceFit'] = self.force_fit
-        self._view_config['autoFill'] = self.auto_fill
-        for args in (
-            ('store', self.t_render_store, self.get_store()),
-            ('measure', self.measure),
-            ('aggregator', self.aggregator),
-            ('renderer', self.renderer),
-            ('leftAxis', self.t_render_left_axis),
-            ('topAxis', self.t_render_top_axis),
-            ('colModel', self.col_model.render),
-            ('view', self.t_render_view, self.view),
-            ('viewConfig', self._view_config),
-        ):
-            self._put_config_value(*args)
-
-    @property
-    def columns(self):
-        return self._items
-
-    @property
-    def left_axis(self):
-        return self._left_axis
-
-    @property
-    def top_axis(self):
-        return self._top_axis
-
-    @property
-    def view(self):
-        return self.__view
-
-    @view.setter
-    def view(self, value):
-        self.__view = value
-
-    def render(self):
-        self.render_base_config()
-        self.render_params()
-        config = self._get_config_str()
-        params = self._get_params_str()
-        return 'new Ext.grid.PivotGrid({%s}, {%s})' % (config, params)
-
-    def set_store(self, store):
-        self.__store = store
-
-    def get_store(self):
-        return self.__store
-
-    store = property(get_store, set_store)
-
-    @property
-    def col_model(self):
-        return self.__cm
-
-    @col_model.setter
-    def col_model(self, value):
-        self.__cm = value
-        self.__cm.grid = self
-
-    def t_render_view(self):
-        return self.view.render()
-
-    def t_render_left_axis(self):
-        return '[%s]' % ','.join(
-            ['''{
-            dataIndex:"%s",
-            header:"%s",
-            width:%d,
-            defaultHeaderWidth:%d,
-            orientation:"%s"
-            }''' % (
-            axe.data_index,
-            axe.header,
-            axe.width,
-            axe.default_header_width,
-            axe.orientation) for axe in self.left_axis])
-
-    def t_render_top_axis(self):
-        return '[%s]' % ','.join(
-            ['''{
-            dataIndex:"%s",
-            header:"%s",
-            width:%d,
-            defaultHeaderWidth:%d,
-            orientation:"%s"
-            }''' % (
-            axe.data_index,
-            axe.header,
-            axe.width,
-            axe.default_header_width,
-            axe.orientation) for axe in self.top_axis])
-
-
-#==============================================================================
 class ExtGrid(BaseExtPanel):
     """
     Таблица (Grid)
@@ -289,7 +155,7 @@ class ExtGrid(BaseExtPanel):
         @param column: Колонка грида (ExtGridColumn)
         @param colspan: Количество колонок которые находятся
             под данной колонкой (int)
-        @param level: Уровень учейки где
+        @param level: Уровень ячейки где
           0 - самый верхний,
           1-ниже, и т.д. (int)
 
@@ -399,9 +265,7 @@ class ExtGrid(BaseExtPanel):
         self.__cm = value
         self.__cm.grid = self
 
-    #//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\
-    # Врапперы над событиями listeners[...]
-    #------------------------------------------------------------------------
+
     @property
     def handler_click(self):
         return self._listeners.get('click')
@@ -518,23 +382,6 @@ class ExtGrid(BaseExtPanel):
         return 'createGridPanel({%s}, {%s})' % (config, params)
 
 
-#==============================================================================
-# Оси к пивот гриду
-#==============================================================================
-class ExtPivotGridAxis(ExtUIComponent):
-    DEFAULT_HEADER_WIDTH = 100
-
-    def __init__(self, *args, **kwargs):
-        super(ExtPivotGridAxis, self).__init__(*args, **kwargs)
-        self.width = ExtPivotGridAxis.DEFAULT_HEADER_WIDTH
-        self.data_index = None
-        self.orientation = 'horizontal'
-        self.header = None
-        self.default_header_width = 80
-        self.init_component(*args, **kwargs)
-
-
-#==============================================================================
 class BaseExtGridColumn(ExtUIComponent):
 
     # Умолчательная ширина колонок
@@ -815,19 +662,6 @@ class ExtGridLockingColumnModel(BaseExtComponent):
             self.grid.t_render_columns())
 
 
-class ExtGridLockingHeaderGroupColumnModel(BaseExtComponent):
-    # TODO: Этот класс, т.к. ссылка на грид порождает цикличную связь
-    def __init__(self, *args, **kwargs):
-        super(ExtGridLockingHeaderGroupColumnModel, self).__init__(
-            *args, **kwargs)
-        self.grid = None
-        self.init_component(*args, **kwargs)
-
-    def render(self):
-        return 'new Ext.ux.grid.LockingGroupColumnModel({columns:%s})' % (
-            self.grid.t_render_columns())
-
-
 class ExtGridGroupingView(BaseExtComponent):
     """
     Компонент используемый для группировки
@@ -874,21 +708,6 @@ class ExtGridLockingView(BaseExtComponent):
 
     def render(self):
         result = 'new Ext.ux.grid.LockingGridView()'
-        return result
-
-
-class ExtGridLockingHeaderGroupView(BaseExtComponent):
-    """
-    Компонент используемый для блокирования колонок и их группировки
-    """
-    def __init__(self, *args, **kwargs):
-        super(ExtGridLockingHeaderGroupView, self).__init__(*args, **kwargs)
-        self.grid = None
-        self.init_component(*args, **kwargs)
-
-    def render(self):
-        result = 'new Ext.ux.grid.LockingHeaderGroupGridView({rows:%s})' % (
-            self.grid.t_render_banded_columns())
         return result
 
 

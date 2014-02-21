@@ -6,13 +6,11 @@ Created on 02.03.2010
 """
 
 from django.template import TemplateSyntaxError
-
 from m3_ext.ui.containers import ExtForm
-
 from base import BaseExtWindow
+from m3_ext.ui.windows.base import ExtWindowRenderer
 
 
-#==============================================================================
 class ExtEditWindow(BaseExtWindow):
 
     def __init__(self, *args, **kwargs):
@@ -20,12 +18,9 @@ class ExtEditWindow(BaseExtWindow):
         self.__form = None
         self.data_url = None  # адрес для загрузки данных формы
         self._ext_name = 'Ext.m3.EditWindow'
-        self.renderer.template = 'ext-script/ext-editwindowscript.js'
+        self.renderer = ExtWindowRenderer('ext-script/ext-editwindowscript.js')
         self.init_component(*args, **kwargs)
 
-    #==========================================================================
-    # Врапперы над событиями listeners[...]
-    #==========================================================================
     @property
     def handler_beforesubmit(self):
         return self._listeners.get('beforesubmit')
@@ -44,8 +39,6 @@ class ExtEditWindow(BaseExtWindow):
         # то небходимо вставить эту строку
         self.items.append(value)
         self.__form = value
-        # для формирования более коротких qnames для контролов
-        self.__form_qname = 'form'
 
     def render_params(self):
         super(ExtEditWindow, self).render_params()
@@ -79,12 +72,3 @@ class ExtEditWindow(BaseExtWindow):
         }
 
         return 'new %s' % res if not self._is_function_render else res
-
-    def nested_components(self):
-        '''
-        Метод сбора вложенных компонентов
-        '''
-        nested = super(ExtEditWindow, self).nested_components()
-        # форма для этих вложенных компонентов важнее
-        nested.insert(0, self.form)
-        return nested
