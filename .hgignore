@@ -29,3 +29,5 @@ syntax: glob
 build/*
 dist/*
 src/m3_ext3.egg-info/*
+glob:htmlcov
+glob:.coverage

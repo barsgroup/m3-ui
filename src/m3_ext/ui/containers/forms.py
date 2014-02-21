@@ -23,13 +23,18 @@ except ImportError:
 
 from django.core.files.base import ContentFile
 from django.conf import settings
-from django.utils.log import logger
+try:
+    from django.utils.log import logger
+except ImportError:
+    from django.utils.log import getLogger
+    logger = getLogger('django')
 
 from m3_ext.ui import render_template
 from m3.actions.interfaces import ISelectablePack, IMultiSelectablePack
 from m3_ext.ui.base import ExtUIComponent, BaseExtComponent
 
 from m3_ext.ui.containers.base import BaseExtPanel
+
 
 
 def _is_field(obj):

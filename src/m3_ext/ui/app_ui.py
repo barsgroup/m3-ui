@@ -14,7 +14,12 @@ from uuid import uuid4
 from django.conf import settings
 from django.utils.importlib import import_module
 from django.contrib.auth.models import User, AnonymousUser
-from django.utils.log import logger
+
+try:
+    from django.utils.log import logger
+except ImportError:
+    from django.utils.log import getLogger
+    logger = getLogger('django')
 
 try:
     from m3_users import GENERIC_USER, SUPER_ADMIN

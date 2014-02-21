@@ -1,0 +1,128 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>m3ui</title>
+    <meta content="text/html; charset=utf-8" http-equiv="Content-Type"/>
+    <style type='text/css'>
+        html, body {
+            font-family: Tahoma, Sans;
+            font-size: 13px;
+        }
+
+        #loading-mask {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #000000;
+            z-index: 1001;
+        }
+
+        #loading {
+            position: absolute;
+            top: 40%;
+            left: 45%;
+            z-index: 1002;
+        }
+    </style>
+</head>
+<body>
+
+{% load staticfiles %}
+
+<link rel='stylesheet' type='text/css' href='{% static "vendor/extjs/resources/css/ext-all.css" %}'/>
+<link rel='stylesheet' type='text/css' href='{% static "vendor/extjs/resources/css/ux/ColumnHeaderGroup.css" %}'/>
+<!-- link rel='stylesheet' type='text/css' href='/static/extjs/resources/css/ux/RowEditor.css'/-->
+<link rel='stylesheet' type='text/css' href='{% static "vendor/extjs/resources/css/ux/ux-all.css" %}'/>
+<link rel="stylesheet" type="text/css" href='{% static "vendor/extjs/resources/css/ux/calendar.css" %}'/>
+<link rel="stylesheet" type="text/css" href='{% static "ext/css/TreeGrid.css" %}'/>
+
+<!--Подключаем m3 css: -->
+<link rel='stylesheet' type='text/css' href='{% static "m3/css/m3.css" %}'/>
+<link rel="stylesheet" type="text/css" href='{% static "vendor/livegrid/resources/css/ext-ux-livegrid.css" %}'/>
+
+<script type="text/javascript" src='{% static "vendor/extjs/adapter/ext/ext-base-debug.js" %}'></script>
+<script type='text/javascript' src='{% static "vendor/extjs/ext-all-debug.js" %}'></script>
+<script type='text/javascript' src='{% static "vendor/extjs/ux-all-debug.js" %}'></script>
+<script type='text/javascript' src='{% static "vendor/extjs/locale/ext-lang-ru.js" %}'></script>
+
+<!--Подключаем m3 js: -->
+<script type='text/javascript' src='{% static "m3/js/m3-debug.js" %}'></script>
+<script type='text/javascript' src='{% static "m3/js/ext-extensions/Window.js" %}'></script>
+<script type='text/javascript' src='{% static "m3/js/ext-extensions/EditWindow.js" %}'></script>
+<script type='text/javascript' src='{% static "m3/js/ext-extensions/Grid.js" %}'></script>
+<script type='text/javascript' src='{% static "m3/js/ext-extensions/TreeGrid.js" %}'></script>
+<script type='text/javascript' src='{% static "m3/js/ext-extensions/ObjectTree.js" %}'></script>
+<script type='text/javascript' src='{% static "m3/js/ext-extensions/ComboBox.js" %}'></script>
+<script type='text/javascript' src='{% static "m3/js/ext-extensions/AdvancedCombobox.js" %}'></script>
+<script type='text/javascript' src='{% static "m3/js/ext-extensions/AdvancedDateField.js" %}'></script>
+<script type='text/javascript' src='{% static "m3/js/other/containers.js" %}'></script>
+<script type='text/javascript' src='{% static "ext/js/LockingHeaderGroupGridView.js" %}'></script>
+<script type='text/javascript' src='{% static "ext/js/ExtGridHeaderFilter.js" %}'></script>
+<script type='text/javascript' src='{% static "ext/js/CellToolTips.js" %}'></script>
+
+<script type='text/javascript' src='{% static "m3/js/other/override.js" %}'></script>
+<!--<script type='text/javascript' src='{% static "/m3/js/m3-debug.js" %}'></script>-->
+
+<script src='{% static "vendor/livegrid/livegrid-all-debug.js" %}'></script>
+<script src='{% static "m3/js/ext-extensions/MultiGroupingGrid.js" %}'></script>
+<script src='{% static "ext/js/Reorderer.js" %}'></script>
+<script src='{% static "ext/js/ToolbarReorderer.js" %}'></script>
+<script src='{% static "ext/js/ToolbarDroppable.js" %}'></script>
+<script src='{% static "m3/js/ext-extensions/LockingGridColumnWithHeaderGroup.js" %}'></script>
+
+
+<script type='text/javascript' src='{% static "m3/js/ext-extensions/Grid.js" %}'></script>
+<script type='text/javascript' src='{% static "m3/js/ext-extensions/ObjectGrid.js" %}'></script>
+<script type='text/javascript' src='{% static "m3/js/ext-extensions/ObjectSelectionPanel.js" %}'></script>
+
+<style>
+    .cell-story {
+        white-space: normal !important;
+        line-height: 19px !important;
+    }
+
+    .loading-indicator {
+        display: inline-block;
+        padding: 12px;
+        background: white;
+        -opacity: 0.5;
+        color: black;
+        font-weight: bold;
+        z-index: 9999;
+        border: 1px solid red;
+        -moz-border-radius: 10px;
+        -webkit-border-radius: 10px;
+        -moz-box-shadow: 0 0 5px red;
+        -webkit-box-shadow: 0px 0px 5px red;
+        -text-shadow: 1px 1px 1px white;
+    }
+
+    .cell-title {
+        font-weight: bold;
+    }
+
+    .cell-effort-driven {
+        text-align: center;
+    }
+
+    .toggle {
+        height: 9px;
+        width: 9px;
+        display: inline-block;
+    }
+
+</style>
+
+
+<script type='text/javascript'>
+    Ext.onReady(function () {
+        Ext.QuickTips.init();
+    });
+</script>
+
+
+</body>
+</html>

@@ -42,7 +42,7 @@ class ExtUIComponentResult(_BaseContextedResult):
     """
     Результат выполнения операции,
     описанный в виде отдельного компонента пользовательского интерфейса.
-    В self.data хранится некоторый наследник класса m3_ext.ui.ExtUiComponent.
+    В self.data хранится некоторый наследник класса m3_ext_demo.ui.ExtUiComponent.
     Метод get_http_response выполняет метод render у объекта в self.data.
     """
     def get_http_response(self):

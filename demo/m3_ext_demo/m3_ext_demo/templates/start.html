@@ -1,0 +1,80 @@
+{% extends 'master.html' %}
+
+{% block content_head %}
+<script type='text/javascript'>
+    Ext.onReady(function(){
+		//Ext.History.init(); --> потестить с историей
+		Ext.QuickTips.init();		   
+		
+	
+		var obj = [
+			/* text, url, */
+			['Просто окно', '/ui/simple-window']
+			,['Окно с кнопкой', '/ui/simple-window2']
+			,['Окно с формой','/ui/simple-window3']
+			,['Окно с формой и JsonStore','/ui/form-jstore']
+			,['Таблица - DataStore + конт. меню','/ui/grid-data-store']
+			,['Таблица - JsonStore','/ui/grid-json-store']
+			,['Поле выбора из справочника','/ui/dict-select-field']
+			,['Text Area и Check Box','/ui/text-area-checkbox']
+			,['Number Field, Date Field, Time Field','/ui/number-date-fields']
+			,['Таблица с сгруппированными колонками','/ui/grid-column-header-grouping']
+			,['Многоколоночное дерево + конт. меню','/ui/base-tree']
+			,['ComboBox и TabPanel','/ui/combo-tabpanel-fields']
+			,['Toolbar и Panel','/ui/toolbar-panel']
+			,['Валидаторы','/ui/field_validators']
+			//,['Редактируемый грид','/ui/edit-grid']
+			,['Форма списка и выбора из простого плоского справочника','/ui/dictionary-window']
+			,['List view','/ui/list-view']
+			,['Window Layout "Border"','/ui/layout-border']
+			,['Button Group"','/ui/button-group']
+			,['Поиск по find_by_name and submit','/ui/find-by-name']
+			,['Форма выбора из иерархического справочника','/ui/tree-dict-window']
+			,['Контрол поиска','/ui/search-field']
+			,['Табличная форма ','/ui/table-form']
+			,['SelectionModel','/ui/selection-model']
+			,['Advanced TreeGrid','/ui/advanced-tree-grid']
+			,['Object Tree','/ui/object-tree']
+	      ,['FieldSet','/ui/fieldset']
+	      ,['Таблица с фиксированными колонками','/ui/grid-locking-column']
+{#	      ,['Таблица с фиксированными колонками и группировкой','/ui/grid-banded-locking-column']#}
+	      ,['Таблица с фильтрами','/ui/grid-column-filter']
+	      ,['Таблица с всплывающими подсказками','/ui/grid-with-qtip']
+	      ,['Редактор кода','/ui/code-editor']
+	      ,['Live-грид','/ui/livegrid']
+	      ,['експорт из грида','/ui/exportgrid']
+	      ,['Отладочный лайвгрид','/ui/livegrid-bug']
+	      //,['Live-грид Физлица','/ui/livegrid_person']
+{#	      ,['Пример генератора кода','ui/generatore-code-test']#}
+          ,['ObjectSelectionPanel','ui/object-grid']
+		  ,['Locking & Grouping grid','ui/locking-grouping-grid']
+        ];
+
+		var connection = new Ext.data.Connection();
+		var button;
+		var len = obj.length;
+		for (var i=0; i < len; i++) {
+			button = new Ext.Button({
+	           text: obj[len-i-1][0], // текст    
+			   url: obj[len-i-1][1],  // url используемый в Ext.data.Connection()
+	           handler: function(){
+	               connection.request({
+	                   url: this.url,
+	                   method: 'GET',
+	                   success: function(response, opts){
+	                       eval(response.responseText);
+	                   },
+	                   failure: uiAjaxFailMessage
+	               });
+	           }
+			   
+       		}); 
+	   		button.render(Ext.getBody());	
+		};
+
+ });
+</script>
+{% endblock %}
+
+{% block content %}
+{% endblock %}
