@@ -366,4 +366,3 @@ Ext.m3.ObjectTree = Ext.extend(Ext.ux.tree.TreeGrid, {
 		return baseConf;
     }
 });
-

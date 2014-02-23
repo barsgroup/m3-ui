@@ -687,3 +687,4 @@ Ext.m3.EditorObjectGrid = Ext.extend(Ext.m3.EditorGridPanel, {
 		return baseConf;
     }
 });
+

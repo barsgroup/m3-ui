@@ -173,6 +173,7 @@ Ext.m3.EditWindow = Ext.extend(Ext.m3.Window, {
 		var mask = new Ext.LoadMask(this.body, {msg:'Сохранение...'});
 		var params = Ext.applyIf(baseParams || {}, this.actionContextJson || {});
 
+        //->TODO - deprecated
         // На форме могут находиться компоненты, которые не являются полями, но их можно сабмитить
         // Находим такие компоненты по наличию атрибутов name и localEdit
         var getControls = function(items){
@@ -202,6 +203,7 @@ Ext.m3.EditWindow = Ext.extend(Ext.m3.Window, {
             }
             params[cControl.name] = Ext.util.JSON.encode(cStoreData);
         }
+        //<-TODO - deprecated
 
         // вытащим из формы все поля и исключим их из наших параметров, иначе они будут повторяться в submite
         var fElements = form.el.dom.elements || (document.forms[form.el.dom] || Ext.getDom(form.el.dom)).elements;
@@ -428,7 +430,10 @@ Ext.m3.EditWindow = Ext.extend(Ext.m3.Window, {
             id,
             record,            
             complexData = action.result['complex_data'];
-            
+
+        //FIXME -> deprecated (нарушение принципа слабой связи,
+        // отсутствие точки расширения, компонент знает о каких-то других компонентах
+        // со свойством Store)
         for (var fieldName in complexData){
             field = form.findField(fieldName);
             assert(field instanceof Ext.form.TriggerField,
@@ -451,7 +456,8 @@ Ext.m3.EditWindow = Ext.extend(Ext.m3.Window, {
                 field.clearValue();
             }
         }
-        
+        //<- deprecated
+
         mask.hide();
         this.disableToolbars(false);
         this.fireEvent('dataloaded', action);

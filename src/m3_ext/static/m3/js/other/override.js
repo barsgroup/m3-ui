@@ -542,3 +542,9 @@ Ext.override(Ext.grid.GridView, {
         return true;
     }
 });
+
+//добавим аттрибут для переопределения кастомных обработчиков событий(см. Ext.m3.CustomEventDispatcher)
+
+Ext.override(Ext.Component, {
+    overrideEventHandling: null
+});
