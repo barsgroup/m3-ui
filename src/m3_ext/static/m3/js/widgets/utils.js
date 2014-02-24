@@ -88,9 +88,9 @@ Ext.m3.utils = {
         if (rendering_string.substring(0, 1) == '{') {
             var data_object = Ext.decode(rendering_string);
 
-            if (data['_window_request_url']) {
+            if (data_object && data_object.data && data_object.data['_window_request_url']) {
                 //обработка последующего запроса на окно
-                this.makeWindowRequest(data['_window_request_url']);
+                this.makeWindowRequest(data_object.data['_window_request_url']);
             } else {
                 //пришли данные
                 eval_result = renderAsData(data_object);

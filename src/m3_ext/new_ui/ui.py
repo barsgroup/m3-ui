@@ -9,7 +9,6 @@ class CatalogueWindow(ExtDictionaryWindow):
     height = 200
 
     def __init__(self, *args, **kwargs):
-
         super(CatalogueWindow, self).__init__(*args, **kwargs)
         self.template_globals = 'ext-script/ext-catalogue-window-globals.js'
         self.maximized = True

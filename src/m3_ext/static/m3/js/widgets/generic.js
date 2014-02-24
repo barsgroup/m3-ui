@@ -77,11 +77,13 @@ Ext.m3.ActionManager = Ext.extend(Ext.AbstractManager, {
                     //у компонента может не быть умолчательной конфигурации
                     //для обработки события
                     if (component.baseEventHandling) {
+                        debugger;
                         handlerType = component.baseEventHandling[event_group_alias];
                     }
                 }
                 //если удалось найти нужный обработчик
                 if (handlerType) {
+                    debugger;
                     //вызываем обработчик для компонента
                     var found_handler = found_dispatcher.create({}, handlerType);
                     if (found_handler) {
