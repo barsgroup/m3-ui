@@ -1,5 +1,10 @@
 Ext.ns('Ext.m3.utils');
 
+Ext.m3.ExtJS_version = (function() {
+    return Ext.version.split(".").slice(0, 2).join(".");
+})();
+Ext.m3._future = true;
+
 Ext.m3.utils = {
     critical: function(msg) {
         Ext.Msg.show({

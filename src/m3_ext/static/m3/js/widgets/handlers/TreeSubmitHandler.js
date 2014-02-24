@@ -1,7 +1,7 @@
 
 var tree_submit_handler, tree_class;
 
-if (Ext.m3.clientFramework == "ExtJS 3.4" || !Ext.m3.clientFramework) {
+if (Ext.m3.ExtJS_version == "3.4") {
     //так как в ExtJS 4 серьезно переписали дерево то код непереносим
     //между 3 и 4 версией
     tree_class = Ext.m3.ObjectTree;
@@ -35,7 +35,7 @@ if (Ext.m3.clientFramework == "ExtJS 3.4" || !Ext.m3.clientFramework) {
     });
 
 
-} else if (Ext.m3.clientFramework == "ExtJS 4.2>")  {
+} else if (Ext.m3.ExtJS_version == "4.2")  {
     //TODO - код хендлера на ExtJS 4
 }
 

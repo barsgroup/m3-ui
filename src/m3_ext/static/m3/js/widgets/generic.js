@@ -58,36 +58,77 @@
 
 
 Ext.m3.ActionManager = Ext.extend(Ext.AbstractManager, {
+    filterRegisteredItems: function(items, registered_classes, container) {
+        //ищем в контейнере только компоненты классы которых зарегистрированы
+        //в менеджере (только они могут быть обработаны в менеджере в методе dispatch)
+        var me = this;
+        Ext.each(items, function(item) {
+            for (var cl=0, len=registered_classes.length; cl < len; cl++) {
+                if (item.items) {
+                    me.filterRegisteredItems(item.items.items,
+                        registered_classes, container);
+                }
+
+                if (item.constructor == registered_classes[cl].constructor) {
+                    container.push(item);
+                }
+            }
+        });
+        return container;
+    },
+    getRegisteredHandlerClasses: function(dispatcher) {
+        //выбираем классы виджетов для которых зарегистрированны хендлеры событий
+        var registered_prototypes = [];
+        dispatcher.all.each(function(handler_config) {
+            var widget_constructor = handler_config[0];
+            registered_prototypes.push(widget_constructor);
+        });
+        return registered_prototypes;
+    },
+    getDispatcherByEventName: function(event_group_name) {
+        var me = this, found_dispatcher;
+        //ищем диспетчер событий по названию группы
+        var getHandlerFunction = function(item) {
+            return item.getActionAlias() == event_group_name;
+        };
+        //пробегаемся по всем типам обработчиков и находим нужный
+        found_dispatcher = me.all.find(getHandlerFunction);
+        return found_dispatcher;
+    },
+    getHandlerByEventName: function(cmp, event_name) {
+        var handler;
+        if (cmp.overrideEventHandling) {
+            handler = cmp.overrideEventHandling[event_name];
+        } else {
+            //у компонента может не быть умолчательной конфигурации
+            //для обработки события
+            if (cmp.baseEventHandling) {
+                debugger;
+                handler = cmp.baseEventHandling[event_name];
+            }
+        }
+        return handler;
+    },
     dispatch: function(event_group_alias, components, options) {
         debugger;
-        var me = this;
         //hook - метод вызываемый когда необходимо обработать пользовательское действие
-        Ext.each(components, function(component) {
-            var getHandlerFunction = function(item) {
-                return item.getActionAlias() == event_group_alias;
-            };
-            //пробегаемся по всем типам обработчиков и находим нужный
-            var found_dispatcher = me.all.find(getHandlerFunction);
+        var me = this, registered_items = [], registered_classes;
+        var found_dispatcher = me.getDispatcherByEventName(event_group_alias);
+        registered_classes = me.getRegisteredHandlerClasses(found_dispatcher);
+        registered_items = me.filterRegisteredItems(components, registered_classes, registered_items);
+
+        Ext.each(registered_items, function(component) {
+
             if (found_dispatcher) {
                 //инстанцируем нужный диспетчер
-                var handlerType;
-                if (component.overrideEventHandling) {
-                    handlerType = component.overrideEventHandling[event_group_alias];
-                } else {
-                    //у компонента может не быть умолчательной конфигурации
-                    //для обработки события
-                    if (component.baseEventHandling) {
-                        debugger;
-                        handlerType = component.baseEventHandling[event_group_alias];
-                    }
-                }
+                var handlerType = me.getHandlerByEventName(component, event_group_alias);
                 //если удалось найти нужный обработчик
                 if (handlerType) {
                     debugger;
                     //вызываем обработчик для компонента
-                    var found_handler = found_dispatcher.create({}, handlerType);
+                    var found_handler = me.create({}, handlerType);
                     if (found_handler) {
-                        me.doHandler(component, found_handler, options);
+                        found_dispatcher.doHandler(found_handler, component, options);
                     } else {
                         throw new Error(String.format(
                             "Dispatch error-> Handler for action {0} not found!"))

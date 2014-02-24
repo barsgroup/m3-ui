@@ -1,23 +1,26 @@
 
-var grid_submit_handler, grid_cls;
+var grid_submit_handler, grid_cls,
+    //для тестирования функционала
+    submit_suffix = Ext.m3._future ? "_newSubmit": '';
 
-if (Ext.m3.clientFramework == "ExtJS 3.4" || !Ext.m3.clientFramework) {
+
+if (Ext.m3.ExtJS_version == "3.4") {
     grid_cls = Ext.m3.ObjectGrid;
     grid_submit_handler = Ext.m3.GridSubmitHandler = Ext.extend(Ext.m3.BaseSubmitHandler, {
         //обработчик события на сабмит формы для гридов
         onSubmit: function(control, submit_params) {
-            debugger;
-            console.log('submit grid');
-            var cStore = control.getStore();
-            var cStoreData = [];
-            for (var k = 0; k < cStore.data.items.length; k++){
-                cStoreData.push(cStore.data.items[k].data);
+            var cStore = control.getStore(),
+                cStoreData = [];
+
+            for (var k = 0, items= cStore.data.items; k < items.length; k++){
+                cStoreData.push(items[k].data);
             }
-            submit_params[control.name] = Ext.encode(cStoreData);
+
+            submit_params.params[control.name+submit_suffix] = Ext.encode(cStoreData);
         }
     });
 
-} else if (Ext.m3.clientFramework == "ExtJS 4.2>") {
+} else if (Ext.m3.ExtJS_version == "4.2") {
 
 }
 
