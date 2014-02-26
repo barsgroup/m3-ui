@@ -9,4 +9,3 @@ Ext.m3.SubmitDispatcher = Ext.extend(Ext.m3.CustomEventDispatcher, {
 });
 
 Ext.m3.actionManager.registerType("submit", Ext.m3.SubmitDispatcher);
-console.log("register SubmitDispatcher");

@@ -61,11 +61,11 @@ Ext.m3.ActionManager = Ext.extend(Ext.AbstractManager, {
     filterRegisteredItems: function(items, registered_classes, container) {
         //ищем в контейнере только компоненты классы которых зарегистрированы
         //в менеджере (только они могут быть обработаны в менеджере в методе dispatch)
-        var me = this;
-        Ext.each(items, function(item) {
+
+        Ext.each(items, function(item, scope) {
             for (var cl=0, len=registered_classes.length; cl < len; cl++) {
                 if (item.items) {
-                    me.filterRegisteredItems(item.items.items,
+                    this.filterRegisteredItems(item.items.items,
                         registered_classes, container);
                 }
 
@@ -73,7 +73,7 @@ Ext.m3.ActionManager = Ext.extend(Ext.AbstractManager, {
                     container.push(item);
                 }
             }
-        });
+        }, this);
         return container;
     },
     getRegisteredHandlerClasses: function(dispatcher) {
@@ -103,30 +103,27 @@ Ext.m3.ActionManager = Ext.extend(Ext.AbstractManager, {
             //у компонента может не быть умолчательной конфигурации
             //для обработки события
             if (cmp.baseEventHandling) {
-                debugger;
                 handler = cmp.baseEventHandling[event_name];
             }
         }
         return handler;
     },
     dispatch: function(event_group_alias, components, options) {
-        debugger;
         //hook - метод вызываемый когда необходимо обработать пользовательское действие
-        var me = this, registered_items = [], registered_classes;
-        var found_dispatcher = me.getDispatcherByEventName(event_group_alias);
-        registered_classes = me.getRegisteredHandlerClasses(found_dispatcher);
-        registered_items = me.filterRegisteredItems(components, registered_classes, registered_items);
+        var registered_items = [], registered_classes;
+        var found_dispatcher = this.getDispatcherByEventName(event_group_alias);
+        registered_classes = this.getRegisteredHandlerClasses(found_dispatcher);
+        registered_items = this.filterRegisteredItems(components, registered_classes, registered_items);
 
         Ext.each(registered_items, function(component) {
 
             if (found_dispatcher) {
                 //инстанцируем нужный диспетчер
-                var handlerType = me.getHandlerByEventName(component, event_group_alias);
+                var handlerType = this.getHandlerByEventName(component, event_group_alias);
                 //если удалось найти нужный обработчик
                 if (handlerType) {
-                    debugger;
                     //вызываем обработчик для компонента
-                    var found_handler = me.create({}, handlerType);
+                    var found_handler = this.create({}, handlerType);
                     if (found_handler) {
                         found_dispatcher.doHandler(found_handler, component, options);
                     } else {
@@ -135,7 +132,7 @@ Ext.m3.ActionManager = Ext.extend(Ext.AbstractManager, {
                     }
                 }
             }
-        });
+        }, this);
         return true;
     },
     _registerDispatcher: function(dispatcher) {

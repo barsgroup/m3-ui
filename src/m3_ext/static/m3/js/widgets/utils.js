@@ -125,20 +125,26 @@ Ext.m3.utils = {
         });
     }
     , getComplexFieldsWithData : function(form, responseData) {
-        //достаем все поля с формы и привязываем их
+        //достаем все поля с формы имеющих комплесные данные состоящие
+        //из нескольких полей и привязываем их
         //к соответствующим данным из ответа на запрос
-        var items = [], field;
+        var items_with_data = [], items = [], field,
+            complex_data = responseData['complex_data'];
+
         var hasOwner = Object.prototype.hasOwnProperty;
-        for (var fieldName in responseData) {
-            if (hasOwner.apply(responseData, [fieldName])) {
-                field = form.findField(fieldName);
-                var assoc_data = responseData[fieldName];
-                if (field && assoc_data) {
-                    items.push(field, assoc_data);
+        if (complex_data) {
+            for (var fieldName in complex_data) {
+                if (hasOwner.apply(complex_data, [fieldName])) {
+                    field = form.findField(fieldName);
+                    var assoc_data = complex_data[fieldName];
+                    if (field && assoc_data) {
+                        items_with_data.push([field, assoc_data]);
+                        items.push(field);
+                    }
                 }
             }
         }
-        return items;
+        return [items, items_with_data];
     }
     , bindDataToWindow: function(win, object) {
         /*
@@ -150,16 +156,17 @@ Ext.m3.utils = {
                 var form = win.getForm(),
                     response = Ext.decode(res.responseText),
                     record_data = response.data;
-                debugger;
+
                 if (form && record_data) {
                     var record = new Ext.data.Record(record_data);
                     form.loadRecord(record);
                 }
                 //загружаем хитрые компоненты не имеющие совместимого интерфейса загрузки
                 //в форму
-                var associated_data = Ext.m3.utils.getComplexFieldsWithData(form, record_data);
-                debugger;
-                Ext.m3.actionManager.dispatch('load', associated_data);
+                var items_and_data = Ext.m3.utils.getComplexFieldsWithData(form, record_data);
+                var items = items_and_data[0], associated_data = items_and_data[1];
+
+                Ext.m3.actionManager.dispatch('load', items, associated_data);
             };
             if (!object) {
                 win.mask = new Ext.LoadMask(win.getEl());
