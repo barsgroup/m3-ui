@@ -164,7 +164,7 @@ class ExtDictionaryWindow(BaseExtWindow):
             # И поиск тоже включаем
             if self.search_text_tree:
                 exclude_list.append(self.search_text_tree)
-            self.tree._make_read_only(
+            self.tree.make_read_only(
                 self.read_only, exclude_list, *args, **kwargs)
 
         if self.grid:
@@ -174,13 +174,13 @@ class ExtDictionaryWindow(BaseExtWindow):
             # И поиск тоже включаем
             if self.search_text_grid:
                 exclude_list.append(self.search_text_grid)
-            self.grid._make_read_only(
+            self.grid.make_read_only(
                 self.read_only, exclude_list, *args, **kwargs)
 
         # Оставим кнопку Закрыть и Выбрать
         for btn in self.buttons:
             if btn.name in ['close_btn', 'select_btn']:
-                btn._make_read_only(False)
+                btn.make_read_only(False)
 
     def _add_menu_item_grid(
             self, to_tbar=True, to_row_menu=True,

@@ -81,7 +81,10 @@ class BaseExtField(ExtUIComponent):
     def t_render_regex(self):
         return '/%s/' % self.regex
 
-    def _make_read_only(self, access_off=True, *args, **kwargs):
+    def _make_read_only(
+            self, access_off=True, exclude_list=(), *args, **kwargs):
+        if self in exclude_list or self.name in exclude_list:
+            return
         self.read_only = access_off
         # Выключаем/включаем обязательность заполнения.
         if not hasattr(self, '_allow_blank_old'):
