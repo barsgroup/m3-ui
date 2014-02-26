@@ -297,7 +297,7 @@ class ExtToolbarMenu(ExtUIComponent):
     def _make_read_only(
             self, access_off=True, exclude_list=(), *args, **kwargs):
         if self.menu:
-            self.menu._make_read_only(
+            self.menu.make_read_only(
                 access_off, exclude_list, *args, **kwargs)
 
 

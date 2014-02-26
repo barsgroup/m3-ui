@@ -187,14 +187,14 @@ class ExtObjectGrid(containers.ExtGrid):
             self.context_menu_row.menuitem_delete,
             self.context_menu_row,
         ):
-            item._make_read_only(
+            item.make_read_only(
                 access_off, exclude_list, *args, **kwargs
             )
         if hasattr(self.top_bar, 'items') and self.top_bar.items:
             for item in self.top_bar.items:
                 if hasattr(item, 'make_read_only') and callable(
-                        item._make_read_only):
-                    item._make_read_only(
+                        item.make_read_only):
+                    item.make_read_only(
                         access_off, exclude_list, *args, **kwargs)
 
         # убираем редактирование записи по даблклику
@@ -605,7 +605,7 @@ class ExtMultiGroupinGrid(containers.ExtGrid):
                 self._top_bar.items, '__iter__')):
             for item in self._top_bar.items:
                 if isinstance(item, ExtUIComponent):
-                    item._make_read_only(
+                    item.make_read_only(
                         self.read_only,
                         exclude_list,
                         *args, **kwargs
