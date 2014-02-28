@@ -124,7 +124,7 @@ class ExtDictSelectField(BaseExtTriggerField):
     def _set_action_select(self, value):
         self.__action_autocomplete = value
         if isinstance(value, actions.Action):
-            self.autocomplete_url = value.absolute_url()
+            self.autocomplete_url = value.get_absolute_url()
     action_select = property(
         _get_action_select,
         _set_action_select,

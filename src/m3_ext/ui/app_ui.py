@@ -263,22 +263,17 @@ class DesktopShortcut(DesktopLauncher):
             if not getattr(pack, 'title', None):
                 pack.title = getattr(pack.parent, 'title', '???')
         else:
-            if inspect.isclass(pack) and issubclass(pack, Action):
-                self.url = pack.absolute_url()
-                if not getattr(pack, 'title', None):
-                    pack.title = pack.__name__
-            else:
-                if not isinstance(pack, ActionPack):
-                    # Пробуем найти как пак
-                    pack = ControllerCache.find_pack(pack)
-                    if not pack:
-                        raise DesktopException(
-                            'Pack %s not found in ControllerCache' % pack)
+            if isinstance(pack, basestring):
+                # Пробуем найти как пак
+                pack = ControllerCache.find_pack(pack)
+                if not pack:
+                    raise DesktopException(
+                        'Pack %s not found in ControllerCache' % pack)
 
-                self.url = pack.get_list_url()
-                # Если не задано имя ярлыка, то название берем из справочника
-                if not kwargs.get('name', None):
-                    self.name = pack.title
+            self.url = pack.get_list_url()
+            # Если не задано имя ярлыка, то название берем из справочника
+            if not kwargs.get('name', None):
+                self.name = pack.title
 
     def clone(self):
         return super(DesktopShortcut, self).clone(self.pack)
