@@ -1,0 +1,136 @@
+{% extends 'm3_master.html' %}
+
+{% block content_head %}
+    <script type="text/javascript">
+
+        /**
+         * Генератор модулей - потомков от Ext.app.Module
+         */
+        function makeModule(data, idPrefix, idx, inStartMenu) {
+            /**
+             * Генератор словарей, описывающих элементы (под)меню
+             */
+            function makeItem(data) {
+                if (data == '-') {
+                    var res = data; // разделитель
+                } else {
+                    var res = {
+                          scope: this
+                        , text: data.text
+                        , iconCls: data.icon
+                    };
+                    if (data.items != undefined && data.items.length > 0) {
+                        res.handler = function() { return false; };
+                        res.menu = [];
+                        for (var i = 0; i < data.items.length; i += 1) {
+                            res.menu.push(makeItem(data.items[i]))
+                        };
+                    } else {
+                        res.handler = function() {
+                            sendRequest(
+                                  data.url
+                                , AppDesktop.getDesktop()
+                                // пока нету , data.context
+                            );
+                        };
+                    };
+                };
+                return res;
+            };
+            var Module = Ext.extend(Ext.app.Module, {
+                  id: idPrefix + idx
+                , init: function() {
+                    assert(data != '-', "Separator at top level!");
+                    this.launcher = makeItem(data);
+                    if (inStartMenu) {
+                        this.launcher.in_start_menu = true;
+                    };
+                }
+            });
+            return new Module();
+        };
+
+        /**
+         * Добавляет каждый элемент @source@ в @target@, как модуль
+         * с id вида (@prefix@ + N).
+         * Флаг inStartMenu=true добавит модуль в меню
+         */
+        function addEachModuleTo(target, source, prefix, inStartMenu) {
+            for(var i = 0; i < source.length; i += 1) {
+                target.push(makeModule(source[i], prefix, i + 1, inStartMenu));
+            };
+        };
+
+        // конфигурация Рабочего Стола в виде JSON
+        var desktopConfig = {{ desktop|safe }};
+
+        // Основной объект web-desktop'a
+        AppDesktop = new Ext.app.App({
+            // Реализация функции, которая выводит список
+            getModules : function(){
+                var res = [];
+
+                // пункты Главного Меню
+                addEachModuleTo(
+                    res, desktopConfig.menuItems, 'menu-item-', true
+                );
+
+                // элементы собственно Рабочего Стола
+                addEachModuleTo(
+                    res, desktopConfig.desktopItems, 'desktop-item-'
+                );
+
+                return res;
+            },
+
+            // Обязательные настройки меню "Пуск"
+            getStartConfig : function() {
+                var items = [];
+                // addEachModuleTo(
+                //     items, desktopConfig.toolBoxItems, 'toptoolbar-item-'
+                // );
+                return {
+                    title: '{{ user }}',
+                    toolsPanelWidth: 120,
+                    width: 330,
+                    iconCls: '{{ user_icon }}',
+                    toolItems: items
+                };
+            }
+        });
+    </script>
+    {% block extra_head %}
+    {% endblock %}
+{% endblock %}
+
+{% block content %}
+    <!-- Верхняя панель -->
+    <div id="ux-toptoolbar"></div>
+
+    <!-- Верхняя панель -->
+    <div id="x-desktop">
+        <table id="x-shortcuts">
+            <tr>
+                <!-- Иконки в десктопе -->
+                {% for item in desktop_icons %}
+                <td id="desktop-item-{{ item.0 }}-shortcut">
+                    <a href="#">
+                    <div class="base-desktop-image {{ item.2 }}"> </div>
+                    <div class="desktop-item-shortcut-label">{{ item.1 }}</div>
+                    </a>
+                </td>
+                {% endfor %}
+            </tr>
+        </table>
+    </div>
+
+    {% block extra_content %}
+    {% endblock %}
+
+    <!-- Нижняя панель и меню пуск -->
+    <div id="ux-taskbar">
+        <div id="ux-taskbar-start"></div>
+        <div id="ux-taskbuttons-panel"></div>
+        <div class="x-clear"></div>
+    </div>
+{% endblock %}

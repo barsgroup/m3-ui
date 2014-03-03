@@ -88,8 +88,7 @@ class ExtTree(BaseExtPanel):
             ):
                 for item in context_menu.items:
                     if isinstance(item, ExtUIComponent):
-
-                        item._make_read_only(
+                        item.make_read_only(
                             self.read_only, exclude_list, *args, **kwargs)
 
     def t_render_tree_loader(self):

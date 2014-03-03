@@ -121,8 +121,8 @@ class BaseExtContainer(ExtUIComponent):
         if self._items:
             for item in self._items:
                 if hasattr(item, "make_read_only") and callable(
-                        item._make_read_only):
-                    item._make_read_only(
+                        item.make_read_only):
+                    item.make_read_only(
                         access_off, exclude_list, *args, **kwargs)
 
 
@@ -197,7 +197,7 @@ class BaseExtPanel(BaseExtContainer):
                 assert isinstance(bar, BaseExtContainer)
                 for item in bar._items:
                     if hasattr(item, "make_read_only") and callable(
-                            item._make_read_only):
+                            item.make_read_only):
 
-                        item._make_read_only(
+                        item.make_read_only(
                             access_off, exclude_list, *args, **kwargs)

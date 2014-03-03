@@ -113,7 +113,8 @@ class ExtContainerTable(BaseExtContainer):
     def _make_read_only(
             self, access_off=True, exclude_list=(), *args, **kwargs):
         for item in self.items:
-            item._make_read_only(access_off, exclude_list, *args, **kwargs)
+            item.make_read_only(
+                access_off, exclude_list, *args, **kwargs)
 
     @property
     def items(self):

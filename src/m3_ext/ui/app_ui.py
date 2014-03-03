@@ -9,12 +9,13 @@ Created on Nov 18, 2010
 """
 import threading
 import inspect
+import itertools
+import warnings
 from uuid import uuid4
 
 from django.conf import settings
 from django.utils.importlib import import_module
 from django.contrib.auth.models import User, AnonymousUser
-
 try:
     from django.utils.log import logger
 except ImportError:
@@ -66,37 +67,38 @@ class DesktopElementCollection(object):
     """
     Колекция эл-тов Рабочего Стола, определяющая их видимость
     """
-    sorting_key = lambda x: (x.index, x.name)
-    desktop_model = None
 
-    def __init__(self, name):
-        self._name = name # ключ в файле конфигурации
-
-    def __get__(self, inst, owner):
-        fork = self.__class__(self._name)
-        fork.desktop_model = inst
-        fork.sorting_key = self.sorting_key
-        return fork
+    def __init__(self, filt=lambda x: True):
+        self._filt = filt
+        self._items = []
+        self._sorting_key = DEFAULT_SORTING
 
     def __iter__(self):
-        return iter(self._storage)
+        return iter(sorted(itertools.ifilter(
+            self._filt, self._items), key=self._sorting_key))
 
     def append(self, elem):
         """
         Добавление эл-та в коллекцию
         """
-        self._storage.append(elem)
+        self._items.append(elem)
 
     @property
-    def _storage(self):
+    def sorting_key(self):
         """
-        Accessor для хранилища элементов в экземпляре DesktopModel
+        Возвращает текущий способ сортировки
         """
-        if self.desktop_model is None:
-            raise ValueError(
-                u'Storage can be accessed only from DesktopModel instance!')
-        return self.desktop_model.__dict__.setdefault(
-            '_%s_items' % self._name, [])
+        return self._sorting_key
+
+    @sorting_key.setter
+    def sorting_key(self, value):
+        """
+        Устанавливает новый способ сортировки
+        """
+        self._sorting_key = value
+        for item in self._items:
+            if item.has_subitems:
+                item.sorting_key = value
 
 
 class DesktopModel(object):
@@ -105,10 +107,22 @@ class DesktopModel(object):
     (start_menu и toolbox) в меню пуск
     и список модулей на Рабочем Столе (desktop)
     """
-    start_menu = DesktopElementCollection('start_menu')
-    toolbox = DesktopElementCollection('toolbox')
-    desktop = DesktopElementCollection('desktop')
-    toptoolbar = DesktopElementCollection('toptoolbar')
+    def __init__(self, request):
+        def filter_by_permissions(elem):
+            """
+            Возвращает True, если у ползователя есть права на пак элемента.
+            Работет только с DesktopShortcut'ами - у них есть атрибут pack,
+            остальные же элементы - отображаются всегда
+            """
+            pack = getattr(elem, 'pack', None)
+            if pack is None:
+                return True
+            else:
+                return pack.has_perm(request)
+        self.start_menu = DesktopElementCollection(filter_by_permissions)
+        self.toolbox = DesktopElementCollection(filter_by_permissions)
+        self.desktop = DesktopElementCollection(filter_by_permissions)
+        self.toptoolbar = DesktopElementCollection(filter_by_permissions)
 
 
 class BaseDesktopElement(object):
@@ -118,6 +132,16 @@ class BaseDesktopElement(object):
     # атрибуты, копируемые в при "колнировании" экземпляра
     # потомки должны добавлять новые атрибуты (конкатенацией)
     clonable_attrs = ('name', 'icon', 'index', 'id')
+
+    has_subitems = False
+
+    def t_is_subitems(self):
+        warnings.warn(
+            "\"t_has_items\" is deprecated! "
+            "Use \".has_subitems\"!",
+            FutureWarning
+        )
+        return self.has_subitems
 
     def __init__(self, *args, **kwargs):
         """
@@ -137,12 +161,6 @@ class BaseDesktopElement(object):
                 (k, self.__class__.__name__)
             )
             self.__setattr__(k, val)
-
-    def render(self):
-        """
-        Должен быть переопределен в классе-наследнике
-        """
-        raise NotImplementedError()
 
     def __eq__(self, other):
         return isinstance(other, BaseDesktopElement) and self.id == other.id
@@ -165,36 +183,18 @@ class DesktopLaunchGroup(BaseDesktopElement):
     """
     Класс для работы подменю по нажатию на кнопку Пуск
     """
+    has_subitems = True
+
     def __init__(self, *args, **kwargs):
         """
         subitem: Хранит список модулей и список подменю
         """
         super(DesktopLaunchGroup, self).__init__(*args, **kwargs)
-        self.subitems = []
         self.index = 10
         self.icon = 'default-launch-group'
+        self.subitems = []
+        self.sorting_key = DEFAULT_SORTING
         self._init_component(*args, **kwargs)
-
-    @staticmethod
-    def t_is_subitems():
-        """
-        Для удобства понимания что рендерить. Используется в шаблонах.
-        """
-        return True
-
-    def render(self):
-        """
-        Рендерит имеющийся объект. Вызывается из функции render.
-        """
-        if self.subitems:
-            return '{%s}' % ','.join([
-                'text: "%s"' % self.name.replace('"', "&quot;"),
-                'iconCls: "%s"' % self.icon,
-                'handler: function(){return false;}',
-                'menu: %s' % self.render_items(),
-            ])
-        else:
-            return None
 
     def clone(self, *args, **kwargs):
         """
@@ -205,16 +205,8 @@ class DesktopLaunchGroup(BaseDesktopElement):
             clone.subitems.append(subitem.clone())
         return clone
 
-    def render_items(self):
-        """
-        Рендерит имеющийся список объектов. Вызывается из шаблона.
-        """
-        res = []
-        for item in self.subitems:
-            rendered = item.render()
-            if rendered:
-                res.append(rendered)
-        return '{items: [%s]}' % ','.join(res)
+    def __iter__(self):
+        return iter(sorted(self.subitems, key=self.sorting_key))
 
 
 class DesktopLauncher(BaseDesktopElement):
@@ -224,65 +216,25 @@ class DesktopLauncher(BaseDesktopElement):
     Данные модули могут включать в себя класс
     DesktopLaunchGroup в атрибут subitems
     """
-    clonable_attrs = BaseDesktopElement.clonable_attrs + (
-        'handler', 'url',
-    )
+    clonable_attrs = BaseDesktopElement.clonable_attrs + ('url',)
 
     def __init__(self, *args, **kwargs):
         """
         @param url: url-адрес, запрос по которому возвратит форму
         """
         super(DesktopLauncher, self).__init__(*args, **kwargs)
-        self.handler = None
         self.url = ''
         self.icon = 'default-launcher'
         self.index = 100
         self.context = {}  # словарь контекста
         self._init_component(*args, **kwargs)
-        self._set_default_handler()
 
-    def _set_default_handler(self):
+    @property
+    def rendered_context(self):
         """
-        Формирование кода стандартного обработчика click'ов по элементу
-        """
-        self.handler = (
-            'function(){return sendRequest("%s", '
-            'AppDesktop.getDesktop(), %s);}'
-        ) % (
-            self.url,
-            self.t_render_context()
-        )
-
-    @staticmethod
-    def t_is_subitems():
-        """
-        Для удобства понимания что рендерить. Используется в шаблонах.
-        """
-        return False
-
-    def t_render_context(self):
-        """
-        Рендеринг контекста для будущих AJAX-запросов
+        Контекст в виде JSON
         """
         return M3JSONEncoder().encode(self.context)
-
-    def render(self):
-        """
-        Рендерит текущий объект.
-        Вызывается из метода render_items класса DesktopLaunchGroup
-        """
-        return '{%s}' % ','.join([
-            'text:"%s"' % self.name.replace('"', "&quot;"),
-            'iconCls:"%s"' % self.icon,
-            (
-                'handler: function(){return sendRequest("%s",'
-                ' AppDesktop.getDesktop(), %s);}'
-            ) % (
-                self.url,
-                self.t_render_context()
-            ),
-            'scope: this',
-        ])
 
     def clone(self, *args, **kwargs):
         """
@@ -311,24 +263,17 @@ class DesktopShortcut(DesktopLauncher):
             if not getattr(pack, 'title', None):
                 pack.title = getattr(pack.parent, 'title', '???')
         else:
-            if inspect.isclass(pack) and issubclass(pack, Action):
-                self.url = pack.absolute_url()
-                if not getattr(pack, 'title', None):
-                    pack.title = pack.__name__
-            else:
-                if not isinstance(pack, ActionPack):
-                    # Пробуем найти как пак
-                    pack = ControllerCache.find_pack(pack)
-                    if not pack:
-                        raise DesktopException(
-                            'Pack %s not found in ControllerCache' % pack)
+            if isinstance(pack, basestring):
+                # Пробуем найти как пак
+                pack = ControllerCache.find_pack(pack)
+                if not pack:
+                    raise DesktopException(
+                        'Pack %s not found in ControllerCache' % pack)
 
-                self.url = pack.get_list_url()
-                # Если не задано имя ярлыка, то название берем из справочника
-                if not kwargs.get('name', None):
-                    self.name = pack.title
-
-        self._set_default_handler()
+            self.url = pack.get_list_url()
+            # Если не задано имя ярлыка, то название берем из справочника
+            if not kwargs.get('name', None):
+                self.name = pack.title
 
     def clone(self):
         return super(DesktopShortcut, self).clone(self.pack)
@@ -341,9 +286,6 @@ class MenuSeparator(BaseDesktopElement):
     def __init__(self, *args, **kwargs):
         super(MenuSeparator, self).__init__(*args, **kwargs)
         self._init_component(*args, **kwargs)
-
-    def render(self):
-        return '"-"'
 
     def clone(self):
         return self

@@ -206,7 +206,7 @@ class ExtGrid(BaseExtPanel):
         self.read_only = access_off
         if self.columns:
             for column in self.columns:
-                column._make_read_only(
+                column.make_read_only(
                     self.read_only, exclude_list, *args, **kwargs)
 
         # убираем редактирование записи по даблклику
@@ -224,7 +224,7 @@ class ExtGrid(BaseExtPanel):
             ):
                 for item in context_menu.items:
                     if isinstance(item, ExtUIComponent):
-                        item._make_read_only(
+                        item.make_read_only(
                             self.read_only, exclude_list, *args, **kwargs)
 
     @property
@@ -463,7 +463,7 @@ class BaseExtGridColumn(ExtUIComponent):
             self, access_off=True, exclude_list=(), *args, **kwargs):
         self.read_only = access_off
         if self.editor and isinstance(self.editor, ExtUIComponent):
-            self.editor._make_read_only(
+            self.editor.make_read_only(
                 self.read_only, exclude_list, *args, **kwargs)
 
     def render_base_config(self):

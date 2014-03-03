@@ -303,13 +303,14 @@ class BaseExtWindow(ExtUIComponent):
             '#' + self.help_topic[1] if len(self.help_topic) > 1 else ''
         )
 
-    def _make_read_only(self, access_off=True, exclude_list=None, *args, **kwargs):
+    def _make_read_only(
+            self, access_off=True, exclude_list=None, *args, **kwargs):
         exclude_list = exclude_list or []
-
         self.read_only = access_off
         # Перебираем итемы.
         for item in self.__items:
-            item._make_read_only(self.read_only, exclude_list, *args, **kwargs)
+            item.make_read_only(
+                self.read_only, exclude_list, *args, **kwargs)
         # Перебираем бары.
         bar_typle = (self.footer_bar, self.bottom_bar, self.top_bar)
         for bar in bar_typle:
