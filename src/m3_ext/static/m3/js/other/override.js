@@ -454,7 +454,7 @@ Ext.override(Ext.form.ComboBox, {
  * setReadOnly для Ext.form.Field и Ext.form.TriggerField
  * см m3.css - стр. 137 .m3-grey-field
  */
-var setReadOnlyField = Ext.form.Field.prototype.setReadOnly;
+var setReadOnlyField = Ext.form.Field.prototype.setReadOnly.bind({});
 var restoreClass = function(readOnly){
     if(readOnly) {
         this.addClass('m3-grey-field');
@@ -466,6 +466,14 @@ var restoreClass = function(readOnly){
 Ext.override(Ext.form.Field, {
     setReadOnly : function(readOnly){
         setReadOnlyField.call(this, readOnly);
+        restoreClass.call(this, readOnly);
+    }
+});
+
+var setReadOnlyTriggerField = Ext.form.TriggerField.prototype.setReadOnly;
+Ext.override(Ext.form.TriggerField, {
+    setReadOnly : function(readOnly){
+        setReadOnlyTriggerField.call(this, readOnly);
         restoreClass.call(this, readOnly);
     }
 });

@@ -12,8 +12,6 @@ Created on 01.03.2010
 import datetime
 import decimal
 
-from django import template as django_template
-
 from m3_ext.ui import render_template, render_component
 from m3_ext.ui import generate_client_id, normalize
 from m3 import date2str

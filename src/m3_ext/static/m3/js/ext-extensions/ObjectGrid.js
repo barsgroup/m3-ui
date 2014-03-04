@@ -511,44 +511,37 @@ Ext.m3.EditorObjectGrid = Ext.extend(Ext.m3.EditorGridPanel, {
 	/**
 	 * Нажатие на кнопку "Редактировать"
 	 */
+	/**
+	 * Нажатие на кнопку "Редактировать"
+	 */
 	,onEditRecord: function (){
 		assert(this.actionEditUrl, 'actionEditUrl is not define');
 		assert(this.rowIdName, 'rowIdName is not define');
 
 	    if (this.getSelectionModel().hasSelection()) {
-	    	// грязный хак
-			if (baseConf[this.rowIdName].indexOf(",") != -1) {
-				Ext.Msg.show({
-					title: 'Редактирование',
-					msg: 'Редактирование возможно лишь в том случае, если выбран только один элемент!',
-					buttons: Ext.Msg.OK,
-					icon: Ext.MessageBox.INFO
-				    });
-			} else {
-				var baseConf = this.getSelectionContext(this.localEdit);
-				var req = {
-					url: this.actionEditUrl,
-					params: baseConf,
-					success: function(res, opt){
-						if (scope.fireEvent('aftereditrequest', scope, res, opt)) {
-							return scope.childWindowOpenHandler(res, opt);
-						}
-					},
-					failure: Ext.emptyFn
-				};
+			var baseConf = this.getSelectionContext(this.localEdit);
+			var req = {
+				url: this.actionEditUrl,
+				params: baseConf,
+				success: function(res, opt){
+					if (scope.fireEvent('aftereditrequest', scope, res, opt)) {
+						return scope.childWindowOpenHandler(res, opt);
+					}
+				},
+				failure: Ext.emptyFn
+			};
 
-				if (this.fireEvent('beforeeditrequest', this, req)) {
-					var scope = this;
-					Ext.Ajax.request(req);
-				}
+			if (this.fireEvent('beforeeditrequest', this, req)) {
+				var scope = this;
+				Ext.Ajax.request(req);
 			}
 	    } else {
-		Ext.Msg.show({
-			title: 'Редактирование',
-			msg: 'Элемент не выбран',
-			buttons: Ext.Msg.OK,
-			icon: Ext.MessageBox.INFO
-		    });
+            Ext.Msg.show({
+                title: 'Редактирование',
+                msg: 'Элемент не выбран',
+                buttons: Ext.Msg.OK,
+                icon: Ext.MessageBox.INFO
+            });
 	    }
 	}
 	/**

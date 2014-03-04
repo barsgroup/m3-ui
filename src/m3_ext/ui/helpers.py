@@ -11,7 +11,7 @@ def paginated_json_data(query, start=0, limit=25):
     if isinstance(query, QuerySet):
         try:
             total = query.count()
-        except:
+        except AttributeError:
             total = 0
     else:
         total = len(query)

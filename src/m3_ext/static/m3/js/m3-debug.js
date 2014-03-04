@@ -6324,61 +6324,6 @@ Ext.m3.Window = Ext.extend(Ext.Window, {
 
 
 
-/**
- * Расширенное дерево на базе Ext.ux.maximgb.tg.GridPanel
- * http://www.sencha.com/forum/showthread.php?76331-TreeGrid-%28Ext.ux.maximgb.tg%29-a-tree-grid-component-based-on-Ext-s-native-grid.
- * http://max-bazhenov.com/dev/ux.maximgb.tg/index.php
- * @param {Object} config
- */
-Ext.m3.AdvancedTreeGrid = Ext.extend(Ext.ux.maximgb.tg.GridPanel, {
-	constructor: function(baseConfig, params){
-
-		// Проверки значений
-		assert(params.storeParams.url, "Некорректо задано url. \
-			url=" + params.storeParams.url);
-
-		// Заполнение Store
-		var columnsToRecord = params.columnsToRecord || [];
-		columnsToRecord.push(
-			{name: '_id', type: 'int'}
-			,{name: '_level', type: 'int'}
-			,{name: '_lft', type: 'int'}
-			,{name: '_rgt', type: 'int'}
-			,{name: '_is_leaf', type: 'bool'}
-			,{name: '_parent', type: 'int'}
-		);
-		
-		var store = new Ext.ux.maximgb.tg.AdjacencyListStore({
-			autoLoad : true,
-			url: params.storeParams.url,
-			reader: new Ext.data.JsonReader({
-					id: '_id',
-					root: params.storeParams.root,
-					totalProperty: 'total',
-					successProperty: 'success'
-				}, 
-				Ext.data.Record.create(columnsToRecord)
-			)
-		});
-		
-		var botom_bar;
-		if (params.bbar) {
-			botom_bar = new Ext.ux.maximgb.tg.PagingToolbar({
-				store: store
-				,displayInfo:true
-				,pageSize: params.bbar.pageSize
-			});
-		}
-		
-		var config = Ext.applyIf({
-			store: store 
-			,bbar: botom_bar
-		}, baseConfig);
-		
-		Ext.m3.AdvancedTreeGrid.superclass.constructor.call(this, config, params);
-	}
-});
-
 
 /**
  * Панель редактирования адреса
@@ -7714,232 +7659,6 @@ Ext.m3.AdvancedDataField = Ext.extend(Ext.form.DateField, {
 
 Ext.reg('m3-date', Ext.m3.AdvancedDataField );
 
-/**
- * Crafted by ZIgi
- */
-
-Ext.ns('Ext.m3');
-
-/**
- * @class Ext.m3.BackgroundOperationProxy Класс обеспечивающий интерфейс для
- * опроса сервера с заданным интервалом. При получении данных срабатывает событие update, в качестве
- * аргумента к событию передается объект следуеющего вида
- * {
- *     value:0.3, //текущий прогресс от 0 до 1
- *     alive: true, // производиться ли операция на серврере
- *     text:'' // строка сообщение с сервера
- * }
- */
-Ext.m3.BackgroundOperationProxy = Ext.extend(Ext.util.Observable, {
-    /**
-     * @cfg {String} адрес сервера для комуникации
-     */
-    url:'/',
-    
-    /**
-     * @cfg {Number} промежуток в мс между опросами сервера
-     */
-    interval:1000,
-
-    /**
-     * @boundary {String} значение, используемое для идентификации фоновой операции
-     */
-    boundary:'default-boundary',
-
-    /**
-     * @cfg {String} Название парамтетра с командой серверу
-     */
-    commandParam:'command',
-
-    /**
-     * @cfg {String} Название параметра с\о значением баундари
-     */
-    boundaryParam:'boundary',
-
-    constructor:function(cfg) {
-        Ext.apply(this, cfg);
-        Ext.m3.BackgroundOperationProxy.superclass.constructor.call(this);
-
-        //таск раннер - класс выполняющий некую функцию в бескончено цикле с заданным интервалом
-        this.taskRunner = new Ext.util.TaskRunner();
-        this.task = {
-            run:this.wait,
-            interval:this.interval,
-            scope:this
-        };
-
-        this.isRunning = false;
-
-        this.addEvents('update');
-        this.addEvents('result_ready');
-    },
-
-    /**
-     * @public Команда старта операции
-     * params содержит параметры начала выполнения операции
-     */
-    start:function(params) {
-        this.doRequest('start', this.run, params);
-    },
-
-    /**
-     * @public Команда остановки операции
-     */
-    stop:function(params) {
-        this.stopWaiting();
-        this.doRequest('stop', function(response) {
-            this.fireEvent('update', this.parseResponse(response));
-        }, params);
-    },
-
-    /**
-     * @public Команда проверки прогресса
-     */
-    ping:function(params) {
-        this.doRequest('request', this.run, params);
-    },
-
-    /**
-     * @private Запуск цикла опроса
-     */
-    run:function(response) {
-        if (!this.isRunning) {
-            this.isRunning = true;
-            this.taskRunner.start( this.task);
-        }
-
-        this.fireEvent('update', this.parseResponse(response));
-    },
-
-    /**
-     * @private Остановка цикла опроса
-     */
-    stopWaiting:function() {
-        if (this.isRunning) {
-            this.isRunning = false;
-            this.taskRunner.stop(this.task);
-        }
-    },
-
-    /**
-     * @private Обработка ответа сервера
-     */
-    waitCallback:function(response) {
-        var responseObj = this.parseResponse(response);
-        if (!responseObj.alive) {
-            this.stopWaiting();
-
-            /* запрашиваем результат операции с сервера */
-            this.doRequest('result', function(responseResult){
-               this.fireEvent('result_ready', this.parseResponse(responseResult));
-            });
-        }
-
-        this.fireEvent('update',responseObj);
-    },
-
-    /**
-     * @private Это функция запускается в бексонечном цикле
-     */
-    wait:function() {
-        this.doRequest('request', this.waitCallback);
-    },
-
-    /**
-     * @private Запрос на сервер
-     */
-    doRequest:function(command,successCallback, params) {
-        var request_params = {};
-        request_params[this.commandParam] = command;
-        request_params[this.boundaryParam] = this.boundary;
-        if(params != undefined){
-            Ext.applyIf(request_params, params);
-        }
-
-        Ext.Ajax.request({
-            url:this.url,
-            success:successCallback,
-            failure:this.requestError,
-            scope:this,
-            params: request_params
-        });
-    },
-
-    /**
-     * @private Обработка серверной ошибки
-     */
-    requestError:function(response, opts) {
-        this.stopWaiting();
-        if (window.uiAjaxFailMessage) {
-            window.uiAjaxFailMessage(response,opts);
-        }
-    },
-
-    /**
-     * @public Вызывает для очистки ресурсов
-     */
-    destroy:function() {
-        this.taskRunner.stopAll();
-    },
-
-    /**
-     * @private Преобразование ответа сервера
-     */
-    parseResponse:function(response) {
-        return Ext.util.JSON.decode(response.responseText);
-    }
-});
-
-/**
- * @class Ext.m3.BackgroundOperationBar
- * Экстовый прогресс бар, с привязаным к нему прокси. Интерфейс комуникации с сервером:
- * start(), stop(), ping()
- */
-Ext.m3.BackgroundOperationBar = Ext.extend(Ext.ProgressBar, {
-
-    /**
-     * @cfg {String} Урл
-     */
-    url:'/',
-
-    /**
-     * @cfg {Number} Интервал опроса
-     */
-    interval:1000,
-
-    initComponent:function() {
-        Ext.m3.BackgroundOperationBar.superclass.initComponent.call(this);
-        this.serverProxy = new Ext.m3.BackgroundOperationProxy({
-            url:this.url,
-            interval:this.interval,
-            boundary:this.boundary
-        });
-
-        //mon вместо on чтобы функция хендлер уничтожалась вместе с объектом прогрес бара
-        this.mon(this.serverProxy, 'update', this.onUpdate, this);
-        this.on('destroy', this.onDestroy)
-    },
-
-    ping:function(params) {
-        this.serverProxy.ping(params);
-    },
-
-    start:function(params) {
-        this.serverProxy.start(params);
-    },
-
-    stop:function(params) {
-        this.serverProxy.stop();
-    },
-
-    onUpdate:function(obj) {
-        this.updateProgress( obj.value,obj.text );
-    },
-
-    onDestroy:function() {
-        this.serverProxy.destroy();
-    }
-});
 /**
  * @class Ext.m3.CodeEditor
  * @extends Ext.Panel
@@ -13387,44 +13106,37 @@ Ext.m3.EditorObjectGrid = Ext.extend(Ext.m3.EditorGridPanel, {
 	/**
 	 * Нажатие на кнопку "Редактировать"
 	 */
+	/**
+	 * Нажатие на кнопку "Редактировать"
+	 */
 	,onEditRecord: function (){
 		assert(this.actionEditUrl, 'actionEditUrl is not define');
 		assert(this.rowIdName, 'rowIdName is not define');
 
 	    if (this.getSelectionModel().hasSelection()) {
-	    	// грязный хак
-			if (baseConf[this.rowIdName].indexOf(",") != -1) {
-				Ext.Msg.show({
-					title: 'Редактирование',
-					msg: 'Редактирование возможно лишь в том случае, если выбран только один элемент!',
-					buttons: Ext.Msg.OK,
-					icon: Ext.MessageBox.INFO
-				    });
-			} else {
-				var baseConf = this.getSelectionContext(this.localEdit);
-				var req = {
-					url: this.actionEditUrl,
-					params: baseConf,
-					success: function(res, opt){
-						if (scope.fireEvent('aftereditrequest', scope, res, opt)) {
-							return scope.childWindowOpenHandler(res, opt);
-						}
-					},
-					failure: Ext.emptyFn
-				};
+			var baseConf = this.getSelectionContext(this.localEdit);
+			var req = {
+				url: this.actionEditUrl,
+				params: baseConf,
+				success: function(res, opt){
+					if (scope.fireEvent('aftereditrequest', scope, res, opt)) {
+						return scope.childWindowOpenHandler(res, opt);
+					}
+				},
+				failure: Ext.emptyFn
+			};
 
-				if (this.fireEvent('beforeeditrequest', this, req)) {
-					var scope = this;
-					Ext.Ajax.request(req);
-				}
+			if (this.fireEvent('beforeeditrequest', this, req)) {
+				var scope = this;
+				Ext.Ajax.request(req);
 			}
 	    } else {
-		Ext.Msg.show({
-			title: 'Редактирование',
-			msg: 'Элемент не выбран',
-			buttons: Ext.Msg.OK,
-			icon: Ext.MessageBox.INFO
-		    });
+            Ext.Msg.show({
+                title: 'Редактирование',
+                msg: 'Элемент не выбран',
+                buttons: Ext.Msg.OK,
+                icon: Ext.MessageBox.INFO
+            });
 	    }
 	}
 	/**
@@ -13564,6 +13276,102 @@ Ext.m3.EditorObjectGrid = Ext.extend(Ext.m3.EditorGridPanel, {
     }
 });
 
+/**
+ * Created by prefer on 31/01/14.
+ *
+ * Компонент, который отражает слева грид, например с пэйджингом,
+ * а справа выделенные в нем элементы
+ */
+
+Ext.ns('Ext.m3');
+
+Ext.m3.ObjectSelectionPanel = Ext.extend(Ext.Container, {
+
+    selectionColumns: [],
+
+    selectionGridConf: {},
+
+    initComponent: function(){
+        assert(this.selectionColumns, 'Columns for selection is undefined!');
+
+        this.add(this.grid);
+
+        var fields = ['_check'];
+        for (var i=0; i<this.selectionColumns.length; i++){
+            fields.push(this.selectionColumns[i]['data_index']);
+        }
+
+        var sm = new Ext.grid.CheckboxSelectionModel();
+        this.selectionColumns.unshift(sm);
+
+        var selectionConf = Ext.applyIf(this.selectionGridConf, {
+             region: 'east',
+             width: 200,
+             sm: sm,
+             title: 'Выбранные записи',
+             store: new Ext.data.ArrayStore({
+                autoDestroy: true,
+                fields: fields
+             }),
+             colModel: new Ext.grid.ColumnModel({
+                columns: this.selectionColumns
+             })
+         });
+
+        this.selectionGrid = new Ext.grid.GridPanel(selectionConf);
+
+
+        this.grid.getSelectionModel().on('rowdeselect', this.onRowDeselect, this);
+        this.grid.getSelectionModel().on('rowselect', this.onRowSelect, this);
+        this.grid.getStore().on('load', this.onLoad, this);
+        this.selectionGrid.getSelectionModel().on('rowdeselect', this.onRemoveSelected, this);
+
+        this.add(this.selectionGrid);
+    },
+
+    onRowSelect: function(selModel, rowIndex, record){
+        if (this.selectionGrid.store.indexOfId(record.id) < 0) {
+            this.selectionGrid.store.add(record);
+            this.selectionGrid.selModel.selectLastRow(true);
+        }
+    },
+
+    onRowDeselect: function(selModel, rowIndex, record){
+        var index = this.selectionGrid.store.indexOfId(record.id);
+        if (index >= 0){
+            this.selectionGrid.store.removeAt(index);
+        }
+    },
+
+    onLoad: function(store){
+        var selectionRange = this.selectionGrid.store.getRange(),
+            range = this.grid.store.getRange(),
+            i = 0, j = 0;
+        for (i=0; i<selectionRange.length; i++){
+            for (j=0; j< range.length; j++){
+                if (selectionRange[i]['id'] == range[j]['id']){
+                    this.grid.getSelectionModel().selectRow(j, true);
+                }
+           }
+        }
+    },
+    /**
+     * Возвращает выбранные в основном гриде элементы
+     *
+     * @returns {*|Array|Ext.data.Record[]}
+     */
+    getSelectedRecords: function(){
+        return this.selectionGrid.store.getRange();
+    },
+    onRemoveSelected: function(selModel, rowIndex, record){
+        var index = this.grid.store.indexOfId(record.id);
+        if (index >= 0){
+            this.grid.getSelectionModel().deselectRow(index);
+        }
+    }
+});
+
+Ext.reg('object-selection-panel', Ext.m3.ObjectSelectionPanel);
 /**
  * Объектное дерево, включает в себя тулбар с кнопками добавить (в корень и дочерний элемент), редактировать и удалить
  * @param {Object} config
@@ -15542,14 +15350,6 @@ Ext.reg('imageuploadfield', Ext.ux.form.ImageUploadField);
  * Функции рендера компонентов-контейнеров
  * @author: prefer
  */
-/**
- * Создание расширенного дерева, на базе внешего компонента
- * @param {Object} baseConfig Базовый конфиг для компонента
- * @param {Object} params Дрополнительные параметра для правильной конф-ии
- */
-function createAdvancedTreeGrid(baseConfig, params){
-	return new Ext.m3.AdvancedTreeGrid(baseConfig, params);
-}
 
 /**
  * Создание грида
@@ -15594,33 +15394,7 @@ function createObjectTree(baseConfig, params){
  * @param {Object} params
  */
 function createAdvancedComboBox(baseConfig, params){
-	var adv_combo = new Ext.m3.AdvancedComboBox(baseConfig, params);
-//	adv_combo.on('beforeselect',function(){
-//		console.log('beforeselect');
-//	});
-//	adv_combo.on('beforequery',function(e){
-//		
-//		//e.cancel = true;
-//		console.log('beforequery');
-//	});
-//	adv_combo.on('change',function(){
-//		console.log('change');
-//	});
-//	adv_combo.on('beforerequest',function(){
-//		console.log('beforerequest');
-//		return false;
-//	});
-//	adv_combo.on('changed',function(){
-//		console.log('changed');
-//		//return false;
-//	});
-//		adv_combo.on('afterselect',function(){
-//		console.log(arguments);
-//		console.log('afterselect');
-//		//return false;
-//	});
-	
-	return adv_combo;
+	return new Ext.m3.AdvancedComboBox(baseConfig, params);
 }
 
 /**
@@ -16086,9 +15860,9 @@ Ext.override(Ext.form.ComboBox, {
  * setReadOnly для Ext.form.Field и Ext.form.TriggerField
  * см m3.css - стр. 137 .m3-grey-field
  */
-var setReadOnlyField = Ext.form.Field.prototype.setReadOnly;
+var setReadOnlyField = Ext.form.Field.prototype.setReadOnly.bind({});
 var restoreClass = function(readOnly){
-    if(readOnly) {         
+    if(readOnly) {
         this.addClass('m3-grey-field');
     } else {
         this.removeClass('m3-grey-field');
@@ -16098,6 +15872,14 @@ var restoreClass = function(readOnly){
 Ext.override(Ext.form.Field, {
     setReadOnly : function(readOnly){
         setReadOnlyField.call(this, readOnly);
+        restoreClass.call(this, readOnly);
+    }
+});
+
+var setReadOnlyTriggerField = Ext.form.TriggerField.prototype.setReadOnly;
+Ext.override(Ext.form.TriggerField, {
+    setReadOnly : function(readOnly){
+        setReadOnlyTriggerField.call(this, readOnly);
         restoreClass.call(this, readOnly);
     }
 });
