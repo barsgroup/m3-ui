@@ -1,7 +1,7 @@
 #coding: utf-8
 import json
 
-from django.utils.html import escape, escapejs
+from django.utils.html import escape
 
 from m3_ext.ui.app_ui import (
     DesktopModel, DesktopLoader, BaseDesktopElement, MenuSeparator
@@ -42,7 +42,9 @@ def desktop_processor(request):
         'desktop': json.dumps(
             {
                 'menuItems': list(desktop_model.start_menu),
-                'desktopItems': list(desktop_model.desktop)
+                'topToolbarItems': list(desktop_model.toptoolbar),
+                'toolboxItems': list(desktop_model.toolbox),
+                'desktopItems': desktop_items,
             },
             indent=2, default=_dump_element, ensure_ascii=False
         ),
