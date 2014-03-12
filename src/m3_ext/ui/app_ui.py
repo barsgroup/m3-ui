@@ -67,38 +67,56 @@ class DesktopElementCollection(object):
     """
     Колекция эл-тов Рабочего Стола, определяющая их видимость
     """
-
     def __init__(self, filt=lambda x: True):
         self._filt = filt
         self._items = []
-        self._sorting_key = DEFAULT_SORTING
+        self.sorting_key = DEFAULT_SORTING
 
     def __iter__(self):
-        return iter(sorted(itertools.ifilter(
-            self._filt, self._items), key=self._sorting_key))
+        return iter(self._items)
+
+    @property
+    def subitems(self):
+        """
+        Возвращает итератор, обеспечивающий фильтрацию и сортировку элементов
+        """
+        def prepared(item):
+            """
+            Возвращает элемент, либо None, если элемент отфильтрован
+            или содержит пустой список под-элементов
+            """
+            if not item.has_subitems:
+                result = item if self._filt(item) else None
+            else:
+                # на всякий случай клонируем
+                item = item.clone()
+                item.subitems = list(sorted(
+                    itertools.ifilter(
+                        bool,
+                        itertools.imap(
+                            prepared,
+                            item.subitems)),
+                    key=self.sorting_key
+                ))
+                if not item.subitems:
+                    result = None
+                else:
+                    result = item
+            return result
+
+        # обертка списка элементов в некое подобие LaunchGroup
+        stub = prepared(type('stub', (object,), {
+            'has_subitems': True,
+            'clone': lambda self: self,
+            'subitems': self._items[:]
+        })())
+        return iter(stub.subitems if stub else [])
 
     def append(self, elem):
         """
         Добавление эл-та в коллекцию
         """
         self._items.append(elem)
-
-    @property
-    def sorting_key(self):
-        """
-        Возвращает текущий способ сортировки
-        """
-        return self._sorting_key
-
-    @sorting_key.setter
-    def sorting_key(self, value):
-        """
-        Устанавливает новый способ сортировки
-        """
-        self._sorting_key = value
-        for item in self._items:
-            if item.has_subitems:
-                item.sorting_key = value
 
 
 class DesktopModel(object):
@@ -193,7 +211,6 @@ class DesktopLaunchGroup(BaseDesktopElement):
         self.index = 10
         self.icon = 'default-launch-group'
         self.subitems = []
-        self.sorting_key = DEFAULT_SORTING
         self._init_component(*args, **kwargs)
 
     def clone(self, *args, **kwargs):
@@ -201,12 +218,8 @@ class DesktopLaunchGroup(BaseDesktopElement):
         Возвращает "клон" себя
         """
         clone = super(DesktopLaunchGroup, self).clone(*args, **kwargs)
-        for subitem in self.subitems:
-            clone.subitems.append(subitem.clone())
+        clone.subitems = self.subitems[:]
         return clone
-
-    def __iter__(self):
-        return iter(sorted(self.subitems, key=self.sorting_key))
 
 
 class DesktopLauncher(BaseDesktopElement):
