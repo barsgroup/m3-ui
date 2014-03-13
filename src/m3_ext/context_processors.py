@@ -1,8 +1,6 @@
 #coding: utf-8
 import json
 
-from django.utils.html import escape, escapejs
-
 from m3_ext.ui.app_ui import (
     DesktopModel, DesktopLoader, BaseDesktopElement, MenuSeparator
 )
@@ -21,7 +19,7 @@ def _dump_element(obj):
             'icon': obj.icon,
         }
         if obj.has_subitems:
-            result['items'] = list(obj)
+            result['items'] = list(obj.subitems)
         else:
             result['url'] = obj.url
     else:
@@ -37,12 +35,14 @@ def desktop_processor(request):
     ControllerCache.populate()
     DesktopLoader._success = False
     DesktopLoader.populate_desktop(desktop=desktop_model)
-    desktop_items = list(desktop_model.desktop)
+    desktop_items = list(desktop_model.desktop.subitems)
     return {
         'desktop': json.dumps(
             {
-                'menuItems': list(desktop_model.start_menu),
-                'desktopItems': list(desktop_model.desktop)
+                'menuItems': list(desktop_model.start_menu.subitems),
+                'topToolbarItems': list(desktop_model.toptoolbar.subitems),
+                'toolboxItems': list(desktop_model.toolbox.subitems),
+                'desktopItems': desktop_items,
             },
             indent=2, default=_dump_element, ensure_ascii=False
         ),

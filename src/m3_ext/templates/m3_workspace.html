@@ -4,39 +4,42 @@
     <script type="text/javascript">
 
         /**
+        * Преобразователь конфигов для элементов в собственно элементы
+        */
+        function makeItem(data) {
+            if (data == '-') {
+                var res = data; // разделитель
+            } else {
+                var res = {
+                      scope: this
+                    , text: data.text
+                    , iconCls: data.icon
+                };
+                if (data.items != undefined && data.items.length > 0) {
+                    res.handler = function() { return false; };
+                    res.menu = [];
+                    for (var i = 0; i < data.items.length; i += 1) {
+                        res.menu.push(makeItem(data.items[i]))
+                    };
+                } else {
+                    res.handler = function() {
+                        sendRequest(
+                              data.url
+                            , AppDesktop.getDesktop()
+                            // пока нету , data.context
+                        );
+                    };
+                };
+            };
+            return res;
+        };
+        /**
          * Генератор модулей - потомков от Ext.app.Module
          */
         function makeModule(data, idPrefix, idx, inStartMenu) {
             /**
              * Генератор словарей, описывающих элементы (под)меню
              */
-            function makeItem(data) {
-                if (data == '-') {
-                    var res = data; // разделитель
-                } else {
-                    var res = {
-                          scope: this
-                        , text: data.text
-                        , iconCls: data.icon
-                    };
-                    if (data.items != undefined && data.items.length > 0) {
-                        res.handler = function() { return false; };
-                        res.menu = [];
-                        for (var i = 0; i < data.items.length; i += 1) {
-                            res.menu.push(makeItem(data.items[i]))
-                        };
-                    } else {
-                        res.handler = function() {
-                            sendRequest(
-                                  data.url
-                                , AppDesktop.getDesktop()
-                                // пока нету , data.context
-                            );
-                        };
-                    };
-                };
-                return res;
-            };
             var Module = Ext.extend(Ext.app.Module, {
                   id: idPrefix + idx
                 , init: function() {
@@ -80,15 +83,21 @@
                     res, desktopConfig.desktopItems, 'desktop-item-'
                 );
 
+                // верхняя панель
+                addEachModuleTo(
+                    res, desktopConfig.topToolbarItems, 'toptoolbar-item-'
+                )
+
                 return res;
             },
 
             // Обязательные настройки меню "Пуск"
             getStartConfig : function() {
                 var items = [];
-                // addEachModuleTo(
-                //     items, desktopConfig.toolBoxItems, 'toptoolbar-item-'
-                // );
+                for (var i = 0; i < desktopConfig.toolboxItems.length; i += 1) {
+                    var item = desktopConfig.toolboxItems[i];
+                    items.push(makeItem(item));
+                };
                 return {
                     title: '{{ user }}',
                     toolsPanelWidth: 120,
