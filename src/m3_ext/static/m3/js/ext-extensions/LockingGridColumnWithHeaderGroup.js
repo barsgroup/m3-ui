@@ -2781,3 +2781,5 @@ Ext.ux.grid.LockingGridColumnWithHeaderGroup = Ext.extend(Ext.util.Observable, {
         };
     }
 });
+
+Ext.reg('m3-locking-column-header-group', Ext.ux.grid.LockingGridColumnWithHeaderGroup);

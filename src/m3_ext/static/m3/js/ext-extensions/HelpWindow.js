@@ -1,9 +1,11 @@
 /**
  * Окно показа контекстной помощи
+ *
+ * deprecated! - Непонятно где используется
  */
 
 Ext.m3.HelpWindow = Ext.extend(Ext.Window, {
-    constructor: function(baseConfig, params){
+    constructor: function(baseConfig){
         this.title = 'Справочная информация';
         this.maximized = true;
         this.maximizable = true;

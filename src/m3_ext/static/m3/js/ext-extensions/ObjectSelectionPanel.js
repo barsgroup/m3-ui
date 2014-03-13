@@ -93,4 +93,4 @@ Ext.m3.ObjectSelectionPanel = Ext.extend(Ext.Container, {
     }
 });
 
-Ext.reg('object-selection-panel', Ext.m3.ObjectSelectionPanel);
+Ext.reg('m3-object-selection-panel', Ext.m3.ObjectSelectionPanel);

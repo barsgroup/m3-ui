@@ -4,6 +4,7 @@
 
 Ext.m3.Window = Ext.extend(Ext.Window, {
 	constructor: function(baseConfig, params){
+        params = baseConfig.params || params;
 
 		// Ссылка на родительское окно
 		this.parentWindow = null;
@@ -35,6 +36,6 @@ Ext.m3.Window = Ext.extend(Ext.Window, {
         }
         Ext.m3.Window.superclass.initTools.call(this);
     }
-})
+});
 
-
+Ext.reg('m3-window', Ext.m3.Window);

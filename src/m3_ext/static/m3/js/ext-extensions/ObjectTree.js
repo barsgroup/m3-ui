@@ -4,6 +4,8 @@
  */
 Ext.m3.ObjectTree = Ext.extend(Ext.ux.tree.TreeGrid, {
 	constructor: function(baseConfig, params){
+        params = baseConfig.params || params;
+
 		assert(params.rowIdName !== undefined,'rowIdName is undefined');
 		assert(params.actions !== undefined,'actions is undefined');
 		
@@ -366,3 +368,5 @@ Ext.m3.ObjectTree = Ext.extend(Ext.ux.tree.TreeGrid, {
 		return baseConf;
     }
 });
+
+Ext.reg('m3-object-tree', Ext.m3.ObjectTree);

@@ -4,6 +4,7 @@
  */
 Ext.m3.AddrField = Ext.extend(Ext.Container, {
 	constructor: function(baseConfig, params){
+        params = baseConfig.params || params;
 
 		var items = params.items || [];
 
@@ -585,3 +586,5 @@ Ext.m3.AddrField = Ext.extend(Ext.Container, {
     }
 
 });
+
+Ext.reg('m3-kladr', Ext.m3.AddrField);

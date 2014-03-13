@@ -126,7 +126,8 @@ Ext.app.form.SearchField = Ext.extend(Ext.form.TwinTriggerField, {
 	        	var rootNode = cmp.getRootNode();
 	        	loader.load(rootNode);
 	        	rootNode.expand();
-	        };
+	        }
+
 	        this.triggers[0].hide();
 	        this.hasSearch = false;
         }
@@ -150,7 +151,8 @@ Ext.app.form.SearchField = Ext.extend(Ext.form.TwinTriggerField, {
         	loader.load(rootNode);
         	rootNode.expand();
         	//console.log(rootNode);
-        };
+        }
+
         if (value) {
         	this.hasSearch = true;
 	    	this.triggers[0].show();
@@ -160,6 +162,8 @@ Ext.app.form.SearchField = Ext.extend(Ext.form.TwinTriggerField, {
     ,clear : function(node_id){ this.onTrigger1Click() }
     ,search: function(node_id){ this.onTrigger2Click() }
 });
+Ext.reg('search-field', Ext.app.form.SearchField);
+
 /**
  * В поле добавим функционал отображения того, что оно изменено.
  */
@@ -225,7 +229,7 @@ Ext.app.TitlePanel = Ext.extend(Ext.Panel, {
            
            if (this.header)
                this.header.removeClass('x-unselectable');
-       };
+       }
    },
    getChildByName: function (name) {
        if (this.items)
@@ -241,7 +245,7 @@ Ext.app.TitlePanel = Ext.extend(Ext.Panel, {
        return null;
     }
 });
-
+Ext.reg('m3-title-panel', Ext.app.TitlePanel);
 
 /*
  * выполняет обработку failure response при submit пользовательских форм
@@ -400,7 +404,7 @@ function uiAjaxFailMessage (response, opt) {
 // Проверяет есть ли в ответе сообщение и выводит его
 // Возвращает серверный success
 function uiShowErrorMessage(response){
-	obj = Ext.util.JSON.decode(response.responseText);
+	var obj = Ext.util.JSON.decode(response.responseText);
 	if (obj.error_msg)
 		Ext.Msg.alert(SOFTWARE_NAME, obj.error_msg);
 // Не понятно зачем нужен этот код.
@@ -501,6 +505,7 @@ function showMessage(msg, title, icon){
 	title = title || 'Внимание';
 	msg = msg || '';
 	icon = icon || Ext.MessageBox.INFO;
+
     Ext.Msg.show({
         title: title,
         msg: msg,

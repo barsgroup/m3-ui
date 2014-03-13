@@ -4,6 +4,7 @@
  */
 Ext.m3.ObjectGrid = Ext.extend(Ext.m3.GridPanel, {
 	constructor: function(baseConfig, params){
+        params = baseConfig.params || params;
 
 		assert(params.allowPaging !== undefined,'allowPaging is undefined');
 		assert(params.rowIdName !== undefined,'rowIdName is undefined');
@@ -410,6 +411,7 @@ Ext.m3.ObjectGrid = Ext.extend(Ext.m3.GridPanel, {
 
 Ext.m3.EditorObjectGrid = Ext.extend(Ext.m3.EditorGridPanel, {
 	constructor: function(baseConfig, params){
+        params = baseConfig.params || params;
 
 		assert(params.allowPaging !== undefined,'allowPaging is undefined');
 		assert(params.rowIdName !== undefined,'rowIdName is undefined');
@@ -681,3 +683,5 @@ Ext.m3.EditorObjectGrid = Ext.extend(Ext.m3.EditorGridPanel, {
     }
 });
 
+Ext.reg('m3-object-grid', Ext.m3.ObjectGrid);
+Ext.reg('m3-edit-object-grid', Ext.m3.EditorObjectGrid);

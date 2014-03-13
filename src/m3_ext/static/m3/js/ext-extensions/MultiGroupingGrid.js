@@ -745,6 +745,8 @@ Ext.ns('Ext.m3');
  */
 Ext.m3.MultiGroupingGridPanel = Ext.extend(Ext.ux.grid.livegrid.GridPanel, {
 	constructor: function(baseConfig, params){
+        params = baseConfig.params || params;
+
 		// Добавление selection model если нужно
 		//var selModel = params.selModel;
 		var selModel = params.selModel ? params.selModel : new Ext.ux.grid.livegrid.RowSelectionModel({singleSelect: true});

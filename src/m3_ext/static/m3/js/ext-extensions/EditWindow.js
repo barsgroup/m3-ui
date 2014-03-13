@@ -14,6 +14,7 @@ Ext.m3.EditWindow = Ext.extend(Ext.m3.Window, {
 	 * @param {Object} params Дополнительные параметры 
 	 */
 	constructor: function(baseConfig, params){
+        params = baseConfig.params || params;
 		
 		/**
 		 * id формы в окне, для сабмита
@@ -473,4 +474,6 @@ Ext.m3.EditWindow = Ext.extend(Ext.m3.Window, {
         mask.hide();
         this.disableToolbars(false);
    }
-})
+});
+
+Ext.reg('m3-window', Ext.m3.EditWindow);

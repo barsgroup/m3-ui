@@ -4,8 +4,7 @@
  */
 Ext.m3.GridPanel = Ext.extend(Ext.grid.GridPanel, {
 	constructor: function(baseConfig, params){
-//		console.log(baseConfig);
-//		console.log(params);
+        params = baseConfig.params || params;
 		
 		// Добавлене selection model если нужно
 		var selModel = params.selModel;
@@ -94,8 +93,7 @@ Ext.m3.GridPanel = Ext.extend(Ext.grid.GridPanel, {
 
 Ext.m3.EditorGridPanel = Ext.extend(Ext.grid.EditorGridPanel, {
   constructor: function(baseConfig, params){
-//    console.log(baseConfig);
-//    console.log(params);
+    params = baseConfig.params || params;
     
     // Добавлене selection model если нужно
     var selModel = params.selModel;
@@ -185,9 +183,12 @@ Ext.m3.EditorGridPanel = Ext.extend(Ext.grid.EditorGridPanel, {
   		    buttons: Ext.Msg.CANCEL,
   		    icon: Ext.Msg.WARNING
   		  });
-  		};
+  		}
 		} else {
 		  uiAjaxFailMessage(response, options);
-		};
+		}
 	}
 });
+
+Ext.reg('m3-grid', Ext.m3.GridPanel);
+Ext.reg('m3-edit-grid', Ext.m3.EditorGridPanel);

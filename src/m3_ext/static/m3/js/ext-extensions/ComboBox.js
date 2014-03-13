@@ -10,3 +10,5 @@ Ext.m3.ComboBox =  Ext.extend(Ext.form.ComboBox,{
 		return this.lastSelectionText;
 	}
 });
+
+Ext.reg('m3-combobox', Ext.m3.ComboBox);

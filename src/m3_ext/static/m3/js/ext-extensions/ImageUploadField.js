@@ -18,6 +18,7 @@ Ext.ux.form.ImageUploadField = Ext.extend(Ext.form.FileUploadField,  {
     ,iconClsPreviewImage: 'x-form-image-preview-icon'
     
     ,constructor: function(baseConfig, params){
+        params = baseConfig.params || params;
         
         if (params) {
             if (params.thumbnailWidth) {

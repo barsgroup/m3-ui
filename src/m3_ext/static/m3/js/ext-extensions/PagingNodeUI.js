@@ -1,5 +1,4 @@
-Ext.ux.PagingTreeNodeUI = Ext.extend(Ext.ux.tree.TreeGridNodeUI,
-  {
+Ext.ux.PagingTreeNodeUI = Ext.extend(Ext.ux.tree.TreeGridNodeUI, {
     renderElements : function(n, a, targetNode, bulkRender){
         this.indentMarkup = n.parentNode ? n.parentNode.ui.getChildIndent() : '';
         var attribs = n.attributes;
@@ -11,9 +10,8 @@ Ext.ux.PagingTreeNodeUI = Ext.extend(Ext.ux.tree.TreeGridNodeUI,
         var t = n.getOwnerTree();
         var cols = t.columns;
         var  c = cols[0];
-        var renderBtn = function(stringStack, pageNum, text, addlClass)
-        {
-          stringStack.push('<div class="gs_tree_pgbtn')
+        var renderBtn = function(stringStack, pageNum, text, addlClass) {
+          stringStack.push('<div class="gs_tree_pgbtn');
           if(addlClass)
             stringStack.push(' ' + addlClass);
           stringStack.push('"><div gs:page="');
@@ -21,7 +19,7 @@ Ext.ux.PagingTreeNodeUI = Ext.extend(Ext.ux.tree.TreeGridNodeUI,
           stringStack.push('" class="x-tree-col-text">');
           stringStack.push(text);
           stringStack.push('</div></div>');
-        }
+        };
 
          var buf = [
              '<li class="gs_tree_pagingbar" style="list-style:none;"><div ext:tree-node-id="',n.id,'" class="x-tree-node-el ', a.cls,'">',
@@ -127,3 +125,5 @@ Ext.ux.PagingTreeNodeUI = Ext.extend(Ext.ux.tree.TreeGridNodeUI,
         this.textNode = cs[3].firstChild;
     }
 });
+
+Ext.reg('paging-tree-node-ui', Ext.ux.PagingTreeNodeUI);

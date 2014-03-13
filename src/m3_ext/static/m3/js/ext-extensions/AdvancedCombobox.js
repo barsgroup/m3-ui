@@ -8,11 +8,9 @@
 Ext.m3.AdvancedComboBox = Ext.extend(Ext.m3.ComboBox, {
     constructor: function (baseConfig, params) {
 
-        /**
-         * Инициализация значений
-         */
+        params = baseConfig.params || params;
 
-            // Будет ли задаваться вопрос перед очисткой значения
+        // Будет ли задаваться вопрос перед очисткой значения
         this.askBeforeDeleting = true;
 
         this.actionSelectUrl = null;

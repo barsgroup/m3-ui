@@ -31,6 +31,8 @@ Ext.ux.form.FileUploadField = Ext.extend(Ext.form.TextField,  {
     ,iconClsDownloadFile: 'x-form-file-download-icon'
 
     ,constructor: function(baseConfig, params){
+        params = baseConfig.params || params;
+
         if (params) {
             if (params.prefixUploadField) {
                 this.prefixUploadField = params.prefixUploadField;
