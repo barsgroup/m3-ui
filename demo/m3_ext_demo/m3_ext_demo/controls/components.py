@@ -9,7 +9,7 @@ import json
 from django import http
 
 from datetime import datetime
-from m3 import M3JSONEncoder
+
 
 from m3_ext.ui.containers import ExtGrid, ExtContextMenu, ExtGridColumn, ExtTabPanel, ExtPanel, ExtFieldSet, \
     ExtPagingBar, ExtContainerTable, ExtGridCellSelModel, ExtGridLockingColumnModel, \
@@ -1181,6 +1181,7 @@ def column_filter_grid(request):
 
 @url(r'^data/grid-qtip-data')
 def grid_qtip_data(request):
+    from m3 import M3JSONEncoder
     enc = M3JSONEncoder()
     str = enc.encode(request.POST)
     return http.HttpResponse(u'{server: "Данные подсказки, пришедшие с сервера!", record: %s}' % str)
@@ -1188,6 +1189,7 @@ def grid_qtip_data(request):
 
 @url(r'^data/grid-qtip-mega-data')
 def grid_qtip_mega_data(request):
+    from m3 import M3JSONEncoder
     enc = M3JSONEncoder()
     vals = [{'score': u'Единица', 'value': 1, 'class': 'ext-color-1-ad'},
             {'score': u'Двойка', 'value': 2, 'class': 'ext-color-2-ad'},
