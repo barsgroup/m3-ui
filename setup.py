@@ -11,7 +11,7 @@ def read(fname):
 
 setup(name='m3-ext3',
       version='2.1.0.0',
-      url='https://src.bars-open.ru/py/m3/m3_contrib/m3_ext_demo',
+      url='https://bitbucket.org/barsgroup/m3-ext',
       license='MIT',
       author='BARS Group',
       author_email='telepenin@bars-open.ru',
