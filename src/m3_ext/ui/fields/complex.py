@@ -203,13 +203,11 @@ class ExtDictSelectField(BaseExtTriggerField):
         Если не задан, то ищем во всех.
         @deprecated: 0.4
         """
-        if controller:
-            registered_pack = controller.find_pack(pack)
-        else:
-            registered_pack = ControllerCache.find_pack(pack)
+        registered_pack = ControllerCache.find_pack(pack)
         if not registered_pack:
             raise Exception(
-                'Pack %s not found in controller %s' % (controller, pack))
+                'Pack %s not found!' % pack
+            )
         self.url = registered_pack.get_select_url()
         self.autocomplete_url = registered_pack.rows_action.get_absolute_url()
         # TODO: можно ли обойтись без bind_back?
