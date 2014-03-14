@@ -22,6 +22,11 @@ def _dump_element(obj):
             result['items'] = list(obj.subitems)
         else:
             result['url'] = obj.url
+            context = getattr(obj, 'context', {})
+            if context:
+                result['context'] = context
+            else:
+                result['context'] = {}
     else:
         raise TypeError("%r is not JSON-able!" % obj)
     return result
