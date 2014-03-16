@@ -54,7 +54,7 @@ class BaseExtContainer(ExtUIComponent):
 
     def t_render_items(self):
         """
-        @deprecated: Рекомендуется использовать render_base_config
+        :deprecated: Рекомендуется использовать render_base_config
         Дефолтный рендеринг вложенных объектов
         """
         return '[%s]' % ','.join([item.render() for item in self._items])
@@ -63,6 +63,8 @@ class BaseExtContainer(ExtUIComponent):
         """
         Осуществляет поиск экземпляра во вложенных объектах
         по имени экземпляра и возвращает его, если тот был найден
+        :param name: имя экземпляра
+        :type name: str
         """
         for item in self.items:
             if hasattr(item, 'name') and name == getattr(item, 'name'):
@@ -75,7 +77,7 @@ class BaseExtContainer(ExtUIComponent):
 
     def t_render_layout_config(self):
         """
-        @deprecated: Рекомендуется использовать render_base_config
+        :deprecated: Рекомендуется использовать render_base_config
         Рендерит конфиг, если указан layout
         """
         return '{%s}' % ','.join([
@@ -83,8 +85,9 @@ class BaseExtContainer(ExtUIComponent):
         ])
 
     def pre_render(self):
-        #Вызывается до рендеринга контрола
-
+        """
+        Вызывается до рендеринга контрола
+        """
         super(BaseExtContainer, self).pre_render()
 
         # выставляем action_context у дочерних элементов
@@ -146,7 +149,7 @@ class BaseExtPanel(BaseExtContainer):
 
         self.footer_bar = None
 
-        # @deprecated: Нет в документации extjs 3.3.1
+        # :deprecated: Нет в документации extjs 3.3.1
         self.dd_group = None
 
         # Будет ли граница

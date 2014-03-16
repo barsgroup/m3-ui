@@ -18,18 +18,18 @@ def js_submit_form(
         form, success_handler='', failure_handler='',
         invalid_handler='', params=None):
     """
-    @deprecated: Использовать методы окна, например,
-    в ExtEditWindow метод submitForm
+    :deprecated: Использовать методы окна, например,
+        в ExtEditWindow метод submitForm
 
     Шорткат, который позволяет назначить хендлер для обработки субмита формы
-    @param form: экземпляр ExtForm
-    @param success_handler:
+    :param form: экземпляр ExtForm
+    :param success_handler:
         анонимная JS функция срабатывающая при успешном исходе субмита
-    @param failure_handler:
+    :param failure_handler:
         анонимная JS функция срабатывающая ошибке
-    @param invalid_handler:
+    :param invalid_handler:
         JS действия при отказе сабмита из-за неверных значений полей
-    @param params: словарь с доп. параметрами передаваемыми через POST
+    :param params: словарь с доп. параметрами передаваемыми через POST
     """
     assert isinstance(form, ExtForm)
     template = u'''
@@ -65,17 +65,16 @@ function(){
 
 def js_success_response():
     """
-    @deprecated: Использовать OperationResult
+    :deprecated: Использовать OperationResult
 
     Возвращает Ext Ajax ответ что операция прошла успешно
-    @deprecated: Нужно использовать OperationResult
     """
     return http.HttpResponse('{success: true}')
 
 
 def js_close_window(win, forceClose=False):
     """
-    @deprecated: Использовать методы окна, например,
+    :deprecated: Использовать методы окна, например,
     в ExtEditWindow метод calcelForm
 
     Возвращает JS код закрывающий окно win
@@ -89,9 +88,11 @@ def js_close_window(win, forceClose=False):
 def js_fire_event_window(event_name, close_after_fire=True, *args):
     """
     Генерирует вызов события для окна
-    @param event_name: Название события
-    @param close_after_fire: Закрывать ли окно после вызова события?
-    @param *args: Параметры, которые будут переданы при генерации события
+    :param event_name: Название события
+    :type event_name: str
+    :param close_after_fire: Закрывать ли окно после вызова события?
+    :type close_after_fire: bool
+    :param *args: Параметры, которые будут переданы при генерации события
     """
     template = u'''
 function(){

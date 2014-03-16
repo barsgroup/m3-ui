@@ -32,7 +32,7 @@ class BaseExtComponent(object):
         # Каждый компонент может иметь шаблон, в котором он будет рендериться
         self.template = ''
 
-        # @deprecated: Только окно (наследник BaseExtWindow)
+        # :deprecated: Только окно (наследник BaseExtWindow)
         # может иметь данный атрибут
         self.template_globals = ''
 
@@ -63,6 +63,7 @@ class BaseExtComponent(object):
         Возвращает "кусок" javascript кода, который используется для
         отображения самого компонента. За рендер полного javascript
         отвечает метод get_script()
+        :rtype: str
         """
         self.pre_render()
         return render_component(self)
@@ -70,6 +71,7 @@ class BaseExtComponent(object):
     def render_globals(self):
         """
         Рендерит и возвращает js-код, который помещен в template_globals
+        :rtype: str
         """
         if self.template_globals:
             return render_template(
@@ -94,10 +96,9 @@ class BaseExtComponent(object):
                 % (k, self.__class__.__name__))
             self.__setattr__(k, v)
 
-    #deprecated:
     def t_render_listeners(self):
         """
-        @deprecated: Если рендеринг не в шаблоне,
+        :deprecated: Если рендеринг не в шаблоне,
         то при вызове render_base_config информация о подписчиках на события
         уже будут в конфиге
 
@@ -108,7 +109,7 @@ class BaseExtComponent(object):
 
     def t_render_simple_listeners(self):
         """
-        @deprecated: Конфиг должен рендериться в render_base_config
+        :deprecated: Конфиг должен рендериться в render_base_config
         """
         return '{%s}' % ','.join([
             '%s:%s' % (k, v)
@@ -137,6 +138,9 @@ class BaseExtComponent(object):
         """
         Проверка на не юникодную строку в которой есть русские символы
         Если есть русские символы необходимо использовать юникод!
+        :param string: строка для проверки
+        :type string: str / unicode
+        :raise: Exception
         """
         try:
             unicode(string)
@@ -150,6 +154,18 @@ class BaseExtComponent(object):
         """
         Управляет правильной установкой (в зависимости от типа)
         параметров контрола
+        :param src_list: список словарей
+        :type src_list: list
+        :param extjs_name: Оригинальное название атрибута в ExtJs
+        :type: extjs_name: str
+        :param item: значение атрибута в М3
+        :type item: basestring, bool, int, float, decimal, long, dict
+        :param condition: Условие добавления в конфиг.
+        :type condition: bool
+        :param depth: глубина обхода
+        :type depth: int
+
+        :raise: ExtComponentException
         """
         conf_dict = {}
         res = None
@@ -207,27 +223,45 @@ class BaseExtComponent(object):
         """
         Добавляет значение в конфиг компонента ExtJs,
         для последующей передачи в конструктор JS
-        @param extjs_name: Оригинальное название атрибута в ExtJs
-        @param item: Значение атрибута в М3
-        @param condition: Условие добавления в конфиг.
-        Бывает полезно чтобы не использовать лишний if
+        :param extjs_name: Оригинальное название атрибута в ExtJs
+        :type: extjs_name: str
+        :param item: Значение атрибута в М3
+        :param condition: Условие добавления в конфиг.
+        :type condition: bool
+
+        .. note::
+            Бывает полезно чтобы не использовать лишний if
         """
         self._put_base_value(self._config_list, extjs_name, item, condition)
 
     def _put_params_value(self, extjs_name, item, condition=True):
         """
         Обертка для упаковки детализированного конфига компонента
+        :param extjs_name: Оригинальное название атрибута в ExtJs
+        :type: extjs_name: str
+        :param item: Значение атрибута в М3
+        :param condition: Условие добавления в конфиг.
+        :type condition: bool
         """
         self._put_base_value(self._param_list, extjs_name, item, condition)
 
     def _set_base_value(self, src_list, key, value):
         """
         Устанавливает значение по ключу
+        :param src_list: список словарей структуры
+        :type src_list: list
+        :param key: ключ
+        :param value: значение
+        :raise: AssertionError
         """
         def set_value_to_dict(src_dict, key, value):
             """
             Вспомогательная функция, позволяет рекурсивно собрать все вложенные
             структуры-словари
+            :param src_dict: словарь структуры
+            :type src_dict: dict
+            :param key: ключ
+            :param value: значение
             """
             for k, v in src_dict.items():
                 if isinstance(v, dict):
@@ -259,7 +293,9 @@ class BaseExtComponent(object):
     def _get_base_str(self, src_list):
         """
         Возвращает структуру в json-формате
-        @param src_list: Список словарей, словари могут быть вложенными
+        :param src_list: Список словарей, словари могут быть вложенными
+        :type src_list: list
+
         Пример структуры:
         [
             {...},
@@ -274,6 +310,8 @@ class BaseExtComponent(object):
             """
             Вспомогательная функция, позволяет рекурсивно собрать все вложенные
             структуры-словари
+            :param src_dict: структура-словарь
+            :type src_dict: dict
             """
             tmp_list = []
             for k, v in src_dict.items():
@@ -373,7 +411,7 @@ class ExtUIComponent(BaseExtComponent):
 
     def t_render_style(self):
         """
-        @deprecated: Использовать рендеринг в render_base_config
+        :deprecated: Использовать рендеринг в render_base_config
         """
         return '{%s}' % ','.join(
             ['"%s":"%s"' % i for i in self.style.items()]
@@ -414,11 +452,15 @@ class ExtUIComponent(BaseExtComponent):
     def make_read_only(
             self, access_off=True, exclude_list=(), *args, **kwargs):
         """
-        @access_off - переменная регулирует вкл\выкл режима для чтения.
-        @exclude_list - список, содержит в себе имена элементов,
-        которые не надо выключать.
-        Позволяет сделать компонент недоступным для изменения.
-        Обязательно должен быть переопределен в наследуемых классах.
+        :param access_off: переменная регулирует вкл\выкл режима для чтения.
+        :type access_off: bool
+        :param exclude_list: список, содержит в себе имена элементов,
+            которые не надо выключать.
+            Позволяет сделать компонент недоступным для изменения.
+            Обязательно должен быть переопределен в наследуемых классах.
+        :type exclude_list: list
+
+        .. note::
         При вызове метода без параметров, используется параметр по-умолчанию
         access_off=True, в этом случае метод делает компонент, и все контролы
         расположенные на нем неизменяемыми.
