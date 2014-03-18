@@ -292,10 +292,10 @@ class ExtTreeNode(ExtUIComponent):
         self.icon_cls = None
 
         # True - Листьевой узел
-        self.leaf = False
+        self.leaf = True
 
         # Имеются ли дочерние узлы
-        self.has_children = False
+        # self.has_children = False
 
         # Развернут ли элемент
         self.expanded = False
@@ -314,6 +314,14 @@ class ExtTreeNode(ExtUIComponent):
 
         self.__items = {}
         self.init_component(*args, **kwargs)
+
+    @property
+    def has_children(self):
+        return not self.leaf
+
+    @has_children.setter
+    def has_children(self, val):
+        self.leaf = not val
 
     def t_render_children(self):
         return '[%s]' % ','.join([child.render() for child in self.children])
