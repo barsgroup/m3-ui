@@ -10,6 +10,8 @@ from m3.actions import ControllerCache
 def _dump_element(obj):
     """
     Возвращает UI-элемент в сериализованном виде
+    :param obj: элемент рабочего стола
+    :type obj: MenuSeparator / BaseDesktopElement
     """
     if isinstance(obj, MenuSeparator):
         result = '-'
@@ -34,7 +36,9 @@ def _dump_element(obj):
 
 def desktop_processor(request):
     """
-    Добавляет в контекст элнмннты Рабочего Стола
+    Добавляет в контекст элементы Рабочего Стола
+    :param request: request
+    :type request: Request
     """
     desktop_model = DesktopModel(request)
     ControllerCache.populate()

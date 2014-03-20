@@ -122,27 +122,31 @@ class ExtToolBar(BaseExtContainer):
     def add_spacer(self, width=2):
         """
         Добавляет дополнительное расстояние с шириной width
-        @param width: расстояние
+        :param width: расстояние
+        :type width: int
         """
         self.items.append(ExtToolBar.Spacer(width))
 
     def add_text_item(self, text_item):
         """
         Добавляет текст
-        @text_item: текст
+        :param text_item: текст
+        :type text_item: unicode
         """
         self.items.append(ExtToolBar.TextItem(text_item))
 
     def add_menu(self, **kwargs):
         """
         Добавляет меню
-        @param **kwargs: конфиг для меню
+        :param **kwargs: конфиг для меню
         """
         self.items.append(ExtToolbarMenu(**kwargs))
 
     @property
     def items(self):
-        # Список вложенных компонентов
+        """
+        Список вложенных компонентов
+        """
         return self._items
 
     def render_base_config(self):
@@ -179,7 +183,7 @@ class ExtToolBar(BaseExtContainer):
 
 class ExtStaticToolBarItem(ExtUIComponent):
     """
-    @deprecated: Нужно использовать встроенные подклассы в качестве элементов
+    :deprecated: Нужно использовать встроенные подклассы в качестве элементов
 
     Преднастроенные элементы в тулбаре
     @TODO: Для чего нужнен отдельный класс, если задача может решится методами
@@ -201,7 +205,7 @@ class ExtStaticToolBarItem(ExtUIComponent):
 
 class ExtTextToolBarItem(ExtUIComponent):
     """
-    @deprecated: Нужно использовать встроенные подклассы в качестве элементов
+    :deprecated: Нужно использовать встроенные подклассы в качестве элементов
 
     Текстовый элемент в тулбаре
     @TODO: Для чего нужнен отдельный класс, если задача может решится методами

@@ -1,12 +1,13 @@
 #coding:utf-8
 """
+:Created: Nov 18, 2010
+
+:Author: prefer
+
 Классы для работы первично отображаемого интерфейса MIS.
 Включают список модулей в меню "Пуск" и список модулей на "Рабочем столе"
-
-Created on Nov 18, 2010
-
-@author: prefer
 """
+
 import threading
 import inspect
 import itertools
@@ -115,6 +116,8 @@ class DesktopElementCollection(object):
     def append(self, elem):
         """
         Добавление эл-та в коллекцию
+        :param elem: элемент рабочего стола
+        :type elem: BaseDesktopElement
         """
         self._items.append(elem)
 
@@ -131,6 +134,10 @@ class DesktopModel(object):
             Возвращает True, если у ползователя есть права на пак элемента.
             Работет только с DesktopShortcut'ами - у них есть атрибут pack,
             остальные же элементы - отображаются всегда
+            :param elem: элемент рабочего стола
+            :type elem: DesktopShortcut
+            :return: has_perm - наличие права доступа к элементу
+            :rtype: bool
             """
             pack = getattr(elem, 'pack', None)
             if pack is None:
@@ -147,7 +154,7 @@ class BaseDesktopElement(object):
     """
     Базовый класс для объекта модулей и объекта подменю
     """
-    # атрибуты, копируемые в при "колнировании" экземпляра
+    # атрибуты, копируемые в при "клонировании" экземпляра
     # потомки должны добавлять новые атрибуты (конкатенацией)
     clonable_attrs = ('name', 'icon', 'index', 'id')
 
@@ -163,8 +170,10 @@ class BaseDesktopElement(object):
 
     def __init__(self, *args, **kwargs):
         """
-        @param name: Название модуля или подменю
-        @param icon: Класс CSS, отвечающий за отрисовку иконки
+        :param name: Название модуля или подменю
+        :type name: str
+        :param icon: Класс CSS, отвечающий за отрисовку иконки
+        :type icon: str
         """
         self.name = ''
         self.icon = ''
@@ -205,7 +214,8 @@ class DesktopLaunchGroup(BaseDesktopElement):
 
     def __init__(self, *args, **kwargs):
         """
-        subitem: Хранит список модулей и список подменю
+        :param subitem: Хранит список модулей и список подменю
+        :type subitem: list
         """
         super(DesktopLaunchGroup, self).__init__(*args, **kwargs)
         self.index = 10
@@ -233,7 +243,8 @@ class DesktopLauncher(BaseDesktopElement):
 
     def __init__(self, *args, **kwargs):
         """
-        @param url: url-адрес, запрос по которому возвратит форму
+        :param url: url-адрес, запрос по которому возвратит форму
+        :type url: str
         """
         super(DesktopLauncher, self).__init__(*args, **kwargs)
         self.url = ''
@@ -266,7 +277,9 @@ class DesktopShortcut(DesktopLauncher):
     def __init__(self, pack, *args, **kwargs):
         """
         Конструктор
-        @param pack: Имя или класс пака
+        :param pack: Имя или класс пака
+        :type pack: str / Action
+        :raise: DesktopException
         """
         super(DesktopShortcut, self).__init__(*args, **kwargs)
         self.pack = pack
@@ -305,6 +318,7 @@ class MenuSeparator(BaseDesktopElement):
 
 
 # Ключ сортировки элементов меню по умолчанию:
+# сначала - по индексу, затем по имени пункта меню
 DEFAULT_SORTING = lambda x: (x.index, x.name)
 
 
@@ -320,16 +334,17 @@ class DesktopLoader(object):
     # Флаг будет повторять ошибку для облегчения ее обнаружения.
     _success = False
 
-    #Константы определяющие куда добавить элемент
-    DESKTOP = 0
-    START_MENU = 1
-    TOOLBOX = 2
-    TOPTOOLBAR = 3
+    # Константы определяющие куда добавить элемент
+    DESKTOP = 0  # рабочий стол
+    START_MENU = 1  # меню "пуск"
+    TOOLBOX = 2  # правая панель меню "пуск"
+    TOPTOOLBAR = 3  # верхняя панель рабочего стола
 
     @classmethod
     def _load_desktop_from_apps(cls):
         """
         Загрузка элементов Раб.Стола, декларированных в приложениях проекта
+        :raise: ImportError
         """
         cls._lock.acquire()
         try:
@@ -360,6 +375,10 @@ class DesktopLoader(object):
     def add_el_to_desktop(cls, desktop, metarole_code):
         """
         Добавляет элементы к интерфейсу в зависимости от метароли
+        :param desktop: экземпляр DesktopModel
+        :type desktop: obj
+        :param metarole_code: код метароли
+        :type metarole_code: str
         """
         def join_list(existing_list, in_list):
             """
@@ -367,6 +386,11 @@ class DesktopLoader(object):
             DesktopLaunchGroup и DesktopLauncher
             произвольного уровня вложенности.
             Критерием равенства является имя элемента!
+            :param existing_list: список элементов
+            :type existing_list: list
+            :param in_list: список элементов
+            :type in_list: list
+
             """
             names_dict = {}
             for existing_el in existing_list:
@@ -415,8 +439,12 @@ class DesktopLoader(object):
     def populate(cls, user, desktop, sorting=DEFAULT_SORTING):
         """
         Метод, который выполняет всю работу по настройке десктопа во вьюшке
-        @user - пользователь или None
-        @desktop - экземпляр DesktopModel
+        :param user: пользователь или None
+        :type user: django.contrib.auth.models.User
+        :param desktop: экземпляр DesktopModel
+        :type desktop: DesktopModel
+        :param sorting: функция сортировки
+        :type sorting: callable
         """
         assert isinstance(user, (User, AnonymousUser))
 
@@ -433,8 +461,12 @@ class DesktopLoader(object):
         """
         Построение Раб.Стола по элементам @desktop(экземпляр DesktopModel),
         относительно набора ролей @roles.
-        Этот метод НЕ ТРЕБУЕТ django.contrib.auth
-        и экземпляра User в частности.
+        .. note ::
+            Метод НЕ ТРЕБУЕТ django.contrib.auth и экземпляра User в частности
+        :param desktop: экземпляр DesktopModel
+        :type desktop: DesktopModel
+        :param roles: список ролей
+        :type roles: list
         """
         assert isinstance(desktop, DesktopModel)
 
@@ -451,10 +483,19 @@ class DesktopLoader(object):
     def add(cls, metarole, place, element):
         """
         Добавление элемента дектопа в кэш заданной метароли
+        :param metarole: роль
+        :type metarole: str
+        :param place: место размещения элемента (рабочий стол, меню и тулбоксы)
+        :type place: int
+        :raise: AssertionError
         """
         def find_by_name(existed_list, name):
             """
             Поиск внутри списка группы с заданным именем name
+            :param existed_list: список группы
+            :type existing_list: list
+            :param name: имя
+            :type name: unicode
             """
             for item in existed_list:
                 if isinstance(item, DesktopLaunchGroup) and item.name == name:
@@ -462,10 +503,14 @@ class DesktopLoader(object):
 
         def insert_item(existed_list, item):
             """
-            Если добавляемый элемент группа,
+            Если добавляемый элемент - группа,
             то нужно проверить есть ли у нас уже такая группа.
             Если нет - добавляем, иначе нужно зайти в нее
             и продолжить проверку вниз по дереву
+            :param existed_list: список группы
+            :type existing_list: list
+            :param item: элемент
+            :type item: DesktopShortcut / DesktopLauncher
             """
             if isinstance(item, DesktopLaunchGroup):
                 collision_item = find_by_name(existed_list, item.name)
@@ -481,6 +526,12 @@ class DesktopLoader(object):
         def insert_for_role(metarole, elem, processed_metaroles):
             """
             Добавление элемента для метароли
+            :param metarole: роль
+            :type metarole: str
+            :param elem: элемент
+            :type elem: DesktopShortcut / DesktopLauncher
+            :param processed_metaroles: обработанные метароли
+            :type processed_metaroles: list
             """
             if metarole not in processed_metaroles:
                 processed_metaroles.append(metarole)
@@ -526,16 +577,21 @@ def add_desktop_launcher(
     """
     Шорткат для добавления ланчеров в элементы рабочего стола.
 
-    @param name: подпись ланчера на рабочем столе/в меню
-    @param url: url, по которому происходит обращение к ланчеру
-    @param icon: класс, на основе которого рисуется иконка ланчера
-    @param path: список кортежей, которые задают путь к ланчеру в случае, если
-                 этот ланчер спрятан в подменю.
-                 Каждый элемент пути задается либо в одном из форматов:
-                     "(название,)",
-                     "(название, иконка,)",
-                     "(название, иконка, индекс)"
-    @param metaroles: список метаролей (либо одиночная метароль)
+    :param name: подпись ланчера на рабочем столе/в меню
+    :type name: str
+    :param url: url, по которому происходит обращение к ланчеру
+    :type url: str
+    :param icon: класс, на основе которого рисуется иконка ланчера
+    :type icon: m3_ext.icons.Icon
+    :param path: список кортежей, которые задают путь к ланчеру в случае, если
+                этот ланчер спрятан в подменю.
+    .. note::
+                Каждый элемент пути задается либо в одном из форматов:
+                    "(название,)",
+                    "(название, иконка,)",
+                    "(название, иконка, индекс)"
+    :type path: list
+    :param metaroles: список метаролей (либо одиночная метароль)
     """
     if not metaroles or not places:
         return

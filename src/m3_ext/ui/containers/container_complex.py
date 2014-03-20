@@ -21,8 +21,10 @@ class ExtContainerTable(BaseExtContainer):
 
     def __init__(self, columns=0, rows=0, *args, **kwargs):
         """
-        @param columns: Количество колонок
-        @param rows: Количество строк
+        :param columns: Количество колонок
+        :type columns: int
+        :param rows: Количество строк
+        :type rows: int
         """
         super(ExtContainerTable, self).__init__(*args, **kwargs)
         self.template = 'ext-containers/ext-container.js'
@@ -44,10 +46,13 @@ class ExtContainerTable(BaseExtContainer):
         self.init_component(*args, **kwargs)
 
     def _init_properties(self):
-        # Вложенный словарь с произвольными свойствами для каждой ячейки,
-        # например {1: {2: {'width': 100}}},
-        # где 1-номер колонки, 2-номер строки.
-        # Первоначальное заполнение матрицы пустыми словарями.
+        """
+        Первоначальное заполнение матрицы пустыми словарями.
+        .. note::
+            Вложенный словарь с произвольными свойствами для каждой ячейки,
+            например {1: {2: {'width': 100}}},
+            где 1-номер колонки, 2-номер строки.
+        """
         self._properties = {}
         for col_num in range(self.__columns_count):
             d = dict([(row_num, {}) for row_num in range(self.__rows_count)])
@@ -86,8 +91,12 @@ class ExtContainerTable(BaseExtContainer):
     def set_properties(self, row_num=None, col_num=None, **kwargs):
         """
         Устанавливает свойство контейнера в заданной колонке и(или) строке.
-        @param col_num: Номер колонки. Если не задано, то вся колонка.
-        @param row_num: Номер строки. Если не задано, то вся строка.
+        :param col_num: Номер колонки. Если не задано, то вся колонка.
+        :type col_num: int
+        :param row_num: Номер строки. Если не задано, то вся строка.
+        :type row_num: int
+
+        :raise: AssertionError
         """
         assert col_num is None or 0 <= col_num <= self.columns_count, (
             'Number %s more than the number of columns %s' % (
@@ -158,8 +167,15 @@ class ExtContainerTable(BaseExtContainer):
     def set_item(self, row, col, cmp, colspan=1, **kwargs):
         """
         Устанавливает контрол *cmp* в ячейку с колонкой *col* и строкой *row*
-        @param *colspan*: сколько строк будет занимать компонент
-        @param **kwargs: свойства контейнера
+        :param row: строка
+        :type row: int
+        :param col: колонка
+        :type col: int
+        :param cmp: контрол
+        :type cmp: BaseExtUIComponent или наследник
+        :param colspan: сколько строк будет занимать компонент
+        :type colspan: int
+        :param **kwargs: свойства контейнера
         """
         assert isinstance(cmp, ExtUIComponent)
         assert isinstance(colspan, int)
@@ -181,8 +197,10 @@ class ExtContainerTable(BaseExtContainer):
     def set_row_height(self, row, height):
         """
         Устанавливает ширину и высоту ячейки
-        @param row: Индекс ячейки
-        @param height: Высота
+        :param row: Индекс ячейки
+        :type row: int
+        :param height: Высота
+        :type height: int
         """
         assert isinstance(height, int), 'Height must be INT'
         assert isinstance(row, int), 'Row num must be INT'
@@ -194,7 +212,8 @@ class ExtContainerTable(BaseExtContainer):
         """
         Выставляет умолчательные
         (_DEFAULT_HEIGHT) параметры ширины и высоты ячейки
-        @param row: Индекс Ячейки
+        :param row: Индекс Ячейки
+        :type row: int
         """
         assert isinstance(row, int), 'Row num must be INT'
         assert 0 <= row <= self.rows_count, (
@@ -204,7 +223,8 @@ class ExtContainerTable(BaseExtContainer):
     def set_rows_height(self, height):
         """
         Устанавливает у всех строк высоту
-        @param height: Высота
+        :param height: Высота
+        :type height: int
         """
         assert isinstance(height, int), 'Height must be INT'
         for row in range(self.rows_count):
