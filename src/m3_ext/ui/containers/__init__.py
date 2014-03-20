@@ -2,7 +2,7 @@
 """
 В данный пакет включаются контейнерные компоненты
 """
-from forms import ExtForm, ExtPanel, ExtTabPanel, ExtFieldSet
+from forms import ExtForm, ExtPanel, ExtTabPanel, ExtFieldSet, ExtTitlePanel
 from container_complex import ExtContainerTable
 from grids import (ExtGrid,
                    ExtGridColumn,
