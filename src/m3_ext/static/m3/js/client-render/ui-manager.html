@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <link rel="stylesheet" type="text/css" href="../../../vendor/extjs/resources/css/ext-all.css"/>
+        <script type="text/javascript" src="../../../vendor/extjs/adapter/ext/ext-base.js"></script>
+        <script type="text/javascript" src="../../../vendor/extjs/ext-all-debug-w-comments.js"></script>
+
+        <script type="text/javascript" src="static/q/q.js"></script>
+        <script type="text/javascript" src="ui-manager/main.js"></script>
+        <script type="text/javascript" src="ui-manager/fabric.js"></script>
+        <script type="text/javascript" src="ui-manager/loader.js"></script>
+        <script type="text/javascript" src="ui-manager/storage.js"></script>
+
+        <!--TODO - на будущее подключить библиотеку DeftJS для ExtJS4-->
+        <!-- <script type="text/javascript" src="deft/js/deft-debug.js"></script>-->
+
+        <script type="text/javascript">
+
+            Ext.onReady(function() {
+
+                var namespace = Ext;
+
+                //конфигурируем клиента для реализации настраиваемых 
+                //механизмов рендеринга окон/виджетов
+
+                M3.Ext.setConfig({
+                    //настраиваем загрузчик статических файлов конфигов json
+                    loader: new M3.Ext.Loader(
+                        namespace,
+                        {simplify: false, 
+                         baseUrl: 'static/json-configs/'}
+                    ),
+                    //настраиваем хранилище конфигов
+                    storage: new M3.Ext.Storage(
+                        namespace,
+                        {useRegistry: true, simplify: true,
+                         standaloneConfigStorage: true}
+                    ),
+                    //настройка для предзагружаемых конфигов окон
+                    preloadWindows: [
+                        {xtype: 'demo-window'},
+                        {xtype: 'demo-window2'}
+                    ]
+                });
+                /*
+                 * Тестирование фабрики без использования ExtJS хранилища
+                 */
+                //создание окон после предварительной прогрузки конфигов
+                //и регистрации классов в менеджере
+                var promise1 = M3.Ext.create({
+                    xtype: 'demo-window',
+                    width: 200, x: 20,
+                    height: 100, y: 20
+                });
+                var promise2 = M3.Ext.create({
+                    xtype: 'demo-window2',
+                    width: 250, x: 20 + 200,
+                    height: 150, y: 20
+                });
+
+                //создание окно отложенно без режима warmUp
+                //конфигурация будет подгруженна асинхронно
+                var promise3 = M3.Ext.create(
+                    {
+                        xtype: 'demo-window3',
+                        width: 300, x: 20 + 200 + 250,
+                        height: 200, y: 20
+                    }
+                );
+
+                promise1.done(function(wind) {
+                    console.log("window1 is rendered");
+                    wind.show();
+                });
+
+                promise2.done(function(wind) {
+                    console.log("window2 is rendered");
+                    wind.show();
+                });
+
+                promise3.done(function(wind) {
+                    console.log("window3 is rendered");
+                    wind.show();
+                });
+
+                /**
+                    тестирование фабрики с использованием хранилища ExtJS
+                 */
+                M3.Ext.setStorage(
+                    new M3.Ext.Storage(
+                        namespace,
+                        {simplify: false, useRegistry: true,
+                        standaloneConfigStorage: true}
+                    )
+                );
+
+                var promise4 = M3.Ext.create({
+                    xtype: 'demo-window4',
+                    width: 350, x: 20 + 200 + 250 + 300,
+                    height: 250, y: 20
+                });
+
+                promise4.done(function(win) {
+                    console.log("window4 is rendered");
+                    win.show();
+                });
+            });
+
+        </script>
+    </head>
+    <body>
+        М3 Client Rendering
+    </body>
+</html>
