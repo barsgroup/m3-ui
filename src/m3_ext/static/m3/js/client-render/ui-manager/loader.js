@@ -1,6 +1,7 @@
 
+var M3 = M3 || {Ui: {}};
 
-M3.Ext.SimpleLoader = {
+M3.Ui.SimpleLoader = {
     /**базовый тип загрузчика использующий примитивный способ GET-запроса
      */
     baseUrl: null,
@@ -12,7 +13,7 @@ M3.Ext.SimpleLoader = {
 
     require: function(depency, callback) {
 
-        var deferred = M3.Ext.Deferred();
+        var deferred = M3.Ui.Deferred();
 
         this._loader({
 
@@ -34,21 +35,21 @@ M3.Ext.SimpleLoader = {
     }
 };
 
-M3.Ext.Loader = function(ns, config) {
+M3.Ui.Loader = function(ns, config) {
 
     /** загрузчик на базе ExtJS
      */
 
     this.init = function(ns, config) {
 
-        loaderCls = (ns && ns.Loader);
+        var loaderCls = (ns && ns.Loader);
         this._loader = Ext.Loader;
         this.baseUrl = config['baseUrl'];
     };
 
     this.require = function(depency, callback) {
 
-        var depencies = [], deferred = M3.Ext.Deferred();
+        var depencies = [], deferred = M3.Ui.Deferred();
 
         if (depency.constructor != Array) {
             depencies.push(depency);
@@ -71,7 +72,11 @@ M3.Ext.Loader = function(ns, config) {
             }
 
             deferred.resolve(conf);
-        }, true);
+        }, this, true);
+
+        if (typeof(callback) == "function") {
+            callback();
+        }
 
         deferred.promise.timeout(5000, '').catch(function() {
             console.log("ERROR -> LOAD TIMEOUT!");
@@ -85,4 +90,4 @@ M3.Ext.Loader = function(ns, config) {
 
 };
 
-M3.Ext.Loader.prototype = M3.Ext.SimpleLoader;
+M3.Ui.Loader.prototype = M3.Ui.SimpleLoader;

@@ -1,6 +1,7 @@
 
+var M3 = M3 || {Ui: {}};
 
-M3.Ext.Register = function(config) {
+M3.Ui.Register = function(config) {
     //класс предназначен для регистрации классов компонентов в менеджере
     //на примере ExtJs Ext.ComponentMgr
     this.ns = config['ns'];
@@ -28,10 +29,10 @@ M3.Ext.Register = function(config) {
     this.getClass = function(keyName) {
         return Ext.ComponentMgr.isRegistered(keyName);
     }
-}
+};
 
 
-M3.Ext.Storage = function(ns, config) {
+M3.Ui.Storage = function(ns, config) {
 
     "use_strict";
     //определим библиотечный метод для расширения экземпляра
@@ -43,6 +44,15 @@ M3.Ext.Storage = function(ns, config) {
     this.baseClass = baseClass;
 
     ens(this, config);
+    /*
+     *  Настройки по умолчанию
+     */
+    //упрощенный тип хранилища
+    this.simplify = this.simplify || false;
+    //хранение конфигов в отдельном хранилище
+    this.standaloneConfigStorage = this.standaloneConfigStorage || true;
+    //использование регистра виджетов
+    this.useRegistry = this.useRegistry || true;
 
     //метод получения конструктора хранилища для определенной версии ExtJS
     var getStorageConstructor = function(ns) {
@@ -60,7 +70,7 @@ M3.Ext.Storage = function(ns, config) {
         }
 
         return method;
-    }
+    };
     //метод получения конструктора записи для определенной версии ExtJS
     var getRecord = function(ns) {
 
@@ -83,7 +93,7 @@ M3.Ext.Storage = function(ns, config) {
         }
 
         return prototype;
-    }
+    };
 
     var storageClass, storageConstructor, concreteStorage;
 
@@ -96,11 +106,11 @@ M3.Ext.Storage = function(ns, config) {
     
     this.createRegistry = function(customRegistrator, optionalConfig) {
         //setter метод для инстанцирования регистратора типа виджетов
-        var registratorCls = customRegistrator || M3.Ext.Register,
+        var registratorCls = customRegistrator || M3.Ui.Register,
             conf = optionalConfig || {ns: ns, baseClass: this.baseClass};
 
         this.registrator = new registratorCls(conf);
-    }
+    };
 
     if (this.useRegistry) {
         this.createRegistry();
@@ -160,7 +170,7 @@ M3.Ext.Storage = function(ns, config) {
         newRecord = new rc(recordConf, xtype);
         concreteStorage.add(newRecord);
 
-    }
+    };
 
     this.getConfig = function(xtype) {
         var conf;
@@ -172,11 +182,13 @@ M3.Ext.Storage = function(ns, config) {
         } else {
             //с использованием механизмов ExtJS
             var recordFromStore = concreteStorage.getById(xtype);
-            conf = Ext.decode(recordFromStore.get('config'));
+            if (recordFromStore) {
+                conf = Ext.decode(recordFromStore.get('config'));
+            }
         }
 
         return conf;
 
     }
 
-}
+};

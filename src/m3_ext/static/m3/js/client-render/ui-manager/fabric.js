@@ -1,9 +1,9 @@
 
 
-var M3 = M3 || {};
+var M3 = M3 || {Ui: {}};
 
 
-M3.Ext.Fabric = function(ns, config) {
+M3.Ui.Fabric = function(ns, config) {
 
     "use_strict";
 
@@ -23,24 +23,25 @@ M3.Ext.Fabric = function(ns, config) {
     var deft = window.Deft, //www.deftjs.org
         qlib = window.Q,    //https://github.com/kriskowal/q‎
         that = this, storage, loader,
-        defaultWidgetCls
+        defaultWidgetCls,
+        strictConfigLoad;
 
-    loader = this.loader = config['loader'] || M3.Ext.getLoader();
-    storage = this.storage = config['storage'] || M3.Ext.getStorage();
+    loader = this.loader = config['loader'];
+    storage = this.storage = config['storage'];
     //признак того что наличия предзагруженного конфига для окна обязательно
     strictConfigLoad = this.strictConfigExpect = config['strictConfigLoad'];
 
     defaultWidgetCls = (ns.window && ns.window.Window) || ns.Window;
 
     //различные варианты реализации promise объектов
-    M3.Ext.Deferred = (ns && deft && deft.Deferred && ns.create('Deft.Deferred')) ||
-                           (qlib && qlib.defer);
+    M3.Ui.Deferred = (ns && deft && deft.Deferred && ns.create('Deft.Deferred')) ||
+                      (qlib && qlib.defer);
 
     this.ns = ns;
     Ext.apply(this, config);
 
     //получим promise для процесса первоначальной загрузки
-    this.warmDeferred = M3.Ext.Deferred();
+    this.warmDeferred = M3.Ui.Deferred();
     this.warmPromise = this.warmDeferred.promise;
 
     this.getOrRegisterPromise = function(config) {
@@ -48,8 +49,7 @@ M3.Ext.Fabric = function(ns, config) {
          * метод регистрация класса виджета в менеджере и загрузка-сохранение его конфигурации
          * в хранилище
          */
-        var key, widgetClass = defaultWidgetCls, widgetConfig,
-            deferred = M3.Ext.Deferred, df, promise;
+        var key, widgetClass = defaultWidgetCls, df, promise;
 
         var onlyXtype = function(obj) {
             //проверка что конфигурация состоит из одного элемента xtype
@@ -69,7 +69,7 @@ M3.Ext.Fabric = function(ns, config) {
             /**сохранение конфигурации в хранилище
              * @return - возвращает promise объект
              */
-            var deferred = M3.Ext.Deferred();
+            var deferred = M3.Ui.Deferred();
             //метод установки значения в хранилище должен возвращать класс объекта
             //и его конфигурацию в случае успешной регистрации
             result = storage.set(key, conf);
@@ -107,7 +107,7 @@ M3.Ext.Fabric = function(ns, config) {
                 }
             });
 
-        }
+        };
 
         if (storage) {
 
@@ -134,9 +134,9 @@ M3.Ext.Fabric = function(ns, config) {
                 } else {
                     //конфиг уже в хранилище, возьмем его оттуда
                     // console.log("GET CONFIG FROM STORAGE -> OK!");
-                    df = M3.Ext.Deferred();
+                    df = M3.Ui.Deferred();
                     configFromStorageLoaded["xtype"] = key;
-                    df.resolve(configFromStorageLoaded)
+                    df.resolve(configFromStorageLoaded);
                     promise = df.promise;
                 }
 
@@ -144,18 +144,18 @@ M3.Ext.Fabric = function(ns, config) {
         }
 
         return promise;
-    }
+    };
 
     var waitLoad = function(config) {
 
-        var wgt, outerPromise, deferred = M3.Ext.Deferred();
+        var wgt, outerPromise, deferred = M3.Ui.Deferred();
 
         outerPromise = deferred.promise;
         wgt = new defaultWidgetCls(config);
 
         if (storage) {
 
-            outerPromise = that.getOrRegisterPromise(config, deferred);
+            outerPromise = that.getOrRegisterPromise(config);
 
             outerPromise.done(
                 function(widget) {
@@ -169,7 +169,7 @@ M3.Ext.Fabric = function(ns, config) {
         }
         
         return outerPromise;
-    }
+    };
 
     this.runWarmUp = function(staticList) {
         //запускаем режим прогрева (загрузка всех виджетов)
@@ -195,7 +195,8 @@ M3.Ext.Fabric = function(ns, config) {
                 };
 
                 var doneFunction = function() {
-                    var p = undoneFunction().done(function() {
+                    var p;
+                    p = undoneFunction().done(function() {
                         df.resolve();
                         that.warmUpModeOff = true;
                     });
@@ -217,7 +218,7 @@ M3.Ext.Fabric = function(ns, config) {
         //shortcut для цепочного исполнения promises
         //привязан к реализации библиотеки Q.js
         return chain.reduce(Q.when, Q());
-    }
+    };
 
     var onPostWarmUpMode = function(widget, configExtension) {
         //метод для финальной отрисовки окна/виджета
@@ -228,12 +229,15 @@ M3.Ext.Fabric = function(ns, config) {
         confFromStorage = storage.getConfig(widget.xtype);
         widgetConfig = confFromStorage;
         //добавляем параметры в загруженную конфигурацию
+        console.log("TEST");
+        console.dir(configExtension);
         if (configExtension) {
             widgetConfig = Ext.apply(widgetConfig, configExtension);
         }
 
         if (typeof(widget) == "object") {
-            widget = ns.create(widget);
+            var unionConf = Ext.apply(widget, configExtension);
+            widget = ns.create(unionConf);
         }
 
         //передали конструктор ранее зарегистрированного окна/виджета
@@ -248,7 +252,7 @@ M3.Ext.Fabric = function(ns, config) {
         /**
             @config {Object} - конфигурацию которой будет доопределена конфигурация из хранилища
          */
-        var wgt, that = this, outerPromise, innerDeferred = M3.Ext.Deferred();
+        var that = this, outerPromise, innerDeferred = M3.Ui.Deferred();
 
         outerPromise = innerDeferred.promise;
 
@@ -266,7 +270,8 @@ M3.Ext.Fabric = function(ns, config) {
 
         });
 
-        outerPromise.timeout(3000, "Время ожидания истекло").catch(function() {
+        outerPromise.timeout(3000, "Время ожидания истекло").catch(
+            function() {
             console.log("Window not rendered!");
         });
 
@@ -276,4 +281,4 @@ M3.Ext.Fabric = function(ns, config) {
     this.destroy = function(widget) {
         widget.destroy();
     }
-}
+};

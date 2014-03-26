@@ -1,16 +1,19 @@
+{% load static %}
+{% get_static_prefix as STATIC_URL %}
+
 <!DOCTYPE html>
 <html>
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-        <link rel="stylesheet" type="text/css" href="../../../vendor/extjs/resources/css/ext-all.css"/>
-        <script type="text/javascript" src="../../../vendor/extjs/adapter/ext/ext-base.js"></script>
-        <script type="text/javascript" src="../../../vendor/extjs/ext-all-debug-w-comments.js"></script>
+        <link rel="stylesheet" type="text/css" href="../static/vendor/extjs/resources/css/ext-all.css"/>
+        <script type="text/javascript" src="../static/vendor/extjs/adapter/ext/ext-base.js"></script>
+        <script type="text/javascript" src="../static/vendor/extjs/ext-all-debug-w-comments.js"></script>
 
-        <script type="text/javascript" src="static/q/q.js"></script>
-        <script type="text/javascript" src="ui-manager/main.js"></script>
-        <script type="text/javascript" src="ui-manager/fabric.js"></script>
-        <script type="text/javascript" src="ui-manager/loader.js"></script>
-        <script type="text/javascript" src="ui-manager/storage.js"></script>
+        <script type="text/javascript" src="../static/m3/js/client-render/static/q/q.js"></script>
+        <script type="text/javascript" src="../static/m3/js/client-render/ui-manager/main.js"></script>
+        <script type="text/javascript" src="../static/m3/js/client-render/ui-manager/fabric.js"></script>
+        <script type="text/javascript" src="../static/m3/js/client-render/ui-manager/loader.js"></script>
+        <script type="text/javascript" src="../static/m3/js/client-render/ui-manager/storage.js"></script>
 
         <!--TODO - на будущее подключить библиотеку DeftJS для ExtJS4-->
         <!-- <script type="text/javascript" src="deft/js/deft-debug.js"></script>-->
@@ -23,26 +26,22 @@
 
                 //конфигурируем клиента для реализации настраиваемых 
                 //механизмов рендеринга окон/виджетов
-
-                M3.Ext.setConfig({
+                M3.Ext = new M3.UiMgr({
                     //настраиваем загрузчик статических файлов конфигов json
-                    loader: new M3.Ext.Loader(
-                        namespace,
-                        {simplify: false, 
-                         baseUrl: 'static/json-configs/'}
+                    loader: new M3.Ui.Loader(
+                            namespace,
+                            {simplify: false,
+                             baseUrl: '../static/m3/js/client-render/static/json-configs/'}
                     ),
                     //настраиваем хранилище конфигов
-                    storage: new M3.Ext.Storage(
-                        namespace,
-                        {useRegistry: true, simplify: true,
-                         standaloneConfigStorage: true}
-                    ),
+                    storage: new M3.Ui.Storage(namespace, {}),
                     //настройка для предзагружаемых конфигов окон
                     preloadWindows: [
                         {xtype: 'demo-window'},
                         {xtype: 'demo-window2'}
                     ]
                 });
+
                 /*
                  * Тестирование фабрики без использования ExtJS хранилища
                  */
@@ -88,11 +87,7 @@
                     тестирование фабрики с использованием хранилища ExtJS
                  */
                 M3.Ext.setStorage(
-                    new M3.Ext.Storage(
-                        namespace,
-                        {simplify: false, useRegistry: true,
-                        standaloneConfigStorage: true}
-                    )
+                    new M3.Ui.Storage(namespace, {simplify: false})
                 );
 
                 var promise4 = M3.Ext.create({
