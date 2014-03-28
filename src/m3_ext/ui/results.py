@@ -31,7 +31,8 @@ class ExtUIScriptResult(_BaseContextedResult):
     Единственное отличие заключается в том,
     что get_http_response должен сформировать
     готовый к отправке javascript.
-    Т.е. должен быть вызван метод self.data.get_script()
+    .. note::
+        Т.е. должен быть вызван метод self.data.get_script()
     """
     def __init__(
             self, data=None, context=None,

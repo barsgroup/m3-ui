@@ -95,11 +95,13 @@
                     items.push(makeItem(item));
                 };
                 return {
-                    title: '{{ user }}',
-                    toolsPanelWidth: 120,
-                    width: 330,
-                    iconCls: '{{ user_icon }}',
-                    toolItems: items
+                      toolItems: items
+                    {% block start_menu_config %}
+                    , title: '{{ user }}'
+                    , toolsPanelWidth: 120
+                    , width: 330
+                    , iconCls: '{{ user_icon }}'
+                    {% endblock %}
                 };
             }
         });

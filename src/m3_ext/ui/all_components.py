@@ -16,8 +16,11 @@ from windows import *
 try:
     from kladr.addrfield import ExtAddrComponent
 except ImportError:
-    # Компонент-заглушка, попытка инстанцирования которого
-    # возбуждает исключение, сообщающее о неустановленном КЛАДР
+    """
+    .. note::
+        Компонент-заглушка, попытка инстанцирования которого
+        возбуждает исключение, сообщающее о неустановленном КЛАДР
+    """
     class ExtAddrComponent(object):
         def __new__(cls, *args, **kwargs):
             raise RuntimeError(u'kladr is not installed!')
