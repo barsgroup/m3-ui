@@ -4,22 +4,20 @@ Created on 23.3.2010
 
 @author: prefer
 """
-from m3_ext.ui.base import ExtUIComponent
+from m3_ext.ui.base import ExtUIComponent, renderable
 
 
 class ExtLabel(ExtUIComponent):
     """
     Произвольный текст
     """
+    __metaclass__ = renderable
 
-    def __init__(self, *args, **kwargs):
-        super(ExtLabel, self).__init__(*args, **kwargs)
-        self.template = 'ext-misc/ext-label.js'
+    _xtype = 'textfield'
 
-        # Текст для отображения
-        self.text = None
-
-        self.init_component(*args, **kwargs)
+    _js_attrs = ExtUIComponent._js_attrs + (
+        'text',
+    )
 
     def _make_read_only(
             self, access_off=True, exclude_list=None, *args, **kwargs):

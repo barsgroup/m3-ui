@@ -8,8 +8,20 @@ from m3.actions import (
     ActionResult as _ActionResult,
     BaseContextedResult as _BaseContextedResult,
 )
+from m3.actions.results import PreJsonResult as _PreJsonResult
 
 import helpers as _helpers
+
+
+class UIResult(_PreJsonResult):
+    """
+    Результат, совместимый с клиентским рендерингом
+    """
+    def __init__(self, data, *args, **kwargs):
+        super(UIResult, self).__init__({
+            'success': True,
+            'code': data
+        })
 
 
 class ExtUIScriptResult(_BaseContextedResult):

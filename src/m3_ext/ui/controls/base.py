@@ -11,9 +11,6 @@ class BaseExtControl(ExtUIComponent):
     """
     Базовый класс для кнопочных контролов
     """
-    def __init__(self, *args, **kwargs):
-        super(BaseExtControl, self).__init__(*args, **kwargs)
-
     def _make_read_only(
             self, access_off=True, exclude_list=(), *args, **kwargs):
         # TODO: Нахера тут переопределение, если в базовом классе тоже самое?

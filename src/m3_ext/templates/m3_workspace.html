@@ -23,11 +23,7 @@
                     };
                 } else {
                     res.handler = function() {
-                        sendRequest(
-                              data.url
-                            , AppDesktop.getDesktop()
-                            // пока нету , data.context
-                        );
+                        callAction(data.url, data.context);
                     };
                 };
             };

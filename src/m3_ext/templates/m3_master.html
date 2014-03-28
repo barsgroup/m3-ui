@@ -34,6 +34,9 @@
         <!-- m3 js-->
         <script type='text/javascript' src='{{ STATIC_URL }}m3/js/m3-debug.js'></script>
 
+        <script type="text/javascript" src="{{ STATIC_URL }}vendor/q.js"></script>
+        <script type="text/javascript" src="{{ STATIC_URL }}m3/fabric.js"></script>
+
         <link rel='stylesheet' type='text/css' href='{{ STATIC_URL }}m3/css/locking-grouping-grid.css'/>
         <script src="{{ STATIC_URL }}m3/js/ext-extensions/LockingGridColumnWithHeaderGroup.js"></script>
 
@@ -50,8 +53,8 @@
         </div>
         {# END: preload indicator area #}
 
-        <!-- Анимация при входе на рабочий стол -->
         <script type='text/javascript'>
+            // Анимация при входе на рабочий стол
             Ext.onReady(function(){
                 // Инициализация всплывающих подсказок в extjs
                 Ext.QuickTips.init();
@@ -73,6 +76,72 @@
                 });
             });
 
+            var appUI = new UI({
+                jsStorage: function() {
+                    // JS будет один на всех
+                    return Q(function(w, d) {});
+                },
+                confStorage: function(key) {
+                    // конфиги всегда будут грузиться с сервера
+                    return UI.ajax(key, {'ui': true}).then(evalResult);
+                },
+                uiFabric: Ext.create
+            });
+
+            function msgBox(cfg) {
+                var result = Q.defer();
+                Ext.Msg.show(Ext.apply(cfg, {fn: result.resolve}));
+                return result.promise;
+            }
+
+            function evalResult(data) {
+                var obj = Ext.util.JSON.decode(data);
+                if (!obj) {
+                    return;
+                }
+                return Q().then(function() {
+                    if (obj.message) {
+                        return msgBox({
+                            title:'Внимание',
+                            msg: obj.message,
+                            buttons: Ext.Msg.OK,
+                            icon: (
+                                obj.success != undefined && !obj.success ? Ext.Msg.WARNING : Ext.Msg.Info
+                            )
+                        });
+                    } else {
+                        return "ok"
+                    }
+                }).then(function() {
+                    if (obj.code) {
+                        if (obj.code.ui) {
+                            return appUI.create(
+                                obj.code
+                            ).invoke(
+                                'show', document
+                            )
+                        } else {
+                            return obj.code
+                        }
+                    } else {
+                        return;
+                    }
+                });
+            };
+
+            function callAction(url, params) {
+                UI.ajax(url, params).then(evalResult).catch(function(ex){
+                    Ext.Msg.show({
+                          title: 'Внимание'
+                        , msg: 'Произошла непредвиденная ошибка!'
+                        , buttons: Ext.Msg.OK
+                        , fn: Ext.emptyFn
+                        , animEl: 'elId'
+                        , icon: Ext.MessageBox.WARNING
+                    });
+                    throw ex;
+                });
+            };
         </script>
 
         {# Точка расширения для дополнительно html кода #}

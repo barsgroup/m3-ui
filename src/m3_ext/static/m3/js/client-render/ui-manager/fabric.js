@@ -96,7 +96,7 @@ M3.Ui.Fabric = function(ns, config) {
                 var msg;
                 msg = "WIDGET CONFIG LOAD-MISSED!"
                 if (!config || strictConfigLoad) {
-                    //если не задана конфигурация по умолчанию то должен 
+                    //если не задана конфигурация по умолчанию то должен
                     //отработать таймаут на разрешение deferred объекта
                     console.log("NO CONFIG!");
                     return Q.reject(new Error(msg));
@@ -167,7 +167,7 @@ M3.Ui.Fabric = function(ns, config) {
             //прозрачный режим когда неиспользуется хранилище
             deferred.resolve(wgt);
         }
-        
+
         return outerPromise;
     };
 
@@ -223,23 +223,22 @@ M3.Ui.Fabric = function(ns, config) {
     var onPostWarmUpMode = function(widget, configExtension) {
         //метод для финальной отрисовки окна/виджета
         //вызов метода происходит после окончания процесса подготовки (warmUp)
-        
+
         var widgetConfig, confFromStorage;
 
         confFromStorage = storage.getConfig(widget.xtype);
         widgetConfig = confFromStorage;
+
         //добавляем параметры в загруженную конфигурацию
-        console.log("TEST");
-        console.dir(configExtension);
         if (configExtension) {
             widgetConfig = Ext.apply(widgetConfig, configExtension);
         }
 
         if (typeof(widget) == "object") {
             var unionConf = Ext.apply(widget, configExtension);
-            widget = ns.create(unionConf);
+            widget = ns.create(configExtension);
+            //widget = ns.create(unionConf);
         }
-
         //передали конструктор ранее зарегистрированного окна/виджета
         if (typeof(widget) == "function") {
             widget = new widget(widgetConfig || {});
@@ -257,11 +256,10 @@ M3.Ui.Fabric = function(ns, config) {
         outerPromise = innerDeferred.promise;
 
         that.warmPromise.done(function() {
-
             that.getOrRegisterPromise(config)
             .then(
             function(widget) {
-                var win = onPostWarmUpMode(widget, config); 
+                var win = onPostWarmUpMode(widget, config);
                 innerDeferred.resolve(win);
             },
             function() {

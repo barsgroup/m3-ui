@@ -22,99 +22,16 @@ class BaseExtContainer(ExtUIComponent):
     ABSOLUTE = 'absolute'
     ACCORDITION = 'accordition'
 
+    _js_attrs = ExtUIComponent._js_attrs + (
+        'items', 'split',
+        ('layout_config', 'layoutConfig'), 'layout',
+        ('label_width', 'labelWidth'),
+        ('collapse_mode', 'collapseMode'), 'collapsible', 'collapsed',
+    )
+
     def __init__(self, *args, **kwargs):
         super(BaseExtContainer, self).__init__(*args, **kwargs)
-
-        # layout - атрибут, регламентирующий каким-образом отображать контрол
-        self.layout = None
-
-        # Конфигурация, специфичная для каждого layout
-        self.layout_config = {}
-
-        # Типизированный список контролов, находящихся в данном компоненте
-        self._items = []
-
-        # Атрибуты специфичные для form layout
-        self.label_width = self.label_align = self.label_pad = None
-
-        # Если контрол находится непосредственно на компоненте с layout=border
-        # то при задании этого свойства можно будет ресайзить
-        # (изменять размеры) панели
-        self.split = False
-
-        # Если контрол находится непосредственно на компоненте с layout=border
-        # то можно указывать различные типы, например "mini"
-        self.collapse_mode = None
-
-        # Возможность сворачивать
-        self.collapsible = False
-
-        # True - компонент изначально свернут
-        self.collapsed = False
-
-    def t_render_items(self):
-        """
-        @deprecated: Рекомендуется использовать render_base_config
-        Дефолтный рендеринг вложенных объектов
-        """
-        return '[%s]' % ','.join([item.render() for item in self._items])
-
-    def find_by_name(self, name):
-        """
-        Осуществляет поиск экземпляра во вложенных объектах
-        по имени экземпляра и возвращает его, если тот был найден
-        """
-        for item in self.items:
-            if hasattr(item, 'name') and name == getattr(item, 'name'):
-                return item
-
-            if hasattr(item, 'items'):
-                res = item.find_by_name(name)
-                if res:
-                    return res
-
-    def t_render_layout_config(self):
-        """
-        @deprecated: Рекомендуется использовать render_base_config
-        Рендерит конфиг, если указан layout
-        """
-        return '{%s}' % ','.join([
-            '%s:"%s"' % i for i in self.layout_config.items()
-        ])
-
-    def pre_render(self):
-        #Вызывается до рендеринга контрола
-
-        super(BaseExtContainer, self).pre_render()
-
-        # выставляем action_context у дочерних элементов
-        for item in self._items:
-            if item:
-                # объединим личный и общий контексты. личный важнее!
-                # поэтому его накатим его первым
-                # если у объекта небыло контекста, то будет!
-                item.action_context = ActionContext().combine(
-                    getattr(item, 'action_context', None)
-                ).combine(
-                    getattr(self, 'action_context', None)
-                )
-
-    def render_base_config(self):
-        super(BaseExtContainer, self).render_base_config()
-        if self.layout_config and self.layout:
-            self._put_config_value('layoutConfig', self.t_render_layout_config)
-
-        self._put_config_value('layout', self.layout)
-
-        if self.region == BaseExtContainer.BORDER:
-            self._put_config_value('split', self.split)
-            self._put_config_value('collapseMode', self.collapse_mode)
-            self._put_config_value('collapsible', self.collapsible)
-            self._put_config_value('collapsed', self.collapsed)
-
-        self._put_config_value('labelWidth', self.label_width)
-        self._put_config_value('labelAlign', self.label_align)
-        self._put_config_value('labelPad', self.label_pad)
+        self._init_attr('items', [])
 
     def _make_read_only(
             self, access_off=True, exclude_list=(), *args, **kwargs):
@@ -130,58 +47,28 @@ class BaseExtPanel(BaseExtContainer):
     """
     Базовый класс для визуальных контейнерных компонентов
     """
+    _xtype = 'panel'
+
+    _js_attrs = BaseExtContainer._js_attrs + (
+        'title', 'border', 'split', 'header',
+        ('icon_cls', 'iconCls'),
+        ('dd_group', 'ddGroup'),
+        ('top_bar', 'tbar'),
+        ('bottom_bar', 'bbar'),
+        ('footer_bar', 'fbar'),
+        ('collapse_mode', 'collapseMode'),
+        ('collapsed', 'collapsed'),
+    )
+
     def __init__(self, *args, **kwargs):
         super(BaseExtPanel, self).__init__(*args, **kwargs)
-
-        # Заголовок
         self.title = None
-
         self.header = False
-
-        self.icon_cls = None
-
-        self.top_bar = None
-
-        self.bottom_bar = None
-
-        self.footer_bar = None
-
-        # @deprecated: Нет в документации extjs 3.3.1
-        self.dd_group = None
-
-        # Будет ли граница
         self.border = True
 
-    def t_render_top_bar(self):
-        #TODO: Использовать lambda функцию в render_base_config
-        return self.top_bar.render()
-
-    def t_render_bottom_bar(self):
-        #TODO: Использовать lambda функцию в render_base_config
-        return self.bottom_bar.render()
-
-    def t_render_footer_bar(self):
-        #TODO: Использовать lambda функцию в render_base_config
-        return self.footer_bar.render()
-
-    def render_base_config(self):
-        super(BaseExtPanel, self).render_base_config()
-        for args in (
-            ('title', self.title),
-            ('border', self.border),
-            ('iconCls', self.icon_cls),
-            ('ddGroup', self.dd_group),
-            ('tbar', self.t_render_top_bar, self.top_bar),
-            ('bbar', self.t_render_bottom_bar, self.bottom_bar),
-            ('fbar', self.t_render_footer_bar, self.footer_bar),
-            ('split', self.split),
-            ('collapseMode', self.collapse_mode),
-            ('collapsed', self.collapsed, self.collapsed),
-        ):
-            self._put_config_value(*args)
-
-        if not self.title or not self.header is None:
-            self._put_config_value('header', self.header)
+        self._init_attr('top_bar', []),
+        self._init_attr('bottom_bar', []),
+        self._init_attr('footer_bar', []),
 
     def _make_read_only(
             self, access_off=True, exclude_list=(), *args, **kwargs):
