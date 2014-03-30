@@ -23,7 +23,6 @@ class ExtObjectGrid(containers.ExtGrid):
     # Внутренние классы для ExtObjectGrid
     #=========================================================================
     class GridContextMenu(menus.ExtContextMenu):
-
         """
         Внутренний класс для удобной работы с контекстным меню грида
         """
@@ -349,16 +348,18 @@ class ExtObjectGrid(containers.ExtGrid):
 
 
 class ExtMultiGroupinGrid(containers.ExtGrid):
-
     """
     Грид с возможностью множественной группировки колонок.
-    Обработка группировки происходит на сервере (см. m3.helpers.datagrouping)
+    Обработка группировки происходит на сервере
+    .. seealso::
+        m3.helpers.datagrouping
     """
-    class GridExportMenu(menus.ExtContextMenu):
 
+    class GridExportMenu(menus.ExtContextMenu):
         """
         Внутренний класс для удобной работы с контекстным меню грида
         """
+
         def __init__(self, *args, **kwargs):
             super(ExtMultiGroupinGrid.GridExportMenu, self).__init__(
                 *args, **kwargs)
@@ -614,8 +615,8 @@ class ExtMultiGroupinGrid(containers.ExtGrid):
 
 class ExtObjectSelectionPanel(containers.ExtContainer):
     """
-    Класс, совмещающий возможность ObjectGrid'a и возможности выбора и запоминания значений
-    в случае Paging'a
+    Класс, совмещающий возможность ObjectGrid'a
+    и возможности выбора и запоминания значений в случае Paging'a
     """
 
     def __init__(self,

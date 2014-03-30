@@ -12,6 +12,7 @@ from m3_ext.ui.windows.base import ExtWindowRenderer
 
 
 class ExtEditWindow(BaseExtWindow):
+    """Базовый класс окна редактрирования"""
 
     def __init__(self, *args, **kwargs):
         super(ExtEditWindow, self).__init__(*args, **kwargs)

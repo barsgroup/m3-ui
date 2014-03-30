@@ -188,6 +188,7 @@ class ExtJsonWriter(BaseExtStore):
 
         # Если True, записи (records) переводится в хешированные данные,
         # имя беруться из ридера (Reader).
+        # .. seealso::
         # Подробности http://extjs.docs/d/?class=Ext.data.JsonWriter
         self.encode = True
 
@@ -370,6 +371,7 @@ class ExtArrayReader(ExtDataReader):
             '{name: "%s", mapping: %d}' %
             (self.id_property, 0)
         ]  # ID
+        # .. note::
         # чтобы правильно выставить mapping надо определить,
         # есть ли в списке колонок поле с таким же именем
         # если такая колонка встречается, то пропускаем её
@@ -420,7 +422,8 @@ class ExtGroupingStore(ExtJsonStore):
         self.group_field = None
 
         # Объект, в котором может указываться например порядок сортировки
-        # см: http://extjs.docs/d/?class=Ext.data.GroupingStore
+        # .. seealso::
+        # http://extjs.docs/d/?class=Ext.data.GroupingStore
         self.sort_info = None
         self.init_component(*args, **kwargs)
 
