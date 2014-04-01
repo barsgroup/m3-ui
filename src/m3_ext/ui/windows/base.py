@@ -67,12 +67,14 @@ class BaseExtWindow(ExtUIComponent):
         self._init_attr('buttons', [])
         self._init_attr('keys', [])
 
-        self.width = 400
-        self.height = 300
+        self._init_attr('width', 400)
+        self._init_attr('height', 300)
 
-        self.body_style = 'padding:5px;'
+        self._init_attr('body_style', 'padding:5px;')
 
-        self.border = self.draggable = self.resizable = True
+        self._init_attr('border', True)
+        self._init_attr('draggable', True)
+        self._init_attr('resizable', True)
 
     # def _help_topic_full_path(self):
     #     """

@@ -18,8 +18,8 @@ function UI(config) {
             // грузим конфиг из хранилища...
             that.confStorage(key).then(function(result){
                 // ..., который затем патчим конкретным конфигом,...
-                var conf = Ext.apply(result.config, customConfig),
-                    data = Ext.apply(result.data, initialData);
+                var conf = Ext.apply(result.config||{}, customConfig||{}),
+                    data = Ext.apply(result.data||{}, initialData||{});
                 return [conf, data];
             }),
             // ... и параллельно (с загрузкой конфига) грузим JS
@@ -41,10 +41,11 @@ function UI(config) {
 /**
  * Загружает JSON AJAX-запросом и кладёт в promise
  */
-UI.ajax = function(url, params) {
-    var result = Q.defer();
+UI.ajax = function(url, params, queryString) {
+    var result = Q.defer(),
+        fullUrl = url + (queryString != undefined ? ("?" + queryString) : "");
     Ext.Ajax.request({
-        url: url,
+        url: fullUrl,
         method: 'post',
         params: params || {},
         success: function(response) {

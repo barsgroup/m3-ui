@@ -40,24 +40,6 @@ def renderable(name, bases, attrs):
     attrs['_py2js'] = dict(mapping)
     attrs['_js2py'] = dict((js, py) for (py, js) in mapping)
 
-    # def initializer(init):
-    #     """
-    #     Обертка конструктора, заполняющая атрибуты из kwargs
-    #     """
-    #     @wraps(init)
-    #     def inner(self, *args, **kwargs):
-    #         if getattr(self, '_config', None) is None:
-    #             self._config = {'xtype': attrs.get('_xtype')}
-    #             self._data = {}
-    #             self._py_only = {}
-    #             for pair in kwargs.iteritems():
-    #                 setattr(self, *pair)
-    #         init(self, *args, **kwargs)
-    #     return inner
-
-    # if '__init__' in attrs:
-    #     attrs['__init__'] = initializer(attrs['__init__'])
-
     # список внутренних атрибутов для нормальной работы __getattr__
     attrs['_internals'] = ('_config', '_data', '_py2js', '_js2py', '_py_only')
 
@@ -74,7 +56,9 @@ class BaseExtComponent(object):
 
     # атрибуты ExtJS и правила их преобразования
     # кортеж состоящий из строк или кортежей вида ("python_attr", "js_attr")
-    _js_attrs = ()
+    _js_attrs = (
+        ('item_id', 'itemId'),
+    )
 
     def __new__(cls, *args, **kwargs):
         self = super(BaseExtComponent, cls).__new__(cls)
@@ -109,6 +93,9 @@ class BaseExtComponent(object):
             # атрибуты, существующие только в python
             pyo = super(BaseExtComponent, self).__getattribute__('_py_only')
             pyo[attr] = value
+            # компонентам проставляется itemId
+            if isinstance(value, BaseExtComponent):
+                value.item_id = attr
         else:
             if attr in (
                 'renderer',
@@ -163,7 +150,7 @@ class ExtUIComponent(BaseExtComponent):
     Базовый класс для компонентов визуального интерфейса
     Наиболее походит на BoxComponent в ExtJS
     """
-    _js_attrs = (
+    _js_attrs = BaseExtComponent._js_attrs + (
         'style', 'hidden',
         'height', 'width', 'x', 'y',
         ('min_width', 'minWidth'), ('min_height', 'minHeight'),
