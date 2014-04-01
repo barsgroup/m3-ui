@@ -72,7 +72,7 @@ class ExtContextMenu(BaseExtContainer):
 #==============================================================================
 class ExtContextMenuItem(ExtUIComponent):
     """
-    Элементы контекстного меню
+    Элемент контекстного меню
     """
     def __init__(self, *args, **kwargs):
         super(ExtContextMenuItem, self).__init__(*args, **kwargs)
@@ -134,7 +134,7 @@ class ExtContextMenuItem(ExtUIComponent):
 class ExtContextMenuSeparator(ExtUIComponent):
     """
     Разделитель элементов в меню
-    @deprecated: В контекстном меню есть специальный метод и отдельный класс
+    :deprecated: В контекстном меню есть специальный метод и отдельный класс
     в данном случае не нужен
     """
     def __init__(self, *args, **kwargs):

@@ -152,16 +152,17 @@ class ExtGrid(BaseExtPanel):
     def add_banded_column(self, column, level, colspan):
         """
         Добавляет в грид объединенную ячейку.
-        @param column: Колонка грида (ExtGridColumn)
-        @param colspan: Количество колонок которые находятся
-            под данной колонкой (int)
-        @param level: Уровень ячейки где
-          0 - самый верхний,
-          1-ниже, и т.д. (int)
+        :param column: Колонка грида
+        :type column: ExtGridColumn или None
+        :param colspan: Количество колонок, кот-е находятся под данной колонкой
+        :type colspan: int
+        :param level: Уровень ячейки (0 - самый верхний, 1-ниже, и т.д)
+        :type level: int
 
-        upd:26.10.2010 kirov
-        колонка может быть не указана, т.е. None,
-        в этом случае на указанном уровне будет "дырка"
+        .. note ::
+            upd:26.10.2010 kirov
+            колонка может быть не указана, т.е. None,
+            в этом случае на указанном уровне будет "дырка"
         """
         class BlankBandColumn():
             colspan = 0
@@ -383,7 +384,9 @@ class ExtGrid(BaseExtPanel):
 
 
 class BaseExtGridColumn(ExtUIComponent):
-
+    """
+    Базовая модель колонки грида
+    """
     # Умолчательная ширина колонок
     GRID_COLUMN_DEFAULT_WIDTH = 100
 
@@ -532,6 +535,9 @@ class BaseExtGridColumn(ExtUIComponent):
 
 
 class ExtGridColumn(BaseExtGridColumn):
+    """
+    Модель колонки грида
+    """
     def __init__(self, *args, **kwargs):
         super(ExtGridColumn, self).__init__(*args, **kwargs)
         self.init_component(*args, **kwargs)
@@ -548,6 +554,9 @@ class ExtGridColumn(BaseExtGridColumn):
 
 
 class ExtGridBooleanColumn(BaseExtGridColumn):
+    """
+    Модель булевой колонки грида
+    """
     def __init__(self, *args, **kwargs):
         super(ExtGridBooleanColumn, self).__init__(*args, **kwargs)
         self.template = 'ext-grids/ext-bool-column.js'
@@ -558,6 +567,9 @@ class ExtGridBooleanColumn(BaseExtGridColumn):
 
 
 class ExtGridCheckColumn(BaseExtGridColumn):
+    """
+    Модель колонки грида, содержащей чекбоксы
+    """
     def __init__(self, *args, **kwargs):
         super(ExtGridCheckColumn, self).__init__(*args, **kwargs)
         self.template = 'ext-grids/ext-check-column.js'
@@ -565,6 +577,9 @@ class ExtGridCheckColumn(BaseExtGridColumn):
 
 
 class ExtGridNumberColumn(BaseExtGridColumn):
+    """
+    Модель колонки грида, содержащей числа
+    """
     def __init__(self, *args, **kwargs):
         super(ExtGridNumberColumn, self).__init__(*args, **kwargs)
         self.template = 'ext-grids/ext-number-column.js'
@@ -573,6 +588,9 @@ class ExtGridNumberColumn(BaseExtGridColumn):
 
 
 class ExtGridDateColumn(BaseExtGridColumn):
+    """
+    Модель колонки грида с форматом даты
+    """
     def __init__(self, *args, **kwargs):
         super(ExtGridDateColumn, self).__init__(*args, **kwargs)
         self.template = 'ext-grids/ext-date-column.js'
@@ -585,6 +603,9 @@ class ExtGridDateColumn(BaseExtGridColumn):
 
 
 class BaseExtGridSelModel(BaseExtComponent):
+    """
+    Базовая модель для грида с выбором
+    """
     def __init__(self, *args, **kwargs):
         super(BaseExtGridSelModel, self).__init__(*args, **kwargs)
 
@@ -649,7 +670,7 @@ class ExtGridDefaultColumnModel(BaseExtComponent):
 
 class ExtGridLockingColumnModel(BaseExtComponent):
     """
-    Модель колонок для грида блокрирования
+    Модель колонок для грида блокирования
     """
     # TODO: Этот класс, т.к. ссылка на грид порождает цикличную связь
     def __init__(self, *args, **kwargs):
@@ -763,9 +784,12 @@ class ExtGridLockingHeaderGroupPlugin(BaseExtComponent):
     def configure_grid(cls, grid, locked_count=1, config=None):
         """
         Конфигурирует grid для работы с собой, как плагином
-        :param ExtGrid grid: Конфигурируемый grid
-        :param int locked_count: Кол-во фиксируемых колонок
-        :param dict config: дополнительная конфигурация
+        :param grid: Конфигурируемый grid
+        :type grid: ExtGrid
+        :param locked_count: Кол-во фиксируемых колонок
+        :type locked_count: int
+        :param config: дополнительная конфигурация
+        :type config: dict
         """
         # адаптация колонок
         rows = [
@@ -777,7 +801,7 @@ class ExtGridLockingHeaderGroupPlugin(BaseExtComponent):
         ]
         grid.banded_columns = {}
 
-        # нестройка плагина
+        # настройка плагина
         plugin_config = {
             'columnModelCfg': {
                 'rows': rows,

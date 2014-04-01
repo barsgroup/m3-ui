@@ -25,6 +25,7 @@ from base import BaseExtWindow
 # deprecated: use objectpack
 class ExtDictionaryWindow(BaseExtWindow):
     """
+    :deprecated:
     Базовое окно для линейного, иерархичесого и совмещенного справочника
     """
 

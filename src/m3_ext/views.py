@@ -9,7 +9,8 @@ def workspace(template='m3_workspace.html', context_processors=None):
     u"""
     Возвращает view для тображения Рабочего Стола
     на основе указанного шаблона
-    :param template str: имя файла шаблона
+    :param template: имя файла шаблона
+    :type template: str
     """
     def make_context(request):
         """

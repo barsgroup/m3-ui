@@ -113,7 +113,7 @@ class ExtTree(BaseExtPanel):
     def add_nodes(self, *args):
         """
         Добавляет переданные узлы дерева
-        @param *args: Узлы дерева
+        :param *args: Узлы дерева
         """
         for node in args:
             self.nodes.append(node)
@@ -121,7 +121,7 @@ class ExtTree(BaseExtPanel):
     def add_column(self, **kwargs):
         """
         Добавляет колонку с аргументами
-        @param **kwargs: Аргументы
+        :param **kwargs: Аргументы
         """
         self.columns.append(ExtGridColumn(**kwargs))
 
@@ -135,14 +135,14 @@ class ExtTree(BaseExtPanel):
     def add_number_column(self, **kwargs):
         """
         Добавляет колонку с аргументами
-        @param **kwargs: Аргументы
+        :param **kwargs: Аргументы
         """
         self.columns.append(ExtGridNumberColumn(**kwargs))
 
     def add_date_column(self, **kwargs):
         """
         Добавляет колонку с аргументами
-        @param **kwargs: Аргументы
+        :param **kwargs: Аргументы
         """
         self.columns.append(ExtGridDateColumn(**kwargs))
 
@@ -280,6 +280,7 @@ class ExtTree(BaseExtPanel):
 
 #==============================================================================
 class ExtTreeNode(ExtUIComponent):
+    """Узел дерева"""
 
     def __init__(self, *args, **kwargs):
         super(ExtTreeNode, self).__init__(*args, **kwargs)

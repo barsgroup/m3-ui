@@ -266,6 +266,10 @@ class ExtForm(BaseExtPanel):
 
             names задается в виде списка, т.о. если его длина больше единицы,
             то имеются вложенные объекты и их надо обработать
+            :param obj: объект или словарь
+            :type obj: object или dict
+            :param names: список имен
+            :type names: list
             """
 
             # hasattr не работает для dict'a
@@ -308,6 +312,10 @@ class ExtForm(BaseExtPanel):
     def to_object(self, obj, exclusion=None):
         '''
         Метод выполнения обратного связывания данных.
+        :param obj: объект
+        :type obj: object
+        :param exclusion: список исключаемых аттрибутов
+        :type exclusion: list
         '''
         from m3_ext.ui import fields
         from m3_ext.ui.fields import simple
@@ -317,6 +325,11 @@ class ExtForm(BaseExtPanel):
         def save_image(obj, name, field):
             """
             Работа с изображением или файлом
+            :param field: поле
+            :type field: потомок m3_ext.ui.fields.complex.BaseExtField
+            :param obj: объект
+            :param name: имя поля
+            :type name: str
             """
             if hasattr(obj, name):
                 l_field = getattr(obj, name)
@@ -418,6 +431,11 @@ class ExtForm(BaseExtPanel):
 
             names задается в виде списка, т.о. если его длина больше единицы,
             то имеются вложенные объекты
+            :param obj: объект
+            :param names: список имен
+            :param value: значение
+            :param field: поле
+            :type field: потомок m3_ext.ui.fields.complex.BaseExtField
             """
 
             # hasattr не работает для dict'a
@@ -451,6 +469,9 @@ class ExtForm(BaseExtPanel):
             """
             Пробует преобразовать value в целое число,
             иначе возвращает default
+            :param value: значение
+            :param default: значение, возвращаемое, если value не указано
+            :rtype: int
             """
             if not value:
                 return default
@@ -463,6 +484,8 @@ class ExtForm(BaseExtPanel):
         def try_to_list(value):
             """
             Пробует преобразовать value в список
+            :param value: значение
+            :rtype: list
             """
             if not value:
                 return []
@@ -476,6 +499,7 @@ class ExtForm(BaseExtPanel):
             """
             Берет значение item.value,
             и конвертирует его в соответствии с типом item'a
+            :type item: потомок m3_ext.ui.fields.complex.BaseExtField
             """
             val = item.value
             if isinstance(item, fields.ExtNumberField):
