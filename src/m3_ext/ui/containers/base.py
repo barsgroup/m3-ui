@@ -22,11 +22,12 @@ class BaseExtContainer(ExtUIComponent):
     ABSOLUTE = 'absolute'
     ACCORDITION = 'accordition'
 
-    _js_attrs = ExtUIComponent._js_attrs + (
-        'items', 'split',
-        ('layout_config', 'layoutConfig'), 'layout',
-        ('label_width', 'labelWidth'),
-        ('collapse_mode', 'collapseMode'), 'collapsible', 'collapsed',
+    js_attrs = ExtUIComponent.js_attrs.extend(
+        'items', 'split', 'layout',
+        layout_config='layoutConfig',
+        label_width='labelWidth',
+        collapse_mode='collapseMode',
+        collapsible='collapsed',
     )
 
     def __init__(self, *args, **kwargs):
@@ -49,26 +50,25 @@ class BaseExtPanel(BaseExtContainer):
     """
     _xtype = 'panel'
 
-    _js_attrs = BaseExtContainer._js_attrs + (
+    js_attrs = BaseExtContainer.js_attrs.extend(
         'title', 'border', 'split', 'header',
-        ('icon_cls', 'iconCls'),
-        ('dd_group', 'ddGroup'),
-        ('top_bar', 'tbar'),
-        ('bottom_bar', 'bbar'),
-        ('footer_bar', 'fbar'),
-        ('collapse_mode', 'collapseMode'),
-        ('collapsed', 'collapsed'),
+        icon_cls='iconCls',
+        dd_group='ddGroup',
+        top_bar='tbar',
+        bottom_bar='bbar',
+        footer_bar='fbar',
+        collapse_mode='collapseMode',
+        collapsed='collapsed',
     )
 
     def __init__(self, *args, **kwargs):
         super(BaseExtPanel, self).__init__(*args, **kwargs)
-        self.title = None
-        self.header = False
-        self.border = True
+        self.setdefault('header', False)
+        self.setdefault('border', True)
 
-        self._init_attr('top_bar', []),
-        self._init_attr('bottom_bar', []),
-        self._init_attr('footer_bar', []),
+        self.setdefault('top_bar', [])
+        self.setdefault('bottom_bar', [])
+        self.setdefault('footer_bar', [])
 
     def _make_read_only(
             self, access_off=True, exclude_list=(), *args, **kwargs):

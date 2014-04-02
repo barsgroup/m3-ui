@@ -4,18 +4,16 @@ Created on 23.3.2010
 
 @author: prefer
 """
-from m3_ext.ui.base import ExtUIComponent, renderable
+from m3_ext.ui.base import ExtUIComponent
 
 
 class ExtLabel(ExtUIComponent):
     """
     Произвольный текст
     """
-    __metaclass__ = renderable
-
     _xtype = 'textfield'
 
-    _js_attrs = ExtUIComponent._js_attrs + (
+    js_attrs = ExtUIComponent.js_attrs.extend(
         'text',
     )
 

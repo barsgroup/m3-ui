@@ -26,69 +26,111 @@ class ExtComponentException(Exception):
     pass
 
 
-def renderable(name, bases, attrs):
+class AttrDict(dict):
     """
-    Метакласс для отображаемых в JSON компонентов
+    Словарь атрибутов со встроенным преобразованием ключей
     """
-    mapping = [
-        (i, i) if isinstance(i, str) else i
-        for i in (
-            attrs.get('_js_attrs') or sum(
-                (getattr(b, '_js_attrs', ()) for b in bases), ())
-        )
-    ]
-    attrs['_py2js'] = dict(mapping)
-    attrs['_js2py'] = dict((js, py) for (py, js) in mapping)
+    def __init__(self, *args, **kwargs):
+        """
+        Возвращает новый словарь хранения значений
+        с преобразованием ключей
+        *args    - ключи, преобразующиеся один-в-один
+        **kwargs - ключи, меняющие "написание".
 
-    # список внутренних атрибутов для нормальной работы __getattr__
-    attrs['_internals'] = ('_config', '_data', '_py2js', '_js2py', '_py_only')
+        >>> ad = AttrDict('a', 'b', other_attr='otherAttr')
+        >>> ad['a'] = 1
+        >>> ad['other_attr'] = 2
+        >>> ad
+        {'a': 1, 'otherAttr': 2}
+        """
+        self.mapping = dict((a, a) for a in args)
+        self.mapping.update(**kwargs)
+        # набор итоговых атрибутов
+        self.internals = set(self.mapping.values())
+        super(AttrDict, self).__init__()
 
-    return type(name, bases, attrs)
+    def _map(self, key):
+        return key if key in self.internals else self.mapping[key]
+
+    def get(self, key, default=None):
+        return super(AttrDict, self).get(self._map(key), default)
+
+    def __getitem__(self, key):
+        return super(AttrDict, self).__getitem__(self._map(key))
+
+    def __setitem__(self, key, val):
+        super(AttrDict, self).__setitem__(self._map(key), val)
+
+    def __contains__(self, key):
+        return super(AttrDict, self).__contains__(self._map(key))
+
+    def maps(self, key):
+        """
+        Фозвращает True, если ключ key присутствует
+        в таблице преобразования
+        """
+        return key in self.mapping
+
+    def extend(self, *args, **kwargs):
+        """
+        Возвращает копию словаря (пустую)
+        с расширенной таблицей преобразования
+        """
+        mapping = self.mapping.copy()
+        mapping.update(kwargs)
+        return self.__class__(*args, **mapping)
+
+    def __call__(self, **kwargs):
+        """
+        Возвращает новое хранилище на основе текущего
+        (можно рассматривать как экземпляр)
+        """
+        new = self.__class__()
+        new.mapping = self.mapping
+        new.internals = self.internals
+        new.update(kwargs)
+        return new
 
 
 class BaseExtComponent(object):
     """
     Базовый класс для всех компонентов пользовательского интерфейса
     """
-    __metaclass__ = renderable
-
     __slots__ = ('_config', '_data', '_py_only')
 
-    # атрибуты ExtJS и правила их преобразования
-    # кортеж состоящий из строк или кортежей вида ("python_attr", "js_attr")
-    _js_attrs = (
-        ('item_id', 'itemId'),
+    _xtype = None
+
+    # хранилище атрибутов ExtJS и правила их преобразования
+    js_attrs = AttrDict(
+        'xtype',
+        item_id='itemId',
     )
 
     def __new__(cls, *args, **kwargs):
         self = super(BaseExtComponent, cls).__new__(cls)
-        self._config = {'xtype': cls._xtype}
+        self._config = self.js_attrs(xtype=cls._xtype)
         self._data = {}
         self._py_only = {}
         for pair in kwargs.iteritems():
             setattr(self, *pair)
         return self
 
-    def _init_attr(self, attr, val):
+    def setdefault(self, key, val):
         try:
-            _ = getattr(self, attr)
+            _ = getattr(self, key)
         except AttributeError:
-            setattr(self, attr, val)
-
-    def __init__(self, *args, **kwargs):
-        # тут заглушка, чтобы нормально вызывался super.__init__
-        pass
+            setattr(self, key, val)
 
     def __setattr__(self, attr, value):
-        if attr in ('_config', '_data', '_py_only'):
+        if attr in self.__slots__:
             if getattr(self, attr, None) is None:
                 super(BaseExtComponent, self).__setattr__(attr, value)
             return
 
-        js_attr = self._py2js.get(attr)
-        if js_attr is not None:
+        if self.js_attrs.maps(attr):
             conf = super(BaseExtComponent, self).__getattribute__('_config')
-            conf[js_attr] = value
+            conf[attr] = value
+
         elif attr.startswith('_') or isinstance(value, BaseExtComponent):
             # атрибуты, существующие только в python
             pyo = super(BaseExtComponent, self).__getattribute__('_py_only')
@@ -107,7 +149,7 @@ class BaseExtComponent(object):
             data[attr] = value
 
     def __getattr__(self, attr):
-        if attr in self._internals:
+        if attr in self.__slots__:
             super(BaseExtComponent, self).__getattribute__(attr)
         else:
             def get(d, k):
@@ -117,11 +159,10 @@ class BaseExtComponent(object):
                     raise AttributeError(
                         'Attribute %r not present in %r' % (k, self)
                     )
-            js_attr = self._js2py.get(attr)
-            if js_attr is not None:
+            if self.js_attrs.maps(attr):
                 return get(
                     super(BaseExtComponent, self).__getattribute__('_config'),
-                    js_attr
+                    attr
                 )
             else:
                 try:
@@ -150,17 +191,17 @@ class ExtUIComponent(BaseExtComponent):
     Базовый класс для компонентов визуального интерфейса
     Наиболее походит на BoxComponent в ExtJS
     """
-    _js_attrs = BaseExtComponent._js_attrs + (
+    js_attrs = BaseExtComponent.js_attrs.extend(
         'style', 'hidden',
         'height', 'width', 'x', 'y',
-        ('min_width', 'minWidth'), ('min_height', 'minHeight'),
         'html', 'region', 'flex',
         'name', 'anchor', 'cls',
-        ('auto_scroll', 'autoScroll'),
-        ('auto_width', 'autoWidth'), ('auto_height', 'autoHeight'),
-        ('label', 'fieldLabel'),
-        ('label_style', 'labelStyle'),
-        ('hide_label', 'hideLabel'),
+        min_width='minWidth', min_height='minHeight',
+        auto_scroll='autoScroll',
+        auto_width='autoWidth', auto_height='autoHeight',
+        label='fieldLabel',
+        label_style='labelStyle',
+        hide_label='hideLabel',
     )
 
     def make_read_only(

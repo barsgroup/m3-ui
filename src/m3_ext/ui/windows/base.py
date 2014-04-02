@@ -10,7 +10,7 @@ from django.conf import settings
 
 from m3.actions import ActionContext
 
-from m3_ext.ui.base import ExtUIComponent, renderable
+from m3_ext.ui.base import ExtUIComponent
 from m3_ext.ui import render_template
 
 from m3_ext.ui.containers.base import BaseExtContainer
@@ -34,8 +34,6 @@ class BaseExtWindow(ExtUIComponent):
     """
     Базовый класс для всех окон
     """
-    __metaclass__ = renderable
-
     #deprecated: Использовать атрибуты с верхним регистром
     ALIGN_LEFT = align_left = 'left'
     ALIGN_CENTER = align_center = 'center'
@@ -43,38 +41,38 @@ class BaseExtWindow(ExtUIComponent):
 
     _xtype = 'window'
 
-    _js_attrs = ExtUIComponent._js_attrs + (
+    js_attrs = ExtUIComponent.js_attrs.extend(
         'title',
         'modal', 'maximizable', 'maximized', 'closable',
         'border', 'resizable', 'draggable', 'keys',
         'items', 'buttons', 'layout',
-        ('body_style', 'bodyStyle'),
-        ('icon_cls', 'iconCls'),
-        ('top_bar', 'tbar'),
-        ('bottom_bar' 'bbar'),
-        ('footer_bar', 'fbar'),
-        ('button_align', 'buttonAlign'),
-        ('label_width', 'labelWidth'),
-        ('label_align', 'labelAlign'),
-        ('label_pad', 'labelPad'),
-        ('help_topic', 'helpTopic'),
-        ('context_json', 'contextJson'),
+        body_style='bodyStyle',
+        icon_cls='iconCls',
+        top_bar='tbar',
+        bottom_bar='bar',
+        footer_bar='fbar',
+        button_align='buttonAlign',
+        label_width='labelWidth',
+        label_align='labelAlign',
+        label_pad='labelPad',
+        help_topic='helpTopic',
+        context_json='contextJson',
     )
 
     def __init__(self, *args, **kwargs):
         super(BaseExtWindow, self).__init__(*args, **kwargs)
-        self._init_attr('items', [])
-        self._init_attr('buttons', [])
-        self._init_attr('keys', [])
+        self.setdefault('items', [])
+        self.setdefault('buttons', [])
+        self.setdefault('keys', [])
 
-        self._init_attr('width', 400)
-        self._init_attr('height', 300)
+        self.setdefault('width', 400)
+        self.setdefault('height', 300)
 
-        self._init_attr('body_style', 'padding:5px;')
+        self.setdefault('body_style', 'padding:5px;')
 
-        self._init_attr('border', True)
-        self._init_attr('draggable', True)
-        self._init_attr('resizable', True)
+        self.setdefault('border', True)
+        self.setdefault('draggable', True)
+        self.setdefault('resizable', True)
 
     # def _help_topic_full_path(self):
     #     """
