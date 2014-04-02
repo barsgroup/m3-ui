@@ -36,7 +36,7 @@ function UI(config) {
             });
         });
     };
-};
+}
 
 /**
  * Загружает JSON AJAX-запросом и кладёт в promise
@@ -46,14 +46,14 @@ UI.ajax = function(url, params, queryString) {
         fullUrl = url + (queryString != undefined ? ("?" + queryString) : "");
     Ext.Ajax.request({
         url: fullUrl,
-        method: 'post',
+        method: 'GET',
         params: params || {},
         success: function(response) {
             result.resolve(response.responseText);
         },
         failure: function(response) {
             result.reject(new Error(response.responseText));
-        },
+        }
     });
     return result.promise
 };

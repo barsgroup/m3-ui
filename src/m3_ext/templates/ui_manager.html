@@ -22,14 +22,14 @@
 
             Ext.onReady(function() {
 
-                var namespace = Ext;
-
                 var loader = {
                         require: function(key) {
                             var result = Q.defer();
                             Ext.Ajax.request({
                                 method: 'POST',
-                                params: {xtype: key},
+                                params: {
+                                    xtype: key
+                                },
                                 url: 'config',
                                 success: function(response) {
                                     result.resolve(JSON.parse(response.responseText).config);
@@ -61,83 +61,12 @@
                 M3.Ext = new M3.UiMgr({
                     //настраиваем загрузчик статических файлов конфигов json
                     loader: loader,
-                    // new M3.Ui.Loader(
-                    //         namespace,
-                    //         {simplify: false,
-                    //          baseUrl: '../static/m3/js/client-render/static/json-configs/'}
-                    // ),
 
-                    //настраиваем хранилище конфигов
-                    //storage: storage,
-                    storage: new M3.Ui.Storage(namespace, {}),
-                    // //настройка для предзагружаемых конфигов окон
-                    // preloadWindows: [
-                    //     {xtype: 'demo-window'},
-                    //     {xtype: 'demo-window2'}
-                    // ]
+                    storage: new M3.Ui.Storage(Ext, {})
                 });
 
-                // /*
-                //  * Тестирование фабрики без использования ExtJS хранилища
-                //  */
-                // //создание окон после предварительной прогрузки конфигов
-                // //и регистрации классов в менеджере
-                // var promise1 = M3.Ext.create({
-                //     xtype: 'demo-window',
-                //     width: 200, x: 20,
-                //     height: 100, y: 20
-                // });
-                // var promise2 = M3.Ext.create({
-                //     xtype: 'demo-window2',
-                //     width: 250, x: 20 + 200,
-                //     height: 150, y: 20
-                // });
-
-                // //создание окно отложенно без режима warmUp
-                // //конфигурация будет подгруженна асинхронно
-                // var promise3 = M3.Ext.create(
-                //     {
-                //         xtype: 'demo-window3',
-                //         width: 300, x: 20 + 200 + 250,
-                //         height: 200, y: 20
-                //     }
-                // );
-
-                // promise1.done(function(wind) {
-                //     console.log("window1 is rendered");
-                //     wind.show();
-                // });
-
-                // promise2.done(function(wind) {
-                //     console.log("window2 is rendered");
-                //     wind.show();
-                // });
-
-                // promise3.done(function(wind) {
-                //     console.log("window3 is rendered");
-                //     wind.show();
-                // });
-
-                // /**
-                //     тестирование фабрики с использованием хранилища ExtJS
-                //  */
-                // M3.Ext.setStorage(
-                //     new M3.Ui.Storage(namespace, {simplify: false})
-                // );
-
-                // var promise4 = M3.Ext.create({
-                //     xtype: 'demo-window4',
-                //     width: 350, x: 20 + 200 + 250 + 300,
-                //     height: 250, y: 20
-                // });
-
-                // promise4.done(function(win) {
-                //     console.log("window is rendered");
-                //     win.show();
-                // });
-
                 M3.Ext.create({
-                    xtype: 'demo-window',
+                    xtype: 'demo-window'
                         // width: 250, x: 20 + 200,
                         // height: 150, y: 20
                 }).done(function(win) {

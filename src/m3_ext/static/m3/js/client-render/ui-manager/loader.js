@@ -7,7 +7,7 @@ M3.Ui.SimpleLoader = {
     baseUrl: null,
 
     init: function(ns, config) {
-        this._loader = (ns && ns.Ajax && ns.Ajax.request),
+        this._loader = (ns && ns.Ajax && ns.Ajax.request);
         this.baseUrl = config['baseUrl'];
     },
 

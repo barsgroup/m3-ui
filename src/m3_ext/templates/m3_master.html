@@ -1,157 +1,173 @@
 {% load static %}
 {% get_static_prefix as STATIC_URL %}
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
-    <head>
-        <title>{% block title %}M3{% endblock %}</title>
-        <meta content="text/html; charset=utf-8" http-equiv="Content-Type" />
-        <style type='text/css'>
-            html, body{font-family:Tahoma,Sans;font-size:11px;}
-            #loading-mask{position:absolute;top:0;left:0;width:100%;height:100%;background:#000000;z-index:1001;}
-            #loading{position:absolute;top:40%;left:45%;z-index:1002;}
-        </style>
-        <!-- css классы extjs -->
-        <link rel='stylesheet' type='text/css' href='{{ STATIC_URL }}vendor/extjs/resources/css/ext-all.css'/>
-        <link rel='stylesheet' type='text/css' href='{{ STATIC_URL }}vendor/extjs/resources/css/ux/ux-all.css'/>
+<head>
+    <title>{% block title %}M3{% endblock %}</title>
+    <meta content="text/html; charset=utf-8" http-equiv="Content-Type"/>
+    <style type='text/css'>
+        html, body {
+            font-family: Tahoma, Sans;
+            font-size: 11px;
+        }
 
-        <!-- m3 css-->
-        <link rel='stylesheet' type='text/css' href='{{ STATIC_URL }}m3/css/m3.css'/>
-        <link rel='stylesheet' type='text/css' href='{{ STATIC_URL }}m3/css/icons.css'/>
+        #loading-mask {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #000000;
+            z-index: 1001;
+        }
 
-        <!-- m3 lightbox css-->
-        <link rel='stylesheet' type='text/css' href='{{ STATIC_URL }}ext/css/lightbox.css'/>
+        #loading {
+            position: absolute;
+            top: 40%;
+            left: 45%;
+            z-index: 1002;
+        }
+    </style>
+    <!-- css классы extjs -->
+    <link rel='stylesheet' type='text/css' href='{{ STATIC_URL }}vendor/extjs/resources/css/ext-all.css'/>
+    <link rel='stylesheet' type='text/css' href='{{ STATIC_URL }}vendor/extjs/resources/css/ux/ux-all.css'/>
 
-        <!-- базовые файлы extjs -->
-        <script type="text/javascript" src="{{ STATIC_URL }}vendor/extjs/adapter/ext/ext-base.js"></script>
-        <script type='text/javascript' src='{{ STATIC_URL }}vendor/extjs/ext-all-debug.js'></script>
-        <script type='text/javascript' src='{{ STATIC_URL }}vendor/extjs/ux-all-debug.js'></script>
-        <script type='text/javascript' src='{{ STATIC_URL }}vendor/extjs/locale/ext-lang-ru.js'></script>
+    <!-- m3 css-->
+    <link rel='stylesheet' type='text/css' href='{{ STATIC_URL }}m3/css/m3.css'/>
+    <link rel='stylesheet' type='text/css' href='{{ STATIC_URL }}m3/css/icons.css'/>
 
-        <!-- web-desktop css и js -->
-        <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}ext/web-desktop/css/desktop.css" />
-        <script type="text/javascript" src="{{ STATIC_URL }}ext/web-desktop/js/desktop.js"></script>
+    <!-- m3 lightbox css-->
+    <link rel='stylesheet' type='text/css' href='{{ STATIC_URL }}ext/css/lightbox.css'/>
 
-        <!-- m3 js-->
-        <script type='text/javascript' src='{{ STATIC_URL }}m3/js/m3-debug.js'></script>
+    <!-- базовые файлы extjs -->
+    <script type="text/javascript" src="{{ STATIC_URL }}vendor/extjs/adapter/ext/ext-base.js"></script>
+    <script type='text/javascript' src='{{ STATIC_URL }}vendor/extjs/ext-all-debug.js'></script>
+    <script type='text/javascript' src='{{ STATIC_URL }}vendor/extjs/ux-all-debug.js'></script>
+    <script type='text/javascript' src='{{ STATIC_URL }}vendor/extjs/locale/ext-lang-ru.js'></script>
 
-        <script type="text/javascript" src="{{ STATIC_URL }}vendor/q.js"></script>
-        <script type="text/javascript" src="{{ STATIC_URL }}m3/fabric.js"></script>
+    <!-- web-desktop css и js -->
+    <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}ext/web-desktop/css/desktop.css"/>
+    <script type="text/javascript" src="{{ STATIC_URL }}ext/web-desktop/js/desktop.js"></script>
 
-        <link rel='stylesheet' type='text/css' href='{{ STATIC_URL }}m3/css/locking-grouping-grid.css'/>
-        <script src="{{ STATIC_URL }}m3/js/ext-extensions/LockingGridColumnWithHeaderGroup.js"></script>
+    <!-- m3 js-->
+    <script type='text/javascript' src='{{ STATIC_URL }}m3/js/m3-debug.js'></script>
 
-        {# Точка расширения для скриптов #}
-        {% block content_head %}
-        {% endblock %}
-    </head>
-    <body scroll="no">
-        <!-- Анимация при входе на рабочий стол -->
-        {# preload indicator area #}
-        <div id="loading-mask"></div>
-        <div id="loading">
-            <span id="loading-message">Загрузка приложения...</span>
-        </div>
-        {# END: preload indicator area #}
+    <script type="text/javascript" src="{{ STATIC_URL }}vendor/q.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}m3/fabric.js"></script>
 
-        <script type='text/javascript'>
-            // Анимация при входе на рабочий стол
-            Ext.onReady(function(){
-                // Инициализация всплывающих подсказок в extjs
-                Ext.QuickTips.init();
+    <link rel='stylesheet' type='text/css' href='{{ STATIC_URL }}m3/css/locking-grouping-grid.css'/>
+    <script src="{{ STATIC_URL }}m3/js/ext-extensions/LockingGridColumnWithHeaderGroup.js"></script>
 
-                var loadingMask = Ext.get('loading-mask');
-                var loading = Ext.get('loading');
-                // Hide loading message
-                loading.fadeOut({ duration: 0.2, remove: true });
-                // Hide loading mask
-                loadingMask.setOpacity(0.9);
-                loadingMask.shift({
-                    xy: loading.getXY(),
-                    width: loading.getWidth(),
-                    height: loading.getHeight(),
-                    remove: true,
-                    duration: 1,
-                    opacity: 0.1,
-                    easing: 'bounceOut'
-                });
-            });
+    {# Точка расширения для скриптов #}
+    {% block content_head %}
+    {% endblock %}
+</head>
+<body scroll="no">
+<!-- Анимация при входе на рабочий стол -->
+{# preload indicator area #}
+<div id="loading-mask"></div>
+<div id="loading">
+    <span id="loading-message">Загрузка приложения...</span>
+</div>
+{# END: preload indicator area #}
 
-            var appUI = new UI({
-                jsStorage: function(key) {
-                    return UI.ajax(
-                        key, {'js': true}, 'js'
-                    ).then(evalResult).then(function(s){
+<script type='text/javascript'>
+    // Анимация при входе на рабочий стол
+    Ext.onReady(function () {
+        // Инициализация всплывающих подсказок в extjs
+        Ext.QuickTips.init();
+
+        var loadingMask = Ext.get('loading-mask');
+        var loading = Ext.get('loading');
+        // Hide loading message
+        loading.fadeOut({ duration: 0.2, remove: true });
+        // Hide loading mask
+        loadingMask.setOpacity(0.9);
+        loadingMask.shift({
+            xy: loading.getXY(),
+            width: loading.getWidth(),
+            height: loading.getHeight(),
+            remove: true,
+            duration: 1,
+            opacity: 0.1,
+            easing: 'bounceOut'
+        });
+    });
+
+    var appUI = new UI({
+        jsStorage: function (key) {
+            return UI.ajax(
+                    key, {'js': true}, 'js'
+            ).then(function (s) {
                         // костыль, ибо нельзя эвалить анонимные функции
                         return eval('false||' + s);
                     });
-                },
-                confStorage: function(key) {
-                    // конфиги всегда будут грузиться с сервера
-                    return UI.ajax(key, {'ui': true}, 'ui').then(evalResult);
-                },
-                uiFabric: Ext.create
-            });
+        },
+        confStorage: function (key) {
+            // конфиги всегда будут грузиться с сервера
+            return UI.ajax(key, {'ui': true}, 'ui').then(evalResult);
+        },
+        uiFabric: Ext.create
+    });
 
-            function msgBox(cfg) {
-                var result = Q.defer();
-                Ext.Msg.show(Ext.apply(cfg, {fn: result.resolve}));
-                return result.promise;
+    function msgBox(cfg) {
+        var result = Q.defer();
+        Ext.Msg.show(Ext.apply(cfg, {fn: result.resolve}));
+        return result.promise;
+    }
+
+    function evalResult(data) {
+        var obj = Ext.util.JSON.decode(data);
+        if (!obj) {
+            return;
+        }
+        return Q().then(function () {
+            if (obj.message) {
+                return msgBox({
+                    title: 'Внимание',
+                    msg: obj.message,
+                    buttons: Ext.Msg.OK,
+                    icon: (
+                            obj.success != undefined && !obj.success ? Ext.Msg.WARNING : Ext.Msg.Info
+                            )
+                });
+            } else {
+                return "ok"
             }
-
-            function evalResult(data) {
-                var obj = Ext.util.JSON.decode(data);
-                if (!obj) {
-                    return;
-                }
-                return Q().then(function() {
-                    if (obj.message) {
-                        return msgBox({
-                            title:'Внимание',
-                            msg: obj.message,
-                            buttons: Ext.Msg.OK,
-                            icon: (
-                                obj.success != undefined && !obj.success ? Ext.Msg.WARNING : Ext.Msg.Info
-                            )
-                        });
-                    } else {
-                        return "ok"
-                    }
-                }).then(function() {
-                    if (obj.code) {
-                        if (obj.code.ui) {
-                            return appUI.create(
-                                obj.code
+        }).then(function () {
+            if (obj.code) {
+                if (obj.code.ui) {
+                    return appUI.create(
+                                    obj.code
                             ).invoke(
-                                'show', document
+                                    'show', document
                             )
-                        } else {
-                            return obj.code
-                        }
-                    } else {
-                        return;
-                    }
-                });
-            };
+                } else {
+                    return obj.code
+                }
+            } else {
+                return;
+            }
+        });
+    }
 
-            function callAction(url, params) {
-                UI.ajax(url, params).then(evalResult).catch(function(ex){
-                    Ext.Msg.show({
-                          title: 'Внимание'
-                        , msg: 'Произошла непредвиденная ошибка!'
-                        , buttons: Ext.Msg.OK
-                        , fn: Ext.emptyFn
-                        , animEl: 'elId'
-                        , icon: Ext.MessageBox.WARNING
-                    });
-                    console.error(ex);
-                    throw ex;
-                });
-            };
-        </script>
 
-        {# Точка расширения для дополнительно html кода #}
-        {% block content %}
-        {% endblock %}
-    </body>
+    function callAction(url, params) {
+        UI.ajax(url, params).then(evalResult).catch(function (ex) {
+            Ext.Msg.show({
+                title: 'Внимание', msg: 'Произошла непредвиденная ошибка!', buttons: Ext.Msg.OK, fn: Ext.emptyFn, animEl: 'elId', icon: Ext.MessageBox.WARNING
+            });
+            console.error(ex);
+            throw ex;
+        });
+    }
+
+</script>
+
+{# Точка расширения для дополнительно html кода #}
+{% block content %}
+{% endblock %}
+</body>
 </html>
 

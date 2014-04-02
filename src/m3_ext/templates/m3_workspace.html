@@ -20,15 +20,15 @@
                     res.menu = [];
                     for (var i = 0; i < data.items.length; i += 1) {
                         res.menu.push(makeItem(data.items[i]))
-                    };
+                    }
                 } else {
                     res.handler = function() {
                         callAction(data.url, data.context);
                     };
-                };
-            };
+                }
+            }
             return res;
-        };
+        }
         /**
          * Генератор модулей - потомков от Ext.app.Module
          */
@@ -43,11 +43,11 @@
                     this.launcher = makeItem(data);
                     if (inStartMenu) {
                         this.launcher.in_start_menu = true;
-                    };
+                    }
                 }
             });
             return new Module();
-        };
+        }
 
         /**
          * Добавляет каждый элемент @source@ в @target@, как модуль
@@ -57,8 +57,8 @@
         function addEachModuleTo(target, source, prefix, inStartMenu) {
             for(var i = 0; i < source.length; i += 1) {
                 target.push(makeModule(source[i], prefix, i + 1, inStartMenu));
-            };
-        };
+            }
+        }
 
         // конфигурация Рабочего Стола в виде JSON
         var desktopConfig = {{ desktop|safe }};
@@ -82,7 +82,7 @@
                 // верхняя панель
                 addEachModuleTo(
                     res, desktopConfig.topToolbarItems, 'toptoolbar-item-'
-                )
+                );
 
                 return res;
             },
@@ -93,7 +93,7 @@
                 for (var i = 0; i < desktopConfig.toolboxItems.length; i += 1) {
                     var item = desktopConfig.toolboxItems[i];
                     items.push(makeItem(item));
-                };
+                }
                 return {
                       toolItems: items
                     {% block start_menu_config %}

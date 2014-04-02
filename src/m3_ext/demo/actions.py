@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import abc
+from django import http
 
 from m3.actions import ActionPack, Action
 
@@ -92,6 +93,7 @@ class UIAction(Action):
                 }
         elif context.js:
             result = self.get_js(request, context)
+            return http.HttpResponse(result, mimetype='application/javascript')
         else:
             result = self.get_result(request, context)
         assert result
