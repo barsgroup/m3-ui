@@ -26,7 +26,7 @@ class ExtForm(BaseExtPanel):
     js_attrs = BaseExtPanel.js_attrs.extend(
         'padding',
         'url',
-        ('file_upload', 'fileUpload'),
+        file_upload='fileUpload',
     )
 
     def __init__(self, *args, **kwargs):
@@ -74,13 +74,13 @@ class ExtPanel(BaseExtPanel):
         'title',
         'padding',  # Отступ от внешних границ
         'collapsible',  # Возможность сворачивать панель
-        ('body_border', 'bodyBorder'),  # Показывать ли внутреннюю границу у элемента
-        ('base_cls', 'baseCls'),  # Базовый CSS класс, по умолчанию 'x-panel'
-        ('body_cls', 'bodyCls'),  # Данное свойства - приватное в контексте extjs, переопределяет стиль панели
-        ('auto_load', 'autoLoad'),  # Автозагрузка контента
-        ('auto_scroll', 'autoScroll'),  # Скролл появляется автоматически
         'floatable',  # Позволять ли панели быть "плавающей", (см Ext.layout.BorderLayout.Region)
-        ('title_collapse', 'titleCollapse'),  # Сворачивать панель при щелчке на заголовке?
+        body_border='bodyBorder',  # Показывать ли внутреннюю границу у элемента
+        base_cls='baseCls',  # Базовый CSS класс, по умолчанию 'x-panel'
+        body_cls='bodyCls',  # Данное свойства - приватное в контексте extjs, переопределяет стиль панели
+        auto_load='autoLoad',  # Автозагрузка контента
+        auto_scroll='autoScroll',  # Скролл появляется автоматически
+        title_collapse='titleCollapse',  # Сворачивать панель при щелчке на заголовке?
     )
 
     def __init__(self, *args, **kwargs):

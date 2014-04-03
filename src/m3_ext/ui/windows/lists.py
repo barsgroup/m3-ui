@@ -7,7 +7,6 @@ Created on 26.05.2010
 from base import BaseExtWindow
 
 
-#==============================================================================
 class BaseExtListWindow(BaseExtWindow):
     """
     Базовое окно со списком записей.

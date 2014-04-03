@@ -10,7 +10,6 @@ from m3_ext.ui.base import ExtUIComponent, BaseExtComponent
 from base import BaseExtContainer
 
 
-#==============================================================================
 class ExtContainer(BaseExtContainer):
     """
     Класс, имитирующий работу Ext.Container
@@ -90,10 +89,10 @@ class ExtPagingBar(BaseExtContainer):
 
     _xtype = 'paging'
     js_attrs = BaseExtContainer.js_attrs.extend(
-        ('page_size', 'pageSize'),
-        ('display_message', 'displayMsg'),
-        ('display_info', 'displayInfo'),
-        ('empty_message', 'emptyMsg'),
+        page_size='pageSize',
+        display_message='displayMsg',
+        display_info='displayInfo',
+        empty_message='emptyMsg',
     )
 
     def __init__(self, *args, **kwargs):
@@ -106,7 +105,7 @@ class ExtPagingBar(BaseExtContainer):
 
 class ExtToolbarMenu(ExtUIComponent):
     """
-    Класс, позволяющий легко вставлять меню в ToolBar
+    Класс, позволяющий вставлять меню в ToolBar
     """
     def __init__(self, *args, **kwargs):
         super(ExtToolbarMenu, self).__init__(*args, **kwargs)

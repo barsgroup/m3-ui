@@ -1,7 +1,7 @@
 #coding: utf-8
 
 from m3_ext.demo.base import Pack, UIAction
-from m3_ext.ui import all_components as ext, all_components
+from m3_ext.ui import all_components as ext
 
 __author__ = 'prefer'
 
@@ -51,7 +51,11 @@ class PanelAction(UIAction):
 
         win.panel.top_bar = tbar
 
+        win.panel.bottom_bar = ext.ExtPagingBar()
+
         win.items.append(win.panel)
+
+        return win
 
 
 class ContainerAction(UIAction):
