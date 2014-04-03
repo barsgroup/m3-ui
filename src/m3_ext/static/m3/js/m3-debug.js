@@ -3541,7 +3541,9 @@ Ext.onReady(Ext.ux.Lightbox.init, Ext.ux.Lightbox);
  * Содержит общие функции вызываемые из разных частей
  */
 Ext.QuickTips.init();
-
+Ext.m3.ExtJS_version = (function() {
+    return Ext.version.split(".").slice(0, 2).join(".");
+})();
 /**
  * Чтобы ie и прочие не правильные браузеры, где нет console не падали
  */
@@ -3663,7 +3665,8 @@ Ext.app.form.SearchField = Ext.extend(Ext.form.TwinTriggerField, {
 	        	var rootNode = cmp.getRootNode();
 	        	loader.load(rootNode);
 	        	rootNode.expand();
-	        };
+	        }
+
 	        this.triggers[0].hide();
 	        this.hasSearch = false;
         }
@@ -3687,7 +3690,8 @@ Ext.app.form.SearchField = Ext.extend(Ext.form.TwinTriggerField, {
         	loader.load(rootNode);
         	rootNode.expand();
         	//console.log(rootNode);
-        };
+        }
+
         if (value) {
         	this.hasSearch = true;
 	    	this.triggers[0].show();
@@ -3697,6 +3701,8 @@ Ext.app.form.SearchField = Ext.extend(Ext.form.TwinTriggerField, {
     ,clear : function(node_id){ this.onTrigger1Click() }
     ,search: function(node_id){ this.onTrigger2Click() }
 });
+Ext.reg('search-field', Ext.app.form.SearchField);
+
 /**
  * В поле добавим функционал отображения того, что оно изменено.
  */
@@ -3762,7 +3768,7 @@ Ext.app.TitlePanel = Ext.extend(Ext.Panel, {
            
            if (this.header)
                this.header.removeClass('x-unselectable');
-       };
+       }
    },
    getChildByName: function (name) {
        if (this.items)
@@ -3778,7 +3784,7 @@ Ext.app.TitlePanel = Ext.extend(Ext.Panel, {
        return null;
     }
 });
-
+Ext.reg('m3-title-panel', Ext.app.TitlePanel);
 
 /*
  * выполняет обработку failure response при submit пользовательских форм
@@ -3937,7 +3943,7 @@ function uiAjaxFailMessage (response, opt) {
 // Проверяет есть ли в ответе сообщение и выводит его
 // Возвращает серверный success
 function uiShowErrorMessage(response){
-	obj = Ext.util.JSON.decode(response.responseText);
+	var obj = Ext.util.JSON.decode(response.responseText);
 	if (obj.error_msg)
 		Ext.Msg.alert(SOFTWARE_NAME, obj.error_msg);
 // Не понятно зачем нужен этот код.
@@ -4038,6 +4044,7 @@ function showMessage(msg, title, icon){
 	title = title || 'Внимание';
 	msg = msg || '';
 	icon = icon || Ext.MessageBox.INFO;
+
     Ext.Msg.show({
         title: title,
         msg: msg,
@@ -4062,14 +4069,15 @@ Ext.m3.ComboBox =  Ext.extend(Ext.form.ComboBox,{
 		return this.lastSelectionText;
 	}
 });
+
+Ext.reg('m3-combobox', Ext.m3.ComboBox);
 /**
  * Расширенный грид на базе Ext.grid.GridPanel
  * @param {Object} config
  */
 Ext.m3.GridPanel = Ext.extend(Ext.grid.GridPanel, {
 	constructor: function(baseConfig, params){
-//		console.log(baseConfig);
-//		console.log(params);
+        params = baseConfig.params || params;
 		
 		// Добавлене selection model если нужно
 		var selModel = params.selModel;
@@ -4158,8 +4166,7 @@ Ext.m3.GridPanel = Ext.extend(Ext.grid.GridPanel, {
 
 Ext.m3.EditorGridPanel = Ext.extend(Ext.grid.EditorGridPanel, {
   constructor: function(baseConfig, params){
-//    console.log(baseConfig);
-//    console.log(params);
+    params = baseConfig.params || params;
     
     // Добавлене selection model если нужно
     var selModel = params.selModel;
@@ -4249,12 +4256,15 @@ Ext.m3.EditorGridPanel = Ext.extend(Ext.grid.EditorGridPanel, {
   		    buttons: Ext.Msg.CANCEL,
   		    icon: Ext.Msg.WARNING
   		  });
-  		};
+  		}
 		} else {
 		  uiAjaxFailMessage(response, options);
-		};
+		}
 	}
 });
+
+Ext.reg('m3-grid', Ext.m3.GridPanel);
+Ext.reg('m3-edit-grid', Ext.m3.EditorGridPanel);
 if (Ext.version == '3.0') {
     Ext.override(Ext.grid.GridView, {
         ensureVisible : function(row, col, hscroll) {
@@ -6289,6 +6299,7 @@ Ext.reg('Ext.ux.maximgb.tg.PagingToolbar', Ext.ux.maximgb.tg.PagingToolbar);
 
 Ext.m3.Window = Ext.extend(Ext.Window, {
 	constructor: function(baseConfig, params){
+        params = baseConfig.params || params;
 
 		// Ссылка на родительское окно
 		this.parentWindow = null;
@@ -6320,16 +6331,16 @@ Ext.m3.Window = Ext.extend(Ext.Window, {
         }
         Ext.m3.Window.superclass.initTools.call(this);
     }
-})
+});
 
-
-
+Ext.reg('m3-window', Ext.m3.Window);
 
 /**
  * Панель редактирования адреса
  */
 Ext.m3.AddrField = Ext.extend(Ext.Container, {
 	constructor: function(baseConfig, params){
+        params = baseConfig.params || params;
 
 		var items = params.items || [];
 
@@ -6912,6 +6923,7 @@ Ext.m3.AddrField = Ext.extend(Ext.Container, {
 
 });
 
+Ext.reg('m3-kladr', Ext.m3.AddrField);
 'use strict';
 /**
  * Расширенный комбобокс, включает несколько кнопок
@@ -6922,11 +6934,9 @@ Ext.m3.AddrField = Ext.extend(Ext.Container, {
 Ext.m3.AdvancedComboBox = Ext.extend(Ext.m3.ComboBox, {
     constructor: function (baseConfig, params) {
 
-        /**
-         * Инициализация значений
-         */
+        params = baseConfig.params || params;
 
-            // Будет ли задаваться вопрос перед очисткой значения
+        // Будет ли задаваться вопрос перед очисткой значения
         this.askBeforeDeleting = true;
 
         this.actionSelectUrl = null;
@@ -7551,6 +7561,7 @@ Ext.reg('m3-select', Ext.m3.AdvancedComboBox);
  */
 Ext.m3.AdvancedDataField = Ext.extend(Ext.form.DateField, {
 	constructor: function(baseConfig, params){
+        params = baseConfig.params || params;
 
 		// Базовый конфиг для тригеров
 		this.baseTriggers = [
@@ -7660,127 +7671,6 @@ Ext.m3.AdvancedDataField = Ext.extend(Ext.form.DateField, {
 Ext.reg('m3-date', Ext.m3.AdvancedDataField );
 
 /**
- * @class Ext.m3.CodeEditor
- * @extends Ext.Panel
- * Converts a panel into a code mirror editor with toolbar
- * @constructor
- *
- * @version 0.1
- */
-
- // Define a set of code type configurations
-
-Ext.ns('Ext.m3.CodeEditorConfig');
-Ext.apply(Ext.m3.CodeEditorConfig, {
-    parser: {
-        python: { mode: {name: "python", version: 2, singleLineStringErrors: false}},
-        css: {mode: "css"},
-        html: {mode: "text/html", tabMode: "indent"},
-        javascript:{ mode:{ name: "javascript", json: true}},
-        sql: {lineNumbers: true, matchBrackets: true, indentUnit: 4, mode: "text/x-plsql"}
-    }
-});
-
-//Ext.ns('Ext.m3');
-Ext.m3.CodeEditor = Ext.extend(Ext.Panel, {
-    sourceCode: '/*Default code*/ ',
-    readOnly: false,
-    theme:'default',
-    constructor: function(baseConfig){
-        Ext.m3.CodeEditor.superclass.constructor.call(this, baseConfig);
-    },
-
-    initComponent: function() {
-        // this property is used to determine if the source content changes
-        this.contentChanged = false;
-
-        Ext.apply(this, {
-            items: [{
-                xtype: 'textarea',
-                readOnly: this.readOnly,
-                hidden: true,
-                value: this.sourceCode,
-                enableKeyEvents: true
-            }]
-        });
-
-        this.addEvents('editorkeyevent','editorfocus');
-
-        Ext.m3.CodeEditor.superclass.initComponent.apply(this, arguments);
-    },
-
-
-    onRender: function() {
-        Ext.m3.CodeEditor.superclass.onRender.apply(this, arguments);
-
-        this.oldSourceCode = this.sourceCode;
-        // trigger editor on afterlayout
-        this.on('afterlayout', this.triggerCodeEditor, this, {
-            single: true
-        });
-
-    },
-    /* Хендлер перехвата клавиатурных действий */
-    fireKeyEvent:function(i,e) {
-        this.fireEvent('editorkeyevent', i, e);
-    },
-
-    fireFocusEvent:function() {
-        this.fireEvent('editorfocus');
-    },
-
-    contentChange: function() {
-        var oCmp = this.getTextArea();
-        var sCode = this.codeMirrorEditor.getValue();
-
-        oCmp.setValue(sCode);
-        if(this.oldSourceCode == sCode) this.setTitleClass(true);
-        else this.setTitleClass();
-        this.fireEvent('contentchanged', this);
-    },
-
-    /** @private*/
-    triggerCodeEditor: function() {
-        var oThis = this;
-        var oCmp = this.getTextArea();
-        var editorConfig = Ext.applyIf(this.codeMirrorEditor || {}, {
-            height: "100%",
-            width: "100%",
-            theme: this.theme,
-            lineNumbers: true,
-            indentUnit: 4,
-            tabMode: "shift",
-            matchBrackets: true,
-            textWrapping: false,
-            content: oCmp.getValue(),
-            readOnly: oCmp.readOnly,
-            autoMatchParens: true,
-            /* Событие нажатия клавиши */
-            onKeyEvent: this.fireKeyEvent.createDelegate(this),
-            /* Событие изменения контента */
-            onChange: this.contentChange.createDelegate(this),
-            /* Событие фокуса эдитора */
-            onFocus:this.fireFocusEvent.createDelegate(this)
-       });
-
-        var sParserType = oThis.parser || 'python';
-        editorConfig = Ext.applyIf(editorConfig, Ext.m3.CodeEditorConfig.parser[sParserType]);
-
-        this.codeMirrorEditor = new CodeMirror.fromTextArea(Ext.getDom(oCmp.id), editorConfig);
-    },
-
-    setTitleClass: function(){
-        this.contentChanged = arguments[0] !== true;
-    },
-
-    getTextArea:function() {
-        return this.findByType('textarea')[0];
-    }
-});
-
-Ext.reg('uxCodeEditor', Ext.m3.CodeEditor);
-
-/**
  * Окно на базе Ext.m3.Window, которое включает такие вещи, как:
  * 1) Submit формы, если она есть;
  * 2) Навешивание функции на изменение поля, в связи с чем обновляется заголовок 
@@ -7796,6 +7686,7 @@ Ext.m3.EditWindow = Ext.extend(Ext.m3.Window, {
 	 * @param {Object} params Дополнительные параметры 
 	 */
 	constructor: function(baseConfig, params){
+        params = baseConfig.params || params;
 		
 		/**
 		 * id формы в окне, для сабмита
@@ -7955,6 +7846,7 @@ Ext.m3.EditWindow = Ext.extend(Ext.m3.Window, {
 		var mask = new Ext.LoadMask(this.body, {msg:'Сохранение...'});
 		var params = Ext.applyIf(baseParams || {}, this.actionContextJson || {});
 
+        //->TODO - deprecated
         // На форме могут находиться компоненты, которые не являются полями, но их можно сабмитить
         // Находим такие компоненты по наличию атрибутов name и localEdit
         var getControls = function(items){
@@ -7984,6 +7876,7 @@ Ext.m3.EditWindow = Ext.extend(Ext.m3.Window, {
             }
             params[cControl.name] = Ext.util.JSON.encode(cStoreData);
         }
+        //<-TODO - deprecated
 
         // вытащим из формы все поля и исключим их из наших параметров, иначе они будут повторяться в submite
         var fElements = form.el.dom.elements || (document.forms[form.el.dom] || Ext.getDom(form.el.dom)).elements;
@@ -8210,7 +8103,10 @@ Ext.m3.EditWindow = Ext.extend(Ext.m3.Window, {
             id,
             record,            
             complexData = action.result['complex_data'];
-            
+
+        //FIXME -> deprecated (нарушение принципа слабой связи,
+        // отсутствие точки расширения, компонент знает о каких-то других компонентах
+        // со свойством Store)
         for (var fieldName in complexData){
             field = form.findField(fieldName);
             assert(field instanceof Ext.form.TriggerField,
@@ -8233,7 +8129,8 @@ Ext.m3.EditWindow = Ext.extend(Ext.m3.Window, {
                 field.clearValue();
             }
         }
-        
+        //<- deprecated
+
         mask.hide();
         this.disableToolbars(false);
         this.fireEvent('dataloaded', action);
@@ -8249,7 +8146,9 @@ Ext.m3.EditWindow = Ext.extend(Ext.m3.Window, {
         mask.hide();
         this.disableToolbars(false);
    }
-})
+});
+
+Ext.reg('m3-window', Ext.m3.EditWindow);
 
 Ext.ns('Ext.ux.grid');
 
@@ -9312,10 +9211,12 @@ Ext.ux.grid.MultiSorting = Ext.extend(Ext.util.Observable,{
 });
 /**
  * Окно показа контекстной помощи
+ *
+ * deprecated! - Непонятно где используется
  */
 
 Ext.m3.HelpWindow = Ext.extend(Ext.Window, {
-    constructor: function(baseConfig, params){
+    constructor: function(baseConfig){
         this.title = 'Справочная информация';
         this.maximized = true;
         this.maximizable = true;
@@ -12116,6 +12017,7 @@ Ext.ux.grid.LockingGridColumnWithHeaderGroup = Ext.extend(Ext.util.Observable, {
     }
 });
 
+Ext.reg('m3-locking-column-header-group', Ext.ux.grid.LockingGridColumnWithHeaderGroup);
 Ext.ux.MonthPickerPlugin = Ext.extend(Ext.util.Observable,{
     constructor: function(config){
         if (config) Ext.apply(this, config);
@@ -12599,6 +12501,7 @@ Ext.ux.Notification = Ext.extend(Ext.Window, {
  */
 Ext.m3.ObjectGrid = Ext.extend(Ext.m3.GridPanel, {
 	constructor: function(baseConfig, params){
+        params = baseConfig.params || params;
 
 		assert(params.allowPaging !== undefined,'allowPaging is undefined');
 		assert(params.rowIdName !== undefined,'rowIdName is undefined');
@@ -13005,6 +12908,7 @@ Ext.m3.ObjectGrid = Ext.extend(Ext.m3.GridPanel, {
 
 Ext.m3.EditorObjectGrid = Ext.extend(Ext.m3.EditorGridPanel, {
 	constructor: function(baseConfig, params){
+        params = baseConfig.params || params;
 
 		assert(params.allowPaging !== undefined,'allowPaging is undefined');
 		assert(params.rowIdName !== undefined,'rowIdName is undefined');
@@ -13276,6 +13180,8 @@ Ext.m3.EditorObjectGrid = Ext.extend(Ext.m3.EditorGridPanel, {
     }
 });
 
+Ext.reg('m3-object-grid', Ext.m3.ObjectGrid);
+Ext.reg('m3-edit-object-grid', Ext.m3.EditorObjectGrid);
 /**
  * Created by prefer on 31/01/14.
  *
@@ -13371,13 +13277,15 @@ Ext.m3.ObjectSelectionPanel = Ext.extend(Ext.Container, {
     }
 });
 
-Ext.reg('object-selection-panel', Ext.m3.ObjectSelectionPanel);
+Ext.reg('m3-object-selection-panel', Ext.m3.ObjectSelectionPanel);
 /**
  * Объектное дерево, включает в себя тулбар с кнопками добавить (в корень и дочерний элемент), редактировать и удалить
  * @param {Object} config
  */
 Ext.m3.ObjectTree = Ext.extend(Ext.ux.tree.TreeGrid, {
 	constructor: function(baseConfig, params){
+        params = baseConfig.params || params;
+
 		assert(params.rowIdName !== undefined,'rowIdName is undefined');
 		assert(params.actions !== undefined,'actions is undefined');
 		
@@ -13741,7 +13649,7 @@ Ext.m3.ObjectTree = Ext.extend(Ext.ux.tree.TreeGrid, {
     }
 });
 
-
+Ext.reg('m3-object-tree', Ext.m3.ObjectTree);
 Ext.namespace('Ext.ux');
 
 Ext.ux.OnDemandLoad = function(){
@@ -13967,8 +13875,7 @@ Ext.override(Ext.form.NumberField, {
     }
 });
 
-Ext.ux.PagingTreeNodeUI = Ext.extend(Ext.ux.tree.TreeGridNodeUI,
-  {
+Ext.ux.PagingTreeNodeUI = Ext.extend(Ext.ux.tree.TreeGridNodeUI, {
     renderElements : function(n, a, targetNode, bulkRender){
         this.indentMarkup = n.parentNode ? n.parentNode.ui.getChildIndent() : '';
         var attribs = n.attributes;
@@ -13980,9 +13887,8 @@ Ext.ux.PagingTreeNodeUI = Ext.extend(Ext.ux.tree.TreeGridNodeUI,
         var t = n.getOwnerTree();
         var cols = t.columns;
         var  c = cols[0];
-        var renderBtn = function(stringStack, pageNum, text, addlClass)
-        {
-          stringStack.push('<div class="gs_tree_pgbtn')
+        var renderBtn = function(stringStack, pageNum, text, addlClass) {
+          stringStack.push('<div class="gs_tree_pgbtn');
           if(addlClass)
             stringStack.push(' ' + addlClass);
           stringStack.push('"><div gs:page="');
@@ -13990,7 +13896,7 @@ Ext.ux.PagingTreeNodeUI = Ext.extend(Ext.ux.tree.TreeGridNodeUI,
           stringStack.push('" class="x-tree-col-text">');
           stringStack.push(text);
           stringStack.push('</div></div>');
-        }
+        };
 
          var buf = [
              '<li class="gs_tree_pagingbar" style="list-style:none;"><div ext:tree-node-id="',n.id,'" class="x-tree-node-el ', a.cls,'">',
@@ -14096,6 +14002,8 @@ Ext.ux.PagingTreeNodeUI = Ext.extend(Ext.ux.tree.TreeGridNodeUI,
         this.textNode = cs[3].firstChild;
     }
 });
+
+Ext.reg('paging-tree-node-ui', Ext.ux.PagingTreeNodeUI);
 /**
  * Ext.ux.DateTimePicker & Ext.ux.form.DateTimeField
  * http://www.sencha.com/forum/showthread.php?98292-DateTime-field-again-and-again-)
@@ -14921,6 +14829,8 @@ Ext.ux.form.FileUploadField = Ext.extend(Ext.form.TextField,  {
     ,iconClsDownloadFile: 'x-form-file-download-icon'
 
     ,constructor: function(baseConfig, params){
+        params = baseConfig.params || params;
+
         if (params) {
             if (params.prefixUploadField) {
                 this.prefixUploadField = params.prefixUploadField;
@@ -15255,6 +15165,7 @@ Ext.ux.form.ImageUploadField = Ext.extend(Ext.form.FileUploadField,  {
     ,iconClsPreviewImage: 'x-form-image-preview-icon'
     
     ,constructor: function(baseConfig, params){
+        params = baseConfig.params || params;
         
         if (params) {
             if (params.thumbnailWidth) {
