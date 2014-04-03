@@ -10,7 +10,6 @@ from m3_ext.ui.results import UIResult
 
 
 class Pack(ActionPack):
-
     url = '/pack'
 
     action_classses = set()
@@ -35,7 +34,6 @@ class Pack(ActionPack):
 
 
 class UIAction(Action):
-
     @property
     def title(self):
         """
@@ -126,6 +124,7 @@ class SampleAction(UIAction):
         res['data']['message'] = u"Кнопка нажата!"
         return res
 
+
 @Pack.register
 class ListWindowAction(UIAction):
     """
@@ -149,3 +148,55 @@ class ListWindowAction(UIAction):
             {'first': u'Первая', 'second': u'Вторая'},
         ]
         return res
+
+
+@Pack.register
+class ContainerAction(UIAction):
+    """
+    Пример контейнера
+    """
+    title = u'Окно с контейнером'
+
+    def get_ui(self, request, context):
+        win = super(ContainerAction, self).get_ui(request, context)
+        win.container = ext.ExtContainer()
+        win.items.append(win.container)
+        return win
+
+    def get_result(self, request, context):
+        res = super(ContainerAction, self).get_result(request, context)
+        return res
+
+
+@Pack.register
+class PanelAction(UIAction):
+    """
+    Пример панели
+    """
+    title = u'Окно с панелью'
+
+    def get_ui(self, request, context):
+        win = ext.ExtWindow(title=self.title,
+                            width=600,
+                            height=400,
+                            layout='fit')
+
+        win.panel = ext.ExtPanel(header=True, title=u'Заголовок панели')
+
+        tbar = ext.ExtToolBar()
+        tbar.add_text_item(u'Текст на топбаре')
+        tbar.add_spacer(10)
+        tbar.items.append(ext.ExtButton(text=u'Кнопка на топбаре'))
+
+        tbar.add_separator()
+        tbar.items.append(ext.ExtButton(text=u'Еще одна кнопка'))
+        tbar.add_fill()
+        tbar.items.append(ext.ExtButton(text=u'Кнопка в дальнем конце'))
+
+
+        print tbar.items[0]._config
+
+        win.panel.top_bar = tbar
+
+        win.items.append(win.panel)
+        return win

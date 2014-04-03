@@ -2,9 +2,7 @@
  * Содержит общие функции вызываемые из разных частей
  */
 Ext.QuickTips.init();
-Ext.m3.ExtJS_version = (function() {
-    return Ext.version.split(".").slice(0, 2).join(".");
-})();
+
 /**
  * Чтобы ie и прочие не правильные браузеры, где нет console не падали
  */

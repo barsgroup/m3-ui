@@ -632,80 +632,23 @@ class ExtForm(BaseExtPanel):
 #==============================================================================
 class ExtPanel(BaseExtPanel):
     """
-    Панель. Kак правило этот контрол включает другие компоненты для отображения
+    Панель.
+    Kак правило этот контрол включает другие компоненты для отображения
     """
-    def __init__(self, *args, **kwargs):
-        super(ExtPanel, self).__init__(*args, **kwargs)
+    _xtype = 'panel'
 
-        # Отступ от внешних границ
-        self.padding = None
-
-        # Возможность сворачивать панель
-        self.collapsible = False
-
-        # Показывать ли внутреннюю границу у элемента
-        self.body_border = True
-
-        # Базовый CSS класс, по умолчанию 'x-panel'
-        self.base_cls = ''
-
-        # Данное свойства - приватное в контексте extjs
-        # Переопределяет стиль панели
-        self.body_cls = ''
-
-        # Автозагрузка контента
-        self.auto_load = None
-
-        self.auto_scroll = True
-        # Позволять ли панели быть "плавающей"
-        # (см Ext.layout.BorderLayout.Region)
-        self.floatable = True
-        # Сворачивать панель при щелчке на заголовке?
-        self.title_collapse = False
-
-        self.init_component(*args, **kwargs)
-
-    def render_base_config(self):
-        """
-        Точная имитация рендера из покойного шаблона
-        """
-        super(ExtPanel, self).render_base_config()
-        for args in (
-            ('padding', self.padding),
-            ('collapsible', self.collapsible, self.collapsible),
-            ('bodyBorder', self.body_border, not self.body_border),
-            ('baseCls', self.base_cls, self.base_cls),
-            ('bodyCfg', {'cls': self.body_cls}, self.body_cls),
-            ('autoLoad', self.auto_load),
-            ('autoScroll', self.auto_scroll, self.auto_scroll),
-            ('floatable', self.floatable, not self.floatable),
-            ('titleCollapse', self.title_collapse, self.title_collapse),
-        ):
-            self._put_config_value(*args)
-        if self._items:
-            self._put_config_value('items', self.t_render_items)
-
-    def render(self):
-        self.pre_render()  # Тут рендерится контекст
-        self.render_base_config()  # Тут конфиги
-        self.render_params()  # Пусто
-        base_config = self._get_config_str()
-        return 'new Ext.Panel({%s})' % base_config
-
-    def render_globals(self):
-        """
-        Рендерит и возвращает js-код, который помещен в template_globals
-        """
-        if self.template_globals:
-            return render_template(
-                self.template_globals,
-                {'component': self, 'self': self, 'panel': self})
-
-        return ''
-
-    @property
-    def items(self):
-        return self._items
+    js_attrs = BaseExtPanel.js_attrs.extend(
+        'title',
+        'padding',  # Отступ от внешних границ
+        'collapsible',  # Возможность сворачивать панель
+        ('body_border', 'bodyBorder'),  # Показывать ли внутреннюю границу у элемента
+        ('base_cls', 'baseCls'),  # Базовый CSS класс, по умолчанию 'x-panel'
+        ('body_cls', 'bodyCls'),  # Данное свойства - приватное в контексте extjs, переопределяет стиль панели
+        ('auto_load', 'autoLoad'),   # Автозагрузка контента
+        ('auto_scroll', 'autoScroll'),  # Скролл появляется автоматически
+        'floatable',  # Позволять ли панели быть "плавающей", (см Ext.layout.BorderLayout.Region)
+        ('title_collapse', 'titleCollapse'),  # Сворачивать панель при щелчке на заголовке?
+    )
 
 
 #==============================================================================
