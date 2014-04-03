@@ -5,7 +5,6 @@ Created on 26.05.2010
 @author: akvarats
 """
 from base import BaseExtWindow
-from m3_ext.ui import panels
 
 
 #==============================================================================
