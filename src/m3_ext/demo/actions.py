@@ -8,7 +8,6 @@ from m3.actions import ActionPack, Action
 from m3_ext.ui import all_components as ext
 from m3_ext.ui.results import UIResult
 
-
 class Pack(ActionPack):
 
     url = '/pack'
@@ -124,4 +123,28 @@ class SampleAction(UIAction):
     def get_result(self, request, context):
         res = super(SampleAction, self).get_result(request, context)
         res['data']['message'] = u"Кнопка нажата!"
+        return res
+
+@Pack.register
+class ListWindowAction(UIAction):
+    """
+    Пример оконного экшна со списком (гридом) внутри.
+    """
+    title = u'Окно со списком'
+
+    def get_js(self, request, context):
+        return """function(w, d){
+            var store = w.find('itemId', 'grid')[0];
+            store.loadData(d.rows);
+        }"""
+
+    def get_ui(self, request, context):
+        win = ext.BaseExtListWindow()
+        return win
+
+    def get_result(self, request, context):
+        res = super(ListWindowAction, self).get_result(request, context)
+        res['data']['rows'] = [
+            {'first': u'Первая', 'second': u'Вторая'},
+        ]
         return res
