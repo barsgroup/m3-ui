@@ -4,11 +4,6 @@ Created on 25.02.2010
 
 @author: akvarats
 """
-import weakref
-
-from django.conf import settings
-
-from m3.actions import ActionContext
 
 from m3_ext.ui.base import ExtUIComponent
 from m3_ext.ui import render_template
@@ -110,6 +105,3 @@ class BaseExtWindow(ExtUIComponent):
                 assert isinstance(button, BaseExtControl)
                 button.make_read_only(
                     self.read_only, exclude_list, *args, **kwargs)
-
-    def get_script(self):
-        return self.renderer.get_script(self)

@@ -3,9 +3,8 @@
 from django.conf import urls
 
 from m3.actions import ActionController
+from m3_ext.demo.base import Pack
 from m3_ext.ui.desktop import uificate_the_controller, MainMenu
-
-from actions import Pack
 
 
 controller = ActionController(url='actions')

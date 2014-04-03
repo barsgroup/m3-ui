@@ -5,7 +5,6 @@ Created on 25.02.2010
 @author: akvarats
 """
 
-
 from m3_ext.ui.base import BaseExtComponent
 from m3_ext.ui.containers.base import BaseExtPanel
 from m3_ext.ui.helpers import bind_to_request, from_object, to_object
@@ -13,6 +12,7 @@ from m3_ext.ui.helpers import bind_to_request, from_object, to_object
 
 def _is_field(obj):
     from m3_ext.ui.fields.base import BaseExtField
+
     return isinstance(obj, BaseExtField)
 
 
@@ -21,26 +21,20 @@ class ExtForm(BaseExtPanel):
     Форма, умеющая биндиться и делать сабмит по урлу
     """
 
+    _xtype = 'form'
+
+    js_attrs = BaseExtPanel.js_attrs.extend(
+        'padding',
+        'url',
+        ('file_upload', 'fileUpload'),
+    )
+
     def __init__(self, *args, **kwargs):
         super(ExtForm, self).__init__(*args, **kwargs)
-        self.template = 'ext-panels/ext-form.js'
-
-        # Свой layout
-        self.layout = 'form'
-
-        # Отступ от внешнего контрола
-        self.padding = None
-
-        # url для сабмита
-        self.url = None
-
-        # Будут ли загружаться файлы
-        self.file_upload = False
+        self.setdefault('layout', self.FORM)
 
         # поле, которое будет под фокусом ввода после рендеринга формы
-        self.focused_field = None
-
-        self.init_component(*args, **kwargs)
+        # TODO: focused_field - удалено
 
     def _get_all_fields(self, item, lst=None):
         """
@@ -55,21 +49,6 @@ class ExtForm(BaseExtPanel):
             for it in item.items:
                 self._get_all_fields(it, lst)
         return lst
-
-    @property
-    def items(self):
-        return self._items
-
-    def pre_render(self):
-        from m3_ext.ui.fields import ExtHiddenField
-        super(ExtForm, self).pre_render()
-        if not self.focused_field:
-            childs = self._get_all_fields(self)
-            for child in childs:
-                if _is_field(child) and not isinstance(
-                        child, ExtHiddenField) and not child.hidden:
-                    self.focused_field = child
-                    break
 
     def bind_to_request(self, request):
         fields = self._get_all_fields(self)
@@ -98,7 +77,7 @@ class ExtPanel(BaseExtPanel):
         ('body_border', 'bodyBorder'),  # Показывать ли внутреннюю границу у элемента
         ('base_cls', 'baseCls'),  # Базовый CSS класс, по умолчанию 'x-panel'
         ('body_cls', 'bodyCls'),  # Данное свойства - приватное в контексте extjs, переопределяет стиль панели
-        ('auto_load', 'autoLoad'),   # Автозагрузка контента
+        ('auto_load', 'autoLoad'),  # Автозагрузка контента
         ('auto_scroll', 'autoScroll'),  # Скролл появляется автоматически
         'floatable',  # Позволять ли панели быть "плавающей", (см Ext.layout.BorderLayout.Region)
         ('title_collapse', 'titleCollapse'),  # Сворачивать панель при щелчке на заголовке?
@@ -119,6 +98,7 @@ class ExtTitlePanel(ExtPanel):
     """
     Расширенная панель с возможностью добавления контролов в заголовок.
     """
+
     def __init__(self, *args, **kwargs):
         super(ExtTitlePanel, self).__init__(*args, **kwargs)
         self.template = "ext-panels/ext-title-panel.js"
@@ -225,6 +205,7 @@ class ExtFieldSet(ExtPanel):
     """
     Объеденяет внутренние элементы и создает рамку для остальных контролов
     """
+
     def __init__(self, *args, **kwargs):
         self.checkbox_toggle = False
         # имя чекбокса, используется в случае checkboxToggle = True

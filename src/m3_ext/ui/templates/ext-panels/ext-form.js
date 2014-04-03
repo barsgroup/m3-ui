@@ -18,7 +18,7 @@
     		,header: false
     	{% endif %}
 		, fileUpload: {% if component.file_upload %} true {% else %} false {% endif %}
-    	{% if component.top_bar %} ,tbar: {{ component.t_render_top_bar|safe }} {% endif %}
+    	{% if component.top_bar %} ,tbar: {{ component.t_render_top_barfile_upload|safe }} {% endif %}
         
         {% if component.collapsible %} ,collapsible: true {% endif %}
         {% if component.collapsed %} ,collapsed: true {% endif %}
