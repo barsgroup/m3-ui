@@ -31,7 +31,6 @@ class ExtToolBar(BaseExtContainer):
     """
 
     _xtype = 'toolbar'
-    js_attrs = BaseExtContainer.js_attrs
 
     class Fill(BaseExtComponent):
         _xtype = 'tbfill'
@@ -84,96 +83,25 @@ class ExtToolBar(BaseExtContainer):
         self.items.append(ExtToolbarMenu(**kwargs))
 
 
-class ExtStaticToolBarItem(ExtUIComponent):
-    """
-    :deprecated: Нужно использовать встроенные подклассы в качестве элементов
-
-    Преднастроенные элементы в тулбаре
-    @TODO: Для чего нужнен отдельный класс, если задача может решится методами
-    тулбара?
-    """
-    def __init__(self, static_value='', *args, **kwargs):
-        super(ExtStaticToolBarItem, self).__init__(*args, **kwargs)
-        self.static_value = static_value
-        self.init_component(*args, **kwargs)
-
-    def render(self):
-        return self.static_value
-
-    def _make_read_only(
-            self, access_off=True, exclude_list=(), *args, **kwargs):
-        # Описание в базовом классе ExtUiComponent.
-        pass
-
-
-class ExtTextToolBarItem(ExtUIComponent):
-    """
-    :deprecated: Нужно использовать встроенные подклассы в качестве элементов
-
-    Текстовый элемент в тулбаре
-    @TODO: Для чего нужнен отдельный класс, если задача может решится методами
-    тулбара?
-    """
-    def __init__(self, static_value='', *args, **kwargs):
-        super(ExtTextToolBarItem, self).__init__(*args, **kwargs)
-        self.text = None
-        self.init_component(*args, **kwargs)
-
-    def render(self):
-        return "{xtype: 'tbtext', text: '%s'}" % self.text
-
-    def _make_read_only(
-            self, access_off=True, exclude_list=(), *args, **kwargs):
-        # Описание в базовом классе ExtUiComponent.
-        pass
-
-
 class ExtPagingBar(BaseExtContainer):
     """
     Класс, имитирующий работу Ext.PagingToolbar
     """
+
+    _xtype = 'paging'
+    js_attrs = BaseExtContainer.js_attrs.extend(
+        ('page_size', 'pageSize'),
+        ('display_message', 'displayMsg'),
+        ('display_info', 'displayInfo'),
+        ('empty_message', 'emptyMsg'),
+    )
+
     def __init__(self, *args, **kwargs):
         super(ExtPagingBar, self).__init__(*args, **kwargs)
-        self._ext_name = 'Ext.PagingToolbar'
-
-        self.page_size = 25
-        self.display_message = u'Показано записей {0} - {1} из {2}'
-        self.display_info = True
-        self.empty_message = u'Нет записей'
-        self.init_component(*args, **kwargs)
-
-    def render_base_config(self):
-        super(ExtPagingBar, self).render_base_config()
-        self._put_config_value('pageSize', self.page_size)
-        self._put_config_value('displayInfo', self.display_info)
-        self._put_config_value('displayMsg', self.display_message)
-        self._put_config_value('emptyMsg', self.empty_message)
-
-    def render(self):
-        assert getattr(self, '_ext_name'), (
-            'Class %s is not define "_ext_name"' %
-            self.__class__.__name__
-        )
-
-        self.pre_render()
-
-        try:
-            self.render_base_config()
-            self.render_params()
-        except UnicodeDecodeError:
-            raise Exception('Some attribute is not unicode')
-        except Exception as msg:
-            raise Exception(msg)
-
-        base_config = self._get_config_str()
-        params = self._get_params_str()
-        res = '%(ext_name)s({%(base_config)s},{%(params)s})' % {
-            'ext_name': self._ext_name,
-            'base_config': base_config,
-            'params': params
-        }
-
-        return 'new %s' % res if not self._is_function_render else res
+        self.setdefault('page_size', 25)
+        self.setdefault('display_message', u'Показано записей {0} - {1} из {2}')
+        self.setdefault('display_info', True)
+        self.setdefault('empty_message', u'Нет записей')
 
 
 class ExtToolbarMenu(ExtUIComponent):
