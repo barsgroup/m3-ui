@@ -178,13 +178,6 @@ class BaseExtComponent(object):
                         attr
                     )
 
-    def init_component(self, *args, **kwargs):
-        """
-        Заполняет атрибуты экземпляра значениями в kwargs,
-        если они проинициализированы ранее
-        """
-        warn('init_component is deprecated!', UserWarning, 2)
-
 
 class ExtUIComponent(BaseExtComponent):
     """

@@ -32,7 +32,7 @@ class BaseExtContainer(ExtUIComponent):
 
     def __init__(self, *args, **kwargs):
         super(BaseExtContainer, self).__init__(*args, **kwargs)
-        self._init_attr('items', [])
+        self.setdefault('items', [])
 
     def _make_read_only(
             self, access_off=True, exclude_list=(), *args, **kwargs):
@@ -48,7 +48,6 @@ class BaseExtPanel(BaseExtContainer):
     """
     Базовый класс для визуальных контейнерных компонентов
     """
-    _xtype = 'panel'
 
     js_attrs = BaseExtContainer.js_attrs.extend(
         'title', 'border', 'split', 'header',
