@@ -129,8 +129,8 @@
                     msg: obj.message,
                     buttons: Ext.Msg.OK,
                     icon: (
-                            obj.success != undefined && !obj.success ? Ext.Msg.WARNING : Ext.Msg.Info
-                            )
+                        obj.success != undefined && !obj.success
+                    ) ? Ext.Msg.WARNING : Ext.Msg.Info
                 });
             } else {
                 return "ok"
@@ -139,10 +139,11 @@
             if (obj.code) {
                 if (obj.code.ui) {
                     return appUI.create(
-                                    obj.code
-                            ).invoke(
-                                    'show', document
-                            )
+                        obj.code
+                    ).then(function(win) {
+                        AppDesktop.getDesktop().createWindow(win);
+                        win.show();
+                    })
                 } else {
                     return obj.code
                 }
@@ -156,7 +157,12 @@
     function callAction(url, params) {
         UI.ajax(url, params).then(evalResult).catch(function (ex) {
             Ext.Msg.show({
-                title: 'Внимание', msg: 'Произошла непредвиденная ошибка!', buttons: Ext.Msg.OK, fn: Ext.emptyFn, animEl: 'elId', icon: Ext.MessageBox.WARNING
+                title: 'Внимание',
+                msg: 'Произошла непредвиденная ошибка!',
+                buttons: Ext.Msg.OK,
+                fn: Ext.emptyFn,
+                animEl: 'elId',
+                icon: Ext.MessageBox.WARNING
             });
             console.error(ex);
             throw ex;

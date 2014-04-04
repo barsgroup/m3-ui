@@ -54,8 +54,13 @@ class UIAction(Action):
         """
         Метод должен вернуть в виде строки js-код для окна
         """
-        # В режиме дебага по-умолчанию при закрытие окна идет еще один запрос на это окно
-        return "function(w, d) { w.on('close', function(){callAction('%s');}) }" % self.get_absolute_url()
+        # В режиме дебага по-умолчанию при закрытие окна
+        # идет еще один запрос на это окно
+        return (
+            "function(w, d) { "
+            "w.on('close', function(){callAction('%s');}) }" %
+            self.get_absolute_url()
+        )
 
     def get_ui(self, request, context):
         """
