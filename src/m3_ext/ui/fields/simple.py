@@ -16,18 +16,17 @@ class ExtStringField(BaseExtField):
     """
     Поле ввода простого текстового значения
     """
-
-    # TODO: необходимо перенести функциональность Ext.ux.Mask
+    # FIXME: необходимо перенести функциональность Ext.ux.Mask
     # Вызывалось в render_base_config
     # if self.input_mask:
     #   self.plugins.append("new Ext.ux.Mask('%s')" % self.input_mask)
 
-    # TODO: Проверить работу кода
+    # FIXME: Проверить работу кода
     # Вызывалось в render_base_config
     #     if self.value:
     #         self.value = self.value.replace('\\', '\\\\')
 
-    # TODO: Написать override для mask_re
+    # FIXME: Написать override для mask_re
     # def t_render_mask_re(self):
     #     return '/%s/' % self.mask_re
 
