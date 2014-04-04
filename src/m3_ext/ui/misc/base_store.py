@@ -5,14 +5,24 @@ Created on 3.3.2010
 @author: prefer
 """
 
-from m3_ext.ui.base import ExtUIComponent
+from m3_ext.ui.base import BaseExtComponent
 
 
 # FIXME: для чего наследуется от ExtUIComponent, а не от BaseExtComponent?
-class BaseExtStore(ExtUIComponent):
+class BaseExtStore(BaseExtComponent):
     """
     Базовый класс для Store - компонента хранения данных
     """
+
+    _xtype = 'store'
+
+    js_attrs = BaseExtComponent.js_attrs.extend(
+        'url',
+        auto_load='autoLoad',
+        auto_save='autoSave',
+        base_params='baseParams',
+    )
+
     def __init__(self, *args, **kwargs):
         super(BaseExtStore, self).__init__(*args, **kwargs)
 

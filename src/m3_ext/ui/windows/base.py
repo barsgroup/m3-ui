@@ -38,7 +38,8 @@ class BaseExtWindow(ExtUIComponent):
 
     js_attrs = ExtUIComponent.js_attrs.extend(
         'title',
-        'modal', 'maximizable', 'maximized', 'closable',
+        'modal', 'maximizable', 'maximized',
+        'minimizable', 'minimized', 'closable',
         'border', 'resizable', 'draggable', 'keys',
         'items', 'buttons', 'layout',
         body_style='bodyStyle',

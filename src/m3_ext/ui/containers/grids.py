@@ -22,13 +22,17 @@ class ExtGrid(BaseExtPanel):
     поэтому некоторые атрибуты могут действовать в одном,
     но не действовать в другом гриде.
     """
+    _xtype = 'grid'
+
+    js_attrs = BaseExtPanel.js_attrs.extend(
+        'store', 'columns', 'viewConfig', 'sm',
+    )
 
     # TODO: Реализовать человеческий MVC грид
 
     def __init__(self, *args, **kwargs):
         super(ExtGrid, self).__init__(*args, **kwargs)
-        self._items = []
-        self.__store = None
+        self.setdefault('columns', [])
 
         # Будет ли редактироваться
         self.editor = False
@@ -80,8 +84,6 @@ class ExtGrid(BaseExtPanel):
 
         # Метка. Использовать только если задан layout=form
         self.label = None
-
-        self.init_component(*args, **kwargs)
 
         # protected
         self.show_banded_columns = False
@@ -193,12 +195,10 @@ class ExtGrid(BaseExtPanel):
         self.show_banded_columns = False
 
     def set_store(self, store):
-        self.__store = store
+        self.store = store
 
     def get_store(self):
-        return self.__store
-
-    store = property(get_store, set_store)
+        return self.store
 
     def _make_read_only(
             self, access_off=True, exclude_list=(), *args, **kwargs):
@@ -227,10 +227,6 @@ class ExtGrid(BaseExtPanel):
                     if isinstance(item, ExtUIComponent):
                         item.make_read_only(
                             self.read_only, exclude_list, *args, **kwargs)
-
-    @property
-    def columns(self):
-        return self._items
 
     @property
     def sm(self):
@@ -383,7 +379,7 @@ class ExtGrid(BaseExtPanel):
         return 'createGridPanel({%s}, {%s})' % (config, params)
 
 
-class BaseExtGridColumn(ExtUIComponent):
+class BaseExtGridColumn(BaseExtComponent):
     """
     Базовая модель колонки грида
     """
@@ -393,20 +389,28 @@ class BaseExtGridColumn(ExtUIComponent):
     # Рендерер для цен и сумм
     THOUSAND_CURRENCY_RENDERER = 'thousandCurrencyRenderer'
 
+    _xtype = 'gridcolumn'
+
+    js_attrs = BaseExtComponent.js_attrs.extend(
+        'header', 'align', 'width', 'sortable',
+        'format', 'hidden',
+        data_index='dataIndex',
+    )
+
     def __init__(self, *args, **kwargs):
         super(BaseExtGridColumn, self).__init__(*args, **kwargs)
 
         # Заголовок
-        self.header = None
+        self.setdefault('header', None)
 
         # Возможность сортировки
-        self.sortable = False
+        self.setdefault('sortable', False)
 
         # Уникальное название колонки в пределах column model
-        self.data_index = None
+        self.setdefault('data_index', None)
 
         # Расположение
-        self.align = None
+        self.setdefault('align', None)
 
         # Ширина
         self.width = BaseExtGridColumn.GRID_COLUMN_DEFAULT_WIDTH
@@ -421,10 +425,10 @@ class BaseExtGridColumn(ExtUIComponent):
         self.tooltip = None
 
         # Признак того, скрыта ли колонка или нет
-        self.hidden = False
+        self.setdefault('hidden', False)
 
         # Признак не активности
-        self.read_only = False
+        self.setdefault('read_only', False)
 
         # TODO: В версии 3.3 нет такого свойства
         self.colspan = None
@@ -540,7 +544,6 @@ class ExtGridColumn(BaseExtGridColumn):
     """
     def __init__(self, *args, **kwargs):
         super(ExtGridColumn, self).__init__(*args, **kwargs)
-        self.init_component(*args, **kwargs)
 
     def render(self):
         try:
@@ -563,7 +566,6 @@ class ExtGridBooleanColumn(BaseExtGridColumn):
         self.text_false = None
         self.text_true = None
         self.text_undefined = None
-        self.init_component(*args, **kwargs)
 
 
 class ExtGridCheckColumn(BaseExtGridColumn):
@@ -661,7 +663,6 @@ class ExtGridDefaultColumnModel(BaseExtComponent):
     def __init__(self, *args, **kwargs):
         super(ExtGridDefaultColumnModel, self).__init__(*args, **kwargs)
         self.grid = None
-        self.init_component(*args, **kwargs)
 
     def render(self):
         return 'new Ext.grid.ColumnModel({columns:%s})' % (
