@@ -6,6 +6,9 @@ Created on 27.02.2010
 """
 
 from m3_ext.ui.base import ExtUIComponent
+
+from m3_ext.ui.helpers import pythonize
+
 from m3_ext.ui.misc import ExtDataStore
 
 
@@ -13,51 +16,25 @@ class BaseExtField(ExtUIComponent):
     """
     Базовый класс для полей
     """
-
-    # TODO: Реализовать override на стороне js-a
-    # def t_render_regex(self):
-    #     return '/%s/' % self.regex
-
-    # TODO: Реализовать override на стороне js-a
-    # Вызывалось в render_base_config
-    #     if self.read_only:
-    #         grey_cls = 'm3-grey-field'
-    #         self.cls = grey_cls if not self.cls else self.cls + grey_cls
-
-    # TODO: Реализовать override на стороне js-a
-    # Вызывалось в render_base_config
-    # дополнительно вешаем DOM-атрибуты через Ext.Field.autoCreate
-    #     if self.max_length:
-    #         self.auto_create.update({"maxlength": self.max_length})
-    #         self._put_config_value('autoCreate', self.auto_create)
-
-    _xtype = 'field'
-
     js_attrs = ExtUIComponent.js_attrs.extend(
-        'value',
-        'vtype',  # Тип валидации
-        'regex',  # Валидация на регулярное вырожение
-        'plugins',  # Плагины к полям ввода
-
-        read_only='readOnly',  # Признак нередактируемости поля
-
-        # Признак, что поле используется для изменения значения, а не для навигации
-        # - при Истине будут повешаны обработчики на изменение окна
-        # см. m3.js
-        is_edit='isEdit',
-
-        allow_blank='allowBlank',  # Не обязательно для заполнения (True), иначе поле должно быть не пустым
-        empty_text='emptyText',  # Этот текст будет выводиться, если поле незаполненно
-        min_length='minLength',  # Минимальные длина поля
-        min_length_text='minLengthText',  # Текст ошибки, если минимальная длина была превышена
-        max_length='maxLength',  # Максимальные длина поля
-        max_length_text='maxLengthText',  # Текст ошибки, если максимальная длина была превышена
-        regex_text='regexText',  # Текст ошибки, если валидация на регулярку будет нарушена
-        tab_index='tabIndex',  # Порядок обхода для этого поля
-        invalid_class='invalidClass',  # Свой CSS класс валидации для некорректно заполненного поля
-        invalid_text='invalidText',  # Текст, который будет отображаться, если поле заполненно некорректно
-        auto_create='autoCreate',  # Дополнительные DOM-атрибуты
-
+        'value', 'vtype', 'regex',
+        **pythonize([
+            'readOnly',
+            'allowBlank',
+            'readOnly',
+            'isEdit',
+            'emptyText',
+            'minLength',
+            'minLengthText',
+            'maxLength',
+            'maxLengthText',
+            'regexText',
+            'tabIndex',
+            'invalidClass',
+            'invalidText',
+            'autoCreate'])
+        # ('plugins',
+        #     (lambda: '[%s]' % ','.join(self.plugins)), self.plugins)
     )
 
     def __init__(self, *args, **kwargs):
@@ -87,7 +64,54 @@ class BaseExtField(ExtUIComponent):
         if not hasattr(self, '_allow_blank_old'):
             self._allow_blank_old = self.allow_blank
         self.allow_blank = True if access_off else self._allow_blank_old
-
+#    @property
+#    def handler_specialkey(self):
+#        return self._listeners.get('specialkey')
+#
+#    @handler_specialkey.setter
+#    def handler_specialkey(self, function):
+#        self._listeners['specialkey'] = function
+#
+#    @property
+#    def handler_change(self):
+#        return self._listeners.get('change')
+#
+#    @handler_change.setter
+#    def handler_change(self, function):
+#        self._listeners['change'] = function
+#
+#    def render_base_config(self):
+#        if self.read_only:
+#            grey_cls = 'm3-grey-field'
+#            self.cls = grey_cls if not self.cls else self.cls + grey_cls
+#
+#        super(BaseExtField, self).render_base_config()
+#
+#        for args in (
+#            ('value', self.value),
+#            ('readOnly', self.read_only, self.read_only),
+#            ('isEdit', self.is_edit),
+#            ('allowBlank', self.allow_blank, not self.allow_blank),
+#            ('vtype', self.vtype),
+#            ('emptyText', self.empty_text),
+#            ('minLength', self.min_length),
+#            ('minLengthText', self.min_length_text),
+#            ('maxLength', self.max_length),
+#            ('maxLengthText', self.max_length_text),
+#            ('regex', self.t_render_regex, self.regex),
+#            ('regexText', self.regex_text),
+#            ('tabIndex', self.tab_index),
+#            ('invalidClass', self.invalid_class),
+#            ('invalidText', self.invalid_text),
+#            ('plugins',
+#                (lambda: '[%s]' % ','.join(self.plugins)), self.plugins),
+#        ):
+#            self._put_config_value(*args)
+#
+#        # дополнительно вешаем DOM-атрибуты через Ext.Field.autoCreate
+#        if self.max_length:
+#            self.auto_create.update({"maxlength": self.max_length})
+#            self._put_config_value('autoCreate', self.auto_create)
 
 class BaseExtTriggerField(BaseExtField):
     """

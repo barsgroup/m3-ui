@@ -29,5 +29,3 @@ class SampleAction(UIAction):
         res = super(SampleAction, self).get_result(request, context)
         res['data']['message'] = u"Кнопка нажата!"
         return res
-
-

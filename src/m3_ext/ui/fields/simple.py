@@ -7,6 +7,7 @@ Created on 27.02.2010
 """
 
 from datetime import datetime, date
+import re
 
 from django.conf import settings
 from django.utils.html import escapejs
@@ -16,10 +17,13 @@ from m3 import date2str
 from base import BaseExtField, BaseExtTriggerField
 
 
+from m3_ext.ui.helpers import pythonize
+
 class ExtStringField(BaseExtField):
     """
     Поле ввода простого текстового значения
     """
+
     # TODO: необходимо перенести функциональность Ext.ux.Mask
     # Вызывалось в render_base_config
     # if self.input_mask:
@@ -34,153 +38,86 @@ class ExtStringField(BaseExtField):
     # def t_render_mask_re(self):
     #     return '/%s/' % self.mask_re
 
-    _xtype = 'textfield'
+    _xtype = "textfield"
 
     js_attrs = BaseExtField.js_attrs.extend(
-
-
-        enable_key_events='enableKeyEvents',  # Разрешает перехват нажатий клавиш
-        input_type='inputType',
-        mask_re='maskRe',  # маска ввода, например "(###)###-##-##"
-        select_on_focus='selectOnFocus',
-        input_mask='inputMask',
-
+        **pythonize(
+            [
+                'inputType',
+                'maskRe',
+                'selectOnFocus',
+                'enableKeyEvents'
+            ],
+        )
     )
 
     def __init__(self, *args, **kwargs):
+
         super(ExtStringField, self).__init__(*args, **kwargs)
-        self.setdefault('enable_key_events', False)
+        self.setdefault('enableKeyEvents', False, py=True)
 
 
 class ExtDateField(BaseExtField):
     """
     Поле ввода даты
     """
+    _xtype = "datefield"
+
+    js_attrs = BaseExtField.js_attrs.extend(
+        'editable', # Признак возможности редактирования,
+        'format',
+        **pythonize([
+            "startDay", # атрибут задает с какого дня начинается неделя в календаре.
+                        # 0-Воскресенье, 1-Понедельник, 2-Вторник и т.д.
+            "hideTodayBtn",  # Прятать кнопку "Сегодняшняя дата"
+            "enableKeyEvents", # Разрешает перехват нажатий клавиш
+            "maxValue", # Максимальная возможная дата
+            "minValue" # Минимально возможная дата
+        ])
+    )
 
     def __init__(self, *args, **kwargs):
         super(ExtDateField, self).__init__(*args, **kwargs)
 
-        # атрибут задает с какого дня начинается неделя в календаре.
-        # 0-Воскресенье, 1-Понедельник, 2-Вторник и т.д.
-        self.start_day = 1
+        self.setdefault('startDay',         1, py=True)
+        self.setdefault('hideTodayBtn',     False, py=True)
+        self.setdefault('enableKeyEvents',  False, py=True)
+        self.setdefault('maxValue',         None, py=True)
+        self.setdefault('minValue',         None, py=True)
 
-        # Прятать кнопку "Сегодняшняя дата"
-        self.hide_today_btn = False
+        default_format = 'd.m.Y'
 
-        # Разрешает перехват нажатий клавиш
-        self.enable_key_events = False
-
-        # Максимальная возможная дата
-        self.max_value = None
-
-        # Минимально возможная дата
-        self.min_value = None
-
-        # Формат даты
         try:
-            self.format = settings.DATE_FORMAT.replace('%', '')
+            format_ = settings.DATE_FORMAT.replace('%', '')
         except:
-            self.format = 'd.m.Y'
+            format_ = default_format
 
-        # Признак возможности редактирования
-        self.editable = True
-
-        self.init_component(*args, **kwargs)
-
-    def render_base_config(self):
-        if isinstance(self.value, datetime) or isinstance(self.value, date):
-            value = date2str(self.value)
-        else:
-            value = self.value
-
-        super(ExtDateField, self).render_base_config()
-        self._put_config_value('format', self.format)
-        self._put_config_value('value', value)
-        self._put_config_value(
-            'enableKeyEvents', self.enable_key_events, self.enable_key_events)
-        self._put_config_value('startDay', self.start_day)
-        self._put_config_value('maxValue', self.max_value)
-        self._put_config_value('minValue', self.min_value)
-        self._put_config_value('editable', self.editable)
-
-    def render_params(self):
-        super(ExtDateField, self).render_params()
-        self._put_params_value('hideTriggerToday', self.hide_today_btn)
-
-    def render(self):
-        try:
-            self.render_base_config()
-            self.render_params()
-        except UnicodeDecodeError as msg:
-            raise Exception(msg)
-
-        base_config = self._get_config_str()
-        params = self._get_params_str()
-        return 'createAdvancedDataField({%s},{%s})' % (base_config, params)
+        self.setdefault('format', format_)
+        self.setdefault('editable', True)
 
 
 class ExtNumberField(BaseExtField):
     """
     Поле ввода числового значения
     """
+    _xtype = "numberfield"
 
-    def __init__(self, *args, **kwargs):
-        super(ExtNumberField, self).__init__(*args, **kwargs)
-
-        # Свойства валидации специфичные для чисел
-        # Разделитель целой и дробной части
-        self.decimal_separator = None
-
-        # Признак, что может быть дробная часть
-        self.allow_decimals = True
-
-        # Признак, что могут быть отрицательные значения
-        self.allow_negative = True
-
-        # Точность дробной части
-        self.decimal_precision = None
-
-        # Маскимально возможное значение
-        self.max_value = None
-
-        # Если превышено максимально возможное значение, то будет отображаться этот текст
-        self.max_text = None
-
-        # Минимальное возможное значение
-        self.min_value = None
-
-        # Если превышено минимальное возможное значение, то будет отображаться этот текст
-        self.min_text = None
-
-        # Разрешает перехват нажатий клавиш
-        self.enable_key_events = False
-
-        # Выделение всего содержимого при попадании в фокус
-        self.select_on_focus = None
-
-        self.init_component(*args, **kwargs)
-
-    def render_base_config(self):
-        super(ExtNumberField, self).render_base_config()
-        self._put_config_value('decimalSeparator', self.decimal_separator)
-        self._put_config_value('allowDecimals', self.allow_decimals)
-        self._put_config_value('allowNegative', self.allow_negative)
-        self._put_config_value('decimalPrecision', self.decimal_precision)
-        self._put_config_value('minValue', self.min_value)
-        self._put_config_value('maxValue', self.max_value)
-        self._put_config_value('maxText', self.max_text)
-        self._put_config_value('minText', self.min_text)
-        self._put_config_value('selectOnFocus', self.select_on_focus)
-        self._put_config_value('enableKeyEvents', self.enable_key_events)
-
-    def render(self):
-        try:
-            self.render_base_config()
-        except UnicodeDecodeError as msg:
-            raise Exception(msg)
-
-        base_config = self._get_config_str()
-        return 'new Ext.form.NumberField({%s})' % base_config
+    js_attrs = BaseExtField.js_attrs.extend(
+        **pythonize(
+            [
+                "decimalSeparator",
+                "allowDecimals",
+                "allowNegative",
+                "decimalPrecision",
+                "maxValue",
+                "maxText",
+                "minValue",
+                "minText",
+                "enableKeyEvents",
+                "selectOnFocus"
+            ]
+        )
+    )
 
 
 #===============================================================================
@@ -243,67 +180,82 @@ class ExtCheckBox(BaseExtField):
     """
     Галочка выбора значения
     """
+    _xtype = "checkbox"
+
+    js_attrs = BaseExtField.js_attrs.extend(
+        'template', 'checked',
+        **pythonize(
+            ["boxLabel"]
+        )
+    )
 
     def __init__(self, *args, **kwargs):
         super(ExtCheckBox, self).__init__(*args, **kwargs)
 
-        #TODO: Необходимо отрефакторить под внутриклассовый рендеринг
-        self.template = 'ext-fields/ext-checkbox.js'
+        self.setdefault('template', 'ext-fields/ext-checkbox.js')
+        self.setdefault('checked', False)
+        self.setdefault('box_label', None)
 
-        # Признак того, что значение выбрано
-        self.checked = False
+#        #TODO: Необходимо отрефакторить под внутриклассовый рендеринг
+#        self.template = 'ext-fields/ext-checkbox.js'
+#
+#        # Признак того, что значение выбрано
+#        self.checked = False
+#
+#        # Текст рядом с полем выбора значения
+#        self.box_label = None
 
-        # Текст рядом с полем выбора значения
-        self.box_label = None
+#        self.init_component(*args, **kwargs)
 
-        self.init_component(*args, **kwargs)
-
-    @property
-    def handler_check(self):
-        return self._listeners.get('check')
-
-    @handler_check.setter
-    def handler_check(self, function):
-        self._listeners['check'] = function
-
-    def _make_read_only(self, access_off=True, *args, **kwargs):
-        self.read_only = access_off
+#    @property
+#    def handler_check(self):
+#        return self._listeners.get('check')
+#
+#    @handler_check.setter
+#    def handler_check(self, function):
+#        self._listeners['check'] = function
+#
+#    def _make_read_only(self, access_off=True, *args, **kwargs):
+#        self.read_only = access_off
 
 
 class ExtRadio(BaseExtField):
     """
     Радио-поле
     """
+    _xtype="radio"
+
+    js_attrs = BaseExtField.js_attrs.extend(
+        'checked',        # Признак того, что значение выбрано
+        **pythonize(
+            ['boxLabel']    # Текст рядом с полем выбора значения
+        )
+    )
 
     def __init__(self, *args, **kwargs):
         super(ExtRadio, self).__init__(*args, **kwargs)
-        self._ext_name = 'Ext.form.Radio'
+#        self._ext_name = 'Ext.form.Radio'
+        self.setdefault('checked', False)
+        self.setdefault('box_label', None, py=True)
 
-        # Признак того, что значение выбрано
-        self.checked = False
+#    def render_base_config(self):
+#        value = self.value
+#        self.value = None
+#        super(ExtRadio, self).render_base_config()
+#        if self.checked:
+#            self._put_config_value('checked', True)
+#        if self.box_label:
+#            self._put_config_value('boxLabel', self.box_label)
+#        self._put_config_value('inputValue', value)
 
-        # Текст рядом с полем выбора значения
-        self.box_label = None
-        self.init_component(*args, **kwargs)
-
-    def render_base_config(self):
-        value = self.value
-        self.value = None
-        super(ExtRadio, self).render_base_config()
-        if self.checked:
-            self._put_config_value('checked', True)
-        if self.box_label:
-            self._put_config_value('boxLabel', self.box_label)
-        self._put_config_value('inputValue', value)
-
-    def render(self):
-        try:
-            self.render_base_config()
-        except UnicodeDecodeError as msg:
-            raise Exception(msg)
-
-        base_config = self._get_config_str()
-        return 'new %s({%s})' % (self._ext_name, base_config)
+#    def render(self):
+#        try:
+#            self.render_base_config()
+#        except UnicodeDecodeError as msg:
+#            raise Exception(msg)
+#
+#        base_config = self._get_config_str()
+#        return 'new %s({%s})' % (self._ext_name, base_config)
 
 
 class ExtComboBox(BaseExtTriggerField):
@@ -385,58 +337,28 @@ class ExtDisplayField(BaseExtField):
     """
     Поле отображающее значение (не проверяется и не сабмитится)
     """
+    _xtype = "displayfield"
 
-    def __init__(self, *args, **kwargs):
-        super(ExtDisplayField, self).__init__(*args, **kwargs)
-        self.init_component(*args, **kwargs)
-
-    def render_base_config(self):
-        super(ExtDisplayField, self).render_base_config()
-
-        # Для данного класса установка дополнительно css класса при read_only -
-        # излишне
-        if self.read_only:
-            self._set_config_value('cls', None)
-
-    def render(self):
-        try:
-            self.render_base_config()
-        except UnicodeDecodeError as msg:
-            raise Exception(msg)
-
-        base_config = self._get_config_str()
-        return 'new Ext.form.DisplayField({%s})' % base_config
+#    def render_base_config(self):
+#        super(ExtDisplayField, self).render_base_config()
+#
+#        # Для данного класса установка дополнительно css класса при read_only -
+#        # излишне
+#        if self.read_only:
+#            self._set_config_value('cls', None)
 
 
 class ExtDateTimeField(ExtDateField):
     """
     Поле ввода даты-времени
     """
+    _xtype="datetimefield"
 
-    def render(self):
-        try:
-            self.render_base_config()
-            self.render_params()
-        except UnicodeDecodeError as msg:
-            raise Exception(msg)
-
-        base_config = self._get_config_str()
-        params = self._get_params_str()
-        return 'new Ext.ux.form.DateTimeField({%s},{%s})' % (base_config, params)
 
 
 class ExtAdvTimeField(BaseExtField):
     """
     Поле ввода времени с дополнительными ползунками
     """
+    _xtype = "advtimefield"
 
-    def render(self):
-        try:
-            self.render_base_config()
-            self.render_params()
-        except UnicodeDecodeError as msg:
-            raise Exception(msg)
-
-        base_config = self._get_config_str()
-        params = self._get_params_str()
-        return 'new Ext.ux.form.AdvTimeField({%s},{%s})' % (base_config, params)

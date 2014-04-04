@@ -30,10 +30,7 @@ class ExtForm(BaseExtPanel):
 
     def __init__(self, *args, **kwargs):
         super(ExtForm, self).__init__(*args, **kwargs)
-        self.setdefault('layout', self.FORM)
-
         # поле, которое будет под фокусом ввода после рендеринга формы
-        # TODO: focused_field - удалено
 
     def _get_all_fields(self, item, lst=None):
         """
@@ -57,9 +54,9 @@ class ExtForm(BaseExtPanel):
         fields = self._get_all_fields(self)
         return from_object(obj, fields, exclusion)
 
-    def to_object(self, obj, exclusion=None):
+    def to_object(self, obj, exclusions=None):
         fields = self._get_all_fields(self)
-        return to_object(obj, fields, exclusion)
+        return to_object(obj, fields, exclusions)
 
 
 class ExtPanel(BaseExtPanel):

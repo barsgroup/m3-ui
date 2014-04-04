@@ -71,6 +71,7 @@ class ContainerAction(UIAction):
         win.items.append(win.container)
         return win
 
+
 @Pack.register
 class TitlePanelAction(UIAction):
     """
