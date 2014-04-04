@@ -16,60 +16,40 @@ from m3 import date2str
 from base import BaseExtField, BaseExtTriggerField
 
 
-#==============================================================================
 class ExtStringField(BaseExtField):
     """
     Поле ввода простого текстового значения
     """
+    # TODO: необходимо перенести функциональность Ext.ux.Mask
+    # Вызывалось в render_base_config
+    # if self.input_mask:
+    #   self.plugins.append("new Ext.ux.Mask('%s')" % self.input_mask)
+
+    # TODO: Проверить работу кода
+    # Вызывалось в render_base_config
+    #     if self.value:
+    #         self.value = self.value.replace('\\', '\\\\')
+
+    # TODO: Написать override для mask_re
+    # def t_render_mask_re(self):
+    #     return '/%s/' % self.mask_re
+
+    _xtype = 'textfield'
+
+    js_attrs = BaseExtField.js_attrs.extend(
+
+
+        enable_key_events='enableKeyEvents',  # Разрешает перехват нажатий клавиш
+        input_type='inputType',
+        mask_re='maskRe',  # маска ввода, например "(###)###-##-##"
+        select_on_focus='selectOnFocus',
+        input_mask='inputMask',
+
+    )
 
     def __init__(self, *args, **kwargs):
         super(ExtStringField, self).__init__(*args, **kwargs)
-
-        #
-        self.enable_key_events = False  # Разрешает перехват нажатий клавиш
-
-        #
-        self.input_type = None
-
-        #
-        self.mask_re = None
-
-        #
-        self.select_on_focus = None
-
-        # маска ввода, например "(###)###-##-##"
-        # форматирует строку при вводе
-        self.input_mask = None
-
-        self.init_component(*args, **kwargs)
-
-    def render_base_config(self):
-        if self.input_mask:
-            self.plugins.append("new Ext.ux.Mask('%s')" % self.input_mask)
-
-        # Экранирование значений с обратным слешем
-        # Кавычки, апострафы, символы переноса строки и т.д. отрежутся функцией normalize в helpers/__init__.py
-        # TODO нужно разобраться почему иногда по-умолчанию приходит None, вместо пустой строки.
-        if self.value:
-            self.value = self.value.replace('\\', '\\\\')
-
-        super(ExtStringField, self).render_base_config()
-        self._put_config_value('inputType', self.input_type)
-        self._put_config_value('maskRe', self.t_render_mask_re, self.mask_re)
-        self._put_config_value('selectOnFocus', self.select_on_focus)
-        self._put_config_value('enableKeyEvents', self.enable_key_events, self.enable_key_events)
-
-    def t_render_mask_re(self):
-        return '/%s/' % self.mask_re
-
-    def render(self):
-        try:
-            self.render_base_config()
-        except UnicodeDecodeError as msg:
-            raise Exception(msg)
-
-        base_config = self._get_config_str()
-        return 'new Ext.form.TextField({%s})' % base_config
+        self.setdefault('enable_key_events', False)
 
 
 class ExtDateField(BaseExtField):
@@ -351,6 +331,7 @@ class ExtTimeField(BaseExtField):
     """
     Поле ввода времени
     """
+
     def __init__(self, *args, **kwargs):
         super(ExtTimeField, self).__init__(*args, **kwargs)
 
@@ -404,6 +385,7 @@ class ExtDisplayField(BaseExtField):
     """
     Поле отображающее значение (не проверяется и не сабмитится)
     """
+
     def __init__(self, *args, **kwargs):
         super(ExtDisplayField, self).__init__(*args, **kwargs)
         self.init_component(*args, **kwargs)

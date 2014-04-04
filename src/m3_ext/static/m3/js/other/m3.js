@@ -216,6 +216,7 @@ Ext.app.TitlePanel = Ext.extend(Ext.Panel, {
    },
    onRender: function (ct, position) {
        Ext.app.TitlePanel.superclass.onRender.apply(this, arguments);
+       debugger;
        if (this.titleItems != null) {
            if(Ext.isArray(this.titleItems)){
                for (var i = this.titleItems.length-1; i >= 0 ; i--) {

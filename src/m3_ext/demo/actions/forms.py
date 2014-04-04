@@ -11,7 +11,7 @@ class FormAction(UIAction):
     """
     Пример формы
     """
-    title = u'Окно с формой'
+    title = u'Окно с ExtForm'
 
     def get_ui(self, request, context):
         win = ext.ExtWindow(title=self.title,
@@ -27,9 +27,9 @@ class FormAction(UIAction):
 @Pack.register
 class PanelAction(UIAction):
     """
-    Пример панели
+    Пример ExtPanel, ExtToolBar, ExtPagingBar
     """
-    title = u'Окно с панелью'
+    title = u'Окно с ExtPanel, ExtToolBar, ExtPagingBar'
 
     def get_ui(self, request, context):
         win = ext.ExtWindow(title=self.title,
@@ -57,16 +57,83 @@ class PanelAction(UIAction):
 
         return win
 
-
+@Pack.register
 class ContainerAction(UIAction):
     """
-    Пример контейнера
+    Пример ExtContainer
     """
 
-    title = u'Окно с контейнером'
+    title = u'Окно с ExtContainer'
 
     def get_ui(self, request, context):
         win = super(ContainerAction, self).get_ui(request, context)
         win.container = ext.ExtContainer()
         win.items.append(win.container)
+        return win
+
+@Pack.register
+class TitlePanelAction(UIAction):
+    """
+    Пример Title Panel
+    """
+
+    title = u'Окно с ExtTitlePanel'
+
+    def get_ui(self, request, context):
+        win = ext.ExtWindow(title=self.title,
+                            width=600,
+                            height=400,
+                            layout='fit')
+
+        # TODO: Пока код не рабочий, что-то странное надо засовывать в header
+
+        win.title_panel = ext.ExtTitlePanel(
+            title_items=[
+                ext.ExtButton(text=u'Кнопка')
+            ])
+
+        win.items.append(win.title_panel)
+        return win
+
+
+@Pack.register
+class TabPanelAction(UIAction):
+    """
+    Пример TabPanel
+    """
+
+    title = u'Окно с TabPanel'
+
+    def get_ui(self, request, context):
+        win = ext.ExtWindow(title=self.title,
+                            width=600,
+                            height=400,
+                            layout='fit')
+
+        win.tab_panel = ext.ExtTabPanel()
+        win.tab_panel.add_tab(title=u'Раз')
+        win.tab_panel.add_tab(title=u'Два')
+        win.tab_panel.add_tab(title=u'Три')
+
+        win.items.append(win.tab_panel)
+        return win
+
+
+@Pack.register
+class FieldSetAction(UIAction):
+    """
+    Пример ExtFieldSet
+    """
+
+    title = u'Окно с ExtFieldSet'
+
+    def get_ui(self, request, context):
+        win = ext.ExtWindow(title=self.title,
+                            width=600,
+                            height=400,
+                            layout='fit')
+
+        # TODO: Нужны филды!
+        win.field_set = ext.ExtFieldSet()
+        win.items.append(win.field_set)
         return win
