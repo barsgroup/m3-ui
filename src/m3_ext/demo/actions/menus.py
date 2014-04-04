@@ -13,7 +13,7 @@ class MenuAction(UIAction):
 
     def get_js(self, request, context):
         return """function(win, data){
-            debugger;
+            //debugger;
         }"""
 
     def get_ui(self, request, context):

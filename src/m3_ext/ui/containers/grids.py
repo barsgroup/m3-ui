@@ -12,6 +12,26 @@ from m3_ext.ui.base import ExtUIComponent, BaseExtComponent
 from base import BaseExtPanel
 
 
+class ColumnList(list):
+    """
+    Хаккерский класс списка для отслеживания добавления и удаления
+    """
+    def __init__(self, iterable=(), on_append=None, on_remove=None):
+        super(ColumnList, self).__init__(iterable)
+        self._on_append=on_append
+        self._on_remove=on_remove
+
+    def append(self, x):
+        super(ColumnList, self).append(x)
+        if not self._on_append is None:
+            self._on_append(x)
+
+    def remove(self, x):
+        super(ColumnList, self).remove(x)
+        if not self._on_remove is None:
+            self._on_remove(x)
+
+
 class ExtGrid(BaseExtPanel):
     """
     Таблица (Grid)
@@ -25,15 +45,18 @@ class ExtGrid(BaseExtPanel):
     _xtype = 'grid'
 
     js_attrs = BaseExtPanel.js_attrs.extend(
-        'store', 'columns', 'viewConfig', 'sm',
+        'columns', 'viewConfig', 'sm',
+        _ExtGrid__store='store',
     )
 
     # TODO: Реализовать человеческий MVC грид
 
     def __init__(self, *args, **kwargs):
         super(ExtGrid, self).__init__(*args, **kwargs)
-        self.setdefault('columns', [])
-
+        self.setdefault('columns',
+                        ColumnList(on_append=self._add_columns_to_store,
+                                   on_remove=self._del_columns_from_store))
+        self.setdefault('store', None)
         # Будет ли редактироваться
         self.editor = False
 
@@ -195,10 +218,38 @@ class ExtGrid(BaseExtPanel):
         self.show_banded_columns = False
 
     def set_store(self, store):
-        self.store = store
+        self.__store = store
+        if store:
+            self._add_columns_to_store()
+        else:
+            self._del_columns_from_store()
 
     def get_store(self):
-        return self.store
+        return self.__store
+
+    store = property(get_store, set_store)
+
+    def _add_columns_to_store(self, column=None):
+        """
+        Формируем поля стора, в зависимости от колонок грида
+        """
+        if self.store:
+            if column:
+                self.store.fields.append(column.data_index)
+            else:
+                del self.store.fields[:]
+                for column in self.columns:
+                    self.store.fields.append(column.data_index)
+
+    def _del_columns_from_store(self, column=None):
+        """
+        Удаляем поля стора, в зависимости от колонок грида
+        """
+        if self.store:
+            if column:
+                self.store.fields.remove(column.data_index)
+            else:
+                del self.store.fields[:]
 
     def _make_read_only(
             self, access_off=True, exclude_list=(), *args, **kwargs):

@@ -39,7 +39,8 @@ class BaseExtStore(BaseExtComponent):
         self.url = ''
 
         # Объект, который отвечает за запись данных
-        self.writer = None
+        self.setdefault('writer', None)
+        self.setdefault('reader', None)
 
     def _set_base_params(self, params):
         self._base_params.update(params)

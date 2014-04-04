@@ -22,20 +22,18 @@ class ExtDataStore(BaseExtStore):
     Хранилище данных, которое не генерирует запрос на сервер,
     а принимает данные в массиве data, либо через метод load_data
     """
-    _xtype = 'jsonstore'
+    _xtype = 'arraystore'
 
     js_attrs = BaseExtStore.js_attrs.extend(
-        'data', 'fields',
+        'fields',
+        _ExtDataStore__data='data',
     )
 
     def __init__(self, data=None, *args, **kwargs):
         super(ExtDataStore, self).__init__(*args, **kwargs)
 
         # По умолчанию первым параметром передаются данные на заполнение store
-        if data:
-            self.data = data
-        else:
-            self.data = []
+        self.__data = data if data else []
 
         self.reader = ExtArrayReader()
 
@@ -46,7 +44,7 @@ class ExtDataStore(BaseExtStore):
         self._total_property = None
 
         # Для заполнения полей в шаблоне
-        self.fields = []
+        self.setdefault('fields', [])
 
     @property
     def id_property(self):
@@ -82,6 +80,16 @@ class ExtDataStore(BaseExtStore):
 
     def load_data(self, data):
         self.data = data
+
+    @property
+    def data(self):
+        return self.__data
+
+    @data.setter
+    def data(self, value):
+        # преобразовать данные через ридер
+        self.__data = self.reader._render_data(value)
+
 
 
 

@@ -66,9 +66,9 @@ class BaseExtPanel(BaseExtContainer):
         self.setdefault('header', False)
         self.setdefault('border', True)
 
-        self.setdefault('top_bar', [])
-        self.setdefault('bottom_bar', [])
-        self.setdefault('footer_bar', [])
+        self.setdefault('top_bar', None)
+        self.setdefault('bottom_bar', None)
+        self.setdefault('footer_bar', None)
 
     def _make_read_only(
             self, access_off=True, exclude_list=(), *args, **kwargs):
