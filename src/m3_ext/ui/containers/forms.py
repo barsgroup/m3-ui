@@ -5,7 +5,6 @@ Created on 25.02.2010
 @author: akvarats
 """
 
-from m3_ext.ui.base import BaseExtComponent
 from m3_ext.ui.containers.base import BaseExtPanel
 from m3_ext.ui.helpers import bind_to_request, from_object, to_object
 
@@ -31,10 +30,7 @@ class ExtForm(BaseExtPanel):
 
     def __init__(self, *args, **kwargs):
         super(ExtForm, self).__init__(*args, **kwargs)
-        self.setdefault('layout', self.FORM)
-
         # поле, которое будет под фокусом ввода после рендеринга формы
-        # TODO: focused_field - удалено
 
     def _get_all_fields(self, item, lst=None):
         """
@@ -58,9 +54,9 @@ class ExtForm(BaseExtPanel):
         fields = self._get_all_fields(self)
         return from_object(obj, fields, exclusion)
 
-    def to_object(self, obj, exclusion=None):
+    def to_object(self, obj, exclusions=None):
         fields = self._get_all_fields(self)
-        return to_object(obj, fields, exclusion)
+        return to_object(obj, fields, exclusions)
 
 
 class ExtPanel(BaseExtPanel):
@@ -98,12 +94,13 @@ class ExtTitlePanel(ExtPanel):
     """
     Расширенная панель с возможностью добавления контролов в заголовок.
     """
+    # TODO: Вернуться к этому контролу и поудалять отсюда методы, после того, как уточнить, что они нигде не используются
+    # TODO: Пока код не рабочий, что-то странное надо засовывать в header
+    _xtype = 'm3-title-panel'
 
-    def __init__(self, *args, **kwargs):
-        super(ExtTitlePanel, self).__init__(*args, **kwargs)
-        self.template = "ext-panels/ext-title-panel.js"
-        self.__title_items = []
-        self.init_component(*args, **kwargs)
+    js_attrs = ExtPanel.js_attrs.extend(
+        title_items='titleItems',
+    )
 
     def _update_header_state(self):
         # Заголовок может быть только в том случае,
@@ -125,27 +122,6 @@ class ExtTitlePanel(ExtPanel):
         # Событие вызываемое после удаления элемента из заголовка
         self._update_header_state()
 
-    def t_render_items(self):
-        """Дефолтный рендеринг вложенных объектов."""
-        return ",".join([item.render() for item in self._items if
-                         item not in self.__title_items])
-
-    def t_render_title_items(self):
-        """Дефолтный рендеринг вложенных объектов заголовка."""
-        return ",".join([item.render() for item in self.__title_items])
-
-    @property
-    def title_items(self):
-        return self.__title_items
-
-    def render(self):
-        #WARNING!
-        # Не удалось перевести этот компонент на полность питонячий рендер
-        # Потому что в ЭПК шаблон этого компонента переопределяется
-        # И дабы не ломать все их формы, приходится оставлять старый рендер
-        # Посылаю им лучи ненависти и поноса!
-        return BaseExtComponent.render(self)
-
 
 class ExtTabPanel(BaseExtPanel):
     """
@@ -156,36 +132,27 @@ class ExtTabPanel(BaseExtPanel):
     TOP = 'top'
     BOTTOM = 'bottom'
 
+    _xtype = 'tabpanel'
+    js_attrs = BaseExtPanel.js_attrs.extend(
+        'plain',  # Показывает панель вкладок без фонового изображения
+        active_tab='activeTab',  # Активная вкладка
+        enable_tab_scroll='enableTabScroll',  # Активный скрол у табов
+        body_border='bodyBorder',  # Внутренняя граница
+        deferred_render='deferredRender',  # Если True, то применяется lazy рендеринг табов
+
+        # Если False, то TabPanel указывается фиксированная ширина, либо она подчиняется layout родителя
+        auto_width='autoWidth',
+        tab_position='tabPosition',  # Позиция отображения табов: возможные варианты TOP и BOTTOM
+    )
+
     def __init__(self, *args, **kwargs):
         super(ExtTabPanel, self).__init__(*args, **kwargs)
-        self.template = 'ext-panels/ext-tab-panel.js'
-
-        # Активная вкладка
-        self.active_tab = 0
-
-        # Активный скрол у табов
-        self.enable_tab_scroll = True
-
-        # Внутренняя граница
-        self.body_border = True
-
-        # Если True, то применяется lazy рендеринг табов
-        self.deferred_render = None
-
-        # Показывает панель вкладок без фонового изображения
-        self.plain = False
-
-        # Если False, то TabPanel указывается фиксированная ширина,
-        # либо она подчиняется layout родителя
-        self.auto_width = True
-
-        # Табы
-        self._items = []
-
-        # Позиция отображения табов: возможные варианты TOP и BOTTOM
-        self.tab_position = self.TOP
-
-        self.init_component(*args, **kwargs)
+        self.setdefault('active_tab', 0)
+        self.setdefault('enable_tab_scroll', True)
+        self.setdefault('body_border', True)
+        self.setdefault('plain', False)
+        self.setdefault('auto_width', True)
+        self.setdefault('tab_position', self.TOP)
 
     def add_tab(self, **kwargs):
         panel = ExtPanel(**kwargs)
@@ -194,11 +161,7 @@ class ExtTabPanel(BaseExtPanel):
 
     @property
     def tabs(self):
-        return self._items
-
-    @property
-    def items(self):
-        return self._items
+        return self.items
 
 
 class ExtFieldSet(ExtPanel):
@@ -206,34 +169,30 @@ class ExtFieldSet(ExtPanel):
     Объеденяет внутренние элементы и создает рамку для остальных контролов
     """
 
+    _xtype = 'fieldset'
+
+    js_attrs = ExtPanel.js_attrs.extend(
+        checkbox_toggle='checkboxToggle',
+        checkbox_name='checkboxName',
+    )
+
     def __init__(self, *args, **kwargs):
-        self.checkbox_toggle = False
-        # имя чекбокса, используется в случае checkboxToggle = True
-        self.checkbox_name = None
         super(ExtFieldSet, self).__init__(*args, **kwargs)
+        self.setdefault('checkbox_toggle', False)
 
-    def render_base_config(self):
-        super(ExtFieldSet, self).render_base_config()
-        self._put_config_value('checkboxToggle', self.checkbox_toggle)
-        self._put_config_value('checkboxName', self.checkbox_name)
-
-    def render(self):
-        self.pre_render()  # Тут рендерится контекст
-        self.render_base_config()  # Тут конфиги
-        self.render_params()  # Пусто
-        base_config = self._get_config_str()
-        return 'new Ext.form.FieldSet({%s})' % base_config
 
     @property
     def checkboxToggle(self):
         """
-        deprecated
+        TODO: Посмотреть список мест, где используется
+        deprecated: Оставлено для обратной совместимости
         """
         return self.checkbox_toggle
 
     @checkboxToggle.setter
     def checkboxToggle(self, value):
         """
-        deprecated
+        TODO: Посмотреть список мест, где используется
+        deprecated: Оставлено для обратной совместимости
         """
         self.checkbox_toggle = value

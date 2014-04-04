@@ -3755,6 +3755,7 @@ Ext.app.TitlePanel = Ext.extend(Ext.Panel, {
    },
    onRender: function (ct, position) {
        Ext.app.TitlePanel.superclass.onRender.apply(this, arguments);
+       debugger;
        if (this.titleItems != null) {
            if(Ext.isArray(this.titleItems)){
                for (var i = this.titleItems.length-1; i >= 0 ; i--) {
@@ -7559,7 +7560,7 @@ Ext.reg('m3-select', Ext.m3.AdvancedComboBox);
  */
 Ext.m3.AdvancedDataField = Ext.extend(Ext.form.DateField, {
 	constructor: function(baseConfig, params){
-        params = baseConfig.params || params;
+        params = baseConfig.params || params || {};
 
 		// Базовый конфиг для тригеров
 		this.baseTriggers = [
@@ -12638,7 +12639,7 @@ Ext.m3.ObjectGrid = Ext.extend(Ext.m3.GridPanel, {
 	    	// при локальном редактировании запросим также текущую строку
 			var baseConf = this.getSelectionContext(this.localEdit);
 			// грязный хак
-			if (baseConf[this.rowIdName].indexOf(",") != -1) {
+			if (String(baseConf[this.rowIdName]).indexOf(",") != -1) {
 				Ext.Msg.show({
 					title: 'Редактирование',
 					msg: 'Редактирование возможно лишь в том случае, если выбран только один элемент!',
