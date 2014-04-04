@@ -73,13 +73,16 @@ class ExtToolBar(BaseExtContainer):
         """
         el = ExtToolBar.TextItem(text=text_item)
         self.items.append(el)
+        return el
 
     def add_menu(self, **kwargs):
         """
         Добавляет меню
         :param **kwargs: конфиг для меню
         """
-        self.items.append(ExtToolbarMenu(**kwargs))
+        menu = ExtToolbarMenu(**kwargs)
+        self.items.append(menu)
+        return menu
 
 
 class ExtPagingBar(BaseExtContainer):
@@ -107,26 +110,18 @@ class ExtToolbarMenu(ExtUIComponent):
     """
     Класс, позволяющий вставлять меню в ToolBar
     """
+    _xtype = 'button'
+    js_attrs = ExtUIComponent.js_attrs.extend(
+        'text', 'menu',
+        icon_cls='iconCls', 
+        tooltip_text='tooltip')
+
     def __init__(self, *args, **kwargs):
         super(ExtToolbarMenu, self).__init__(*args, **kwargs)
-        self.text = None
-        self.icon_cls = None
-        self.tooltip_text = None
-        self.menu = None
-        self.init_component(*args, **kwargs)
-
-    def render(self):
-        res = 'id:"%s"' % self.client_id
-        if self.text:
-            res = 'text: "%s"' % self.text
-        if self.icon_cls:
-            res += ',iconCls: "%s"' % self.icon_cls
-        if self.tooltip_text:
-            res += ',tooltip: "%s"' % self.tooltip_text
-        if self.menu:
-            res += ',menu: %s' % self.menu.render()
-
-        return '{%s}' % res
+        self.setdefault('text', None)
+        self.setdefault('icon_cls', '')
+        self.setdefault('tooltip_text', None)
+        self.setdefault('menu', None)
 
     def _make_read_only(
             self, access_off=True, exclude_list=(), *args, **kwargs):

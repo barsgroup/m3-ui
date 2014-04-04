@@ -15,19 +15,18 @@ class ExtContextMenu(BaseExtContainer):
     """
     __SEPARATOR = '"-"'
 
+    _xtype = 'menu'
+    js_attrs = BaseExtContainer.js_attrs.extend(
+        'items'
+    )
+
     def __init__(self, *args, **kwargs):
         super(ExtContextMenu, self).__init__(*args, **kwargs)
-        self.template = 'ext-containers/ext-context-menu.js'
+        # self.template = 'ext-containers/ext-context-menu.js'
 
         # Список элементов меню
-        self._items = []
-
-        # TODO: В методе ExtContextMenuItem.render
-        # параметр container не используется
-        # Но может передоваться
+        self.items = []
         self.container = None
-
-        self.init_component(*args, **kwargs)
 
     def add_item(self, **kwargs):
         """
@@ -43,30 +42,30 @@ class ExtContextMenu(BaseExtContainer):
         """
         self.items.append(ExtContextMenuSeparator())
 
-    def t_render_items(self):
-        # FIXME: После отрефакторевания шаблона необходимо убрать префикс t_*
-        res = []
-        for item in self.items:
-            if item == ExtContextMenu.__SEPARATOR:
-                res.append(item)
-            elif self.container:
-                res.append(item.render(container=self.container))
-            else:
-                res.append(item.render())
-        return '[%s]' % ','.join(res)
+    # def t_render_items(self):
+    #     # FIXME: После отрефакторевания шаблона необходимо убрать префикс t_*
+    #     res = []
+    #     for item in self.items:
+    #         if item == ExtContextMenu.__SEPARATOR:
+    #             res.append(item)
+    #         elif self.container:
+    #             res.append(item.render(container=self.container))
+    #         else:
+    #             res.append(item.render())
+    #     return '[%s]' % ','.join(res)
 
-    @property
-    def items(self):
-        return self._items
+    # @property
+    # def items(self):
+    #     return self._items
 
-    # Врапперы над событиями listeners[...]
-    @property
-    def handler_beforeshow(self):
-        return self._listeners.get('beforeshow')
+    # # Врапперы над событиями listeners[...]
+    # @property
+    # def handler_beforeshow(self):
+    #     return self._listeners.get('beforeshow')
 
-    @handler_beforeshow.setter
-    def handler_beforeshow(self, value):
-        self._listeners['beforeshow'] = value
+    # @handler_beforeshow.setter
+    # def handler_beforeshow(self, value):
+    #     self._listeners['beforeshow'] = value
 
 
 #==============================================================================
@@ -74,61 +73,45 @@ class ExtContextMenuItem(ExtUIComponent):
     """
     Элемент контекстного меню
     """
+
+    _xtype = 'menuitem'
+
+    js_attrs = ExtUIComponent.js_attrs.extend(
+        'menu', 'text', 'disabled', icon_cls='iconCls')
+
     def __init__(self, *args, **kwargs):
         super(ExtContextMenuItem, self).__init__(*args, **kwargs)
 
         # Текст для отображения
-        self.text = None
-
-        # Идентификатор внутри меню
-        self.item_id = None
-
-        # Функция-обработчик
-        self.handler = None
-
-        # CSS класс иконок
-        self.icon_cls = None
+        self.setdefault('text', None)
 
         # Ссылка на меню, если имеется вложенное меню
-        self.menu = None
+        self.setdefault('menu', None)
+        
+        # Флаг недоступности элемента меню
+        self.setdefault('disabled', False)
 
-        # FIXME: Что-то сомнительное. См. функцию render
-        self.custom_handler = False
+        # CSS класс иконок
+        self.setdefault('icon_cls', '')
+
+        # # Идентификатор внутри меню
+        # self.item_id = None
+
+        # # Функция-обработчик
+        # self.handler = None
+
+        # # FIXME: Что-то сомнительное. См. функцию render
+        # self.custom_handler = False
 
         # TODO: Написать и использовать отдельные классы: menucheckitem, etc.
         # этим параметром можно задавать тип элемента меню: menucheckitem,
         # menutextitem, datemenu и т.п. В конфиге это задается через xtype.
         # Если задать неправильно, то может быть ошибка!
-        self.custom_itemtype = None
-
-        self.init_component(*args, **kwargs)
-
-    def render(self, container=None):
-        # FIXME: container не используется
-        res = ['text:"%s"' % self.text.replace('"', "&quot;")]
-        if self.custom_itemtype:
-            res.append('xtype: "%s"' % self.custom_itemtype)
-        if self.icon_cls:
-            res.append('iconCls: "%s"' % self.icon_cls)
-        if self.disabled:
-            res.append('disabled: true')
-        if self.hidden:
-            res.append('hidden: true')
-        if self.item_id:
-            res.append('itemId: "%s"' % self.item_id)
-        if self.menu:
-            res.append('menu: ' + self.menu.render())
-        if self.handler:
-            if self.custom_handler:
-                res.append('handler: %s' % self.handler)
-            else:
-                res.append('handler: %s' % self.handler)
-        return '{%s}' % ','.join(res)
+        # self.custom_itemtype = None
 
     def _make_read_only(
             self, access_off=True, exclude_list=(), *args, **kwargs):
         self.disabled = access_off
-
 
 #==============================================================================
 class ExtContextMenuSeparator(ExtUIComponent):
@@ -137,12 +120,11 @@ class ExtContextMenuSeparator(ExtUIComponent):
     :deprecated: В контекстном меню есть специальный метод и отдельный класс
     в данном случае не нужен
     """
+
+    _xtype = 'menuseparator'
+
     def __init__(self, *args, **kwargs):
         super(ExtContextMenuSeparator, self).__init__(*args, **kwargs)
-        self.init_component(*args, **kwargs)
-
-    def render(self, *args, **kwargs):
-        return '"-"'
 
     def _make_read_only(
             self, access_off=True, exclude_list=(), *args, **kwargs):

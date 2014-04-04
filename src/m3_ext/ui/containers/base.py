@@ -36,10 +36,11 @@ class BaseExtContainer(ExtUIComponent):
 
     def _make_read_only(
             self, access_off=True, exclude_list=(), *args, **kwargs):
-        if self._items:
-            for item in self._items:
+        if self.items:
+            for item in self.items:
                 if hasattr(item, "make_read_only") and callable(
                         item.make_read_only):
+                    print item
                     item.make_read_only(
                         access_off, exclude_list, *args, **kwargs)
 
