@@ -18,21 +18,19 @@ class BaseExtField(ExtUIComponent):
     """
     js_attrs = ExtUIComponent.js_attrs.extend(
         'value', 'vtype', 'regex',
-        **pythonize([
-            'readOnly',
-            'allowBlank',
-            'readOnly',
-            'isEdit',
-            'emptyText',
-            'minLength',
-            'minLengthText',
-            'maxLength',
-            'maxLengthText',
-            'regexText',
-            'tabIndex',
-            'invalidClass',
-            'invalidText',
-            'autoCreate'])
+        read_only='readOnly',
+        allow_blank='allowBlank',
+        is_edit='isEdit',
+        empty_text='emptyText',
+        min_length='minLength',
+        min_length_text='minLengthText',
+        max_length='maxLength',
+        max_length_text='maxLengthText',
+        regex_text='regexText',
+        tab_index='tabIndex',
+        invalid_class='invalidClass',
+        invalid_text='invalidText',
+        auto_create='autoCreate'
         # ('plugins',
         #     (lambda: '[%s]' % ','.join(self.plugins)), self.plugins)
     )

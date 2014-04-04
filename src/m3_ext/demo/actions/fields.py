@@ -17,12 +17,15 @@ class FieldsUiAction(UIAction):
         return """
             function(w, d) {
                 var fieldList = [%s], field;
-                debugger;
+
                 for (var f=0; f < fieldList.length; f++) {
                     field = w.find('itemId', fieldList[f])[0];
-                    field.on('change', function() {
-                        alert('field' + field.name + 'change');
-                    });
+
+                    if (field) {
+                        field.on('change', function() {
+                            alert('field ' + this.name + ' change!');
+                        });
+                    }
                 }
                 return;
             }
@@ -30,11 +33,15 @@ class FieldsUiAction(UIAction):
         "\'" + f + "\'"
         for f in [
             'text_field',
+            'textarea_field',
             'number_field',
             'checkbox_field',
-#            'radiobutton_field',
-#            'date_field',
-            #'time_field',
+            'radiobutton_field',
+            'date_field',
+            'time_field',
+            'datetime_field',
+            'advtime_field',
+            'display_field'
         ]]))
 
     def get_ui(self, request, context):
@@ -46,12 +53,21 @@ class FieldsUiAction(UIAction):
 
         win.layout = "fit"
         win.width = 600
-        win.height = 400
+        win.height = 430
 
         win.form = to_fields(ext.ExtForm())
 
+        win.hidden_field = to_fields(ext.ExtHiddenField(
+            name="hidden"
+        ))
+
         win.text_field = to_fields(ext.ExtStringField(
             name="string"
+        ))
+
+        win.textarea_field = to_fields(ext.ExtTextArea(
+            name="textarea",
+            height=100
         ))
 
         win.number_field = to_fields(ext.ExtNumberField(
@@ -63,24 +79,30 @@ class FieldsUiAction(UIAction):
             name="checkbox"
         ))
 
-        #        win.radiobutton_field = to_fields(ext.ExtRadio(
-        #            name="radio"
-        #        ))
+        win.radiobutton_field = to_fields(ext.ExtRadio(
+            name="radio"
+        ))
 
-        #        win.date_field = to_fields(ext.ExtDateField(
-        #            name="date"
-        #        ))
+        win.date_field = to_fields(ext.ExtDateField(
+            name="date"
+        ))
 
-        #        win.time_field = to_fields(ext.ExtTimeField(
-        #            name="time"
-        #        ))
-
-        # win.combobox_field = to_fields(fields.ExtComboBox())
+        win.time_field = to_fields(ext.ExtTimeField(
+            name="time"
+        ))
 
         #TODO - закончить
-        # win.datetime_field = to_fields(fields.ExtDateTimeField())
-        # win.display_field = to_fields(fields.ExtDisplayField())
-        # win.advtime_field = to_fields(fields.ExtAdvTimeField())
+        win.datetime_field = to_fields(ext.ExtDateTimeField(
+            name="datetime"
+        ))
+
+        win.display_field = to_fields(ext.ExtDisplayField(
+            name="displayfield"
+        ))
+
+        win.advtime_field = to_fields(ext.ExtAdvTimeField(
+            name="avdtime"
+        ))
 
         #общие аттрибуты для всех филдов
         general_attributes = [
