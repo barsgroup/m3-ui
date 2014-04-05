@@ -73,7 +73,7 @@ class ExtDateField(BaseExtField):
         hide_today_btn='hideTriggerToday',  # Прятать кнопку "Сегодняшняя дата"
         enable_key_events='enableKeyEvents',  # Разрешает перехват нажатий клавиш
         max_value='maxValue',  # Максимальная возможная дата
-        min_value='min_value',  # Минимально возможная дата
+        min_value='minValue',  # Минимально возможная дата
 
     )
 
