@@ -8,12 +8,10 @@
 
     win.show();
     win.on('beforesubmit', function(submit) {
-        debugger;
         var items = win.items.items,
             form = win.getForm(),
             fields = form.items.items;
         //вызов метода менеджера событий для обработки сабмита формы
-        debugger;
         Ext.m3.actionManager.dispatch('submit', items, submit);
     });
     return win;

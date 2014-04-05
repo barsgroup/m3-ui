@@ -25,15 +25,14 @@ class ExtDataStore(BaseExtStore):
     _xtype = 'arraystore'
 
     js_attrs = BaseExtStore.js_attrs.extend(
-        'fields',
-        _ExtDataStore__data='data',
+        'fields', 'data',
     )
 
     def __init__(self, data=None, *args, **kwargs):
         super(ExtDataStore, self).__init__(*args, **kwargs)
 
         # По умолчанию первым параметром передаются данные на заполнение store
-        self.__data = data if data else []
+        self.setdefault('data', data)
 
         self.reader = ExtArrayReader()
 
@@ -80,17 +79,6 @@ class ExtDataStore(BaseExtStore):
 
     def load_data(self, data):
         self.data = data
-
-    @property
-    def data(self):
-        return self.__data
-
-    @data.setter
-    def data(self, value):
-        # преобразовать данные через ридер
-        self.__data = self.reader._render_data(value)
-
-
 
 
 class ExtJsonStore(BaseExtStore):

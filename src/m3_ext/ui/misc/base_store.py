@@ -20,7 +20,7 @@ class BaseExtStore(BaseExtComponent):
         'url',
         auto_load='autoLoad',
         auto_save='autoSave',
-        base_params='baseParams',
+        _base_params='baseParams',
     )
 
     def __init__(self, *args, **kwargs):
@@ -30,18 +30,20 @@ class BaseExtStore(BaseExtComponent):
         self._base_params = {}
 
         # Признак автозагрузки
-        self.auto_load = False
+        self.setdefault('auto_load', False)
 
         # Признак автосохранения при изменении данных
-        self.auto_save = True
+        self.setdefault('auto_save', True)
 
         # Ссылка для получения/сохранения данных
-        self.url = ''
+        self.setdefault('url', '')
 
         # Объект, который отвечает за запись данных
-        self.setdefault('writer', None)
-        self.setdefault('reader', None)
+        #self.setdefault('writer', None)
+        #self.setdefault('reader', None)
 
+    # FIXME: интересное поведение у нас раньше было
+    # нельзя было удалить параметры, можно только обновить значения
     def _set_base_params(self, params):
         self._base_params.update(params)
 

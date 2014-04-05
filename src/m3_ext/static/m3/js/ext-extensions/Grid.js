@@ -4,7 +4,7 @@
  */
 Ext.m3.GridPanel = Ext.extend(Ext.grid.GridPanel, {
 	constructor: function(baseConfig, params){
-        params = baseConfig.params || params;
+        params = baseConfig.params || params || {};
 		
 		// Добавлене selection model если нужно
 		var selModel = params.selModel;
@@ -15,7 +15,7 @@ Ext.m3.GridPanel = Ext.extend(Ext.grid.GridPanel, {
 		
 		// Навешивание обработчиков на контекстное меню если нужно 
 		var funcContMenu;
-		if (params.menus.contextMenu && 
+		if (params.menus && params.menus.contextMenu &&
 			params.menus.contextMenu instanceof Ext.menu.Menu) {
 			
 			funcContMenu = function(e){
@@ -27,7 +27,7 @@ Ext.m3.GridPanel = Ext.extend(Ext.grid.GridPanel, {
 		}
 		
 		var funcRowContMenu;
-		if (params.menus.rowContextMenu && 
+		if (params.menus && params.menus.rowContextMenu &&
 			params.menus.rowContextMenu instanceof Ext.menu.Menu) {
 			
 			funcRowContMenu = function(grid, index, e){
@@ -93,7 +93,7 @@ Ext.m3.GridPanel = Ext.extend(Ext.grid.GridPanel, {
 
 Ext.m3.EditorGridPanel = Ext.extend(Ext.grid.EditorGridPanel, {
   constructor: function(baseConfig, params){
-    params = baseConfig.params || params;
+    params = baseConfig.params || params || {};
     
     // Добавлене selection model если нужно
     var selModel = params.selModel;
@@ -104,7 +104,7 @@ Ext.m3.EditorGridPanel = Ext.extend(Ext.grid.EditorGridPanel, {
     
     // Навешивание обработчиков на контекстное меню если нужно 
     var funcContMenu;
-    if (params.menus.contextMenu && 
+    if (params.menus && params.menus.contextMenu &&
       params.menus.contextMenu instanceof Ext.menu.Menu) {
       
       funcContMenu = function(e){
@@ -116,7 +116,7 @@ Ext.m3.EditorGridPanel = Ext.extend(Ext.grid.EditorGridPanel, {
     }
     
     var funcRowContMenu;
-    if (params.menus.rowContextMenu && 
+    if (params.menus && params.menus.rowContextMenu &&
       params.menus.contextMenu instanceof Ext.menu.Menu) {
       
       funcRowContMenu = function(grid, index, e){
