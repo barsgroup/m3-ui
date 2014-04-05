@@ -240,7 +240,7 @@ class ExtDateTimeField(ExtDateField):
     """
     Поле ввода даты-времени
     """
-    _xtype="datetimefield"
+    _xtype = "datetimefield"
 
 
 class ExtAdvTimeField(BaseExtField):
