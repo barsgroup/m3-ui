@@ -1,7 +1,10 @@
 # -*- coding: utf-8 -*-
+from django.http import HttpResponse
+from m3.actions import Action
+from m3.actions.urls import get_url
 from m3_ext.ui.containers.grids import ExtEditorGrid
 from m3_ext.ui.fields import ExtComboBox
-from m3_ext.ui.misc import ExtDataStore
+from m3_ext.ui.misc import ExtDataStore, ExtJsonStore
 from m3_ext.ui.containers import ExtGrid
 from m3_ext.ui import all_components as ext
 
@@ -93,6 +96,77 @@ class EditGridAction(UIAction):
         grid.set_store(ExtDataStore([[1, 'Юрий', 'Кофтун', 'пр. Мира', '', '', 'false'],
                                      [2, 'Анатоле', 'Кожемякин', 'пл. Земля ', '', '', 'true']]
         ))
+        window.items.append(grid)
+        button = ext.ExtButton(text=u'Закрыть')
+        window.buttons.append(button)
+        return window
+
+
+@Pack.register
+class DataAction(Action):
+    """
+    Данные для грида
+    """
+    url = '/data'
+
+    def run(self, request, context):
+        res = ['{"id":1, "lname":"Смактуновский", "fname":"Махмут",adress:"Проспект победы д. 147 кв 20"}',
+               '{"id":2,"lname":"Гете","fname":"Йоган",adress:" Бунден штрассе"}',
+               '{"id":3,"lname":"Квазимовский","fname":"Йоган",adress:" Бунден штрассе"}',
+               '{"id":4,"lname":"Абрамов","fname":"Йоган",adress:" Бунден штрассе"}',
+               '{"id":5,"lname":"Куликов","fname":"Йоган",adress:" Бунден штрассе"}',
+               '{"id":6,"lname":"Белоногов","fname":"Йоган",adress:" Бунден штрассе"}',
+               '{"id":7,"lname":"Харламов","fname":"Йоган",adress:" Бунден штрассе"}',
+               '{"id":8,"lname":"Ухтомский","fname":"Йоган",adress:" Бунден штрассе"}',
+               '{"id":9,"lname":"Победилов","fname":"Йоган",adress:" Бунден штрассе"}',
+               '{"id":10,"lname":"Свидригайлов","fname":"Йоган",adress:" Бунден штрассе"}',
+               '{"id":11,"lname":"Гете1","fname":"Йоган",adress:" Бунден штрассе"}',
+               '{"id":12,"lname":"Кваз1имовский","fname":"Йоган",adress:" Бунден штрассе"}',
+               '{"id":144,"lname":"Абрам1ов","fname":"Йоган",adress:" Бунден штрассе"}',
+               '{"id":111,"lname":"Кулико1в","fname":"Йоган",adress:" Бунден штрассе"}',
+               '{"id":121,"lname":"Белоног1ов","fname":"Йоган",adress:" Бунден штрассе"}',
+               '{"id":714,"lname":"Харламо1в","fname":"Йоган",adress:" Бунден штрассе"}',
+               '{"id":81,"lname":"Ухтомск1ий","fname":"Йоган",adress:" Бунден штрассе"}',
+               '{"id":91,"lname":"Победил1ов","fname":"Йоган",adress:" Бунден штрассе"}',
+               '{"id":110,"lname":"Свидри1гайлов","fname":"Йоган",adress:" Бунден штрассе"}',
+               '{"id":21,"lname":"Гет2е","fname":"Йоган",adress:" Бунден штрассе"}',
+               '{"id":31,"lname":"Ква2зимовский","fname":"Йоган",adress:" Бунден штрассе"}',
+               '{"id":41,"lname":"Абр2амов","fname":"Йоган",adress:" Бунден штрассе"}',
+               '{"id":51,"lname":"Кул2иков","fname":"Йоган",adress:" Бунден штрассе"}',
+               '{"id":61,"lname":"Бел2оногов","fname":"Йоган",adress:" Бунден штрассе"}',
+               '{"id":71,"lname":"Хар2ламов","fname":"Йоган",adress:" Бунден штрассе"}',
+               '{"id":81,"lname":"Ухт2омский","fname":"Йоган",adress:" Бунден штрассе"}',
+               '{"id":91,"lname":"Поб2едилов","fname":"Йоган",adress:" Бунден штрассе"}',
+               '{"id":1110,"lname":"Св2идригайлов","fname":"Йоган",adress:" Бунден штрассе"}']
+        return HttpResponse('{"total":121,"rows":[%s]}' % ','.join(res))
+
+
+@Pack.register
+class GridRemoteStoreAction(UIAction):
+    """
+    Пример таблица с данными с сервера
+    """
+    title = u'Таблица с серверными данными'
+
+    def get_js(self, request, context):
+        return """function(win, data){
+            win.buttons[0].on('click', function(){
+                win.close(false);
+            });
+        }"""
+
+    def get_ui(self, request, context):
+        window = super(GridRemoteStoreAction, self).get_ui(request, context)
+        window.width = 500
+        window.height = 500
+        window.layout = 'fit'
+        grid = ExtGrid()
+        grid.add_column(header=u'Имя', data_index='fname')
+        grid.add_column(header=u'Фамилия', data_index='lname', editor=ext.ExtStringField())
+        grid.add_column(header=u'Адрес', data_index='adress', editor=ext.ExtStringField())
+        grid.store = ExtJsonStore(url=get_url(DataAction),
+                                  auto_load=True, total_property='total',
+                                  root='rows')
         window.items.append(grid)
         button = ext.ExtButton(text=u'Закрыть')
         window.buttons.append(button)

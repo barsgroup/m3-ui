@@ -86,14 +86,18 @@ class ExtJsonStore(BaseExtStore):
     Хранилище данных, которое отправляет запрос на сервер и ждет, что данные
     вернуться в формате json
     """
+
+    _xtype = 'jsonstore'
+
+    js_attrs = BaseExtStore.js_attrs.extend(
+        'fields', 'root',
+        id_property='idProperty',
+        total_property='totalProperty',
+        remote_sort='remoteSort',
+    )
+
     def __init__(self, *args, **kwargs):
         super(ExtJsonStore, self).__init__(*args, **kwargs)
-        # TODO: Отрефакторить под внутриклассовый рендеринг
-        self.template = 'ext-misc/ext-json-store.js'
-
-        # Для заполнения полей в шаблоне
-        self.__columns = []
-
         # Начальная позиция для показа,
         # если используется постраничная навигация
         self.__start = 0
@@ -102,27 +106,20 @@ class ExtJsonStore(BaseExtStore):
         # если используется постраничная навигация
         self.__limit = -1
 
-        #
-        self.total_property = None
-
         # Название вершины в json массиве, откуда будут браться записи
         # Например root = 'rows'
         # Тогда предполагаемый json массив должен выглядеть примерно так:
         # {rows: [id:1, name:'name', age:45]}
-        self.root = None
+        self.setdefault('root', 'rows')
 
         # Использовать ли удаленную сортировку
-        self.remote_sort = False
+        self.setdefault('remote_sort', False)
 
         # Поле, откуда будет браться id записи
-        self.id_property = 'id'
+        self.setdefault('id_property', 'id')
 
-        self.init_component(*args, **kwargs)
-
-    def render(self, columns):
-        self.__columns = columns
-        #self.__columns.insert(0, self.id_property)
-        return super(ExtJsonStore, self).render()
+        # Поля записей
+        self.setdefault('fields', [])
 
     def t_render_fields(self):
         """

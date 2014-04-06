@@ -22,12 +22,11 @@ class Pack(ActionPack):
         return tuple(
             menu.Item(a.title, pack=a)
             for a in self.actions
+            if hasattr(a, 'title')
         )
 
     @classmethod
     def register(cls, action_clz):
-        # экшны должны иметь атрибут title
-        assert hasattr(action_clz, 'title')
         cls.action_classses.add(action_clz)
         return action_clz
 
