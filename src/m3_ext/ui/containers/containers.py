@@ -135,32 +135,14 @@ class ExtRadioGroup(BaseExtContainer):
     Компонент-контейнер для радио-полей
     """
 
-    def __init__(self, *args, **kwargs):
-        super(ExtRadioGroup, self).__init__(*args, **kwargs)
-        self._ext_name = 'Ext.form.RadioGroup'
+    # FIXME: columns - раньше не использовалось, сейчас удалили
+    # def render_base_config(self):
+    #     if self.columns:
+    #         self._put_config_value('columns', self.columns)
 
-        # количество колонок в контейнере
-        self.columns = None
-        self.label = None
 
-        self.init_component(*args, **kwargs)
+    _xtype = 'radiogroup'
 
-    @property
-    def items(self):
-        return self._items
-
-    def render_base_config(self):
-        super(ExtRadioGroup, self).render_base_config()
-        if self.items:
-            self._put_config_value('items', self.t_render_items)
-        if self.columns:
-            self._put_config_value('columns', self.columns)
-
-    def render(self):
-        try:
-            self.render_base_config()
-        except Exception as msg:
-            raise Exception(msg)
-
-        base_config = self._get_config_str()
-        return 'new %s({%s})' % (self._ext_name, base_config)
+    js_attrs = BaseExtContainer.js_attrs.extend(
+        'columns'
+    )
