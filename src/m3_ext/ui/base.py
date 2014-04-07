@@ -17,7 +17,6 @@ from functools import wraps
 from m3_ext.ui import render_template, render_component
 from m3_ext.ui import generate_client_id, normalize
 from m3 import date2str
-from m3_ext.ui.helpers import pythonize
 
 
 class ExtComponentException(Exception):
@@ -118,7 +117,7 @@ class BaseExtComponent(object):
 
     def setdefault(self, key, val, py=False):
         try:
-            _ = getattr(self, (py and pythonize([key], flat=True)) or key)
+            _ = getattr(self, key)
         except AttributeError:
             setattr(self, key, val)
 

@@ -57,6 +57,7 @@ class PanelAction(UIAction):
 
         return win
 
+
 @Pack.register
 class ContainerAction(UIAction):
     """
@@ -132,9 +133,45 @@ class FieldSetAction(UIAction):
         win = ext.ExtWindow(title=self.title,
                             width=600,
                             height=400,
-                            layout='fit')
+                            layout='form')
 
-        # TODO: Нужны филды!
-        win.field_set = ext.ExtFieldSet()
+        win.field_set = ext.ExtFieldSet(
+            label=u'Наименование',
+            padding='5px',
+            items=[
+                ext.ExtStringField(label=u'Текстовое поле')
+            ]
+        )
         win.items.append(win.field_set)
+        return win
+
+
+@Pack.register
+class RadioGroupAction(UIAction):
+    """
+    Пример ExtRadioGroup
+    """
+
+    title = u'Окно с ExtRadioGroup'
+
+    def get_ui(self, request, context):
+        win = ext.ExtWindow(title=self.title,
+                            width=600,
+                            height=400,
+                            layout=ext.ExtForm.FORM )
+
+        win.items.append(
+            ext.ExtRadioGroup(
+                layout=ext.ExtRadioGroup.FORM,
+                label=u'ExtRadioGroup',
+                columns=2,
+                items=[
+                    ext.ExtRadio(name='1', box_label=u'1'),
+                    ext.ExtRadio(name='1', box_label=u'2', checked=True),
+                    ext.ExtRadio(name='1', box_label=u'3'),
+                    ext.ExtRadio(name='1', box_label=u'4'),
+                ]
+            )
+        )
+
         return win

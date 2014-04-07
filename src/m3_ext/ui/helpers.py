@@ -581,25 +581,3 @@ def to_object(obj, all_fields, exclusion=None):
 
             names = field.name.split('.')
             set_field(obj, names, convert_value(field), field)
-
-
-def pythonize(attr_list, dict_=None, flat=False):
-    """преобразование js аттрибутов в питонячьи
-       : flat  : boolean - если True то возвращается единственный ключ, если False то словарь
-       : return :dict - {питон-аттрибут: js-аттрибут}
-    """
-    import re
-    reg = re.compile('(?P<lc>[a-z]{1})(?P<uc>[A-Z]{1})')
-
-    if dict_ is None:
-        dict_ = {}
-
-    single = None
-    for attr in attr_list:
-        pattr = re.sub(reg, '\g<lc>_\g<uc>', attr).lower()
-        if flat:
-            single = pattr
-        else:
-            dict_.setdefault(pattr, attr)
-
-    return (not flat and dict_) or single

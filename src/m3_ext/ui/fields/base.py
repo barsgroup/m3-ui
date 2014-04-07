@@ -7,9 +7,6 @@ Created on 27.02.2010
 
 from m3_ext.ui.base import ExtUIComponent
 
-from m3_ext.ui.helpers import pythonize
-
-
 
 class BaseExtField(ExtUIComponent):
     """
