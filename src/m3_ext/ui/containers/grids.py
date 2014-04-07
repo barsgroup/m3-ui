@@ -420,86 +420,50 @@ class BaseExtGridColumn(BaseExtComponent):
     # Умолчательная ширина колонок
     GRID_COLUMN_DEFAULT_WIDTH = 100
 
-    # Рендерер для цен и сумм
-    THOUSAND_CURRENCY_RENDERER = 'thousandCurrencyRenderer'
-
     _xtype = 'gridcolumn'
 
     js_attrs = BaseExtComponent.js_attrs.extend(
-        'header', 'align', 'width', 'sortable',
-        'format', 'hidden', 'editor', 'tooltip',
+        # Заголовок
+        'header',
+        # Расположение
+        'align', 'width', 'sortable',
+        'format',
+        # Признак того, скрыта ли колонка или нет
+        'hidden',
+        # Редактор, если колонка может быть редактируемой
+        'editor',
+        # Всплывающая подсказка
+        'tooltip',
+        # Настройки фильтра колонки для плагина Ext.ux.grid.GridFilters
+        'filter',
         'fixed',
+        'locked',
+        # Уникальное название колонки в пределах column model
         data_index='dataIndex',
+        menu_disabled='menuDisabled',
     )
 
     def __init__(self, *args, **kwargs):
         super(BaseExtGridColumn, self).__init__(*args, **kwargs)
 
-        # Заголовок
-        #self.setdefault('header', None)
-
         # Возможность сортировки
         self.setdefault('sortable', False)
 
-        # Уникальное название колонки в пределах column model
-        #self.setdefault('data_index', None)
-
-        # Расположение
-        #self.setdefault('align', None)
-
         # Ширина
         self.setdefault('width', BaseExtGridColumn.GRID_COLUMN_DEFAULT_WIDTH)
-
-        # Редактор, если колонка может быть редактируемой
-        #self.setdefault('editor', None)
-
-        # Список рендереров колонки
-        self._column_renderer = []
-
-        # Всплывающая подсказка
-        #self.setdefault('tooltip', None)
-
-        # Признак того, скрыта ли колонка или нет
-        #self.setdefault('hidden', False)
-
-        # Признак не активности
-        self.setdefault('read_only', False)
-
-        # TODO: В версии 3.3 нет такого свойства
-        #self.colspan = None
 
         # Запрет на изменение ширины колонки
         self.setdefault('fixed', False)
 
         # Признак зафиксированности колонки
         # используется вместе с ExtGridLockingView + ExtGridLockingColumnModel
-        self.locked = False
+        self.setdefault('locked', False)
 
+        # FIXME: придумать как избавиться от этого
         # дополнительные атрибуты колонки
         self.extra = {}
 
-        # Настройки фильтра колонки для плагина Ext.ux.grid.GridFilters
-        self.filter = None
-
-        self.menu_disabled = False
-
-    def t_render_extra(self):
-        lst = []
-        for key in self.extra.keys():
-            val = self.extra[key]
-
-            if isinstance(val, BaseExtComponent):
-                lst.append('%s:%s' % (key, val.render()))
-            elif isinstance(val, bool):
-                lst.append('%s:%s' % (key, str(val).lower()))
-            elif isinstance(val, (int, str, unicode)):
-                lst.append('%s:%s' % (key, val))
-            else:  # пусть как хочет так и рендерится
-                lst.append('%s:%s' % (key, val))
-        return ','.join(lst)
-
-    def render_editor(self):
-        return self.editor.render()
+        self.setdefault('menu_disabled', False)
 
     def _make_read_only(
             self, access_off=True, exclude_list=(), *args, **kwargs):
@@ -508,82 +472,12 @@ class BaseExtGridColumn(BaseExtComponent):
             self.editor.make_read_only(
                 self.read_only, exclude_list, *args, **kwargs)
 
-    def render_base_config(self):
-        super(BaseExtGridColumn, self).render_base_config()
-        for args in (
-            ('editor', self.editor.render if self.editor else None),
-            ('readOnly', self.read_only),
-            ('colspan', self.colspan),
-            ('fixed', self.fixed),
-            ('locked', self.locked),
-            ('renderer', self.render_column_renderer),
-            ('tooltip', self.tooltip),
-            ('filter', self.filter),
-            ('menuDisabled', self.menu_disabled),
-        ):
-            self._put_config_value(*args)
-
-        for i, render in enumerate(self._column_renderer):
-            if BaseExtGridColumn.THOUSAND_CURRENCY_RENDERER == render:
-                # Финансовый формат для Сумм и Цен
-                # подразумевает прижимание к правому краю.
-                thousand_column_renderer = (
-                    '(function(val, metaData){ '
-                    'metaData.attr="style=text-align:right"; '
-                    'return %s.apply(this, arguments);}) '
-                ) % BaseExtGridColumn.THOUSAND_CURRENCY_RENDERER
-                self._column_renderer[i] = thousand_column_renderer
-
-    @property
-    def column_renderer(self):
-        return ','.join(self._column_renderer)
-
-    @column_renderer.setter
-    def column_renderer(self, value):
-        self._column_renderer.append(value)
-
-    def render_column_renderer(self):
-        """
-        Кастомный рендеринг функций-рендерера колонок
-        """
-        if self._column_renderer:
-            self._column_renderer.reverse()
-            val = self._get_renderer_func(self._column_renderer)
-            return (
-                'function(val, metaData, record, rowIndex, '
-                'colIndex, store){return %s}'
-            ) % val
-        return None
-
-    def _get_renderer_func(self, list_renderers):
-        """
-        Рекурсивная функция, оборачивающая друг в друга рендереры колонок
-        """
-        if list_renderers:
-            return '%s(%s, metaData, record, rowIndex, colIndex, store)' % (
-                list_renderers[0],
-                self._get_renderer_func(list_renderers[1:])
-            )
-        else:
-            return 'val'
-
 
 class ExtGridColumn(BaseExtGridColumn):
     """
     Модель колонки грида
     """
-    def __init__(self, *args, **kwargs):
-        super(ExtGridColumn, self).__init__(*args, **kwargs)
-
-    def render(self):
-        try:
-            self.render_base_config()
-        except UnicodeDecodeError as msg:
-            raise Exception(msg)
-
-        config = self._get_config_str()
-        extra = self.t_render_extra()
-        return '{%s}' % (config + ',' + extra if extra else config)
+    pass
 
 
 class ExtGridBooleanColumn(BaseExtGridColumn):
@@ -610,34 +504,22 @@ class ExtGridCheckColumn(BaseExtGridColumn):
     """
     _xtype = 'checkcolumn'
 
-    def __init__(self, *args, **kwargs):
-        super(ExtGridCheckColumn, self).__init__(*args, **kwargs)
-        self.template = 'ext-grids/ext-check-column.js'
-
 
 class ExtGridNumberColumn(BaseExtGridColumn):
     """
     Модель колонки грида, содержащей числа
     """
-
     _xtype = 'numbercolumn'
-
-    def __init__(self, *args, **kwargs):
-        super(ExtGridNumberColumn, self).__init__(*args, **kwargs)
-        self.template = 'ext-grids/ext-number-column.js'
-        self.format = None
 
 
 class ExtGridDateColumn(BaseExtGridColumn):
     """
     Модель колонки грида с форматом даты
     """
-
     _xtype = 'datecolumn'
 
     def __init__(self, *args, **kwargs):
         super(ExtGridDateColumn, self).__init__(*args, **kwargs)
-        self.template = 'ext-grids/ext-date-column.js'
         try:
             self.format = settings.DATE_FORMAT.replace('%', '')
         except AttributeError:
