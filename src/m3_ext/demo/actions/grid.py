@@ -26,6 +26,12 @@ class SimpleGridAction(UIAction):
             win.find('itemId', 'grid')[0].on('dblclick', function(){
                 alert('Хватит кликать!');
             });
+            // вместо handler у пункта меню
+            var grid = win.getComponent("grid");
+            var item = grid.params.menus.rowContextMenu.getComponent("get_name");
+            item.on('click', function(cmp, e){
+                Ext.Msg.alert("Проверка", grid.getSelectionModel().getSelected().get("fname"));
+            });
         }"""
 
     def get_ui(self, request, context):
@@ -37,16 +43,28 @@ class SimpleGridAction(UIAction):
         win.minimizable = True
         win.btn = ext.ExtButton(text=u'Закрыть')
         win.buttons.append(win.btn)
-        grid = ExtGrid()
+        grid = ExtGrid(item_id='grid')
         grid.add_column(header=u'Имя', data_index='fname')
         grid.add_column(header=u'Фамилия', data_index='lname')
         grid.add_column(header=u'Адрес', data_index='adress')
-        grid.set_store(ExtDataStore([[1, u'Юрий', u'Кофтун', u'пр. Мира'],
-                                 [2, u'Анатоле', u'Кожемякин', u'пл. Земля '],
-                                 [3, u'Анатоле', u'Кожемякин', u'пл. Земля '],
-                                 [4, u'Нажми', u'меня', u'два раза'],
-                                 [5, u'Анатоле', u'Кожемякин', u'пл. Земля '],
-                                 [6, u'Анатоле', u'Кожемякин', u'пл. Земля '],]))
+        grid.set_store(ExtDataStore([
+            [1, u'Юрий', u'Кофтун', u'пр. Мира'],
+            [2, u'Анатоле', u'Кожемякин', u'пл. Земля '],
+            [3, u'Анатоле', u'Кожемякин', u'пл. Земля '],
+            [4, u'Нажми', u'меня', u'два раза'],
+            [5, u'Анатоле', u'Кожемякин', u'пл. Земля '],
+            [6, u'Анатоле', u'Кожемякин', u'пл. Земля '],
+        ]))
+        menu = ext.ExtContextMenu()
+        menu.add_item(text=u'Тупой пункт на весь грид')
+        grid.handler_contextmenu = menu
+
+        row_menu = ext.ExtContextMenu(item_id='row_menu')
+        row_menu.add_item(text=u'Просто пункт без события')
+        row_menu.add_separator()
+        row_menu.add_item(text=u'Показать имя', item_id='get_name')
+        grid.handler_rowcontextmenu = row_menu
+
         # FIXME: вот оно злое отсутствие свойств или метода pre_config
         grid.columns_to_store()
         win.items.append(grid)

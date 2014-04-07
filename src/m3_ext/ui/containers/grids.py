@@ -26,10 +26,13 @@ class ExtGrid(BaseExtPanel):
 
     js_attrs = BaseExtPanel.js_attrs.extend(
         'columns', 'stripeRows', 'stateful', 'store',
+        'params',
         _view_config='viewConfig',
         column_lines='columnLines',
         load_mask='loadMask',
         auto_expand_column='autoExpandColumn',
+        drag_drop='enableDragDrop',
+        drag_drop_group='ddGroup',
     )
 
     # TODO: Реализовать человеческий MVC грид
@@ -37,6 +40,7 @@ class ExtGrid(BaseExtPanel):
     def __init__(self, *args, **kwargs):
         super(ExtGrid, self).__init__(*args, **kwargs)
         self.setdefault('columns', [])
+        self.setdefault('params', {})
 
         # Объект маскирования, который будет отображаться при загрузке
         self.load_mask = False
@@ -84,9 +88,6 @@ class ExtGrid(BaseExtPanel):
 
         #Если True не рендерим drag and drop, выключаем editor
         self.read_only = False
-
-        # Метка. Использовать только если задан layout=form
-        self.label = None
 
         # protected
         self.show_banded_columns = False
@@ -190,7 +191,7 @@ class ExtGrid(BaseExtPanel):
         self.banded_columns.clear()
         self.show_banded_columns = False
 
-    # FIXME: для совместимости
+    # FIXME: оставлено для совместимости
     def set_store(self, store):
         self.store = store
 
@@ -212,6 +213,7 @@ class ExtGrid(BaseExtPanel):
                 # но и с типом
                 self.store.fields.append(column.data_index)
 
+    # FIXME: избавиться от make_read_only
     def _make_read_only(
             self, access_off=True, exclude_list=(), *args, **kwargs):
         super(ExtGrid, self)._make_read_only(
@@ -274,7 +276,6 @@ class ExtGrid(BaseExtPanel):
         self._cm = value
         self._cm.grid = self
 
-
     @property
     def handler_click(self):
         return self._listeners.get('click')
@@ -291,54 +292,69 @@ class ExtGrid(BaseExtPanel):
     def handler_dblclick(self, function):
         self._listeners['dblclick'] = function
 
+    # FIXME: избавиться от свойства
     @property
     def handler_contextmenu(self):
-        return self._listeners.get('contextmenu')
+        return self.params.get('menus', {}).get('contextMenu')
 
+    # FIXME: избавиться от свойства
     @handler_contextmenu.setter
     def handler_contextmenu(self, menu):
-        menu.container = self
-        self._listeners['contextmenu'] = menu
+        if 'menus' in self.params:
+            self.params['menus']['contextMenu'] = menu
+        else:
+            self.params['menus'] = {'contextMenu': menu}
 
+    # FIXME: избавиться от свойства
     @property
     def handler_rowcontextmenu(self):
-        return self._listeners.get('rowcontextmenu')
+        return self.params.get('menus', {}).get('rowContextMenu')
 
+    # FIXME: избавиться от свойства
     @handler_rowcontextmenu.setter
     def handler_rowcontextmenu(self, menu):
-        menu.container = self
-        self._listeners['rowcontextmenu'] = menu
+        if 'menus' in self.params:
+            self.params['menus']['rowContextMenu'] = menu
+        else:
+            self.params['menus'] = {'rowContextMenu': menu}
 
+    # FIXME: избавиться от свойства
     @property
     def force_fit(self):
         return self._view_config.get('forceFit', False)
 
+    # FIXME: избавиться от свойства
     @force_fit.setter
     def force_fit(self, value):
         self._view_config['forceFit'] = value
 
+    # FIXME: избавиться от свойства
     @property
     def show_preview(self):
         return self._view_config.get('showPreview', False)
 
+    # FIXME: избавиться от свойства
     @show_preview.setter
     def show_preview(self, value):
         self._view_config['showPreview'] = value
 
+    # FIXME: избавиться от свойства
     @property
     def enable_row_body(self):
         return self._view_config.get('enableRowBody', False)
 
+    # FIXME: избавиться от свойства
     @enable_row_body.setter
     def enable_row_body(self, value):
         self._view_config['enableRowBody'] = value
 
-
+    # FIXME: избавиться от свойства
     # Будет ли редактироваться
     @property
     def editor(self):
         return False
 
+    # FIXME: избавиться от свойства
     @editor.setter
     def editor(self, value):
         raise AttributeError('Do not use attribute "editor". '
@@ -353,9 +369,6 @@ class ExtGrid(BaseExtPanel):
 
         for args in (
             ('view', self.t_render_view, self.view),
-            # FIXME: интересно, как это должно теперь отработать?
-            ('enableDragDrop', self.drag_drop) if self.read_only else (),
-            ('ddGroup', self.drag_drop_group) if self.read_only else (),
         ):
             if args:
                 self._put_config_value(*args)
@@ -363,22 +376,6 @@ class ExtGrid(BaseExtPanel):
     def render_params(self):
         super(ExtGrid, self).render_params()
 
-        handler_cont_menu = (
-            self.handler_contextmenu.render
-            if self.handler_contextmenu else ''
-        )
-        handler_rowcontextmenu = (
-            self.handler_rowcontextmenu.render
-            if self.handler_rowcontextmenu else ''
-        )
-
-        self._put_params_value(
-            'menus',
-            {
-                'contextMenu': handler_cont_menu,
-                'rowContextMenu': handler_rowcontextmenu
-            }
-        )
         if self.sm:
             self._put_params_value('selModel', self.sm.render)
 
