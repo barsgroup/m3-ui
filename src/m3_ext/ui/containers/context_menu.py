@@ -26,7 +26,6 @@ class ExtContextMenu(BaseExtContainer):
 
         # Список элементов меню
         self.items = []
-        self.container = None
 
     def add_item(self, **kwargs):
         """
@@ -42,33 +41,7 @@ class ExtContextMenu(BaseExtContainer):
         """
         self.items.append(ExtContextMenuSeparator())
 
-    # def t_render_items(self):
-    #     # FIXME: После отрефакторевания шаблона необходимо убрать префикс t_*
-    #     res = []
-    #     for item in self.items:
-    #         if item == ExtContextMenu.__SEPARATOR:
-    #             res.append(item)
-    #         elif self.container:
-    #             res.append(item.render(container=self.container))
-    #         else:
-    #             res.append(item.render())
-    #     return '[%s]' % ','.join(res)
 
-    # @property
-    # def items(self):
-    #     return self._items
-
-    # # Врапперы над событиями listeners[...]
-    # @property
-    # def handler_beforeshow(self):
-    #     return self._listeners.get('beforeshow')
-
-    # @handler_beforeshow.setter
-    # def handler_beforeshow(self, value):
-    #     self._listeners['beforeshow'] = value
-
-
-#==============================================================================
 class ExtContextMenuItem(ExtUIComponent):
     """
     Элемент контекстного меню
@@ -87,7 +60,7 @@ class ExtContextMenuItem(ExtUIComponent):
 
         # Ссылка на меню, если имеется вложенное меню
         self.setdefault('menu', None)
-        
+
         # Флаг недоступности элемента меню
         self.setdefault('disabled', False)
 
@@ -122,9 +95,6 @@ class ExtContextMenuSeparator(ExtUIComponent):
     """
 
     _xtype = 'menuseparator'
-
-    def __init__(self, *args, **kwargs):
-        super(ExtContextMenuSeparator, self).__init__(*args, **kwargs)
 
     def _make_read_only(
             self, access_off=True, exclude_list=(), *args, **kwargs):
