@@ -67,7 +67,7 @@ class ListWindowAction(UIAction):
     def get_js(self, request, context):
         return """function(w, d){
             var grid = w.find('itemId', 'grid')[0];
-            grid.store.loadData(d.rows);
+            grid.store.loadData(d);
         }"""
 
     def get_ui(self, request, context):
@@ -76,6 +76,7 @@ class ListWindowAction(UIAction):
 
     def get_result(self, request, context):
         res = super(ListWindowAction, self).get_result(request, context)
+        res['data']['total'] = 2
         res['data']['rows'] = [
             {'first': u'Первая', 'second': u'Вторая'},
         ]
