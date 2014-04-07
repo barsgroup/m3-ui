@@ -47,6 +47,8 @@ class SimpleGridAction(UIAction):
                                  [4, u'Нажми', u'меня', u'два раза'],
                                  [5, u'Анатоле', u'Кожемякин', u'пл. Земля '],
                                  [6, u'Анатоле', u'Кожемякин', u'пл. Земля '],]))
+        # FIXME: вот оно злое отсутствие свойств или метода pre_config
+        grid.columns_to_store()
         win.items.append(grid)
         return win
 
@@ -96,6 +98,8 @@ class EditGridAction(UIAction):
         grid.set_store(ExtDataStore([[1, 'Юрий', 'Кофтун', 'пр. Мира', '', '', 'false'],
                                      [2, 'Анатоле', 'Кожемякин', 'пл. Земля ', '', '', 'true']]
         ))
+        # FIXME: вот оно злое отсутствие свойств или метода pre_config
+        grid.columns_to_store()
         window.items.append(grid)
         button = ext.ExtButton(text=u'Закрыть')
         window.buttons.append(button)
@@ -167,6 +171,8 @@ class GridRemoteStoreAction(UIAction):
         grid.store = ExtJsonStore(url=get_url(DataAction),
                                   auto_load=True, total_property='total',
                                   root='rows')
+        # FIXME: вот оно злое отсутствие свойств или метода pre_config
+        grid.columns_to_store()
         window.items.append(grid)
         button = ext.ExtButton(text=u'Закрыть')
         window.buttons.append(button)

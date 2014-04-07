@@ -12,26 +12,6 @@ from m3_ext.ui.base import ExtUIComponent, BaseExtComponent
 from base import BaseExtPanel
 
 
-class ColumnList(list):
-    """
-    Хаккерский класс списка для отслеживания добавления и удаления
-    """
-    def __init__(self, iterable=(), on_append=None, on_remove=None):
-        super(ColumnList, self).__init__(iterable)
-        self._on_append=on_append
-        self._on_remove=on_remove
-
-    def append(self, x):
-        super(ColumnList, self).append(x)
-        if not self._on_append is None:
-            self._on_append(x)
-
-    def remove(self, x):
-        super(ColumnList, self).remove(x)
-        if not self._on_remove is None:
-            self._on_remove(x)
-
-
 class ExtGrid(BaseExtPanel):
     """
     Таблица (Grid)
@@ -45,8 +25,7 @@ class ExtGrid(BaseExtPanel):
     _xtype = 'm3-grid'
 
     js_attrs = BaseExtPanel.js_attrs.extend(
-        'columns', 'stripeRows', 'stateful',
-        _store='store',
+        'columns', 'stripeRows', 'stateful', 'store',
         _view_config='viewConfig',
         column_lines='columnLines',
         load_mask='loadMask',
@@ -57,10 +36,7 @@ class ExtGrid(BaseExtPanel):
 
     def __init__(self, *args, **kwargs):
         super(ExtGrid, self).__init__(*args, **kwargs)
-        self.setdefault('columns',
-                        ColumnList(on_append=self._add_columns_to_store,
-                                   on_remove=self._del_columns_from_store))
-        self.setdefault('store', None)
+        self.setdefault('columns', [])
 
         # Объект маскирования, который будет отображаться при загрузке
         self.load_mask = False
@@ -138,13 +114,6 @@ class ExtGrid(BaseExtPanel):
                 [column.render() for column in level_list]))
         return '[%s]' % ','.join(result)
 
-    def t_render_columns(self):
-        return self.t_render_items()
-
-    def t_render_store(self):
-        assert self._store, 'Store is not define'
-        return self._store.render(self.columns)
-
     def t_render_col_model(self):
         return self._cm.render()
 
@@ -221,41 +190,27 @@ class ExtGrid(BaseExtPanel):
         self.banded_columns.clear()
         self.show_banded_columns = False
 
+    # FIXME: для совместимости
     def set_store(self, store):
-        self._store = store
-        if store:
-            self._add_columns_to_store()
-        else:
-            self._del_columns_from_store()
+        self.store = store
 
+    # FIXME: для совместимости
     def get_store(self):
-        return self._store
+        return self.store
 
-    store = property(get_store, set_store)
-
-    def _add_columns_to_store(self, column=None):
+    # FIXME: для совместимости
+    def columns_to_store(self):
         """
         Формируем поля стора, в зависимости от колонок грида
         """
         if self.store:
-            if column:
+            del self.store.fields[:]
+            # FIXME: в полях стора всегда была одна колонка с id
+            self.store.fields.append(self.store.id_property)
+            for column in self.columns:
+                # FIXME: вообще, поля в сторе можно формировать не только по имени
+                # но и с типом
                 self.store.fields.append(column.data_index)
-            else:
-                del self.store.fields[:]
-                # FIXME: в полях стора всегда была одна колонка с id
-                self.store.fields.append(self.store.id_property)
-                for column in self.columns:
-                    self.store.fields.append(column.data_index)
-
-    def _del_columns_from_store(self, column=None):
-        """
-        Удаляем поля стора, в зависимости от колонок грида
-        """
-        if self.store:
-            if column:
-                self.store.fields.remove(column.data_index)
-            else:
-                del self.store.fields[:]
 
     def _make_read_only(
             self, access_off=True, exclude_list=(), *args, **kwargs):
@@ -440,19 +395,6 @@ class ExtGrid(BaseExtPanel):
         if self.show_banded_columns:
             self._put_params_value(
                 'bundedColumns', self.t_render_banded_columns)
-
-    def render(self):
-        try:
-            self.pre_render()
-
-            self.render_base_config()
-            self.render_params()
-        except UnicodeDecodeError as msg:
-            raise Exception(msg)
-
-        config = self._get_config_str()
-        params = self._get_params_str()
-        return 'createGridPanel({%s}, {%s})' % (config, params)
 
 
 class ExtEditorGrid(ExtGrid):
