@@ -8,7 +8,6 @@ Created on 3.3.2010
 from m3_ext.ui.base import BaseExtComponent
 
 
-# FIXME: для чего наследуется от ExtUIComponent, а не от BaseExtComponent?
 class BaseExtStore(BaseExtComponent):
     """
     Базовый класс для Store - компонента хранения данных
@@ -17,45 +16,30 @@ class BaseExtStore(BaseExtComponent):
     _xtype = 'store'
 
     js_attrs = BaseExtComponent.js_attrs.extend(
-        'url',
-        auto_load='autoLoad',
-        auto_save='autoSave',
-        _base_params='baseParams',
+        'url',  # Ссылка для получения/сохранения данных
+        'writer',
+
+        # Данные для reader'a
+        'root',
+        'fields',
+
+        auto_load='autoLoad',  # Признак автозагрузки
+        auto_save='autoSave',  # Признак автосохранения при изменении данных
+        base_params='baseParams',  # Свойства, которые будут посылаться на сервер для каждого запроса
+
+        # Данные для reader'a
+        id_property='idProperty',
+        total_property='totalProperty',
+    )
+
+    deprecated_attrs = BaseExtComponent.deprecated_attrs + (
+        'handler_beforeload',
     )
 
     def __init__(self, *args, **kwargs):
         super(BaseExtStore, self).__init__(*args, **kwargs)
-
-        # Свойства, которые будут посылаться на сервер для каждого запроса
-        self._base_params = {}
-
-        # Признак автозагрузки
+        self.setdefault('base_params', {})
         self.setdefault('auto_load', False)
-
-        # Признак автосохранения при изменении данных
         self.setdefault('auto_save', True)
-
-        # Ссылка для получения/сохранения данных
         self.setdefault('url', '')
-
-        # Объект, который отвечает за запись данных
-        #self.setdefault('writer', None)
-        #self.setdefault('reader', None)
-
-    # FIXME: интересное поведение у нас раньше было
-    # нельзя было удалить параметры, можно только обновить значения
-    def _set_base_params(self, params):
-        self._base_params.update(params)
-
-    def _get_base_params(self):
-        return self._base_params
-
-    base_params = property(_get_base_params, _set_base_params)
-
-    @property
-    def handler_beforeload(self):
-        return self._listeners.get('beforeload')
-
-    @handler_beforeload.setter
-    def handler_beforeload(self, function):
-        self._listeners['beforeload'] = function
+        self.setdefault('id_property', 'id')

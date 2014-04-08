@@ -3,7 +3,6 @@ from django.http import HttpResponse
 from m3.actions import Action
 from m3.actions.urls import get_url
 from m3_ext.ui.containers.grids import ExtEditorGrid
-from m3_ext.ui.fields import ExtComboBox
 from m3_ext.ui.misc import ExtDataStore, ExtJsonStore
 from m3_ext.ui.containers import ExtGrid
 from m3_ext.ui import all_components as ext
@@ -168,7 +167,7 @@ class GridRemoteStoreAction(UIAction):
     """
     Пример таблица с данными с сервера
     """
-    title = u'Таблица с серверными данными'
+    title = u'Пример ExtGrid и ExtJsonStore'
 
     def get_js(self, request, context):
         return """function(win, data){
@@ -187,7 +186,8 @@ class GridRemoteStoreAction(UIAction):
         grid.add_column(header=u'Фамилия', data_index='lname', editor=ext.ExtStringField())
         grid.add_column(header=u'Адрес', data_index='adress', editor=ext.ExtStringField())
         grid.store = ExtJsonStore(url=get_url(DataAction),
-                                  auto_load=True, total_property='total',
+                                  auto_load=True,
+                                  total_property='total',
                                   root='rows')
         # FIXME: вот оно злое отсутствие свойств или метода pre_config
         grid.columns_to_store()
@@ -229,15 +229,90 @@ class GridAction(UIAction):
                 "stripeRows": True,
                 "stateful": True,
                 "bbar": None,
-                "store": {
-                    "xtype": "arraystore",
-                    "url": "",
-                    "fields": ["id", "fname", "lname", "adress"],
-                    "baseParams": {},
-                    "autoLoad": False,
-                    "autoSave": True,
-                    "data": [(i, i * 10, i * 100, i * 1000) for i in range(30)]
-                },
+                "store":
+                    ext.ExtDataStore(
+                        fields=["id", "fname", "lname", "adress"],
+                        data=[(i, i * 10, i * 100, i * 1000) for i in range(10)]
+                    ),
+
+                "viewConfig": {
+                    "showPreview": False,
+                    "enableRowBody": False,
+                    "forceFit": True},
+                "border": True,
+                "columns": [
+                    {
+                        "sortable": False,
+                        "xtype": "gridcolumn",
+                        "width": 100,
+                        "header": "0",
+                        "dataIndex": "fname",
+                        "fixed": False
+                    },
+                    {
+                        "sortable": False,
+                        "xtype": "gridcolumn",
+                        "width": 100,
+                        "header": "1",
+                        "dataIndex": "lname",
+                        "fixed": False},
+                    {
+                        "sortable": False,
+                        "xtype": "gridcolumn",
+                        "width": 100,
+                        "header": "2",
+                        "dataIndex": "adress",
+                        "fixed": False
+                    }],
+                "fbar": None
+            }
+        )
+
+        return win
+
+
+@Pack.register
+class GridAjaxAction(UIAction):
+    """
+    Пример ExtGrid и ExtDataStore
+    """
+    title = u'Еще пример ExtGrid и ExtJsonStore'
+
+    def get_ui(self, request, context):
+        win = ext.ExtWindow(
+            layout=ext.ExtForm.FIT,
+            width=400,
+            height=400,
+            maximizable=True,
+            minimizable=True,
+            buttons=[
+                ext.ExtButton(text=u'Закрыть'),
+            ]
+        )
+        win.items.append(
+            {
+                "itemId": "grid",
+                "columnLines": True,
+                "fieldLabel": None,
+                "xtype": "m3-grid",
+                "autoExpandColumn": None,
+                "tbar": None,
+                "items": [],
+                "loadMask": False,
+                "header": False,
+                "stripeRows": True,
+                "stateful": True,
+                "bbar": None,
+                "store":
+                    ext.ExtJsonStore(
+                        fields=["id", "fname", "lname", "adress"],
+                        url=get_url(DataAction),
+                        auto_load=True,
+                        total_property='total',
+                        root='rows',
+                        # writer=ext.ExtJsonWriter() # - тоже работает, но на него должен быть отдельный пример
+                    ),
+
                 "viewConfig": {
                     "showPreview": False,
                     "enableRowBody": False,

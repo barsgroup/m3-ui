@@ -2,5 +2,5 @@
 """
 Дополнительный функционал
 """
-from store import ExtDataStore, ExtJsonStore
+from store import ExtDataStore, ExtJsonStore, ExtJsonWriter
 from label import ExtLabel
