@@ -195,3 +195,81 @@ class GridRemoteStoreAction(UIAction):
         button = ext.ExtButton(text=u'Закрыть')
         window.buttons.append(button)
         return window
+
+
+@Pack.register
+class GridAction(UIAction):
+    """
+    Пример ExtGrid и ExtDataStore
+    """
+    title = u'Еще пример ExtGrid и ExtDataStore'
+
+    def get_ui(self, request, context):
+        win = ext.ExtWindow(
+            layout=ext.ExtForm.FIT,
+            width=400,
+            height=400,
+            maximizable=True,
+            minimizable=True,
+            buttons=[
+                ext.ExtButton(text=u'Закрыть'),
+            ]
+        )
+        win.items.append(
+            {
+                "itemId": "grid",
+                "columnLines": True,
+                "fieldLabel": None,
+                "xtype": "m3-grid",
+                "autoExpandColumn": None,
+                "tbar": None,
+                "items": [],
+                "loadMask": False,
+                "header": False,
+                "stripeRows": True,
+                "stateful": True,
+                "bbar": None,
+                "store": {
+                    "xtype": "arraystore",
+                    "url": "",
+                    "fields": ["id", "fname", "lname", "adress"],
+                    "baseParams": {},
+                    "autoLoad": False,
+                    "autoSave": True,
+                    "data": [(i, i * 10, i * 100, i * 1000) for i in range(30)]
+                },
+                "viewConfig": {
+                    "showPreview": False,
+                    "enableRowBody": False,
+                    "forceFit": True},
+                "border": True,
+                "columns": [
+                    {
+                        "sortable": False,
+                        "xtype": "gridcolumn",
+                        "width": 100,
+                        "header": "0",
+                        "dataIndex": "fname",
+                        "fixed": False
+                    },
+                    {
+                        "sortable": False,
+                        "xtype": "gridcolumn",
+                        "width": 100,
+                        "header": "1",
+                        "dataIndex": "lname",
+                        "fixed": False},
+                    {
+                        "sortable": False,
+                        "xtype": "gridcolumn",
+                        "width": 100,
+                        "header": "2",
+                        "dataIndex": "adress",
+                        "fixed": False
+                    }],
+                "fbar": None
+            }
+        )
+
+        return win
+

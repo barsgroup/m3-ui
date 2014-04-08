@@ -25,14 +25,15 @@ class ExtDataStore(BaseExtStore):
     _xtype = 'arraystore'
 
     js_attrs = BaseExtStore.js_attrs.extend(
-        'fields', 'data',
+        'fields',
+        'data',
     )
 
     def __init__(self, data=None, *args, **kwargs):
         super(ExtDataStore, self).__init__(*args, **kwargs)
 
-        # По умолчанию первым параметром передаются данные на заполнение store
-        self.setdefault('data', data)
+        # По-умолчанию первым параметром передаются данные на заполнение store
+        self.setdefault('data', data or [])
 
         self.reader = ExtArrayReader()
 

@@ -158,7 +158,7 @@ class RadioGroupAction(UIAction):
         win = ext.ExtWindow(title=self.title,
                             width=600,
                             height=400,
-                            layout=ext.ExtForm.FORM )
+                            layout=ext.ExtForm.FORM)
 
         win.items.append(
             ext.ExtRadioGroup(
