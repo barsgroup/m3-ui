@@ -53,13 +53,47 @@ class AttrDict(dict):
         return key if key in self.internals else self.mapping[key]
 
     def get(self, key, default=None):
-        return super(AttrDict, self).get(self._map(key), default)
+        key = self._map(key)
+        if '.' in key:
+            d, k = self._walk_deep(key)
+            return d.get(k)
+        else:
+            return super(AttrDict, self).get(key, default)
 
     def __getitem__(self, key):
-        return super(AttrDict, self).__getitem__(self._map(key))
+        key = self._map(key)
+        if '.' in key:
+            d, k = self._walk_deep(key)
+            return d[k]
+        else:
+            return super(AttrDict, self).__getitem__(key)
 
     def __setitem__(self, key, val):
-        super(AttrDict, self).__setitem__(self._map(key), val)
+        key = self._map(key)
+        if '.' in key:
+            d, k = self._walk_deep(key, make=True)
+            d[k] = val
+        else:
+            super(AttrDict, self).__setitem__(key, val)
+
+    def _walk_deep(self, key, make=False):
+        """
+        Принимает составной ключ вида "a.b.c"
+        Возвращает пару: (подсловарь по пути ["a"]["b"], ключ "c")
+        При make=True требуемые уровни создаются
+        (в виде пустых словарей)
+        """
+        path = key.split('.')
+        key = path[-1]
+        path = path[:-1]
+        def walk(d, path):
+            if not path:
+                return d
+            elif make:
+                return walk(dict.setdefault(d, path[0], {}), path[1:])
+            else:
+                return walk(dict.__getitem__(d, path[0]), path[1:])
+        return walk(self, path), key
 
     def __contains__(self, key):
         return super(AttrDict, self).__contains__(self._map(key))
@@ -128,6 +162,13 @@ class BaseExtComponent(object):
         item_id='itemId',
     )
 
+    # кортеж атрибутов, которые считаются устаревшими
+    deprecated_attrs = (
+        'template',
+        'renderer',
+        'template_globals'
+    )
+
     def __new__(cls, *args, **kwargs):
         self = super(BaseExtComponent, cls).__new__(cls)
         self._config = self.js_attrs(xtype=cls._xtype)
@@ -167,13 +208,11 @@ class BaseExtComponent(object):
             # компонентам проставляется itemId
             if isinstance(value, BaseExtComponent):
                 value.item_id = attr
+        elif attr in self.deprecated_attrs:
+            # предупреждение об устаревших атрибутах
+            warn("\"%s\" is deprecated!" % attr, UserWarning, stacklevel=2)
         else:
-            if attr in (
-                'renderer',
-                'template',
-                'template_globals'
-            ):
-                return
+            # всё прочее
             data = super(BaseExtComponent, self).__getattribute__('_data')
             data[attr] = value
 
