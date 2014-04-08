@@ -91,6 +91,28 @@ class AttrDict(dict):
         new.update(kwargs)
         return new
 
+    def items(self):
+        return list(self.iteritems())
+
+    def iteritems(self):
+        """
+        Возвращает итератор пар "ключ-значение",
+        пропускающий пары со значениями, представляющими собой
+        пустые списки и кортежи
+        """
+        for k, v in super(AttrDict, self).iteritems():
+            if v == [] or v == ():
+                continue
+            yield (k, v)
+
+    def __iter__(self):
+        """
+        Возвращает итератор ключей, пропускающий ключи, указвающие на
+        значения, предаставляющие собой пустые списки и кортежи
+        """
+        for pair in self.iteritems():
+            yield pair[0]
+
 
 class BaseExtComponent(object):
     """
