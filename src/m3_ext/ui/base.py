@@ -178,7 +178,7 @@ class BaseExtComponent(object):
             setattr(self, *pair)
         return self
 
-    def setdefault(self, key, val, py=False):
+    def setdefault(self, key, val):
         try:
             _ = getattr(self, key)
         except AttributeError:
