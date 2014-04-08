@@ -26,27 +26,37 @@ class ExtGrid(BaseExtPanel):
 
     js_attrs = BaseExtPanel.js_attrs.extend(
         'columns', 'stripeRows', 'stateful', 'store',
-        'params',
-        _view_config='viewConfig',
+        'params', 'viewConfig',
         column_lines='columnLines',
         load_mask='loadMask',
         auto_expand_column='autoExpandColumn',
         drag_drop='enableDragDrop',
         drag_drop_group='ddGroup',
+        handler_contextmenu='params.menus.contextMenu',
+        handler_rowcontextmenu='params.menus.rowContextMenu',
+        force_fit='viewConfig.forceFit',
+        show_preview='viewConfig.showPreview',
+        enable_row_body='viewConfig.enableRowBody',
     )
+
+    deprecated_attrs = BaseExtPanel.deprecated_attrs+('editor',)
 
     # TODO: Реализовать человеческий MVC грид
 
     def __init__(self, *args, **kwargs):
         super(ExtGrid, self).__init__(*args, **kwargs)
         self.setdefault('columns', [])
-        self.setdefault('params', {})
 
         # Объект маскирования, который будет отображаться при загрузке
-        self.load_mask = False
+        self.setdefault('load_mask', False)
 
-        self.drag_drop = False
-        self.drag_drop_group = None
+        self.setdefault('drag_drop', False)
+        self.setdefault('drag_drop_group', None)
+
+        # Контекстное меню грида
+        self.setdefault('handler_contextmenu', None)
+        # Контекстное меню строки
+        self.setdefault('handler_rowcontextmenu', None)
 
         # selection model
         self._sm = None
@@ -54,7 +64,7 @@ class ExtGrid(BaseExtPanel):
         self._view = None
 
         # Колонка для авторасширения
-        self.auto_expand_column = None
+        self.setdefault('auto_expand_column', None)
 
         # устанавливается True, если sm=CheckBoxSelectionModel. Этот флаг нужен
         # чтобы знать когда нужен дополнительный column
@@ -68,13 +78,11 @@ class ExtGrid(BaseExtPanel):
 
         self.col_model = ExtGridDefaultColumnModel()
 
-        # Конфигурация для уровня view
-        self._view_config = {}
-        self.show_preview = False
-        self.enable_row_body = False
+        self.setdefault('show_preview', False)
+        self.setdefault('enable_row_body', False)
         self.get_row_class = None
         # Разворачивать колонки грида по всей ширине (True)
-        self.force_fit = True
+        self.setdefault('force_fit', True)
 
         # Раскраска строк черз одну
         self.setdefault('stripeRows', True)
@@ -84,7 +92,7 @@ class ExtGrid(BaseExtPanel):
         self.setdefault('stateful', True)
 
         # признак отображения вертикальных линий в гриде
-        self.column_lines = True
+        self.setdefault('column_lines', True)
 
         #Если True не рендерим drag and drop, выключаем editor
         self.read_only = False
@@ -205,7 +213,7 @@ class ExtGrid(BaseExtPanel):
         Формируем поля стора, в зависимости от колонок грида
         """
         if self.store:
-            del self.store.fields[:]
+            self.store.fields = []
             # FIXME: в полях стора всегда была одна колонка с id
             self.store.fields.append(self.store.id_property)
             for column in self.columns:
@@ -291,74 +299,6 @@ class ExtGrid(BaseExtPanel):
     @handler_dblclick.setter
     def handler_dblclick(self, function):
         self._listeners['dblclick'] = function
-
-    # FIXME: избавиться от свойства
-    @property
-    def handler_contextmenu(self):
-        return self.params.get('menus', {}).get('contextMenu')
-
-    # FIXME: избавиться от свойства
-    @handler_contextmenu.setter
-    def handler_contextmenu(self, menu):
-        if 'menus' in self.params:
-            self.params['menus']['contextMenu'] = menu
-        else:
-            self.params['menus'] = {'contextMenu': menu}
-
-    # FIXME: избавиться от свойства
-    @property
-    def handler_rowcontextmenu(self):
-        return self.params.get('menus', {}).get('rowContextMenu')
-
-    # FIXME: избавиться от свойства
-    @handler_rowcontextmenu.setter
-    def handler_rowcontextmenu(self, menu):
-        if 'menus' in self.params:
-            self.params['menus']['rowContextMenu'] = menu
-        else:
-            self.params['menus'] = {'rowContextMenu': menu}
-
-    # FIXME: избавиться от свойства
-    @property
-    def force_fit(self):
-        return self._view_config.get('forceFit', False)
-
-    # FIXME: избавиться от свойства
-    @force_fit.setter
-    def force_fit(self, value):
-        self._view_config['forceFit'] = value
-
-    # FIXME: избавиться от свойства
-    @property
-    def show_preview(self):
-        return self._view_config.get('showPreview', False)
-
-    # FIXME: избавиться от свойства
-    @show_preview.setter
-    def show_preview(self, value):
-        self._view_config['showPreview'] = value
-
-    # FIXME: избавиться от свойства
-    @property
-    def enable_row_body(self):
-        return self._view_config.get('enableRowBody', False)
-
-    # FIXME: избавиться от свойства
-    @enable_row_body.setter
-    def enable_row_body(self, value):
-        self._view_config['enableRowBody'] = value
-
-    # FIXME: избавиться от свойства
-    # Будет ли редактироваться
-    @property
-    def editor(self):
-        return False
-
-    # FIXME: избавиться от свойства
-    @editor.setter
-    def editor(self, value):
-        raise AttributeError('Do not use attribute "editor". '
-                             'Use ExtEditGrid class for editable grid.')
 
     def render_base_config(self):
         super(ExtGrid, self).render_base_config()

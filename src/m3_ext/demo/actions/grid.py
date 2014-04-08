@@ -3,6 +3,7 @@ from django.http import HttpResponse
 from m3.actions import Action
 from m3.actions.urls import get_url
 from m3_ext.ui.containers.grids import ExtEditorGrid
+from m3_ext.ui.fields import ExtComboBox
 from m3_ext.ui.misc import ExtDataStore, ExtJsonStore
 from m3_ext.ui.containers import ExtGrid
 from m3_ext.ui import all_components as ext
@@ -167,7 +168,7 @@ class GridRemoteStoreAction(UIAction):
     """
     Пример таблица с данными с сервера
     """
-    title = u'Пример ExtGrid и ExtJsonStore'
+    title = u'Таблица с серверными данными'
 
     def get_js(self, request, context):
         return """function(win, data){
@@ -186,9 +187,46 @@ class GridRemoteStoreAction(UIAction):
         grid.add_column(header=u'Фамилия', data_index='lname', editor=ext.ExtStringField())
         grid.add_column(header=u'Адрес', data_index='adress', editor=ext.ExtStringField())
         grid.store = ExtJsonStore(url=get_url(DataAction),
-                                  auto_load=True,
-                                  total_property='total',
+                                  auto_load=True, total_property='total',
                                   root='rows')
+        # FIXME: вот оно злое отсутствие свойств или метода pre_config
+        grid.columns_to_store()
+        window.items.append(grid)
+        button = ext.ExtButton(text=u'Закрыть')
+        window.buttons.append(button)
+        return window
+
+
+@Pack.register
+class BandedColumnAction(UIAction):
+    """
+    Пример таблицы с группировкой колонок
+    """
+    title = u'Таблица с "бандитскими колонками"'
+
+    def get_js(self, request, context):
+        return """function(win, data){
+            win.buttons[0].on('click', function(){
+                win.close(false);
+            });
+        }"""
+
+    def get_ui(self, request, context):
+        window = super(BandedColumnAction, self).get_ui(request, context)
+        window.width = 600
+        window.height = 500
+        window.layout = 'fit'
+        grid = ExtGrid()
+        grid.add_column(header=u'Имя', data_index='fname')
+        grid.add_column(header=u'Фамилия', data_index='lname', editor=ext.ExtStringField())
+        grid.add_column(header=u'Адрес', data_index='adress', editor=ext.ExtStringField())
+        grid.store = ExtJsonStore(url=get_url(DataAction),
+                                  auto_load=True, total_property='total',
+                                  root='rows')
+        # Бандитские колонки
+        grid.add_banded_column(ext.ExtGridColumn(header=u'Мегаколонка', align='center'), 0, 3)
+        grid.add_banded_column(ext.ExtGridColumn(header=u'Подколонка1', align='center'), 1, 2)
+        grid.add_banded_column(ext.ExtGridColumn(header=u'Подколонка2', align='center'), 1, 1)
         # FIXME: вот оно злое отсутствие свойств или метода pre_config
         grid.columns_to_store()
         window.items.append(grid)
@@ -347,4 +385,3 @@ class GridAjaxAction(UIAction):
         )
 
         return win
-
