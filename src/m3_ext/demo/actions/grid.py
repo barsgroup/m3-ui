@@ -160,7 +160,7 @@ class DataAction(Action):
                '{"id":81,"lname":"Ухт2омский","fname":"Йоган",adress:" Бунден штрассе"}',
                '{"id":91,"lname":"Поб2едилов","fname":"Йоган",adress:" Бунден штрассе"}',
                '{"id":1110,"lname":"Св2идригайлов","fname":"Йоган",adress:" Бунден штрассе"}']
-        return HttpResponse('{"total":121,"rows":[%s]}' % ','.join(res))
+        return HttpResponse('{"total":121,"rows":[%s]}' % ','.join(res), mimetype='application/json')
 
 
 @Pack.register

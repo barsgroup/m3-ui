@@ -43,8 +43,10 @@ class ExtDictSelectField(BaseExtTriggerField):
         value='params.defaultValue',
         record_value='params.recordValue',  # Значение, которое будет передано в store
 
+        actions='params.actions',
         url='params.actions.actionSelectUrl',
         edit_url='params.actions.actionEditUrl',
+        autocomplete_url='params.actions.autocompleteUrl',
     )
 
     deprecated_attrs = BaseExtTriggerField.deprecated_attrs + (
@@ -61,26 +63,24 @@ class ExtDictSelectField(BaseExtTriggerField):
 
         'total',  # Нужно использовать доступ к store и установку атрибутов там
         'root',  # Нужно использовать доступ к store и установку атрибутов там
-
-        'autocomplete_url',  # Нужно использовать доступ к store и установку url там
     )
 
     def __init__(self, *args, **kwargs):
         super(ExtDictSelectField, self).__init__(*args, **kwargs)
 
+        self.setdefault('actions', {})
         self.setdefault('record_value', {})
         self.setdefault('hide_clear_trigger', False)
         self.setdefault('hide_edit_trigger', False)
         self.setdefault('hide_dict_select_trigger', False)
         self.setdefault('min_chars', 2)
-        self.setdefault('store', ExtJsonStore())
+        self.setdefault('store', ExtJsonStore(total_property='total', root='rows'))
         self.setdefault('query_param', 'filter')
 
         self.setdefault('value_field', 'id')
         self.setdefault('display_field', 'name')
 
         self.pack = None
-
 
     # FIXME: Перенести код ниже в M3JSONEncoder, и там будет сериализоваться пак
     # def _set_urls_from_pack(self, ppack):

@@ -1,6 +1,8 @@
 #coding: utf-8
+from m3.actions.urls import get_url
 
 from base import Pack, UIAction
+from m3_ext.demo.actions.grid import DataAction
 from m3_ext.ui import all_components as ext
 
 __author__ = 'prefer'
@@ -14,11 +16,6 @@ class DictFieldAction(UIAction):
     title = u'ExtDictSelectField'
 
     def get_ui(self, request, context):
-
-        field = ext.ExtDictSelectField(
-            # url=''
-        )
-
         win = ext.ExtWindow(
             layout=ext.ExtForm.FIT,
             width=400,
@@ -30,8 +27,23 @@ class DictFieldAction(UIAction):
             ],
             items=[
                 ext.ExtForm(
+                    padding='5px',
                     items=[
-                        field,
+
+                        # FIXME: Пока нет выбора из справочника
+                        ext.ExtDictSelectField(
+                            label=u'Первый участник',
+                            # url='/ui/tree-dict-window',
+                            display_field='lname',
+                            store=ext.ExtJsonStore(
+                                url=get_url(DataAction),
+                                total_property='total',
+                                root='rows',
+                                fields=['id', 'lname', 'fname', 'adress']
+                            ),
+                            ask_before_deleting=False,
+                            anchor='80%',
+                        ),
                     ]
                 )
             ]

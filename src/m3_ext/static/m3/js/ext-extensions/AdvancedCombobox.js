@@ -47,7 +47,6 @@ Ext.m3.AdvancedComboBox = Ext.extend(Ext.m3.ComboBox, {
         this.triggerSelectClass = 'x-form-select-trigger';
         this.triggerEditClass = 'x-form-edit-trigger';
 
-
         assert(params.actions, 'params.actions is undefined');
 
         if (params.actions.actionSelectUrl) {
@@ -56,6 +55,9 @@ Ext.m3.AdvancedComboBox = Ext.extend(Ext.m3.ComboBox, {
 
         if (params.actions.actionEditUrl) {
             this.actionEditUrl = params.actions.actionEditUrl;
+        }
+        if (!baseConfig.store.url && params.actions.autocompleteUrl) {
+            baseConfig.store.url = params.actions.autocompleteUrl;
         }
 
         this.askBeforeDeleting = params.askBeforeDeleting;
@@ -70,7 +72,7 @@ Ext.m3.AdvancedComboBox = Ext.extend(Ext.m3.ComboBox, {
 
         this.defaultValue = params.defaultValue;
         this.defaultText = params.defaultText;
-        this.defaultRecord = Ext.decode(params.recordValue);
+        this.defaultRecord = params.recordValue;
 
         this.baseTriggers = [
             {
