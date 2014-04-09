@@ -4156,14 +4156,16 @@ Ext.m3.GridPanel = Ext.extend(Ext.grid.GridPanel, {
 			funcRowContMenu = Ext.emptyFn;
 		}
 
-		var plugins = params.plugins || [];
-		var bundedColumns = params.bundedColumns;
-		if (bundedColumns && bundedColumns instanceof Array &&
-			bundedColumns.length > 0) {
+		var bandedColumns = params.bandedColumns;
+		if (bandedColumns && bandedColumns instanceof Array &&
+			bandedColumns.length > 0) {
 
-			plugins.push(
+            if (!this.plugins) {
+                this.plugins = [];
+            }
+			this.plugins.push(
 				new Ext.ux.grid.ColumnHeaderGroup({
-					rows: bundedColumns
+					rows: bandedColumns
 				})
 			);
 		}
@@ -4287,14 +4289,16 @@ Ext.m3.EditorGridPanel = Ext.extend(Ext.grid.EditorGridPanel, {
 			funcRowContMenu = Ext.emptyFn;
 		}
 
-		var plugins = params.plugins || [];
-		var bundedColumns = params.bundedColumns;
-		if (bundedColumns && bundedColumns instanceof Array &&
-			bundedColumns.length > 0) {
+		var bandedColumns = params.bandedColumns;
+		if (bandedColumns && bandedColumns instanceof Array &&
+			bandedColumns.length > 0) {
 
-			plugins.push(
+            if (!this.plugins) {
+                this.plugins = [];
+            }
+			this.plugins.push(
 				new Ext.ux.grid.ColumnHeaderGroup({
-					rows: bundedColumns
+					rows: bandedColumns
 				})
 			);
 		}

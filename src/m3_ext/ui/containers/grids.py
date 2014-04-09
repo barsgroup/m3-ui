@@ -33,6 +33,8 @@ class ExtGrid(BaseExtPanel):
         'view',
         # модель колонок
         'cm',
+        # список плагинов
+        'plugins',
         column_lines='columnLines',
         load_mask='loadMask',
         auto_expand_column='autoExpandColumn',
@@ -43,9 +45,14 @@ class ExtGrid(BaseExtPanel):
         force_fit='viewConfig.forceFit',
         show_preview='viewConfig.showPreview',
         enable_row_body='viewConfig.enableRowBody',
+        banded_columns='params.bandedColumns'
     )
 
-    deprecated_attrs = BaseExtPanel.deprecated_attrs+('editor',)
+    deprecated_attrs = BaseExtPanel.deprecated_attrs + (
+        'editor',
+        'handler_click',  # через js
+        'handler_dblclick',  # через js
+    )
 
     # TODO: Реализовать человеческий MVC грид
 
@@ -67,12 +74,8 @@ class ExtGrid(BaseExtPanel):
         # Колонка для авторасширения
         self.setdefault('auto_expand_column', None)
 
-        # устанавливается True, если sm=CheckBoxSelectionModel. Этот флаг нужен
-        # чтобы знать когда нужен дополнительный column
-        self.__checkbox = False
-
         # перечень плагинов
-        self.plugins = []
+        self.setdefault('plugins', [])
 
         self.setdefault('show_preview', False)
         self.setdefault('enable_row_body', False)
@@ -93,19 +96,8 @@ class ExtGrid(BaseExtPanel):
         #Если True не рендерим drag and drop, выключаем editor
         self.read_only = False
 
-        # protected
-        self.show_banded_columns = False
-        self.banded_columns = SortedDict()
-
-    def t_render_plugins(self):
-        """
-        Рендеринг плагинов
-        """
-        res = []
-        for plugin in self.plugins:
-            res.append(plugin.render() if hasattr(plugin, 'render') else plugin)
-
-        return '[%s]' % ','.join(res)
+        # Группировочные колонки
+        self.setdefault('banded_columns', [])
 
     def t_render_banded_columns(self):
         """
@@ -149,7 +141,7 @@ class ExtGrid(BaseExtPanel):
         """
         self.columns.append(ExtGridDateColumn(**kwargs))
 
-    def add_banded_column(self, column, level, colspan):
+    def add_banded_column(self, column=None, level=0, colspan=1):
         """
         Добавляет в грид объединенную ячейку.
         :param column: Колонка грида
@@ -164,33 +156,23 @@ class ExtGrid(BaseExtPanel):
             колонка может быть не указана, т.е. None,
             в этом случае на указанном уровне будет "дырка"
         """
-        class BlankBandColumn():
-            colspan = 0
-
-            def render(self):
-                return '{%s}' % (
-                    ('colspan:%s' % self.colspan) if self.colspan else '')
-
         assert isinstance(level, int)
         assert isinstance(colspan, int)
         assert isinstance(column, ExtGridColumn) or not column
         if not column:
-            column = BlankBandColumn()
-        # Колонки хранятся в списках внутки сортированного словаря,
-        #чтобы их можно было
-        # извечь по возрастанию уровней
-        column.colspan = colspan
-        level_list = self.banded_columns.get(level, [])
-        level_list.append(column)
-        self.banded_columns[level] = level_list
-        self.show_banded_columns = True
+            column = {'colspan': colspan}
+        else:
+            column.colspan = colspan
+        if len(self.banded_columns) <= level:
+            # дополним список уровней до нужного level
+            self.banded_columns += [[]]*(1 + level - len(self.banded_columns))
+        self.banded_columns[level].append(column)
 
     def clear_banded_columns(self):
         """
         Удаляет все объединенные колонки из грида
         """
-        self.banded_columns.clear()
-        self.show_banded_columns = False
+        self.banded_columns = []
 
     # FIXME: оставлено для совместимости
     def set_store(self, store):
@@ -248,22 +230,6 @@ class ExtGrid(BaseExtPanel):
         if self.store:
             self.store.action_context = self.action_context
 
-    @property
-    def handler_click(self):
-        return self._listeners.get('click')
-
-    @handler_click.setter
-    def handler_click(self, function):
-        self._listeners['click'] = function
-
-    @property
-    def handler_dblclick(self):
-        return self._listeners.get('dblclick')
-
-    @handler_dblclick.setter
-    def handler_dblclick(self, function):
-        self._listeners['dblclick'] = function
-
     def render_base_config(self):
         super(ExtGrid, self).render_base_config()
         # FIXME: здесь должен быть js-метод, который возвращал класс
@@ -271,27 +237,17 @@ class ExtGrid(BaseExtPanel):
         if self.get_row_class:
             self._view_config['getRowClass'] = self.get_row_class
 
-        for args in (
-            ('view', self.t_render_view, self.view),
-        ):
-            if args:
-                self._put_config_value(*args)
-
     def render_params(self):
         super(ExtGrid, self).render_params()
-
+        #TODO: убрать добавление плагина в make_compatible
         # проверим набор колонок на наличие фильтров,
         # если есть, то добавим плагин с фильтрами
         for col in self.columns:
             if col.filter:
                 self.plugins.append(
-                    u"new Ext.ux.grid.GridFilters({menuFilterText:'Фильтр'})")
+                    {'ptype': 'gridfilters', 'menuFilterText': u'Фильтр'}
+                )
                 break
-        self._put_params_value('plugins', self.t_render_plugins)
-
-        if self.show_banded_columns:
-            self._put_params_value(
-                'bundedColumns', self.t_render_banded_columns)
 
 
 class ExtEditorGrid(ExtGrid):
@@ -337,6 +293,8 @@ class BaseExtGridColumn(BaseExtComponent):
         'filter',
         'fixed',
         'locked',
+        # продолжительность для группировочной колонки
+        'colspan',
         # Уникальное название колонки в пределах column model
         data_index='dataIndex',
         menu_disabled='menuDisabled',

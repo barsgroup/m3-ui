@@ -184,8 +184,8 @@ class GridRemoteStoreAction(UIAction):
         window.layout = 'fit'
         grid = ExtGrid()
         grid.add_column(header=u'Имя', data_index='fname')
-        grid.add_column(header=u'Фамилия', data_index='lname', editor=ext.ExtStringField())
-        grid.add_column(header=u'Адрес', data_index='adress', editor=ext.ExtStringField())
+        grid.add_column(header=u'Фамилия', data_index='lname')
+        grid.add_column(header=u'Адрес', data_index='adress')
         grid.store = ExtJsonStore(url=get_url(DataAction),
                                   auto_load=True, total_property='total',
                                   root='rows')
@@ -202,7 +202,7 @@ class BandedColumnAction(UIAction):
     """
     Пример таблицы с группировкой колонок
     """
-    title = u'Таблица с "бандитскими колонками"'
+    title = u'Таблица с группировочными ("бандитскими") колонками'
 
     def get_js(self, request, context):
         return """function(win, data){
@@ -218,15 +218,21 @@ class BandedColumnAction(UIAction):
         window.layout = 'fit'
         grid = ExtGrid()
         grid.add_column(header=u'Имя', data_index='fname')
-        grid.add_column(header=u'Фамилия', data_index='lname', editor=ext.ExtStringField())
-        grid.add_column(header=u'Адрес', data_index='adress', editor=ext.ExtStringField())
+        grid.add_column(header=u'Фамилия', data_index='lname')
+        grid.add_column(header=u'Адрес', data_index='adress')
+        grid.add_column(header=u'Адрес 2', data_index='adress')
+        grid.add_column(header=u'Адрес 3', data_index='adress')
         grid.store = ExtJsonStore(url=get_url(DataAction),
                                   auto_load=True, total_property='total',
                                   root='rows')
         # Бандитские колонки
-        grid.add_banded_column(ext.ExtGridColumn(header=u'Мегаколонка', align='center'), 0, 3)
+        grid.add_banded_column(None, 0, 1)
+        grid.add_banded_column(ext.ExtGridColumn(header=u'Мегаколонка', align='center'), 0, 4)
+        grid.add_banded_column(None, 1, 1)
         grid.add_banded_column(ext.ExtGridColumn(header=u'Подколонка1', align='center'), 1, 2)
-        grid.add_banded_column(ext.ExtGridColumn(header=u'Подколонка2', align='center'), 1, 1)
+        grid.add_banded_column(ext.ExtGridColumn(header=u'Подколонка2', align='center'), 1, 2)
+        grid.add_banded_column(ext.ExtGridColumn(header=u'Под-подколонка 1', align='center'), 2, 2)
+        grid.add_banded_column(ext.ExtGridColumn(header=u'Под-подколонка 2', align='center'), 2, 3)
         # FIXME: вот оно злое отсутствие свойств или метода pre_config
         grid.columns_to_store()
         window.items.append(grid)
