@@ -46,7 +46,9 @@ class AttrDict(dict):
         self.mapping = dict((a, a) for a in args)
         self.mapping.update(**kwargs)
         # набор итоговых атрибутов
-        self.internals = set(self.mapping.values())
+        self.internals = set(
+            v.split('.')[0] for v in self.mapping.values()
+        )
         super(AttrDict, self).__init__()
 
     def _map(self, key):
