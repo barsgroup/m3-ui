@@ -16,7 +16,7 @@ class SimpleGridAction(UIAction):
     """
     Пример простой таблицы
     """
-    title = u'Простая таблица'
+    title = u'Простая таблица с контекстным меню'
 
     def get_js(self, request, context):
         return """function(win, data){
@@ -76,7 +76,7 @@ class EditGridAction(UIAction):
     """
     Пример простой редактируемой таблицы
     """
-    title = u'Редактируемая таблица'
+    title = u'Редактируемая таблица (ExtEditorGrid)'
 
     def get_js(self, request, context):
         return """function(win, data){
@@ -168,7 +168,7 @@ class GridRemoteStoreAction(UIAction):
     """
     Пример таблица с данными с сервера
     """
-    title = u'Таблица с серверными данными'
+    title = u'Таблица с серверными данными (ExtJsonStore)'
 
     def get_js(self, request, context):
         return """function(win, data){
@@ -385,3 +385,37 @@ class GridAjaxAction(UIAction):
         )
 
         return win
+
+
+@Pack.register
+class GridCheckSelectionAction(UIAction):
+    """
+    Пример таблицы с выбором строк галочками
+    """
+    title = u'Таблица с галочками (ExtGridCheckBoxSelModel)'
+
+    def get_js(self, request, context):
+        return """function(win, data){
+            win.buttons[0].on('click', function(){
+                win.close(false);
+            });
+        }"""
+
+    def get_ui(self, request, context):
+        window = super(GridCheckSelectionAction, self).get_ui(request, context)
+        window.width = 500
+        window.height = 500
+        window.layout = 'fit'
+        grid = ExtGrid(sm=ext.ExtGridCheckBoxSelModel())
+        grid.add_column(header=u'Имя', data_index='fname')
+        grid.add_column(header=u'Фамилия', data_index='lname', editor=ext.ExtStringField())
+        grid.add_column(header=u'Адрес', data_index='adress', editor=ext.ExtStringField())
+        grid.store = ExtJsonStore(url=get_url(DataAction),
+                                  auto_load=True, total_property='total',
+                                  root='rows')
+        # FIXME: вот оно злое отсутствие свойств или метода pre_config
+        grid.columns_to_store()
+        window.items.append(grid)
+        button = ext.ExtButton(text=u'Закрыть')
+        window.buttons.append(button)
+        return window

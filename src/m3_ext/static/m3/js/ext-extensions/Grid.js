@@ -26,10 +26,15 @@ Ext.m3.GridPanel = Ext.extend(Ext.grid.GridPanel, {
                 selModel = Ext.create(selModel);
             }
             // если это чекбоксы, то добавим колонку
-            // FIXME: пока закомментировал, т.к. непонятно почему надо так делать
-            //if (selModel instanceof Ext.grid.CheckboxSelectionModel) {
-        	//    gridColumns.columns.unshift(selModel);
-            //}
+            if (selModel instanceof Ext.grid.CheckboxSelectionModel) {
+                if (this.colModel) {
+                    this.colModel.columns.unshift(selModel);
+                } else {
+                    if (this.columns) {
+                        this.columns.unshift(selModel);
+                    }
+                }
+            }
             delete this.sm;
             this.sm = selModel;
 		}
@@ -152,10 +157,15 @@ Ext.m3.EditorGridPanel = Ext.extend(Ext.grid.EditorGridPanel, {
                 selModel = Ext.create(selModel);
             }
             // если это чекбоксы, то добавим колонку
-            // FIXME: пока закомментировал, т.к. непонятно почему надо так делать
-            //if (selModel instanceof Ext.grid.CheckboxSelectionModel) {
-        	//    gridColumns.columns.unshift(selModel);
-            //}
+            if (selModel instanceof Ext.grid.CheckboxSelectionModel) {
+                if (this.colModel) {
+                    this.colModel.columns.unshift(selModel);
+                } else {
+                    if (this.columns) {
+                        this.columns.unshift(selModel);
+                    }
+                }
+            }
             delete this.sm;
             this.sm = selModel;
 		}
@@ -256,3 +266,9 @@ Ext.m3.EditorGridPanel = Ext.extend(Ext.grid.EditorGridPanel, {
 
 Ext.reg('m3-grid', Ext.m3.GridPanel);
 Ext.reg('m3-edit-grid', Ext.m3.EditorGridPanel);
+
+Ext.reg('sm-cell', Ext.grid.CellSelectionModel);
+Ext.reg('sm-checkbox', Ext.grid.CheckboxSelectionModel);
+Ext.reg('sm-row', Ext.grid.RowSelectionModel);
+
+Ext.reg('view-grouping', Ext.grid.GroupingView);

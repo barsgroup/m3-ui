@@ -27,6 +27,12 @@ class ExtGrid(BaseExtPanel):
     js_attrs = BaseExtPanel.js_attrs.extend(
         'columns', 'stripeRows', 'stateful', 'store',
         'params', 'viewConfig',
+        # selection model
+        'sm',
+        # grid view
+        'view',
+        # модель колонок
+        'cm',
         column_lines='columnLines',
         load_mask='loadMask',
         auto_expand_column='autoExpandColumn',
@@ -58,11 +64,6 @@ class ExtGrid(BaseExtPanel):
         # Контекстное меню строки
         self.setdefault('handler_rowcontextmenu', None)
 
-        # selection model
-        self._sm = None
-
-        self._view = None
-
         # Колонка для авторасширения
         self.setdefault('auto_expand_column', None)
 
@@ -72,11 +73,6 @@ class ExtGrid(BaseExtPanel):
 
         # перечень плагинов
         self.plugins = []
-
-        # модель колонок
-        self._cm = None
-
-        self.col_model = ExtGridDefaultColumnModel()
 
         self.setdefault('show_preview', False)
         self.setdefault('enable_row_body', False)
@@ -122,9 +118,6 @@ class ExtGrid(BaseExtPanel):
             result.append('[%s]' % ','.join(
                 [column.render() for column in level_list]))
         return '[%s]' % ','.join(result)
-
-    def t_render_col_model(self):
-        return self._cm.render()
 
     def add_column(self, **kwargs):
         """
@@ -250,39 +243,10 @@ class ExtGrid(BaseExtPanel):
                         item.make_read_only(
                             self.read_only, exclude_list, *args, **kwargs)
 
-    @property
-    def sm(self):
-        return self._sm
-
-    @sm.setter
-    def sm(self, value):
-        self._sm = value
-        self.checkbox_model = isinstance(self._sm, ExtGridCheckBoxSelModel)
-
-    @property
-    def view(self):
-        return self._view
-
-    @view.setter
-    def view(self, value):
-        self._view = value
-
-    def t_render_view(self):
-        return self.view.render()
-
     def pre_render(self):
         super(ExtGrid, self).pre_render()
         if self.store:
             self.store.action_context = self.action_context
-
-    @property
-    def col_model(self):
-        return self._cm
-
-    @col_model.setter
-    def col_model(self, value):
-        self._cm = value
-        self._cm.grid = self
 
     @property
     def handler_click(self):
@@ -316,10 +280,6 @@ class ExtGrid(BaseExtPanel):
     def render_params(self):
         super(ExtGrid, self).render_params()
 
-        if self.sm:
-            self._put_params_value('selModel', self.sm.render)
-
-        self._put_params_value('colModel', self.col_model.render)
         # проверим набор колонок на наличие фильтров,
         # если есть, то добавим плагин с фильтрами
         for col in self.columns:
@@ -347,10 +307,9 @@ class ExtEditorGrid(ExtGrid):
 
     def __init__(self, *args, **kwargs):
         super(ExtEditorGrid, self).__init__(*args, **kwargs)
-
         # Сколько раз нужно щелкнуть для редактирования ячейки.
         # Только для EditorGridPanel
-        self.clicks_to_edit = 2
+        self.setdefault('clicks_to_edit', 2)
 
 
 class BaseExtGridColumn(BaseExtComponent):
@@ -470,50 +429,45 @@ class BaseExtGridSelModel(BaseExtComponent):
     """
     Базовая модель для грида с выбором
     """
-    def __init__(self, *args, **kwargs):
-        super(BaseExtGridSelModel, self).__init__(*args, **kwargs)
-
+    pass
 
 class ExtGridCheckBoxSelModel(BaseExtGridSelModel):
     """
     Модель для грида с возможностью выбора ячейки
     """
+    _xtype = 'sm-checkbox'
+
+    js_attrs = BaseExtGridSelModel.js_attrs.extend(
+        single_select='singleSelect',
+        check_only='checkOnly',
+    )
+
     def __init__(self, *args, **kwargs):
         super(ExtGridCheckBoxSelModel, self).__init__(*args, **kwargs)
-        self.single_select = False
-        self.check_only = False
-        self.init_component(*args, **kwargs)
-
-    def render(self):
-        self._put_config_value('singleSelect', self.single_select)
-        self._put_config_value('checkOnly', self.check_only)
-        return 'new Ext.grid.CheckboxSelectionModel({ %s })' % (
-            self._get_config_str())
+        self.setdefault('single_select', False)
+        self.setdefault('check_only', False)
 
 
 class ExtGridRowSelModel(BaseExtGridSelModel):
     """
     Модель для грида с выбором строк
     """
+    _xtype = 'sm-row'
+
+    js_attrs = BaseExtGridSelModel.js_attrs.extend(
+        single_select='singleSelect',
+    )
+
     def __init__(self, *args, **kwargs):
         super(ExtGridRowSelModel, self).__init__(*args, **kwargs)
         self.setdefault('single_select', False)
-
-    def render(self):
-        single_sel = 'singleSelect: true' if self.single_select else ''
-        return 'new Ext.grid.RowSelectionModel({ %s })' % single_sel
 
 
 class ExtGridCellSelModel(BaseExtGridSelModel):
     """
     Модель для грида с выбором ячеек
     """
-    def __init__(self, *args, **kwargs):
-        super(ExtGridCellSelModel, self).__init__(*args, **kwargs)
-        self.init_component(*args, **kwargs)
-
-    def render(self):
-        return 'new Ext.grid.CellSelectionModel()'
+    _xtype = 'sm-cell'
 
 
 class ExtGridDefaultColumnModel(BaseExtComponent):
