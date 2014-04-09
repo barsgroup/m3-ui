@@ -79,6 +79,7 @@ class BaseExtField(ExtUIComponent):
             self._allow_blank_old = self.allow_blank
         self.allow_blank = True if access_off else self._allow_blank_old
 
+
 class BaseExtTriggerField(BaseExtField):
     """
     Базовый класс для комбобокса, поля выбора справочника
@@ -159,7 +160,10 @@ class BaseExtTriggerField(BaseExtField):
         self.setdefault('force_selection', False)
         self.setdefault('loading_text', u'Загрузка...')
         self.setdefault('resizable', False)
-        # self.setdefault('fields', [])  -- пока не работает
+        # self.setdefault('fields', [])
+
+        # Поля, которые должны попасть в store
+        self.fields = []
 
     @property
     def trigger_action_all(self):

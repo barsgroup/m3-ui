@@ -7,7 +7,6 @@ Created on 27.02.2010
 """
 
 from django.conf import settings
-from django.utils.html import escapejs
 
 from base import BaseExtField, BaseExtTriggerField
 

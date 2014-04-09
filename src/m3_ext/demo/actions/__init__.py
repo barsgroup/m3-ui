@@ -7,3 +7,4 @@ from windows import *
 from forms import *
 from menus import *
 from fields import *
+from dictfield import *

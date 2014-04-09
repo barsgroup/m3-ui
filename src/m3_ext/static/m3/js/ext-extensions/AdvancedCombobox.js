@@ -95,12 +95,6 @@ Ext.m3.AdvancedComboBox = Ext.extend(Ext.m3.ComboBox, {
             }
         ];
         this.allTriggers = [].concat(this.baseTriggers);
-        if (params.customTriggers) {
-            Ext.each(params.customTriggers, function (item, index, all) {
-                this.allTriggers.push(item);
-            }, this);
-
-        }
 
         Ext.m3.AdvancedComboBox.superclass.constructor.call(this, baseConfig);
     },

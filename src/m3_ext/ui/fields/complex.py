@@ -8,328 +8,112 @@ import os
 import json
 
 from django.conf import settings
-from django.utils.html import escapejs
+
+from m3_ext.ui.misc import ExtJsonStore
+from m3_ext.ui.fields.base import BaseExtTriggerField
+from m3_ext.ui.base import ExtUIComponent
+from m3.actions import ControllerCache
+from m3.actions.interfaces import IMultiSelectablePack
 
 from base import BaseExtField
 
-from m3 import actions
-from m3_ext.ui.misc import ExtJsonStore
-from m3_ext.ui.fields.base import BaseExtTriggerField
-from m3_ext.ui.base import BaseExtComponent, ExtUIComponent
-from m3.actions import ControllerCache
-from m3.actions.interfaces import ISelectablePack, IMultiSelectablePack
 
-
-#==============================================================================
 class ExtDictSelectField(BaseExtTriggerField):
     """
     Поле с выбором из справочника
     """
-    class ExtTrigger(BaseExtComponent):
-        def __init__(self, *args, **kwargs):
-            self.icon_cls = None
-            self.handler = None
-            self.init_component(*args, **kwargs)
 
-        def render(self):
-            res = 'iconCls: "%s"' % (self.icon_cls if self.icon_cls else '')
-            res += ',handler: %s' % self.handler if self.handler else ''
-            return res
+    # FIXME: Удалено set_value_from_model
+    # Необходимо использовать биндинг.
+    # Заполнялся record_value
+
+    # FIXME: Удалено configure_by_dictpack,
+    # необходимо использовать атрибут pack
+
+    _xtype = 'm3-select'
+
+    js_attrs = BaseExtTriggerField.js_attrs.extend(
+
+        hide_clear_trigger='params.hideClearTrigger',  # Скрыть кнопку очистки
+        hide_edit_trigger='params.hideEditTrigger',  # Скрыть кнопку редактирования элемента
+        hide_dict_select_trigger='params.hideDictSelectTrigger',  # Скрыть кнопку выбора из справочника
+
+        ask_before_deleting='params.askBeforeDeleting',
+        default_text='params.defaultText',
+        value='params.defaultValue',
+        record_value='params.recordValue',  # Значение, которое будет передано в store
+
+        url='params.actions.actionSelectUrl',
+        edit_url='params.actions.actionEditUrl',
+    )
+
+    deprecated_attrs = BaseExtTriggerField.deprecated_attrs + (
+
+        # property:
+        '_triggers',  # Судя по грепу по проектам - нигде не используется
+        'action_select',  # Судя по грепу по проектам - нигде не импользовался
+        'action_data',  # Судя по прошлому коду вообще не работал этот property
+        'hide_trigger',  # Судя по исходнику нигде по коду не использовалась
+
+        'handler_afterselect',  # Все хендлеры теперь необходимо навешивать в js-файле
+        'handler_beforerequest',
+        'handler_changed',
+
+        'total',  # Нужно использовать доступ к store и установку атрибутов там
+        'root',  # Нужно использовать доступ к store и установку атрибутов там
+
+        'autocomplete_url',  # Нужно использовать доступ к store и установку url там
+    )
 
     def __init__(self, *args, **kwargs):
         super(ExtDictSelectField, self).__init__(*args, **kwargs)
 
-        # Эти атрибуты отвечают за отображение кнопок действий в строке выбора:
-        # Выпадающий список
-        self.hide_trigger = True
-        # Очистка поля
-        self.hide_clear_trigger = False
-        # Редактирование выбранного элемента
-        self.hide_edit_trigger = False
-        # Выбора из справочника
-        self.hide_dict_select_trigger = False
+        self.setdefault('record_value', {})
+        self.setdefault('hide_clear_trigger', False)
+        self.setdefault('hide_edit_trigger', False)
+        self.setdefault('hide_dict_select_trigger', False)
+        self.setdefault('min_chars', 2)
+        self.setdefault('store', ExtJsonStore())
+        self.setdefault('query_param', 'filter')
 
-        # количество знаков, с которых начинаются запросы на autocomplete
-        self.min_chars = 2
+        self.setdefault('value_field', 'id')
+        self.setdefault('display_field', 'name')
 
-        self.set_store(ExtJsonStore())
-
-        #self.width = 150
-        self.default_text = None
-
-        self.ask_before_deleting = True
-
-        self.url = None
-        self.edit_url = None
-        self.autocomplete_url = None
-
-        # это взято из магического метода configure_edit_field
-        # из mis.users.forms
-        self.value_field = 'id'
-        # и это тоже взято оттуда же
-        self.query_param = 'filter'
-        # по умолчанию отображаем значение поля name
-        self.display_field = 'name'
-
-        # Из-за ошибки убраны свойства по умолчанию
-        self.total = 'total'
-        self.root = 'rows'
-
-        # значение, которое будет передано в store
-        self.__record_value = {}
-
-        self._triggers = []
-
-        self._pack = None
-
-        self.init_component(*args, **kwargs)
-
-        # внутренние переменные
-        self.__action_select = None
-        self.__action_data = None
-
-    @property
-    def handler_afterselect(self):
-        return self._listeners.get('afterselect')
-
-    @handler_afterselect.setter
-    def handler_afterselect(self, function):
-        self._listeners['afterselect'] = function
-
-    @property
-    def handler_beforerequest(self):
-        return self._listeners.get('beforerequest')
-
-    @handler_beforerequest.setter
-    def handler_beforerequest(self, function):
-        self._listeners['beforerequest'] = function
-
-    @property
-    def handler_changed(self):
-        return self._listeners.get('changed')
-
-    @handler_changed.setter
-    def handler_changed(self, function):
-        self._listeners['changed'] = function
-
-    #==========================================================================
-    # Экшены для управления процессом работы справочника
-    #==========================================================================
-
-    #==========================================================================
-    #  Получение окна выбора значения
-    def _get_action_select(self):
-        return self.__action_autocomplete
-
-    def _set_action_select(self, value):
-        self.__action_autocomplete = value
-        if isinstance(value, actions.Action):
-            self.autocomplete_url = value.get_absolute_url()
-    action_select = property(
-        _get_action_select,
-        _set_action_select,
-        doc=(
-            'Действие, которое используется '
-            'для получения окна выбора значения'
-        ))
-    #==========================================================================
-
-    #==========================================================================
-    # Получение списка для получения списка значений
-    # (используется в автозаполнении)
-    def _get_action_data(self):
-        return self.__action_data
-
-    def _set_action_data(self):
-        return self.__action_data
-    action_data = property(
-        _get_action_data,
-        _set_action_data,
-        doc=(
-            'Действие для получения списка '
-            'строковых значений для '
-        ))
-    #==========================================================================
-
-    @property
-    def url(self):
-        return self.__url
-
-    @url.setter
-    def url(self, value):
-        self.__url = value
-
-    @property
-    def edit_url(self):
-        return self.__edit_url
-
-    @edit_url.setter
-    def edit_url(self, value):
-        self.__edit_url = value
-
-    @property
-    def autocomplete_url(self):
-        return self.__autocomplete_url
-
-    @autocomplete_url.setter
-    def autocomplete_url(self, value):
-        if value:
-            self.editable = True
-            self.get_store().url = value
-        self.__autocomplete_url = value
-
-    @property
-    def record_value(self):
-        return self.__record_value
-
-    @record_value.setter
-    def record_value(self, val):
-        self.__record_value = val
-
-    @property
-    def value(self):
-        return self.__value
-
-    @value.setter
-    def value(self, val):
-        self.__value = val
-
-    def configure_by_dictpack(self, pack, controller=None):
-        """
-        Метод настройки поля выбора из справочника на основе
-        переданного ActionPack работы со справочниками.
-        @param pack: Имя класса или класс пака.
-        @controller: Контроллер в котором будет искаться пак.
-        Если не задан, то ищем во всех.
-        @deprecated: 0.4
-        """
-        registered_pack = ControllerCache.find_pack(pack)
-        if not registered_pack:
-            raise Exception(
-                'Pack %s not found!' % pack
-            )
-        self.url = registered_pack.get_select_url()
-        self.autocomplete_url = registered_pack.rows_action.get_absolute_url()
-        # TODO: можно ли обойтись без bind_back?
-        self.bind_pack = registered_pack
-
-    def set_value_from_model(self, obj):
-        """
-        Устанавливает значения value и default_text по экземпляру модели obj.
-        Причем они могут быть методами, например обернутыми json_encode.
-        Это позволяет избежать двойного присваивания в коде.
-        """
-
-        value = getattr(obj, self.value_field)
-        self.value = escapejs(value() if callable(value) else value)
-
-        value = getattr(obj, self.display_field)
-        self.default_text = value() if callable(value) else value
-
-        # также запомним объект как значение
-        # будем брать только те атрибуты, которые есть в fields
-        attr_set = set(self.fields)
-        attr_set.add(self.value_field)
-        attr_set.add(self.display_field)
-        self.__record_value = {}
-        for attr in attr_set:
-            value = getattr(obj, attr, None)
-            self.__record_value[attr] = value() if callable(value) else value
-
-    @property
-    def pack(self):
-        return self._pack
-
-    @pack.setter
-    def pack(self, ppack):
-        self._set_urls_from_pack(ppack)
-
-    @property
-    def total(self):
-        return self.get_store().total_property
-
-    @total.setter
-    def total(self, value):
-        self.get_store().total_property = value
-
-    @property
-    def root(self):
-        return self.get_store().root
-
-    @root.setter
-    def root(self, value):
-        self.get_store().root = value
-
-    def add_trigger(self, *args, **kwargs):
-        self._triggers.append(ExtDictSelectField.ExtTrigger(*args, **kwargs))
-
-    def t_render_triggers(self):
-        return '[%s]' % ','.join(
-            ['{%s}' % item.render() for item in self._triggers])
-
-    def _set_urls_from_pack(self, ppack):
-        """
-        Настраивает поле выбора под указанный экшенпак ppack.
-        Причем в качестве аргумента может быть как сам класс пака,
-        так и имя. Это связано с тем, что не во всех формах можно
-        импортировать паки и может произойти кроссимпорт.
-        Поиск пака производится по всем экшенконтроллерам в системе.
-        Используется первый найденный, т.к. при правильном дизайне
-        один и тот же пак не должен быть в нескольких
-        контроллерах одновременно.
-        @param ppack: Имя класса пака или класс пака.
-        """
-        assert isinstance(ppack, basestring) or hasattr(ppack, '__bases__'), (
-            'Argument %s must be a basestring or class' % ppack)
-        ppack = ControllerCache.find_pack(ppack)
-        assert ppack, 'Pack %s not found in ControllerCache' % ppack
-        assert isinstance(ppack, ISelectablePack), (
-            'Pack %s must provide ISelectablePack interface' % ppack)
-        self._pack = ppack
-
-        # старый спосом подключения Pack теперь не действует
-        # - всё должно быть в рамках интерфейса ISelectablePack
-
-        # url формы редактирования элемента
-        self.edit_url = ppack.get_edit_url()
-        # url автокомплита и данных
-        self.autocomplete_url = ppack.get_autocomplete_url()
-        # url формы выбора
-        self.url = ppack.get_select_url()
-
-    def render_params(self):
-        action_context = None
-        # FIXME: Почему то нет в конструкторе.
-        if self.action_context:
-            # функция
-            action_context = self.action_context.json
-
-        for args in (
-            ('askBeforeDeleting', self.ask_before_deleting),
-            ('actions', {
-                'actionSelectUrl': self.url,
-                'actionEditUrl': self.edit_url,
-                'contextJson':  action_context}),
-            ('defaultText', self.default_text),
-            ('hideClearTrigger', self.hide_clear_trigger),
-            ('hideEditTrigger', self.hide_edit_trigger),
-            ('hideDictSelectTrigger', self.hide_dict_select_trigger),
-            ('defaultValue', self.value),
-            ('customTriggers', self.t_render_triggers, self._triggers),
-            ('recordValue', json.dumps(self.record_value), self.record_value),
-        ):
-            self._put_params_value(*args)
-
-    def render(self):
-        self.render_base_config()
-        self.render_params()
-
-        base_config = self._get_config_str()
-        params = self._get_params_str()
-        return 'createAdvancedComboBox({%s},{%s})' % (base_config, params)
+        self.pack = None
 
 
-#==============================================================================
+    # FIXME: Перенести код ниже в M3JSONEncoder, и там будет сериализоваться пак
+    # def _set_urls_from_pack(self, ppack):
+    #     """
+    #     Настраивает поле выбора под указанный экшенпак ppack.
+    #     Причем в качестве аргумента может быть как сам класс пака,
+    #     так и имя. Это связано с тем, что не во всех формах можно
+    #     импортировать паки и может произойти кроссимпорт.
+    #     Поиск пака производится по всем экшенконтроллерам в системе.
+    #     Используется первый найденный, т.к. при правильном дизайне
+    #     один и тот же пак не должен быть в нескольких
+    #     контроллерах одновременно.
+    #     @param ppack: Имя класса пака или класс пака.
+    #     """
+    #     assert isinstance(ppack, basestring) or hasattr(ppack, '__bases__'), (
+    #         'Argument %s must be a basestring or class' % ppack)
+    #     ppack = ControllerCache.find_pack(ppack)
+    #     assert ppack, 'Pack %s not found in ControllerCache' % ppack
+    #     assert isinstance(ppack, ISelectablePack), (
+    #         'Pack %s must provide ISelectablePack interface' % ppack)
+    #     self._pack = ppack
+    #
+    #     # старый спосом подключения Pack теперь не действует
+    #     # - всё должно быть в рамках интерфейса ISelectablePack
+    #
+    #     # url формы редактирования элемента
+    #     self.edit_url = ppack.get_edit_url()
+    #     # url автокомплита и данных
+    #     self.autocomplete_url = ppack.get_autocomplete_url()
+    #     # url формы выбора
+    #     self.url = ppack.get_select_url()
+
+
 class ExtSearchField(BaseExtField):
     """Поле поиска"""
     def __init__(self, *args, **kwargs):

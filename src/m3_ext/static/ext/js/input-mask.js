@@ -4,6 +4,7 @@ Ext.ux.Mask = function(mask) {
     };
     Ext.apply(this, config);
 };
+
 Ext.extend(Ext.ux.Mask, Object, {
     init: function(c) {
         this.LetrasL = 'abcdefghijklmnopqrstuvwxyz';
