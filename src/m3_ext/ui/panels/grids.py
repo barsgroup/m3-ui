@@ -46,7 +46,6 @@ class ExtObjectGrid(containers.ExtGrid):
             )
             self.menuitem_separator = menus.ExtContextMenuSeparator()
 
-            self.init_component()
 
     class GridTopBar(containers.ExtToolBar):
         """
@@ -82,7 +81,6 @@ class ExtObjectGrid(containers.ExtGrid):
                 self.button_refresh,
             ])
 
-            self.init_component()
 
     #==========================================================================
     # Собственно определение класса ExtObjectGrid
@@ -170,8 +168,6 @@ class ExtObjectGrid(containers.ExtGrid):
         # Атрибут store из store baseParams вынесен,
         # для одновременного изменения с атрибутом page_size paging_bar-а
         self._limit = self.store.limit if hasattr(self.store, 'limit') else -1
-
-        self.init_component()
 
     def _make_read_only(
             self, access_off=True, exclude_list=(), *args, **kwargs):
@@ -375,7 +371,6 @@ class ExtMultiGroupinGrid(containers.ExtGrid):
                 self.csv,
             ])
 
-            self.init_component()
 
     class LiveGridTopBar(containers.ExtToolBar):
         """
@@ -414,7 +409,6 @@ class ExtMultiGroupinGrid(containers.ExtGrid):
                 self.button_export,
             ])
 
-            self.init_component()
 
     # Поле в котором будет содержаться значение ключа группировки
     # должно отличаться от ключевого поля Store,
@@ -486,8 +480,6 @@ class ExtMultiGroupinGrid(containers.ExtGrid):
 
         # Url для пака
         self.url_data = self.url_new = self.url_edit = self.url_delete = None
-
-        self.init_component()
 
     def render(self):
         self.store.url = self.store.url or self.url_data

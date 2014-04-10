@@ -37,10 +37,13 @@ class ExtGrid(BaseExtPanel):
         'plugins',
         column_lines='columnLines',
         load_mask='loadMask',
+        # Колонка для авторасширения
         auto_expand_column='autoExpandColumn',
         drag_drop='enableDragDrop',
         drag_drop_group='ddGroup',
+        # Контекстное меню грида
         handler_contextmenu='params.contextMenu',
+        # Контекстное меню строки
         handler_rowcontextmenu='params.rowContextMenu',
         force_fit='viewConfig.forceFit',
         show_preview='viewConfig.showPreview',
@@ -65,22 +68,13 @@ class ExtGrid(BaseExtPanel):
         self.setdefault('load_mask', False)
 
         self.setdefault('drag_drop', False)
-        self.setdefault('drag_drop_group', None)
-
-        # Контекстное меню грида
-        self.setdefault('handler_contextmenu', None)
-        # Контекстное меню строки
-        self.setdefault('handler_rowcontextmenu', None)
-
-        # Колонка для авторасширения
-        self.setdefault('auto_expand_column', None)
 
         # перечень плагинов
         self.setdefault('plugins', [])
 
         self.setdefault('show_preview', False)
         self.setdefault('enable_row_body', False)
-        self.get_row_class = None
+
         # Разворачивать колонки грида по всей ширине (True)
         self.setdefault('force_fit', True)
 

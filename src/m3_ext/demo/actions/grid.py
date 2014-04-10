@@ -2,10 +2,6 @@
 from django.http import HttpResponse
 from m3.actions import Action
 from m3.actions.urls import get_url
-from m3_ext.ui.containers.grids import ExtEditorGrid
-from m3_ext.ui.fields import ExtComboBox
-from m3_ext.ui.misc import ExtDataStore, ExtJsonStore
-from m3_ext.ui.containers import ExtGrid
 from m3_ext.ui import all_components as ext
 
 from base import Pack, UIAction
@@ -43,11 +39,11 @@ class SimpleGridAction(UIAction):
         win.minimizable = True
         win.btn = ext.ExtButton(text=u'Закрыть')
         win.buttons.append(win.btn)
-        grid = ExtGrid(item_id='grid')
+        grid = ext.ExtGrid(item_id='grid')
         grid.add_column(header=u'Имя', data_index='fname')
         grid.add_column(header=u'Фамилия', data_index='lname')
         grid.add_column(header=u'Адрес', data_index='adress')
-        grid.set_store(ExtDataStore([
+        grid.set_store(ext.ExtDataStore([
             [1, u'Юрий', u'Кофтун', u'пр. Мира'],
             [2, u'Анатоле', u'Кожемякин', u'пл. Земля '],
             [3, u'Анатоле', u'Кожемякин', u'пл. Земля '],
@@ -92,7 +88,7 @@ class EditGridAction(UIAction):
         window.layout = 'fit'
         # Теперь вместо этого кода, придется юзать отдельный грид
         #grid = ExtGrid(title=u'Произвольный грид', editor=True)
-        grid = ExtEditorGrid(title=u'Редактируемый грид', header=True)
+        grid = ext.ExtEditorGrid(title=u'Редактируемый грид', header=True)
         grid.add_column(header=u'Имя', data_index='fname')
         grid.add_column(header=u'Фамилия', data_index='lname', editor=ext.ExtStringField())
         grid.add_column(header=u'Адрес', data_index='adress', editor=ext.ExtStringField())
@@ -113,7 +109,7 @@ class EditGridAction(UIAction):
         # grid.add_column(header=u'combo', data_index='co', editor=combo2)
         #grid.add_column(header=u'Выбор из справочника', data_index = 'from_dict', editor = field)
 
-        grid.set_store(ExtDataStore([[1, 'Юрий', 'Кофтун', 'пр. Мира', '', '', 'false'],
+        grid.set_store(ext.ExtDataStore([[1, 'Юрий', 'Кофтун', 'пр. Мира', '', '', 'false'],
                                      [2, 'Анатоле', 'Кожемякин', 'пл. Земля ', '', '', 'true']]
         ))
         # FIXME: вот оно злое отсутствие свойств или метода pre_config
@@ -182,11 +178,11 @@ class GridRemoteStoreAction(UIAction):
         window.width = 500
         window.height = 500
         window.layout = 'fit'
-        grid = ExtGrid()
+        grid = ext.ExtGrid()
         grid.add_column(header=u'Имя', data_index='fname')
         grid.add_column(header=u'Фамилия', data_index='lname')
         grid.add_column(header=u'Адрес', data_index='adress')
-        grid.store = ExtJsonStore(url=get_url(DataAction),
+        grid.store = ext.ExtJsonStore(url=get_url(DataAction),
                                   auto_load=True, total_property='total',
                                   root='rows')
         # FIXME: вот оно злое отсутствие свойств или метода pre_config
@@ -216,13 +212,13 @@ class BandedColumnAction(UIAction):
         window.width = 600
         window.height = 500
         window.layout = 'fit'
-        grid = ExtGrid()
+        grid = ext.ExtGrid()
         grid.add_column(header=u'Имя', data_index='fname')
         grid.add_column(header=u'Фамилия', data_index='lname')
         grid.add_column(header=u'Адрес', data_index='adress')
         grid.add_column(header=u'Адрес 2', data_index='adress')
         grid.add_column(header=u'Адрес 3', data_index='adress')
-        grid.store = ExtJsonStore(url=get_url(DataAction),
+        grid.store = ext.ExtJsonStore(url=get_url(DataAction),
                                   auto_load=True, total_property='total',
                                   root='rows')
         # Бандитские колонки
@@ -412,13 +408,49 @@ class GridCheckSelectionAction(UIAction):
         window.width = 500
         window.height = 500
         window.layout = 'fit'
-        grid = ExtGrid(sm=ext.ExtGridCheckBoxSelModel())
+        grid = ext.ExtGrid(sm=ext.ExtGridCheckBoxSelModel())
         grid.add_column(header=u'Имя', data_index='fname')
-        grid.add_column(header=u'Фамилия', data_index='lname', editor=ext.ExtStringField())
-        grid.add_column(header=u'Адрес', data_index='adress', editor=ext.ExtStringField())
-        grid.store = ExtJsonStore(url=get_url(DataAction),
+        grid.add_column(header=u'Фамилия', data_index='lname')
+        grid.add_column(header=u'Адрес', data_index='adress')
+        grid.store = ext.ExtJsonStore(url=get_url(DataAction),
                                   auto_load=True, total_property='total',
                                   root='rows')
+        # FIXME: вот оно злое отсутствие свойств или метода pre_config
+        grid.columns_to_store()
+        window.items.append(grid)
+        button = ext.ExtButton(text=u'Закрыть')
+        window.buttons.append(button)
+        return window
+
+
+@Pack.register
+class ObjectGridAction(UIAction):
+    """
+    Пример объектной таблицы (ObjectGrid)
+    """
+    title = u'Объектная таблица (ObjectGrid)'
+
+    def get_js(self, request, context):
+        return """function(win, data){
+            win.buttons[0].on('click', function(){
+                win.close(false);
+            });
+        }"""
+
+    def get_ui(self, request, context):
+        window = super(ObjectGridAction, self).get_ui(request, context)
+        window.width = 500
+        window.height = 500
+        window.layout = 'fit'
+        grid = ext.ExtObjectGrid()
+        grid.add_column(header=u'Имя', data_index='fname')
+        grid.add_column(header=u'Фамилия', data_index='lname')
+        grid.add_column(header=u'Адрес', data_index='adress')
+        grid.store = ext.ExtJsonStore(
+            url=get_url(DataAction),
+            auto_load=True, total_property='total',
+            root='rows'
+        )
         # FIXME: вот оно злое отсутствие свойств или метода pre_config
         grid.columns_to_store()
         window.items.append(grid)
