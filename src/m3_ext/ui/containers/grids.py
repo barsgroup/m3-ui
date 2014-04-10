@@ -40,8 +40,8 @@ class ExtGrid(BaseExtPanel):
         auto_expand_column='autoExpandColumn',
         drag_drop='enableDragDrop',
         drag_drop_group='ddGroup',
-        handler_contextmenu='params.menus.contextMenu',
-        handler_rowcontextmenu='params.menus.rowContextMenu',
+        handler_contextmenu='params.contextMenu',
+        handler_rowcontextmenu='params.rowContextMenu',
         force_fit='viewConfig.forceFit',
         show_preview='viewConfig.showPreview',
         enable_row_body='viewConfig.enableRowBody',
@@ -52,6 +52,7 @@ class ExtGrid(BaseExtPanel):
         'editor',
         'handler_click',  # через js
         'handler_dblclick',  # через js
+        'get_row_class',  # через js
     )
 
     # TODO: Реализовать человеческий MVC грид
@@ -98,18 +99,6 @@ class ExtGrid(BaseExtPanel):
 
         # Группировочные колонки
         self.setdefault('banded_columns', [])
-
-    def t_render_banded_columns(self):
-        """
-        Возвращает JS массив состоящий из массивов с описанием объединенных
-        колонок. Каждый вложенный массив соответствует уровню шапки грида от
-        верхней к нижней.
-        """
-        result = []
-        for level_list in self.banded_columns.values():
-            result.append('[%s]' % ','.join(
-                [column.render() for column in level_list]))
-        return '[%s]' % ','.join(result)
 
     def add_column(self, **kwargs):
         """
@@ -225,29 +214,11 @@ class ExtGrid(BaseExtPanel):
                         item.make_read_only(
                             self.read_only, exclude_list, *args, **kwargs)
 
-    def pre_render(self):
-        super(ExtGrid, self).pre_render()
-        if self.store:
-            self.store.action_context = self.action_context
-
-    def render_base_config(self):
-        super(ExtGrid, self).render_base_config()
-        # FIXME: здесь должен быть js-метод, который возвращал класс
-        # как его сделать в текущих реалиях - не знаю
-        if self.get_row_class:
-            self._view_config['getRowClass'] = self.get_row_class
-
-    def render_params(self):
-        super(ExtGrid, self).render_params()
-        #TODO: убрать добавление плагина в make_compatible
-        # проверим набор колонок на наличие фильтров,
-        # если есть, то добавим плагин с фильтрами
-        for col in self.columns:
-            if col.filter:
-                self.plugins.append(
-                    {'ptype': 'gridfilters', 'menuFilterText': u'Фильтр'}
-                )
-                break
+    #FIXME: придумать как передавать action_context
+    # def pre_render(self):
+    #     super(ExtGrid, self).pre_render()
+    #     if self.store:
+    #         self.store.action_context = self.action_context
 
 
 class ExtEditorGrid(ExtGrid):

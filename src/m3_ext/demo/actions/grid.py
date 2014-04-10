@@ -28,7 +28,7 @@ class SimpleGridAction(UIAction):
             });
             // вместо handler у пункта меню
             var grid = win.getComponent("grid");
-            var item = grid.params.menus.rowContextMenu.getComponent("get_name");
+            var item = grid.params.rowContextMenu.getComponent("get_name");
             item.on('click', function(cmp, e){
                 Ext.Msg.alert("Проверка", grid.getSelectionModel().getSelected().get("fname"));
             });

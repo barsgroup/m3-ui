@@ -192,13 +192,6 @@ class BaseExtComponent(object):
                 super(BaseExtComponent, self).__setattr__(attr, value)
             return
 
-        # если это свойство
-        class_attr = getattr(self.__class__, attr, None)
-        if not class_attr is None:
-            if isinstance(class_attr, property):
-                super(BaseExtComponent, self).__setattr__(attr, value)
-                return
-
         if self.js_attrs.maps(attr):
             conf = super(BaseExtComponent, self).__getattribute__('_config')
             conf[attr] = value
@@ -222,12 +215,6 @@ class BaseExtComponent(object):
         if attr in self.__slots__:
             super(BaseExtComponent, self).__getattribute__(attr)
         else:
-            # если это свойство
-            class_attr = getattr(self.__class__, attr, None)
-            if not class_attr is None:
-                if isinstance(class_attr, property):
-                    return super(BaseExtComponent, self).__getattribute__(attr)
-
             def get(d, k):
                 try:
                     return d[k]
