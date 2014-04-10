@@ -4,6 +4,7 @@
 """
 from django import http
 
+from m3 import M3JSONEncoder as _M3JSONEncoder
 from m3.actions import (
     ActionResult as _ActionResult,
     BaseContextedResult as _BaseContextedResult,
@@ -11,6 +12,17 @@ from m3.actions import (
 from m3.actions.results import PreJsonResult as _PreJsonResult
 
 import helpers as _helpers
+
+
+class UIJsonEncoder(_M3JSONEncoder):
+    """
+    JSONEncoder, совместимый с клиентским рендерингом
+    """
+    def default(self, obj):
+        cfg = getattr(obj, '_config')
+        if cfg is not None:
+            return cfg
+        return super(UIJsonEncoder, self).default(obj)
 
 
 class UIResult(_PreJsonResult):
@@ -22,6 +34,7 @@ class UIResult(_PreJsonResult):
             'success': True,
             'code': data
         })
+        self.encoder_clz = UIJsonEncoder
 
 
 class ExtUIScriptResult(_BaseContextedResult):
