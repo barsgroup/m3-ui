@@ -8,3 +8,4 @@ from forms import *
 from menus import *
 from fields import *
 from dictfield import *
+from searchfield import *

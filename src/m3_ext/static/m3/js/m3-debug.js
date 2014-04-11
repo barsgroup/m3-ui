@@ -3616,91 +3616,6 @@ function smart_eval(text){
 	}
 }
 
-Ext.ns('Ext.app.form');
-/**
- * Модифицированный контрол поиска, за основу был взят контрол от ui.form.SearchField
- * @class {Ext.app.form.SearchField} Контрол поиска
- * @extends {Ext.form.TwinTriggerField} Абстрактный класс как раз для разного рода таких вещей, типа контрола поиска
- */
-Ext.app.form.SearchField = Ext.extend(Ext.form.TwinTriggerField, {
-    initComponent : function(){
-        Ext.app.form.SearchField.superclass.initComponent.call(this);
-        this.on('specialkey', function(f, e){
-            if(e.getKey() == e.ENTER){
-                this.onTrigger2Click();
-            }
-        }, this);
-    }
-
-    ,validationEvent:false
-    ,validateOnBlur:false
-    ,trigger1Class:'x-form-clear-trigger'
-    ,trigger2Class:'x-form-search-trigger'
-    ,hideTrigger1:true
-    ,width:180
-    ,hasSearch : false
-    ,paramName : 'filter'
-	,paramId: 'id'
-	,nodeId:'-1'
-    
-    ,onTrigger1Click : function(e, html, arg){
-        if(this.hasSearch){
-        	this.el.dom.value = '';
-        	var cmp = this.getComponentForSearch();
-        	if (cmp instanceof Ext.grid.GridPanel) {
-	            var o = {start: 0};
-	            var store = cmp.getStore();
-	            store.baseParams = store.baseParams || {};
-	            store.baseParams[this.paramName] = '';
-				store.baseParams[this.paramId] = this.nodeId || '';	
-	            store.reload({params:o});
-
-	        } else if (cmp instanceof Ext.ux.tree.TreeGrid) {
-	        	this.el.dom.value = '';
-	        	
-	        	var loader = cmp.getLoader();
-	        	loader.baseParams = loader.baseParams || {};
-	        	loader.baseParams[this.paramName] = '';
-	        	var rootNode = cmp.getRootNode();
-	        	loader.load(rootNode);
-	        	rootNode.expand();
-	        }
-
-	        this.triggers[0].hide();
-	        this.hasSearch = false;
-        }
-    }
-
-    ,onTrigger2Click : function(e, html, arg){
-        var value = this.getRawValue();
-        var cmp = this.getComponentForSearch();
-        if (cmp instanceof Ext.grid.GridPanel) {
-            var o = {start: 0};
-            var store = cmp.getStore();
-	        store.baseParams = store.baseParams || {};
-	        store.baseParams[this.paramName] = value;
-	        store.baseParams[this.paramId] = this.nodeId || '';	
-	        store.reload({params:o});
-        } else if (cmp instanceof Ext.ux.tree.TreeGrid) {
-        	var loader = cmp.getLoader();
-        	loader.baseParams = loader.baseParams || {};
-	        loader.baseParams[this.paramName] = value;
-        	var rootNode = cmp.getRootNode();
-        	loader.load(rootNode);
-        	rootNode.expand();
-        	//console.log(rootNode);
-        }
-
-        if (value) {
-        	this.hasSearch = true;
-	    	this.triggers[0].show();
-        }
-    }
-    
-    ,clear : function(node_id){ this.onTrigger1Click() }
-    ,search: function(node_id){ this.onTrigger2Click() }
-});
-Ext.reg('search-field', Ext.app.form.SearchField);
 
 /**
  * В поле добавим функционал отображения того, что оно изменено.
@@ -14069,6 +13984,110 @@ Ext.ux.PagingTreeNodeUI = Ext.extend(Ext.ux.tree.TreeGridNodeUI, {
 });
 
 Ext.reg('paging-tree-node-ui', Ext.ux.PagingTreeNodeUI);
+/**
+ * Created by prefer on 10/04/14.
+ */
+
+Ext.ns('Ext.m3');
+/**
+ * Модифицированный контрол поиска, за основу был взят контрол от ui.form.SearchField
+ * @class {Ext.m3.SearchField} Контрол поиска
+ * @extends {Ext.form.TwinTriggerField} Абстрактный класс как раз для разного рода таких вещей, типа контрола поиска
+ */
+Ext.m3.SearchField = Ext.extend(Ext.form.TwinTriggerField, {
+    initComponent: function () {
+        Ext.m3.SearchField.superclass.initComponent.call(this);
+        this.on('specialkey', function (f, e) {
+            if (e.getKey() == e.ENTER) {
+                this.onTrigger2Click();
+            }
+        }, this);
+    },
+    validationEvent: false,
+    validateOnBlur: false,
+    trigger1Class: 'x-form-clear-trigger',
+    trigger2Class: 'x-form-search-trigger',
+    hideTrigger1: true,
+    width: 180,
+    hasSearch: false,
+    paramName: 'filter',
+    paramId: 'id',
+    nodeId: '-1',
+    componentItemId: null,
+    _getMainParent: function(parent){
+        if (parent.ownerCt){
+            return this._getMainParent.call(this, parent.ownerCt);
+        }
+        return parent;
+    },
+    _getComponentForSearch: function(){
+        var mainParent = this._getMainParent.call(this, this.ownerCt);
+        var result = mainParent.find(this.componentItemId);
+        if (result.length == 1){
+            return result[0];
+        }
+    },
+    onTrigger1Click: function () {
+        if (this.hasSearch) {
+
+            this.el.dom.value = '';
+            var cmp = this._getComponentForSearch();
+            if (cmp instanceof Ext.grid.GridPanel) {
+                var o = {start: 0};
+                var store = cmp.getStore();
+                store.baseParams = store.baseParams || {};
+                store.baseParams[this.paramName] = '';
+                store.baseParams[this.paramId] = this.nodeId || '';
+                store.reload({params: o});
+
+            } else if (cmp instanceof Ext.ux.tree.TreeGrid) {
+                this.el.dom.value = '';
+
+                var loader = cmp.getLoader();
+                loader.baseParams = loader.baseParams || {};
+                loader.baseParams[this.paramName] = '';
+                var rootNode = cmp.getRootNode();
+                loader.load(rootNode);
+                rootNode.expand();
+            }
+
+            this.triggers[0].hide();
+            this.hasSearch = false;
+        }
+    },
+    onTrigger2Click: function () {
+
+        var value = this.getRawValue();
+        var cmp = this._getComponentForSearch();
+        if (cmp instanceof Ext.grid.GridPanel) {
+            var o = {start: 0};
+            var store = cmp.getStore();
+            store.baseParams = store.baseParams || {};
+            store.baseParams[this.paramName] = value;
+            store.baseParams[this.paramId] = this.nodeId || '';
+            store.reload({params: o});
+        } else if (cmp instanceof Ext.ux.tree.TreeGrid) {
+            var loader = cmp.getLoader();
+            loader.baseParams = loader.baseParams || {};
+            loader.baseParams[this.paramName] = value;
+            var rootNode = cmp.getRootNode();
+            loader.load(rootNode);
+            rootNode.expand();
+        }
+
+        if (value) {
+            this.hasSearch = true;
+            this.triggers[0].show();
+        }
+    },
+    clear: function (node_id) {
+        this.onTrigger1Click();
+    },
+    search: function (node_id) {
+        this.onTrigger2Click();
+    }
+});
+Ext.reg('m3-search-field', Ext.m3.SearchField);
 /**
  * Ext.ux.DateTimePicker & Ext.ux.form.DateTimeField
  * http://www.sencha.com/forum/showthread.php?98292-DateTime-field-again-and-again-)

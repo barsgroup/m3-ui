@@ -11,7 +11,6 @@ from django.conf import settings
 
 from m3_ext.ui.misc import ExtJsonStore
 from m3_ext.ui.fields.base import BaseExtTriggerField
-from m3_ext.ui.base import ExtUIComponent
 from m3.actions import ControllerCache
 from m3.actions.interfaces import IMultiSelectablePack
 
@@ -82,64 +81,51 @@ class ExtDictSelectField(BaseExtTriggerField):
 
         self.pack = None
 
-    # FIXME: Перенести код ниже в M3JSONEncoder, и там будет сериализоваться пак
-    # def _set_urls_from_pack(self, ppack):
-    #     """
-    #     Настраивает поле выбора под указанный экшенпак ppack.
-    #     Причем в качестве аргумента может быть как сам класс пака,
-    #     так и имя. Это связано с тем, что не во всех формах можно
-    #     импортировать паки и может произойти кроссимпорт.
-    #     Поиск пака производится по всем экшенконтроллерам в системе.
-    #     Используется первый найденный, т.к. при правильном дизайне
-    #     один и тот же пак не должен быть в нескольких
-    #     контроллерах одновременно.
-    #     @param ppack: Имя класса пака или класс пака.
-    #     """
-    #     assert isinstance(ppack, basestring) or hasattr(ppack, '__bases__'), (
-    #         'Argument %s must be a basestring or class' % ppack)
-    #     ppack = ControllerCache.find_pack(ppack)
-    #     assert ppack, 'Pack %s not found in ControllerCache' % ppack
-    #     assert isinstance(ppack, ISelectablePack), (
-    #         'Pack %s must provide ISelectablePack interface' % ppack)
-    #     self._pack = ppack
-    #
-    #     # старый спосом подключения Pack теперь не действует
-    #     # - всё должно быть в рамках интерфейса ISelectablePack
-    #
-    #     # url формы редактирования элемента
-    #     self.edit_url = ppack.get_edit_url()
-    #     # url автокомплита и данных
-    #     self.autocomplete_url = ppack.get_autocomplete_url()
-    #     # url формы выбора
-    #     self.url = ppack.get_select_url()
+        # FIXME: Перенести код ниже в M3JSONEncoder, и там будет сериализоваться пак
+        # def _set_urls_from_pack(self, ppack):
+        #     """
+        #     Настраивает поле выбора под указанный экшенпак ppack.
+        #     Причем в качестве аргумента может быть как сам класс пака,
+        #     так и имя. Это связано с тем, что не во всех формах можно
+        #     импортировать паки и может произойти кроссимпорт.
+        #     Поиск пака производится по всем экшенконтроллерам в системе.
+        #     Используется первый найденный, т.к. при правильном дизайне
+        #     один и тот же пак не должен быть в нескольких
+        #     контроллерах одновременно.
+        #     @param ppack: Имя класса пака или класс пака.
+        #     """
+        #     assert isinstance(ppack, basestring) or hasattr(ppack, '__bases__'), (
+        #         'Argument %s must be a basestring or class' % ppack)
+        #     ppack = ControllerCache.find_pack(ppack)
+        #     assert ppack, 'Pack %s not found in ControllerCache' % ppack
+        #     assert isinstance(ppack, ISelectablePack), (
+        #         'Pack %s must provide ISelectablePack interface' % ppack)
+        #     self._pack = ppack
+        #
+        #     # старый спосом подключения Pack теперь не действует
+        #     # - всё должно быть в рамках интерфейса ISelectablePack
+        #
+        #     # url формы редактирования элемента
+        #     self.edit_url = ppack.get_edit_url()
+        #     # url автокомплита и данных
+        #     self.autocomplete_url = ppack.get_autocomplete_url()
+        #     # url формы выбора
+        #     self.url = ppack.get_select_url()
 
 
 class ExtSearchField(BaseExtField):
     """Поле поиска"""
-    def __init__(self, *args, **kwargs):
-        super(ExtSearchField, self).__init__(*args, **kwargs)
-        self.query_param = None
-        self.empty_text = None
-        self.component_for_search = None
-        self.init_component(*args, **kwargs)
 
-    def render_base_config(self):
-        super(ExtSearchField, self).render_base_config()
-        self._put_params_value('paramName', self.query_param)
-        self._put_params_value('emptyText', self.empty_text)
+    _xtype = 'm3-search-field'
 
-    def render(self):
-        assert isinstance(self.component_for_search, ExtUIComponent)
-        self.render_base_config()
-        base_config = self._get_config_str()
-        # Строка рендера как в шаблоне
-        return (
-            'new Ext.app.form.SearchField({%s, '
-            'getComponentForSearch: function(){return Ext.getCmp("%s");}})'
-        ) % (base_config, self.component_for_search.client_id)
+    js_attrs = BaseExtField.js_attrs.extend(
+
+        component_item_id='componentItemId',
+        query_param='paramName',
+        empty_text='emptyText',
+    )
 
 
-#==============================================================================
 class ExtFileUploadField(BaseExtField):
     """
     Компонент загрузки файлов на сервер.
@@ -326,6 +312,7 @@ class ExtMultiSelectField(ExtDictSelectField):
     set_store и в value, если нужно, передать список со значениями value_field.
 
     """
+
     def __init__(self, *args, **kwargs):
         self.delimeter = ','
         self.multiple_display_value = None
