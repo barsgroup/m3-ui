@@ -37,9 +37,10 @@ Ext.m3.SearchField = Ext.extend(Ext.form.TwinTriggerField, {
     _getComponentForSearch: function(){
         var mainParent = this._getMainParent.call(this, this.ownerCt);
         var result = mainParent.find(this.componentItemId);
-        if (result.length == 1){
+        if (result.length > 0){
             return result[0];
         }
+        return null;
     },
     onTrigger1Click: function () {
         if (this.hasSearch) {
