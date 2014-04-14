@@ -25,11 +25,14 @@ class ExtForm(BaseExtPanel):
     js_attrs = BaseExtPanel.js_attrs.extend(
         'padding',
         'url',
+        base_cls='baseCls',
         file_upload='fileUpload',
     )
 
     def __init__(self, *args, **kwargs):
         super(ExtForm, self).__init__(*args, **kwargs)
+        self.setdefault('base_cls', 'x-plain')
+
         # поле, которое будет под фокусом ввода после рендеринга формы
 
     def _get_all_fields(self, item, lst=None):

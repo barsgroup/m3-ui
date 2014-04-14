@@ -7,30 +7,25 @@ Created on 21.04.2010
 
 from m3_ext.ui.base import ExtUIComponent
 from containers import ExtContainer
-from base import BaseExtContainer
 
 
-class ExtContainerTable(BaseExtContainer):
+class ExtContainerTable(object):
     """
     Контейнерный компонент.
     Имеет в себе табличную настройку (строки и колонки)
     и позволяет в ячейках указывать произвольные контролы,
-    которые будут помещены в ExtContainer с layput=form
+    которые будут помещены в ExtContainer с layout=form
     """
     _DEFAULT_HEIGHT = 36
 
-    def __init__(self, columns=0, rows=0, *args, **kwargs):
+    def __init__(self, columns=0, rows=0, **kwargs):
         """
         :param columns: Количество колонок
         :type columns: int
         :param rows: Количество строк
         :type rows: int
         """
-        super(ExtContainerTable, self).__init__(*args, **kwargs)
-        self.template = 'ext-containers/ext-container.js'
-
-        # Заголовок
-        self.title = None
+        self._cont = ExtContainer(**kwargs)
 
         self.__columns_count = 0
         self.__rows_count = 0
@@ -42,8 +37,6 @@ class ExtContainerTable(BaseExtContainer):
 
         # Количество строк
         self.rows_count = rows
-
-        self.init_component(*args, **kwargs)
 
     def _init_properties(self):
         """
@@ -58,7 +51,7 @@ class ExtContainerTable(BaseExtContainer):
             d = dict([(row_num, {}) for row_num in range(self.__rows_count)])
             self._properties[col_num] = d
 
-    def render(self):
+    def create(self):
         for row_num, row in enumerate(self.__table):
             col_cont_list = []
             for col_num, col in enumerate(row):
@@ -78,15 +71,16 @@ class ExtContainerTable(BaseExtContainer):
 
             height = self.__rows_height.get(row_num) or (
                 ExtContainerTable._DEFAULT_HEIGHT)
+
             row_cont = ExtContainer(
                 layout_config=dict(align="stretch"),
                 layout='hbox',
                 height=height
             )
             row_cont.items.extend(col_cont_list)
-            self._items.append(row_cont)
+            self._cont.items.append(row_cont)
 
-        return super(ExtContainerTable, self).render()
+        return self._cont
 
     def set_properties(self, row_num=None, col_num=None, **kwargs):
         """
@@ -208,18 +202,6 @@ class ExtContainerTable(BaseExtContainer):
             'Row num %d must be in range 0 to %d' % (row, self.rows_count))
         self.__rows_height[row] = height
 
-    def set_default_row_height(self, row):
-        """
-        Выставляет умолчательные
-        (_DEFAULT_HEIGHT) параметры ширины и высоты ячейки
-        :param row: Индекс Ячейки
-        :type row: int
-        """
-        assert isinstance(row, int), 'Row num must be INT'
-        assert 0 <= row <= self.rows_count, (
-            'Row num must be in range 0 to %d' % self.rows_count)
-        self.__rows_height[row] = ExtContainerTable._DEFAULT_HEIGHT
-
     def set_rows_height(self, height):
         """
         Устанавливает у всех строк высоту
@@ -230,8 +212,19 @@ class ExtContainerTable(BaseExtContainer):
         for row in range(self.rows_count):
             self.__rows_height[row] = height
 
-    def set_default_rows_height(self):
-        """
-        Устанавливает умолчательные параметры у всех ячеек
-        """
-        self.set_rows_height(ExtContainerTable._DEFAULT_HEIGHT)
+    def __getattr__(self, item):
+        if item.startswith('_') or item in ['columns_count',
+                                            'rows_count',
+                                            'items']:
+            return super(ExtContainerTable, self).__getattr__(item)
+        else:
+            return getattr(self._cont, item)
+
+    def __setattr__(self, key, value):
+        if key.startswith('_') or key in ['columns_count',
+                                          'rows_count',
+                                          'items']:
+            super(ExtContainerTable, self).__setattr__(key, value)
+
+        else:
+            setattr(self._cont, key, value)

@@ -5,14 +5,11 @@ Created on 27.02.2010
 @author: prefer
 """
 import os
-import json
 
 from django.conf import settings
 
 from m3_ext.ui.misc import ExtJsonStore
 from m3_ext.ui.fields.base import BaseExtTriggerField
-from m3.actions import ControllerCache
-from m3.actions.interfaces import IMultiSelectablePack
 
 from base import BaseExtField
 

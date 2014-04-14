@@ -10,3 +10,4 @@ from fields import *
 from dictfield import *
 from searchfield import *
 from uploadfields import *
+from conteintertable import *

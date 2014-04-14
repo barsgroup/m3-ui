@@ -4,7 +4,6 @@ Created on 25.02.2010
 
 @author: prefer <telepenin@bars-open.ru>
 """
-from m3.actions.context import ActionContext
 
 from m3_ext.ui.base import ExtUIComponent
 
@@ -23,7 +22,9 @@ class BaseExtContainer(ExtUIComponent):
     ACCORDITION = 'accordition'
 
     js_attrs = ExtUIComponent.js_attrs.extend(
-        'items', 'split', 'layout',
+        'items',
+        'split',
+        'layout',
         layout_config='layoutConfig',
         label_width='labelWidth',
         collapse_mode='collapseMode',
@@ -51,7 +52,10 @@ class BaseExtPanel(BaseExtContainer):
     """
 
     js_attrs = BaseExtContainer.js_attrs.extend(
-        'title', 'border', 'split', 'header',
+        'title',
+        'border',
+        'split',
+        'header',
         icon_cls='iconCls',
         dd_group='ddGroup',
         top_bar='tbar',
