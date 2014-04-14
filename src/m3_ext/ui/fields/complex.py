@@ -134,53 +134,25 @@ class ExtFileUploadField(BaseExtField):
     # Префикс добавляется к скрытому полю, где передается файл
     PREFIX = 'file_'
 
+    _xtype = 'fileuploadfield'
+
+    js_attrs = BaseExtField.js_attrs.extend(
+
+        file_url='fileUrl',
+        possible_file_extensions='possibleFileExtensions',
+        prefix='prefixUploadField',
+
+    )
+
     def __init__(self, *args, **kwargs):
         super(ExtFileUploadField, self).__init__(*args, **kwargs)
-        self.file_url = None
-
-        # Пример использования:
-        # possible_file_extensions = ('png', 'jpeg', 'gif', 'bmp')
-
-        #Пусто
-        self.possible_file_extensions = ()
-        self.init_component(*args, **kwargs)
+        self.setdefault('prefix', self.PREFIX)
+        self.setdefault('possible_file_extensions', ())
 
         # Привязка к файлу
-        self._memory_file = None
-
-    def render_possible_file_extensions(self):
-        p = self.possible_file_extensions
-        assert isinstance(p, (basestring, list, tuple)), (
-            u'File extensions argument must be '
-            u'type of basestring, tuple or list'
-        )
-        return ','.join(p) if not isinstance(p, basestring) else p
-
-    def render_params(self):
-        super(ExtFileUploadField, self).render_params()
-        self._put_params_value('prefixUploadField', ExtFileUploadField.PREFIX)
-        self._put_params_value('fileUrl', self.file_url)
-        self._put_params_value(
-            'possibleFileExtensions', self.render_possible_file_extensions())
-
-    def render(self):
-        self.render_base_config()
-        self.render_params()
-        base_config = self._get_config_str()
-        params_config = self._get_params_str()
-        return 'new Ext.ux.form.FileUploadField({%s}, {%s})' % (
-            base_config, params_config)
-
-    @property
-    def memory_file(self):
-        return self._memory_file
-
-    @memory_file.setter
-    def memory_file(self, memory_file):
-        self._memory_file = memory_file
+        self.memory_file = None
 
 
-#==============================================================================
 class ExtImageUploadField(ExtFileUploadField):
     """
     Компонент загрузки изображений
@@ -193,65 +165,33 @@ class ExtImageUploadField(ExtFileUploadField):
     MIDDLE_THUMBNAIL_PREFIX = '%s_%s' % (MIDDLE, THUMBNAIL_PREFIX)
     MAX_THUMBNAIL_PREFIX = '%s_%s' % (MAX, THUMBNAIL_PREFIX)
 
+    _xtype = 'imageuploadfield'
+
+    js_attrs = ExtFileUploadField.js_attrs.extend(
+
+        'thumbnail',
+        thumbnail_size='thumbnailSize',
+        prefix='prefixThumbnailImg',
+
+    )
+
     def __init__(self, *args, **kwargs):
+        super(ExtImageUploadField, self).__init__(*args, **kwargs)
+        self.setdefault('thumbnail_size', (300, 300))
+        self.setdefault('thumbnail', True)
+        self.setdefault('width', 300)  # Умолчательный параметр, иначе контрол разъедется
+        self.setdefault('possible_file_extensions',
+                        ('png', 'jpeg', 'gif', 'bmp', 'jpg'))  # начальные допустимые расширения
+        self.setdefault('prefixThumbnailImg', ExtImageUploadField.MIN_THUMBNAIL_PREFIX)
 
-        self.middle_thumbnail_size = (
-            self.max_thumbnail_size) = self.min_thumbnail_size = None
 
-        self.thumbnail_size = (300, 300)
-
-        # Использовать ли миниатюры для изображений
-        self.thumbnail = True
+        # Используется в биндинге helpers/to_object
+        self.middle_thumbnail_size = self.max_thumbnail_size = self.min_thumbnail_size = None
 
         # Высота и ширина изображения. Изображение будет подгоняться под
         # эту высоту
         self.image_max_size = (600, 600)
 
-        super(ExtImageUploadField, self).__init__(*args, **kwargs)
-
-        # Умолчательный параметр, иначе контрол разъедется
-        self.width = 300
-        # начальные допустимые расширения
-        self.possible_file_extensions = ('png', 'jpeg', 'gif', 'bmp', 'jpg')
-
-        self.init_component(*args, **kwargs)
-
-    @property
-    def thumbnail_size(self):
-        return self.min_thumbnail_size
-
-    @thumbnail_size.setter
-    def thumbnail_size(self, value):
-        self.min_thumbnail_size = value
-
-    def render_params(self):
-        super(ExtImageUploadField, self).render_params()
-        self._put_params_value('thumbnail', self.thumbnail)
-        if self.thumbnail:
-            assert isinstance(self.thumbnail_size, tuple) and len(
-                self.thumbnail_size) == 2
-            self._put_params_value(
-                'thumbnailWidth', self.min_thumbnail_size[0],
-                self.thumbnail
-            )
-            self._put_params_value(
-                'thumbnailHeight', self.min_thumbnail_size[1],
-                self.thumbnail
-            )
-            self._put_params_value(
-                'prefixThumbnailImg',
-                ExtImageUploadField.MIN_THUMBNAIL_PREFIX,
-                self.thumbnail
-            )
-            self._put_params_value('thumbnail', self.thumbnail)
-
-    def render(self):
-        self.render_base_config()
-        self.render_params()
-        base_config = self._get_config_str()
-        params_config = self._get_params_str()
-        return 'new Ext.ux.form.ImageUploadField({%s}, {%s})' % (
-            base_config, params_config)
 
     @staticmethod
     def _prefix_by_type(type_img=None):

@@ -20,14 +20,17 @@ except ImportError:
         """
         Заглушка для PIL.Image
         """
+
         def __getattr__(self, attr):
             raise ImportError("PIL not installed!")
+
     Image = _FakeImage
 
 try:
     from django.utils.log import logger
 except ImportError:
     from django.utils.log import getLogger
+
     logger = getLogger('django')
 
 
@@ -304,12 +307,10 @@ def to_object(obj, all_fields, exclusion=None):
         """
         if hasattr(obj, name):
             l_field = getattr(obj, name)
-            if (
-                            l_field and
-                            os.path.exists(l_field.path) and
-                            (
-                                    os.path.basename(l_field.file.name)
-                            ).lower() != (field.value).lower()
+            if (l_field and
+                    os.path.exists(l_field.path) and
+                        (os.path.basename(l_field.file.name)
+                        ).lower() != (field.value).lower()
             ):
                 # Сначало нужно удалить thumbnail картинки
                 if isinstance(field, fields.ExtImageUploadField) and (
@@ -366,7 +367,7 @@ def to_object(obj, all_fields, exclusion=None):
                         # А так же нужно сохранять thumbnail картинки
                         # Состовляем лист thumbnail_size'ов
                         thumbnails = [(
-                                          field.min_thumbnail_size,
+                                          field.thumbnail_size,
                                           fields.ExtImageUploadField.MIN_THUMBNAIL_PREFIX
                                       )]
 
