@@ -44,6 +44,20 @@ class DictFieldAction(UIAction):
                             ask_before_deleting=False,
                             anchor='80%',
                         ),
+
+                        ext.ExtMultiSelectField(
+                            label=u'Второй участник',
+                            # url='/ui/tree-dict-window',
+                            display_field='lname',
+                            store=ext.ExtJsonStore(
+                                url=get_url(DataAction),
+                                total_property='total',
+                                root='rows',
+                                fields=['id', 'lname', 'fname', 'adress']
+                            ),
+                            ask_before_deleting=False,
+                            anchor='80%',
+                        )
                     ]
                 )
             ]

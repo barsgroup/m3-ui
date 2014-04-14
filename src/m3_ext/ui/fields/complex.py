@@ -184,7 +184,6 @@ class ExtImageUploadField(ExtFileUploadField):
                         ('png', 'jpeg', 'gif', 'bmp', 'jpg'))  # начальные допустимые расширения
         self.setdefault('prefixThumbnailImg', ExtImageUploadField.MIN_THUMBNAIL_PREFIX)
 
-
         # Используется в биндинге helpers/to_object
         self.middle_thumbnail_size = self.max_thumbnail_size = self.min_thumbnail_size = None
 
@@ -233,7 +232,6 @@ class ExtImageUploadField(ExtFileUploadField):
         return '%s/%s' % (settings.MEDIA_URL, name)
 
 
-#==============================================================================
 class ExtMultiSelectField(ExtDictSelectField):
     """
     Множественный выбор из справочника.
@@ -253,66 +251,47 @@ class ExtMultiSelectField(ExtDictSelectField):
 
     """
 
+    _xtype = 'm3-multiselect'
+
+    js_attrs = ExtDictSelectField.js_attrs.extend(
+        'delimeter',
+        multiple_display_value='multipleDisplayValue',
+
+    )
+
     def __init__(self, *args, **kwargs):
-        self.delimeter = ','
-        self.multiple_display_value = None
-        self._value = ''
-        self._init_flag = True
-
         super(ExtMultiSelectField, self).__init__(*args, **kwargs)
-        self.hidden_name = self.client_id
+        self.setdefault('value', '')
 
-    @property
-    def value(self):
-        return self._value
+        self.pack = None
 
-    @value.setter
-    def value(self, value):
-        if self._init_flag:
-            self._init_flag = False
-            return
 
-        if not value:
-            value = []
+    # FIXME: Теперь заботиться о обработке значений нужно в прикладном коде
+    # @value.setter
+    # def value(self, value):
+    #     if self._init_flag:
+    #         self._init_flag = False
+    #         return
+    #
+    #     if not value:
+    #         value = []
+    #
+    #     if isinstance(value, basestring):
+    #         value = json.loads(value)
+    #
+    #     if isinstance(value, (list, tuple)):
+    #         self._value = json.dumps(value)
+    #     else:
+    #         raise TypeError(
+    #             u'ExtMultiSelectField value must be list or tuple of values')
 
-        if isinstance(value, basestring):
-            value = json.loads(value)
-
-        if isinstance(value, (list, tuple)):
-            self._value = json.dumps(value)
-        else:
-            raise TypeError(
-                u'ExtMultiSelectField value must be list or tuple of values')
-
-    @property
-    def pack(self):
-        return self._pack
-
-    @pack.setter
-    def pack(self, ppack):
-        assert isinstance(ppack, basestring) or hasattr(ppack, '__bases__'), (
-            'Argument %s must be a basestring or class' % ppack)
-        ppack_class = ControllerCache.find_pack(ppack)
-        assert isinstance(ppack_class, IMultiSelectablePack), (
-            'Pack %s must provide IMultiSelectablePack interface' % ppack)
-        self._set_urls_from_pack(ppack)
-        self.url = self._pack.get_multi_select_url()
-
-    def render(self):
-        self.render_base_config()
-        self.render_params()
-
-        base_config = self._get_config_str()
-        params = self._get_params_str()
-        return 'new Ext.m3.MultiSelectField({%s}, {%s})' % (
-            base_config, params)
-
-    def render_base_config(self):
-        self.pre_render()
-
-        super(ExtMultiSelectField, self).render_base_config()
-        self._put_config_value('delimeter', self.delimeter)
-        if self.multiple_display_value:
-            self._put_config_value(
-                'multipleDisplayValue', self.multiple_display_value)
-        self._put_config_value('delimeter', self.delimeter)
+    # FIXME: Перенести в UIJsonEncoder
+    # @pack.setter
+    # def pack(self, ppack):
+    #     assert isinstance(ppack, basestring) or hasattr(ppack, '__bases__'), (
+    #         'Argument %s must be a basestring or class' % ppack)
+    #     ppack_class = ControllerCache.find_pack(ppack)
+    #     assert isinstance(ppack_class, IMultiSelectablePack), (
+    #         'Pack %s must provide IMultiSelectablePack interface' % ppack)
+    #     self._set_urls_from_pack(ppack)
+    #     self.url = self._pack.get_multi_select_url()
