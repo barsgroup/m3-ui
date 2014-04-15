@@ -2,21 +2,9 @@
 """
 Модуль с базовыми классами/интерфейсами, которые необходимы
 для работы подсистемы m3_ext_demo.ui
-
-Created on 01.03.2010
-
-@author: akvarats
-@author: prefer
 """
 
-import datetime
-import decimal
 from warnings import warn
-from functools import wraps
-
-from m3_ext.ui import render_template, render_component
-from m3_ext.ui import generate_client_id, normalize
-from m3 import date2str
 
 
 class ExtComponentException(Exception):
@@ -222,6 +210,7 @@ class BaseExtComponent(object):
                     raise AttributeError(
                         'Attribute %r not present in %r' % (k, self)
                     )
+
             if self.js_attrs.maps(attr):
                 return get(
                     super(BaseExtComponent, self).__getattribute__('_config'),

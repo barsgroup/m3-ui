@@ -22,6 +22,7 @@ class SimpleGridAction(UIAction):
             win.find('itemId', 'grid')[0].on('dblclick', function(){
                 alert('Хватит кликать!');
             });
+
             // вместо handler у пункта меню
             var grid = win.getComponent("grid");
             var item = grid.params.rowContextMenu.getComponent("get_name");
@@ -61,8 +62,6 @@ class SimpleGridAction(UIAction):
         row_menu.add_item(text=u'Показать имя', item_id='get_name')
         grid.handler_rowcontextmenu = row_menu
 
-        # FIXME: вот оно злое отсутствие свойств или метода pre_config
-        grid.columns_to_store()
         win.items.append(grid)
         return win
 
@@ -112,8 +111,7 @@ class EditGridAction(UIAction):
         grid.set_store(ext.ExtDataStore([[1, 'Юрий', 'Кофтун', 'пр. Мира', '', '', 'false'],
                                      [2, 'Анатоле', 'Кожемякин', 'пл. Земля ', '', '', 'true']]
         ))
-        # FIXME: вот оно злое отсутствие свойств или метода pre_config
-        grid.columns_to_store()
+
         window.items.append(grid)
         button = ext.ExtButton(text=u'Закрыть')
         window.buttons.append(button)
@@ -185,8 +183,7 @@ class GridRemoteStoreAction(UIAction):
         grid.store = ext.ExtJsonStore(url=get_url(DataAction),
                                   auto_load=True, total_property='total',
                                   root='rows')
-        # FIXME: вот оно злое отсутствие свойств или метода pre_config
-        grid.columns_to_store()
+
         window.items.append(grid)
         button = ext.ExtButton(text=u'Закрыть')
         window.buttons.append(button)
@@ -229,8 +226,7 @@ class BandedColumnAction(UIAction):
         grid.add_banded_column(ext.ExtGridColumn(header=u'Подколонка2', align='center'), 1, 2)
         grid.add_banded_column(ext.ExtGridColumn(header=u'Под-подколонка 1', align='center'), 2, 2)
         grid.add_banded_column(ext.ExtGridColumn(header=u'Под-подколонка 2', align='center'), 2, 3)
-        # FIXME: вот оно злое отсутствие свойств или метода pre_config
-        grid.columns_to_store()
+
         window.items.append(grid)
         button = ext.ExtButton(text=u'Закрыть')
         window.buttons.append(button)
@@ -415,8 +411,7 @@ class GridCheckSelectionAction(UIAction):
         grid.store = ext.ExtJsonStore(url=get_url(DataAction),
                                   auto_load=True, total_property='total',
                                   root='rows')
-        # FIXME: вот оно злое отсутствие свойств или метода pre_config
-        grid.columns_to_store()
+
         window.items.append(grid)
         button = ext.ExtButton(text=u'Закрыть')
         window.buttons.append(button)
@@ -451,8 +446,7 @@ class ObjectGridAction(UIAction):
             auto_load=True, total_property='total',
             root='rows'
         )
-        # FIXME: вот оно злое отсутствие свойств или метода pre_config
-        grid.columns_to_store()
+
         window.items.append(grid)
         button = ext.ExtButton(text=u'Закрыть')
         window.buttons.append(button)

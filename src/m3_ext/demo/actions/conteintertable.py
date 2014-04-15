@@ -62,11 +62,7 @@ class ContainerTableAction(UIAction):
 
         tform.set_item(3, 0, cont)
 
-        #tform.set_rows_height(100)
-        #tform.set_default_rows_height()
-        #tform.set_row_height(6,100)
-
-        form.items.append(tform.create())
+        form.items.append(tform)
         window.items.append(form)
 
         menu = ext.ExtContextMenu()

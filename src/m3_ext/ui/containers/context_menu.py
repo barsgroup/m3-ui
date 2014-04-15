@@ -8,7 +8,6 @@ from m3_ext.ui.base import ExtUIComponent
 from base import BaseExtContainer
 
 
-#==============================================================================
 class ExtContextMenu(BaseExtContainer):
     """
     Контекстное меню
@@ -86,7 +85,7 @@ class ExtContextMenuItem(ExtUIComponent):
             self, access_off=True, exclude_list=(), *args, **kwargs):
         self.disabled = access_off
 
-#==============================================================================
+
 class ExtContextMenuSeparator(ExtUIComponent):
     """
     Разделитель элементов в меню

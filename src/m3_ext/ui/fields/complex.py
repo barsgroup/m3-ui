@@ -76,7 +76,7 @@ class ExtDictSelectField(BaseExtTriggerField):
         self.setdefault('value_field', 'id')
         self.setdefault('display_field', 'name')
 
-        self.pack = None
+        self.setdefault('pack', None)
 
         # FIXME: Перенести код ниже в M3JSONEncoder, и там будет сериализоваться пак
         # def _set_urls_from_pack(self, ppack):

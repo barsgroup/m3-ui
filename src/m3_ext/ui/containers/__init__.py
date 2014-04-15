@@ -5,6 +5,7 @@
 from forms import ExtForm, ExtPanel, ExtTabPanel, ExtFieldSet, ExtTitlePanel
 from container_complex import ExtContainerTable
 from grids import (ExtGrid,
+                   ExtEditorGrid,
                    ExtGridColumn,
                    ExtGridBooleanColumn,
                    ExtGridCheckColumn,
@@ -14,7 +15,7 @@ from grids import (ExtGrid,
                    ExtGridLockingColumnModel,
                    ExtGridCheckBoxSelModel,
                    ExtGridRowSelModel,
-                   ExtGridCellSelModel,)
+                   ExtGridCellSelModel, )
 from trees import ExtTree, ExtTreeNode
 from containers import (ExtContainer,
                         ExtToolBar,

@@ -2,11 +2,12 @@
 """
 Created on 3.3.2010
 
-@author: prefer
+
 """
 import json
+
 from django.conf import settings
-from django.utils.datastructures import SortedDict
+from m3.actions import _must_be_replaced_by
 
 from m3_ext.ui.base import ExtUIComponent, BaseExtComponent
 from base import BaseExtPanel
@@ -22,77 +23,67 @@ class ExtGrid(BaseExtPanel):
     поэтому некоторые атрибуты могут действовать в одном,
     но не действовать в другом гриде.
     """
+
+    #FIXME: придумать как передавать action_context
+    # def pre_render(self):
+    #     super(ExtGrid, self).pre_render()
+    #     if self.store:
+    #         self.store.action_context = self.action_context
+
     _xtype = 'm3-grid'
 
     js_attrs = BaseExtPanel.js_attrs.extend(
-        'columns', 'stripeRows', 'stateful', 'store',
-        'params', 'viewConfig',
-        # selection model
-        'sm',
-        # grid view
-        'view',
-        # модель колонок
-        'cm',
-        # список плагинов
-        'plugins',
-        column_lines='columnLines',
-        load_mask='loadMask',
-        # Колонка для авторасширения
-        auto_expand_column='autoExpandColumn',
+        'columns',
+
+        # A flag which causes the Component to attempt to restore the state
+        # of internal properties from a saved state on startup
+        'stateful',
+        'store',
+        'params',
+        'sm',  # selection model
+        'view',  # grid view
+        'cm',  # модель колонок
+        'plugins',  # список плагинов
+        view_config='viewConfig',
+        stripe_rows='stripeRows',  # Раскраска строк черз одну
+        column_lines='columnLines',  # Признак отображения вертикальных линий в гриде
+        load_mask='loadMask',  # Объект маскирования, который будет отображаться при загрузке
+        auto_expand_column='autoExpandColumn',  # Колонка для авторасширения
         drag_drop='enableDragDrop',
         drag_drop_group='ddGroup',
-        # Контекстное меню грида
-        handler_contextmenu='params.contextMenu',
-        # Контекстное меню строки
-        handler_rowcontextmenu='params.rowContextMenu',
-        force_fit='viewConfig.forceFit',
+        handler_contextmenu='params.contextMenu',  # Контекстное меню грида
+        handler_rowcontextmenu='params.rowContextMenu',  # Контекстное меню строки
+        force_fit='viewConfig.forceFit',  # Разворачивать колонки грида по всей ширине (True)
         show_preview='viewConfig.showPreview',
         enable_row_body='viewConfig.enableRowBody',
-        banded_columns='params.bandedColumns'
+        banded_columns='params.bandedColumns'  # Группировочные колонки
     )
 
     deprecated_attrs = BaseExtPanel.deprecated_attrs + (
-        'editor',
+        '_view_config',  # use view_config
+        'editor',  # use ExtEditorGrid
         'handler_click',  # через js
         'handler_dblclick',  # через js
         'get_row_class',  # через js
     )
 
-    # TODO: Реализовать человеческий MVC грид
-
     def __init__(self, *args, **kwargs):
         super(ExtGrid, self).__init__(*args, **kwargs)
         self.setdefault('columns', [])
-
-        # Объект маскирования, который будет отображаться при загрузке
+        self.setdefault('view_config', {})
         self.setdefault('load_mask', False)
-
         self.setdefault('drag_drop', False)
-
-        # перечень плагинов
         self.setdefault('plugins', [])
-
         self.setdefault('show_preview', False)
         self.setdefault('enable_row_body', False)
-
-        # Разворачивать колонки грида по всей ширине (True)
         self.setdefault('force_fit', True)
-
-        # Раскраска строк черз одну
-        self.setdefault('stripeRows', True)
-
-        # A flag which causes the Component to attempt to restore the state
-        # of internal properties from a saved state on startup
+        self.setdefault('stripe_rows', True)
         self.setdefault('stateful', True)
-
-        # признак отображения вертикальных линий в гриде
         self.setdefault('column_lines', True)
+        self.setdefault('banded_columns', [])
 
         #Если True не рендерим drag and drop, выключаем editor
-        self.read_only = False
-
-        # Группировочные колонки
-        self.setdefault('banded_columns', [])
+        self.setdefault('read_only', False)
 
     def add_column(self, **kwargs):
         """
@@ -157,33 +148,21 @@ class ExtGrid(BaseExtPanel):
         """
         self.banded_columns = []
 
-    # FIXME: оставлено для совместимости
+    @_must_be_replaced_by('store')
     def set_store(self, store):
         self.store = store
 
-    # FIXME: для совместимости
+    @_must_be_replaced_by('store')
     def get_store(self):
         return self.store
 
-    # FIXME: для совместимости
-    def columns_to_store(self):
-        """
-        Формируем поля стора, в зависимости от колонок грида
-        """
-        if self.store:
-            self.store.fields = []
-            # FIXME: в полях стора всегда была одна колонка с id
-            self.store.fields.append(self.store.id_property)
-            for column in self.columns:
-                # FIXME: вообще, поля в сторе можно формировать не только по имени
-                # но и с типом
-                self.store.fields.append(column.data_index)
 
-    # FIXME: избавиться от make_read_only
+    # FIXME: перенести make_read_only в js-код
     def _make_read_only(
             self, access_off=True, exclude_list=(), *args, **kwargs):
         super(ExtGrid, self)._make_read_only(
             access_off, exclude_list, *args, **kwargs)
+
         self.read_only = access_off
         if self.columns:
             for column in self.columns:
@@ -208,11 +187,7 @@ class ExtGrid(BaseExtPanel):
                         item.make_read_only(
                             self.read_only, exclude_list, *args, **kwargs)
 
-    #FIXME: придумать как передавать action_context
-    # def pre_render(self):
-    #     super(ExtGrid, self).pre_render()
-    #     if self.store:
-    #         self.store.action_context = self.action_context
+
 
 
 class ExtEditorGrid(ExtGrid):

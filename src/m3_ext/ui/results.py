@@ -19,10 +19,30 @@ class UIJsonEncoder(_M3JSONEncoder):
     JSONEncoder, совместимый с клиентским рендерингом
     """
     def default(self, obj):
-        cfg = getattr(obj, '_config')
+        cfg = getattr(self.make_compatible(obj), '_config')
         if cfg is not None:
             return cfg
         return super(UIJsonEncoder, self).default(obj)
+
+    @staticmethod
+    def make_compatible(obj):
+        class_name = obj.__class__.__name__
+
+        # Проверка
+        if class_name == 'ExtContainerTable':
+            return obj.create()
+
+        # Проверяются наследники класса BaseExtTriggerField
+        # и из fields проставляются fields в store
+        elif hasattr(obj, 'store') and hasattr(obj, 'fields'):
+            obj.store.setdefault('fields', obj.fields)
+            # if hasattr(obj, 'pack')
+
+        elif hasattr(obj, 'columns') and hasattr(obj, 'store'):
+            fields = [obj.store.id_property] + [col.data_index for col in obj.columns]
+            obj.store.setdefault('fields', fields)
+
+        return obj
 
 
 class UIResult(_PreJsonResult):
