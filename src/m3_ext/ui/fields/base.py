@@ -4,6 +4,7 @@ Created on 27.02.2010
 
 @author: akvarats
 """
+from m3.actions import _must_be_replaced_by
 
 from m3_ext.ui.base import ExtUIComponent
 
@@ -133,7 +134,6 @@ class BaseExtTriggerField(BaseExtField):
         'store',
         'editable',
         'resizable',  # Изменение ширины выпадающего списка
-        # 'fields',
 
         display_field='displayField',  # Поле, которое будет отображаться при выборе
         value_field='valueField',  # Поле, которое будет использоваться в качестве значения
@@ -160,11 +160,11 @@ class BaseExtTriggerField(BaseExtField):
         self.setdefault('force_selection', False)
         self.setdefault('loading_text', u'Загрузка...')
         self.setdefault('resizable', False)
-        # self.setdefault('fields', [])
 
         # Поля, которые должны попасть в store
         self.setdefault('fields', [])
 
+    @_must_be_replaced_by('use ALL or QUERY attr')
     @property
     def trigger_action_all(self):
         """
@@ -173,6 +173,7 @@ class BaseExtTriggerField(BaseExtField):
         """
         return self.trigger_action == BaseExtTriggerField.ALL
 
+    @_must_be_replaced_by('use ALL or QUERY attr')
     @trigger_action_all.setter
     def trigger_action_all(self, value):
         """

@@ -7,7 +7,6 @@ Created on 25.02.2010
 
 from base import BaseExtControl
 
-#==============================================================================
 class ExtButton(BaseExtControl):
     """
     Кнопка

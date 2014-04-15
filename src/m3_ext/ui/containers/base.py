@@ -70,23 +70,22 @@ class BaseExtPanel(BaseExtContainer):
         self.setdefault('header', False)
         self.setdefault('border', True)
 
-        self.setdefault('top_bar', None)
-        self.setdefault('bottom_bar', None)
-        self.setdefault('footer_bar', None)
+        self.setdefault('top_bar', [])
+        self.setdefault('bottom_bar', [])
+        self.setdefault('footer_bar', [])
 
     def _make_read_only(
             self, access_off=True, exclude_list=(), *args, **kwargs):
-        #FIXME: нельзя использовать в качестве умолчательных параметров
-        # изменяемые типы. Это может привести к неприятным side эффектам
+
         super(BaseExtPanel, self)._make_read_only(
             access_off, exclude_list, *args, **kwargs)
 
         bar_typle = (self.footer_bar, self.bottom_bar, self.top_bar)
         for bar in bar_typle:
-            if bar and bar._items:
+            if bar and bar.items:
                 # Обязательно проверяем, что пришел контейнер.
                 assert isinstance(bar, BaseExtContainer)
-                for item in bar._items:
+                for item in bar.items:
                     if hasattr(item, "make_read_only") and callable(
                             item.make_read_only):
 

@@ -13,6 +13,4 @@ class BaseExtControl(ExtUIComponent):
     """
     def _make_read_only(
             self, access_off=True, exclude_list=(), *args, **kwargs):
-        # TODO: Нахера тут переопределение, если в базовом классе тоже самое?
-        # Описание в базовом классе ExtUiComponent.
         raise NotImplementedError()

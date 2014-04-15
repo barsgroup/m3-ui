@@ -1,28 +1,12 @@
 #coding: utf-8
 """
 Created on 25.02.2010
-
-@author: akvarats
 """
 
 from m3_ext.ui.base import ExtUIComponent
-from m3_ext.ui import render_template
 
 from m3_ext.ui.containers.base import BaseExtContainer
 from m3_ext.ui.controls.base import BaseExtControl
-
-
-class ExtWindowRenderer(object):
-    """
-    Рендерер для скрипта на показ окна
-    """
-    def __init__(self, common_template):
-        self.common_template = common_template
-
-    def get_script(self, window):
-        return render_template(
-            self.common_template, {'window': window}
-        )
 
 
 class BaseExtWindow(ExtUIComponent):
@@ -71,6 +55,10 @@ class BaseExtWindow(ExtUIComponent):
         self.setdefault('buttons', [])
         self.setdefault('keys', [])
 
+        self.setdefault('top_bar', [])
+        self.setdefault('bottom_bar', [])
+        self.setdefault('footer_bar', [])
+
         self.setdefault('width', 400)
         self.setdefault('height', 300)
 
@@ -95,24 +83,27 @@ class BaseExtWindow(ExtUIComponent):
     def _make_read_only(
             self, access_off=True, exclude_list=None, *args, **kwargs):
         exclude_list = exclude_list or []
+
         self.read_only = access_off
-        # Перебираем итемы.
-        for item in self.__items:
+
+        # Перебираем поля.
+        for item in self.items:
             item.make_read_only(
                 self.read_only, exclude_list, *args, **kwargs)
+
         # Перебираем бары.
         bar_typle = (self.footer_bar, self.bottom_bar, self.top_bar)
         for bar in bar_typle:
-            if bar and bar._items:
+            if bar and bar.items:
                 # Обязательно проверяем, что пришел контейнер.
                 assert isinstance(bar, BaseExtContainer)
-                for item in bar._items:
+                for item in bar.items:
                     if hasattr(item, 'make_read_only'):
                         item.make_read_only(
                             self.read_only, exclude_list, *args, **kwargs)
+
         # Перебираем кнопки.
-        if self.__buttons and self.__buttons:
-            for button in self.__buttons:
-                assert isinstance(button, BaseExtControl)
-                button.make_read_only(
-                    self.read_only, exclude_list, *args, **kwargs)
+        for button in self.buttons:
+            assert isinstance(button, BaseExtControl)
+            button.make_read_only(
+                self.read_only, exclude_list, *args, **kwargs)

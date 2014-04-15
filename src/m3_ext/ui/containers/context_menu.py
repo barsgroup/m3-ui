@@ -1,8 +1,6 @@
 #coding: utf-8
 """
 Created on 15.03.2010
-
-@author: prefer
 """
 from m3_ext.ui.base import ExtUIComponent
 from base import BaseExtContainer
@@ -15,16 +13,10 @@ class ExtContextMenu(BaseExtContainer):
     __SEPARATOR = '"-"'
 
     _xtype = 'menu'
+
     js_attrs = BaseExtContainer.js_attrs.extend(
         'items'
     )
-
-    def __init__(self, *args, **kwargs):
-        super(ExtContextMenu, self).__init__(*args, **kwargs)
-        # self.template = 'ext-containers/ext-context-menu.js'
-
-        # Список элементов меню
-        self.items = []
 
     def add_item(self, **kwargs):
         """

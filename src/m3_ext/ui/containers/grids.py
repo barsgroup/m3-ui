@@ -7,9 +7,10 @@ Created on 3.3.2010
 import json
 
 from django.conf import settings
-from m3.actions import _must_be_replaced_by
 
+from m3.actions import _must_be_replaced_by
 from m3_ext.ui.base import ExtUIComponent, BaseExtComponent
+
 from base import BaseExtPanel
 
 
@@ -133,10 +134,12 @@ class ExtGrid(BaseExtPanel):
         assert isinstance(level, int)
         assert isinstance(colspan, int)
         assert isinstance(column, ExtGridColumn) or not column
+
         if not column:
             column = {'colspan': colspan}
         else:
             column.colspan = colspan
+
         if len(self.banded_columns) <= level:
             # дополним список уровней до нужного level
             self.banded_columns += [[]]*(1 + level - len(self.banded_columns))
