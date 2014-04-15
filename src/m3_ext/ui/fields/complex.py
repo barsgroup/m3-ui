@@ -258,9 +258,8 @@ class ExtMultiSelectField(ExtDictSelectField):
 
     def __init__(self, *args, **kwargs):
         super(ExtMultiSelectField, self).__init__(*args, **kwargs)
-        self.setdefault('value', '')
+        self.setdefault('value', [])
 
-        self.pack = None
 
 
     # FIXME: Теперь заботиться о обработке значений нужно в прикладном коде

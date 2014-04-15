@@ -8,7 +8,8 @@ from m3 import M3JSONEncoder as _M3JSONEncoder
 from m3.actions import (
     ActionResult as _ActionResult,
     BaseContextedResult as _BaseContextedResult,
-)
+    ControllerCache)
+
 from m3.actions.results import PreJsonResult as _PreJsonResult
 
 import helpers as _helpers
@@ -28,7 +29,8 @@ class UIJsonEncoder(_M3JSONEncoder):
     def make_compatible(obj):
         class_name = obj.__class__.__name__
 
-        # Проверка
+        # ExtContainerTable - это хелпер-класс
+        # Для получения extjs-конфига нужно вызвать метод create
         if class_name == 'ExtContainerTable':
             return obj.create()
 
@@ -36,7 +38,19 @@ class UIJsonEncoder(_M3JSONEncoder):
         # и из fields проставляются fields в store
         elif hasattr(obj, 'store') and hasattr(obj, 'fields'):
             obj.store.setdefault('fields', obj.fields)
-            # if hasattr(obj, 'pack')
+
+            if hasattr(obj, 'pack'):
+
+                assert isinstance(obj.pack, basestring) or hasattr(obj.pack, '__bases__'), (
+                    'Argument %s must be a basestring or class' % obj.pack)
+                pack = ControllerCache.find_pack(obj.pack)
+                assert pack, 'Pack %s not found in ControllerCache' % pack
+
+                get_url = getattr(pack, 'get_multi_select_url', None) or getattr(pack, 'get_select_url')
+
+                obj.setdefault('url', get_url())  # url формы выбора
+                obj.setdefault('edit_url', pack.get_edit_url())  # url формы редактирования элемента
+                obj.setdefault('autocomplete_url', pack.get_autocomplete_url())  # url автокомплита и данных
 
         elif hasattr(obj, 'columns') and hasattr(obj, 'store'):
             fields = [obj.store.id_property] + [col.data_index for col in obj.columns]
