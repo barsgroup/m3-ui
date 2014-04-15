@@ -191,8 +191,6 @@ class ExtGrid(BaseExtPanel):
                             self.read_only, exclude_list, *args, **kwargs)
 
 
-
-
 class ExtEditorGrid(ExtGrid):
     """
     Редактируемый грид
@@ -221,52 +219,37 @@ class BaseExtGridColumn(BaseExtComponent):
     _xtype = 'gridcolumn'
 
     js_attrs = BaseExtComponent.js_attrs.extend(
-        # Заголовок
-        'header',
-        # Расположение
-        'align', 'width', 'sortable',
+        'header',  # Заголовок
+        'align',   # Расположение
+        'width',  # Ширина
+        'sortable',  # Возможность сортировки
         'format',
-        # Признак того, скрыта ли колонка или нет
-        'hidden',
-        # Редактор, если колонка может быть редактируемой
-        'editor',
-        # Всплывающая подсказка
-        'tooltip',
-        # Настройки фильтра колонки для плагина Ext.ux.grid.GridFilters
-        'filter',
-        'fixed',
-        'locked',
-        # продолжительность для группировочной колонки
-        'colspan',
-        # Уникальное название колонки в пределах column model
-        data_index='dataIndex',
+        'hidden',  # Признак того, скрыта ли колонка или нет
+        'editor',  # Редактор, если колонка может быть редактируемой
+        'tooltip',  # Всплывающая подсказка
+        'filter',  # Настройки фильтра колонки для плагина Ext.ux.grid.GridFilters
+        'fixed',  # Запрет на изменение ширины колонки
+        'locked',  # Признак зафиксированности колонки, use вместе с ExtGridLockingView и ExtGridLockingColumnModel
+        'colspan',  # продолжительность для группировочной колонки
+        data_index='dataIndex',  # Уникальное название колонки в пределах column model
         menu_disabled='menuDisabled',
     )
 
     def __init__(self, *args, **kwargs):
         super(BaseExtGridColumn, self).__init__(*args, **kwargs)
-
-        # Возможность сортировки
         self.setdefault('sortable', False)
-
-        # Ширина
         self.setdefault('width', BaseExtGridColumn.GRID_COLUMN_DEFAULT_WIDTH)
-
-        # Запрет на изменение ширины колонки
         self.setdefault('fixed', False)
-
-        # Признак зафиксированности колонки
-        # используется вместе с ExtGridLockingView + ExtGridLockingColumnModel
         self.setdefault('locked', False)
+        self.setdefault('menu_disabled', False)
 
         # FIXME: придумать как избавиться от этого
         # дополнительные атрибуты колонки
         self.extra = {}
 
-        self.setdefault('menu_disabled', False)
-
     def _make_read_only(
             self, access_off=True, exclude_list=(), *args, **kwargs):
+
         self.read_only = access_off
         if self.editor and isinstance(self.editor, ExtUIComponent):
             self.editor.make_read_only(

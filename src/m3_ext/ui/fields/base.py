@@ -163,8 +163,7 @@ class BaseExtTriggerField(BaseExtField):
 
         # Поля, которые должны попасть в store
         self.setdefault('fields', [])
-
-    @_must_be_replaced_by('use ALL or QUERY attr')
+ 
     @property
     def trigger_action_all(self):
         """
@@ -173,7 +172,6 @@ class BaseExtTriggerField(BaseExtField):
         """
         return self.trigger_action == BaseExtTriggerField.ALL
 
-    @_must_be_replaced_by('use ALL or QUERY attr')
     @trigger_action_all.setter
     def trigger_action_all(self, value):
         """

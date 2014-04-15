@@ -4,10 +4,12 @@ Created on 26.05.2010
 
 @author: akvarats
 """
-from base import BaseExtWindow
 
 from m3_ext.ui.containers.grids import ExtGrid
 from m3_ext.ui.misc import ExtJsonStore
+
+from base import BaseExtWindow
+
 
 class BaseExtListWindow(BaseExtWindow):
     """
@@ -15,9 +17,6 @@ class BaseExtListWindow(BaseExtWindow):
     """
     _xtype = BaseExtWindow._xtype
 
-    js_attrs = BaseExtWindow.js_attrs.extend(
-        'layout', 'width', 'height', 'items', 'maximizable'
-    )
 
     def __init__(self, *args, **kwargs):
         super(BaseExtListWindow, self).__init__(*args, **kwargs)
