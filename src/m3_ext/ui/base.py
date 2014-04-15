@@ -142,7 +142,7 @@ class BaseExtComponent(object):
     """
     Базовый класс для всех компонентов пользовательского интерфейса
     """
-    __slots__ = ('_config', '_data', '_py_only')
+    __slots__ = ('_config', '_data', '_py_only', '_configured')
 
     _xtype = None
 
@@ -164,14 +164,15 @@ class BaseExtComponent(object):
         self._config = self.js_attrs(xtype=cls._xtype)
         self._data = {}
         self._py_only = {}
+        self._configured = set(kwargs.keys())
         for pair in kwargs.iteritems():
             setattr(self, *pair)
         return self
 
     def setdefault(self, key, val):
-        try:
-            _ = getattr(self, key)
-        except AttributeError:
+        if key not in super(BaseExtComponent, self).__getattribute__(
+            '_configured'
+        ):
             setattr(self, key, val)
 
     def __setattr__(self, attr, value):
