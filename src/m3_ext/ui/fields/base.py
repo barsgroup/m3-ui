@@ -163,7 +163,7 @@ class BaseExtTriggerField(BaseExtField):
 
         # Поля, которые должны попасть в store
         self.setdefault('fields', [])
- 
+
     @property
     def trigger_action_all(self):
         """
