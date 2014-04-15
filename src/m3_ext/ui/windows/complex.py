@@ -2,8 +2,6 @@
 
 """
 Created on 9.03.10
-
-@author: prefer
 """
 
 from m3_ext.ui.containers.grids import ExtGridCheckBoxSelModel

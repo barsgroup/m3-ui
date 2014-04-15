@@ -39,7 +39,7 @@ class UIJsonEncoder(_M3JSONEncoder):
         elif hasattr(obj, 'store') and hasattr(obj, 'fields'):
             obj.store.setdefault('fields', obj.fields)
 
-            if hasattr(obj, 'pack'):
+            if hasattr(obj, 'pack') and obj.pack:
 
                 assert isinstance(obj.pack, basestring) or hasattr(obj.pack, '__bases__'), (
                     'Argument %s must be a basestring or class' % obj.pack)

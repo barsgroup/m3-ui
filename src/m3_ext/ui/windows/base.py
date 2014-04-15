@@ -18,7 +18,6 @@ class BaseExtWindow(ExtUIComponent):
     ALIGN_CENTER = align_center = 'center'
     ALIGN_RIGHT = align_right = 'right'
 
-    _xtype = 'window'
 
     js_attrs = ExtUIComponent.js_attrs.extend(
         'title',

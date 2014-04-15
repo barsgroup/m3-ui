@@ -178,7 +178,7 @@ Ext.m3.EditWindow = Ext.extend(Ext.m3.Window, {
         // На форме могут находиться компоненты, которые не являются полями, но их можно сабмитить
         // Находим такие компоненты по наличию атрибутов name и localEdit
         var getControls = function(items){
-            var result = new Array();
+            var result = [];
             for (var i = 0; i < items.getCount(); i++){
                 var control = items.get(i);
                 if (control.name && control.localEdit){
@@ -189,7 +189,7 @@ Ext.m3.EditWindow = Ext.extend(Ext.m3.Window, {
                 }
             }
             return result;
-        }
+        };
 
         // В params сабмита добавляются пары, где ключ - имя компонента,
         // а значение - массив из записей стора этого компонента. Пример:
@@ -198,7 +198,7 @@ Ext.m3.EditWindow = Ext.extend(Ext.m3.Window, {
         for (var i = 0; i < cControls.length; i++){
             var cControl = cControls[i];
             var cStore = cControl.getStore();
-            var cStoreData = new Array();
+            var cStoreData = [];
             for (var k = 0; k < cStore.data.items.length; k++){
                 cStoreData.push(cStore.data.items[k].data);
             }
@@ -476,4 +476,4 @@ Ext.m3.EditWindow = Ext.extend(Ext.m3.Window, {
    }
 });
 
-Ext.reg('m3-window', Ext.m3.EditWindow);
+Ext.reg('m3-edit-window', Ext.m3.EditWindow);

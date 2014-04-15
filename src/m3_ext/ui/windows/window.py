@@ -12,4 +12,4 @@ class ExtWindow(BaseExtWindow):
     """
     Окно
     """
-    _xtype = 'window'
+    _xtype = 'm3-window'

@@ -10,7 +10,6 @@ Created on 14.12.2010
 from m3_ext.ui import windows
 from m3_ext.ui import panels
 from m3_ext.ui import controls
-from m3_ext.ui import containers
 from m3.actions import Action, ControllerCache
 
 
@@ -53,8 +52,10 @@ class GearEditWindow(windows.ExtEditWindow):
         """ Из переданного типа экшена пытается получить адрес для формы """
         if isinstance(value, str):
             self.form.url = ControllerCache.get_action_url(value)
+
         elif isinstance(value, Action):
             self.form.url = value.get_absolute_url()
+
         elif issubclass(value, Action):
             self.form.url = value.absolute_url()
 
@@ -63,18 +64,4 @@ class GearEditWindow(windows.ExtEditWindow):
         _set_submit_action
     )
 
-
-class GearTableEditWindow(GearEditWindow):
-    """
-    Окно редактирования с лежащим внутри табличным контейнером.
-
-    Количество строк и столбцов необходимо
-    передавать через параметры конструкта:
-    * columns: количество столбцов (по умолчаию - 2)
-    * rows: количество строк (по умолчанию - 4)
-    """
-    def __init__(self, columns=2, rows=4, *args, **kwargs):
-        super(GearTableEditWindow, self).__init__(*args, **kwargs)
-
-        self.table = containers.ExtContainerTable(columns=columns, rows=rows)
-        self.form.items.append(self.table)
+# Удалено GearTableEditWindow. Используется только в закупках
