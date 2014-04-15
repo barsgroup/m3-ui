@@ -22,7 +22,7 @@ class Pack(ActionPack):
         return tuple(
             menu.Item(a.title, pack=a)
             for a in self.actions
-            if hasattr(a, 'title')
+            if getattr(a, 'title', None)
         )
 
     @classmethod

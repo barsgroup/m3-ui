@@ -3990,150 +3990,150 @@ Ext.reg('m3-combobox', Ext.m3.ComboBox);
  * @param {Object} config
  */
 
-function m3GridInit(grid) {
-    // Настройка грида по расширенному конфигу из параметров
-    var params = grid.params || {};
+var baseM3Grid = {
+    /**
+     * Настройка грида по расширенному конфигу из параметров
+     */
+    configureM3Grid: function () {
+        var params = this.params || {};
 
-    // Создание ColumnModel если надо
-    var colModel = grid.cm;
-    if (colModel) {
-        // раньше был экземпляр ColModel, теперь приходи конфиг
-        if (!(colModel instanceof Ext.grid.ColumnModel)) {
-            colModel = Ext.create(colModel);
+        // Создание ColumnModel если надо
+        var colModel = this.cm;
+        if (colModel) {
+            // раньше был экземпляр ColModel, теперь приходи конфиг
+            if (!(colModel instanceof Ext.grid.ColumnModel)) {
+                colModel = Ext.create(colModel);
+            }
+            delete this.cm;
+            this.colModel = colModel;
         }
-        delete grid.cm;
-        grid.colModel = colModel;
-    }
 
-    // Добавлене selection model если нужно
-    var selModel = grid.sm;
-    if (selModel) {
-        // раньше был экземпляр SelModel, теперь приходи конфиг
-        if (!(selModel instanceof Ext.grid.AbstractSelectionModel)) {
-            selModel = Ext.create(selModel);
-        }
-        // если это чекбоксы, то добавим колонку
-        if (selModel instanceof Ext.grid.CheckboxSelectionModel) {
-            if (grid.colModel) {
-                grid.colModel.columns.unshift(selModel);
-            } else {
-                if (grid.columns) {
-                    grid.columns.unshift(selModel);
+        // Добавлене selection model если нужно
+        var selModel = this.sm;
+        if (selModel) {
+            // раньше был экземпляр SelModel, теперь приходи конфиг
+            if (!(selModel instanceof Ext.grid.AbstractSelectionModel)) {
+                selModel = Ext.create(selModel);
+            }
+            // если это чекбоксы, то добавим колонку
+            if (selModel instanceof Ext.grid.CheckboxSelectionModel) {
+                if (this.colModel) {
+                    this.colModel.columns.unshift(selModel);
+                } else {
+                    if (this.columns) {
+                        this.columns.unshift(selModel);
+                    }
                 }
             }
-        }
-        delete grid.sm;
-        grid.sm = selModel;
-    }
-
-    // Создание GridView если надо
-    var view = grid.view;
-    if (view) {
-        // раньше был экземпляр GridView, теперь приходи конфиг
-        if (!(view instanceof Ext.grid.GridView)) {
-            view = Ext.create(view);
-        }
-        delete grid.view;
-        grid.view = view;
-    }
-
-    // Навешивание обработчиков на контекстное меню если нужно
-    var funcContMenu;
-    if (params.contextMenu) {
-        // раньше был экземпляр меню, теперь приходи конфиг
-        if (!(params.contextMenu instanceof Ext.menu.Menu)) {
-            params.contextMenu = Ext.create(params.contextMenu);
+            delete this.sm;
+            this.sm = selModel;
         }
 
-        funcContMenu = function(e){
-            e.stopEvent();
-            params.contextMenu.showAt(e.getXY())
-        }
-    } else {
-        funcContMenu = Ext.emptyFn;
-    }
-
-    var funcRowContMenu;
-    if (params.rowContextMenu) {
-        // раньше был экземпляр меню, теперь приходи конфиг
-        if (!(params.rowContextMenu instanceof Ext.menu.Menu)) {
-            params.rowContextMenu = Ext.create(params.rowContextMenu);
-        }
-
-        funcRowContMenu = function(grid, index, e){
-            e.stopEvent();
-            if (!grid.getSelectionModel().isSelected(index)) {
-                grid.getSelectionModel().selectRow(index);
+        // Создание GridView если надо
+        var view = this.view;
+        if (view) {
+            // раньше был экземпляр GridView, теперь приходи конфиг
+            if (!(view instanceof Ext.grid.GridView)) {
+                view = Ext.create(view);
             }
-            params.rowContextMenu.showAt(e.getXY())
+            delete this.view;
+            this.view = view;
         }
-    } else {
-        funcRowContMenu = Ext.emptyFn;
-    }
 
-    // Группировочные колонки
-    var bandedColumns = params.bandedColumns;
-    if (bandedColumns && bandedColumns instanceof Array &&
-        bandedColumns.length > 0) {
+        // Навешивание обработчиков на контекстное меню если нужно
+        var funcContMenu;
+        if (params.contextMenu) {
+            // раньше был экземпляр меню, теперь приходи конфиг
+            if (!(params.contextMenu instanceof Ext.menu.Menu)) {
+                params.contextMenu = Ext.create(params.contextMenu);
+            }
 
-        if (!grid.plugins) {
-            grid.plugins = [];
+            funcContMenu = function(e){
+                e.stopEvent();
+                params.contextMenu.showAt(e.getXY())
+            }
+        } else {
+            funcContMenu = Ext.emptyFn;
         }
-        grid.plugins.push(
-            new Ext.ux.grid.ColumnHeaderGroup({
-                rows: bandedColumns
-            })
-        );
-    }
 
-    // Фильтры
-    // проверим набор колонок на наличие фильтров,
-    // если есть, то добавим плагин с фильтрами
-    var columns;
-    if (grid.colModel) {
-        columns = grid.colModel.columns;
-    } else {
-        columns = grid.columns;
-    }
-    if (columns) {
-        var needFilterPlugin = false;
-        Ext.each(columns, function(col) {
-           if (col.filter) {
-               needFilterPlugin = true;
-               return false;
-           }
-        });
-        if (needFilterPlugin) {
-            grid.plugins.push(
-                {'ptype': 'gridfilters', 'menuFilterText': 'Фильтр'}
+        var funcRowContMenu;
+        if (params.rowContextMenu) {
+            // раньше был экземпляр меню, теперь приходи конфиг
+            if (!(params.rowContextMenu instanceof Ext.menu.Menu)) {
+                params.rowContextMenu = Ext.create(params.rowContextMenu);
+            }
+
+            funcRowContMenu = function(grid, index, e){
+                e.stopEvent();
+                if (!this.getSelectionModel().isSelected(index)) {
+                    this.getSelectionModel().selectRow(index);
+                }
+                params.rowContextMenu.showAt(e.getXY())
+            }
+        } else {
+            funcRowContMenu = Ext.emptyFn;
+        }
+
+        // Группировочные колонки
+        var bandedColumns = params.bandedColumns;
+        if (bandedColumns && bandedColumns instanceof Array &&
+            bandedColumns.length > 0) {
+
+            if (!this.plugins) {
+                this.plugins = [];
+            }
+            this.plugins.push(
+                new Ext.ux.grid.ColumnHeaderGroup({
+                    rows: bandedColumns
+                })
             );
         }
-    }
 
-    // объединение обработчиков
-    grid.on('contextmenu', funcContMenu);
-    grid.on('rowcontextmenu', funcRowContMenu);
-    grid.on('beforerender', function(grid) {
-        var bbar = grid.getBottomToolbar();
-        if (bbar && bbar instanceof Ext.PagingToolbar){
-            var store = grid.getStore();
-            store.setBaseParam('start',0);
-            store.setBaseParam('limit',bbar.pageSize);
-            bbar.bind(store);
+        // Фильтры
+        // проверим набор колонок на наличие фильтров,
+        // если есть, то добавим плагин с фильтрами
+        var columns;
+        if (this.colModel) {
+            columns = this.colModel.columns;
+        } else {
+            columns = this.columns;
         }
-    });
-}
+        if (columns) {
+            var needFilterPlugin = false;
+            Ext.each(columns, function(col) {
+               if (col.filter) {
+                   needFilterPlugin = true;
+                   return false;
+               }
+            });
+            if (needFilterPlugin) {
+                this.plugins.push(
+                    {'ptype': 'gridfilters', 'menuFilterText': 'Фильтр'}
+                );
+            }
+        }
 
-Ext.m3.GridPanel = Ext.extend(Ext.grid.GridPanel, {
-    initComponent: function(){
-        // настройка конфига грида перед созданием
-        m3GridInit(this);
-
-        Ext.m3.GridPanel.superclass.initComponent.call(this);
+        // объединение обработчиков
+        this.on('contextmenu', funcContMenu);
+        this.on('rowcontextmenu', funcRowContMenu);
+        this.on('beforerender', function(grid) {
+            var bbar = this.getBottomToolbar();
+            if (bbar && bbar instanceof Ext.PagingToolbar){
+                var store = this.getStore();
+                store.setBaseParam('start',0);
+                store.setBaseParam('limit',bbar.pageSize);
+                bbar.bind(store);
+            }
+        });
+    }
+    /**
+     * Инициализация грида после создания
+     */
+    ,initM3Grid: function () {
         var store = this.getStore();
 		store.on('exception', this.storeException, this);
-	}
-	/**
+    }
+    /**
 	 * Обработчик исключений хранилица
 	 */
 	,storeException: function (proxy, type, action, options, response, arg){
@@ -4151,36 +4151,27 @@ Ext.m3.GridPanel = Ext.extend(Ext.grid.GridPanel, {
 		    uiAjaxFailMessage(response, options);
 		}
 	}
-});
+};
 
-Ext.m3.EditorGridPanel = Ext.extend(Ext.grid.EditorGridPanel, {
-    initComponent: function(){
-        // настройка конфига грида перед созданием
-        m3GridInit(this);
+Ext.m3.GridPanel = Ext.extend(Ext.grid.GridPanel,
+    Ext.applyIf(baseM3Grid, {
+        initComponent: function() {
+            this.configureM3Grid();
+            Ext.m3.GridPanel.superclass.initComponent.call(this);
+            this.initM3Grid();
+        }
+    })
+);
 
-        Ext.m3.EditorGridPanel.superclass.initComponent.call(this);
-        var store = this.getStore();
-		store.on('exception', this.storeException, this);
-	}
-	/**
-	 * Обработчик исключений хранилица
-	 */
-	,storeException: function (proxy, type, action, options, response, arg){
-		//console.log(proxy, type, action, options, response, arg);
-		if (type == 'remote' && action != Ext.data.Api.actions.read) {
-		    if (response.raw.message) {
-  		        Ext.Msg.show({
-  		            title: 'Внимание!',
-  		            msg: response.raw.message,
-  		            buttons: Ext.Msg.CANCEL,
-  		            icon: Ext.Msg.WARNING
-  		        });
-  		    }
-		} else {
-		    uiAjaxFailMessage(response, options);
-		}
-	}
-});
+Ext.m3.EditorGridPanel = Ext.extend(Ext.grid.EditorGridPanel,
+    Ext.applyIf(baseM3Grid, {
+        initComponent: function() {
+            this.configureM3Grid();
+            Ext.m3.EditorGridPanel.superclass.initComponent.call(this);
+            this.initM3Grid();
+        }
+    })
+);
 
 Ext.reg('m3-grid', Ext.m3.GridPanel);
 Ext.reg('m3-edit-grid', Ext.m3.EditorGridPanel);
@@ -12404,38 +12395,79 @@ Ext.ux.Notification = Ext.extend(Ext.Window, {
 
 /**
  * Объектный грид, включает в себя тулбар с кнопками добавить, редактировать и удалить
- * @param {Object} config
  */
-Ext.m3.ObjectGrid = Ext.extend(Ext.m3.GridPanel, {
-	constructor: function(baseConfig, params){
-        params = baseConfig.params || params;
 
-		assert(params.allowPaging !== undefined,'allowPaging is undefined');
-		assert(params.rowIdName !== undefined,'rowIdName is undefined');
-		assert(params.actions !== undefined,'actions is undefined');
 
-		this.allowPaging = params.allowPaging;
-		this.rowIdName = params.rowIdName;
-		this.columnParamName = params.columnParamName; // используется при режиме выбора ячеек. через этот параметр передается имя выбранной колонки
-		this.actionNewUrl = params.actions.newUrl;
-		this.actionEditUrl = params.actions.editUrl;
-		this.actionDeleteUrl = params.actions.deleteUrl;
-		this.actionDataUrl = params.actions.dataUrl;
-		this.actionContextJson = params.actions.contextJson;
-		this.readOnly = params.readOnly;
-		// признак клиентского редактирования
-		this.localEdit = params.localEdit;
+var baseObjectGrid = {
+    /**
+     * Настройка объектного грида по расширенному конфигу из параметров
+     */
+    configureObjectGrid: function() {
+        var params = this.params || {};
+        assert(params.allowPaging !== undefined,'allowPaging is undefined');
+        assert(params.rowIdName !== undefined,'rowIdName is undefined');
+        assert(params.actions !== undefined,'actions is undefined');
+
+        this.allowPaging = params.allowPaging;
+        this.rowIdName = params.rowIdName;
+        // используется при режиме выбора ячеек.
+        // через этот параметр передается имя выбранной колонки
+        this.columnParamName = params.columnParamName;
+        this.actionNewUrl = params.actions.newUrl;
+        this.actionEditUrl = params.actions.editUrl;
+        this.actionDeleteUrl = params.actions.deleteUrl;
+        this.actionDataUrl = params.actions.dataUrl;
+        this.actionContextJson = params.actions.contextJson;
+        // признак клиентского редактирования
+        this.localEdit = params.localEdit;
         // имя для сабмита в режиме клиентского редактирования
         this.name = params.name;
+        // проставление адреса запроса за данными
+        if (this.store && !this.store.url) {
+            this.store.url = this.actionDataUrl;
+        }
+    }
+    ,initObjectGrid: function () {
+        // настроим кнопки тулбара
+        var add_item = this.getTopToolbar().getComponent("button_new");
+        if (add_item) {
+            if (!this.actionNewUrl) {
+                add_item.hide();
+            }
+            if (!add_item.handler) {
+                add_item.setHandler(this.onNewRecord, this);
+            }
+        }
+        var edit_item = this.getTopToolbar().getComponent("button_edit");
+        if (edit_item) {
+            if (!this.actionEditUrl) {
+                edit_item.hide();
+            }
+            if (!edit_item.handler) {
+                edit_item.setHandler(this.onEditRecord, this);
+            }
+        }
+        var delete_item = this.getTopToolbar().getComponent("button_delete");
+        if (delete_item) {
+            if (!this.actionDeleteUrl) {
+                delete_item.hide();
+            }
+            if (!delete_item.handler) {
+                delete_item.setHandler(this.onDeleteRecord, this);
+            }
+        }
+        var refresh_item = this.getTopToolbar().getComponent("button_refresh");
+        if (refresh_item) {
+            if (!this.actionDataUrl) {
+                refresh_item.hide();
+            }
+            if (!refresh_item.handler) {
+                refresh_item.setHandler(this.refreshStore, this);
+            }
+        }
 
-		Ext.m3.ObjectGrid.superclass.constructor.call(this, baseConfig, params);
-	}
-
-	,initComponent: function(){
-		Ext.m3.ObjectGrid.superclass.initComponent.call(this);
-		var store = this.getStore();
+        var store = this.getStore();
 		store.baseParams = Ext.applyIf(store.baseParams || {}, this.actionContextJson || {});
-
 
 		this.addEvents(
 			/**
@@ -12495,9 +12527,8 @@ Ext.m3.ObjectGrid = Ext.extend(Ext.m3.GridPanel, {
              * @param res - результат удаления (ответ сервера)
              */
             'rowdeleted'
-			);
-
-	}
+		);
+    }
 	/**
 	 * Нажатие на кнопку "Новый"
 	 */
@@ -12532,7 +12563,8 @@ Ext.m3.ObjectGrid = Ext.extend(Ext.m3.GridPanel, {
 			var scope = this;
 
 			mask.show();
-			Ext.Ajax.request(req);
+            UI.ajax(req.url, req.params).then(req.success).catch(req.failure);
+			//Ext.Ajax.request(req);
 		}
 
 	}
@@ -12580,7 +12612,8 @@ Ext.m3.ObjectGrid = Ext.extend(Ext.m3.GridPanel, {
 					var scope = this;
 
 					mask.show();
-					Ext.Ajax.request(req);
+                    UI.ajax(req.url, req.params).then(req.success).catch(req.failure);
+					//Ext.Ajax.request(req);
 				}
 			};
 	    } else {
@@ -12653,7 +12686,7 @@ Ext.m3.ObjectGrid = Ext.extend(Ext.m3.GridPanel, {
 	 * @param {Object} opts Доп. параметры
 	 */
 	,onNewRecordWindowOpenHandler: function (response, opts){
-	    var window = smart_eval(response.responseText);
+	    var window = evalResult(response);
 	    if(window){
 			var scope = this;
 	        window.on('closed_ok', function(data){
@@ -12677,7 +12710,7 @@ Ext.m3.ObjectGrid = Ext.extend(Ext.m3.GridPanel, {
 	    }
 	}
 	,onEditRecordWindowOpenHandler: function (response, opts){
-	    var window = smart_eval(response.responseText);
+	    var window = evalResult(response);
 	    if(window){
 			var scope = this;
 	        window.on('closed_ok', function(data){
@@ -12724,7 +12757,7 @@ Ext.m3.ObjectGrid = Ext.extend(Ext.m3.GridPanel, {
                 // проверка на ошибки уровня приложения
                 var res = Ext.util.JSON.decode(response.responseText);
                 if(!res.success){
-                    smart_eval(response.responseText);
+                    evalResult(response);
                     return;
                 }
                 var store = this.getStore();
@@ -12738,7 +12771,7 @@ Ext.m3.ObjectGrid = Ext.extend(Ext.m3.GridPanel, {
                     }
                 }
             } else {
-                smart_eval(response.responseText);
+                evalResult(response);
                 this.refreshStore();
             }
         }
@@ -12749,7 +12782,9 @@ Ext.m3.ObjectGrid = Ext.extend(Ext.m3.GridPanel, {
 			if(pagingBar &&  pagingBar instanceof Ext.PagingToolbar){
 			    var active_page = Math.ceil((pagingBar.cursor + pagingBar.pageSize) / pagingBar.pageSize);
 		        pagingBar.changePage(active_page);
-			}
+			} else {
+                this.getStore().load();
+            }
 		} else {
 			this.getStore().load();
 		}
@@ -12811,281 +12846,27 @@ Ext.m3.ObjectGrid = Ext.extend(Ext.m3.GridPanel, {
         }
 		return baseConf;
     }
-});
+};
 
-Ext.m3.EditorObjectGrid = Ext.extend(Ext.m3.EditorGridPanel, {
-	constructor: function(baseConfig, params){
-        params = baseConfig.params || params;
-
-		assert(params.allowPaging !== undefined,'allowPaging is undefined');
-		assert(params.rowIdName !== undefined,'rowIdName is undefined');
-		assert(params.actions !== undefined,'actions is undefined');
-
-		this.allowPaging = params.allowPaging;
-		this.rowIdName = params.rowIdName;
-		this.columnParamName = params.columnParamName; // используется при режиме выбора ячеек. через этот параметр передается имя выбранной колонки
-		this.actionNewUrl = params.actions.newUrl;
-		this.actionEditUrl = params.actions.editUrl;
-		this.actionDeleteUrl = params.actions.deleteUrl;
-		this.actionDataUrl = params.actions.dataUrl;
-		this.actionContextJson = params.actions.contextJson;
-
-        // признак клиентского редактирования
-      	this.localEdit = params.localEdit;
-
-        // имя для сабмита в режиме клиентского редактирования
-        this.name = params.name;
-
-		Ext.m3.EditorObjectGrid.superclass.constructor.call(this, baseConfig, params);
-	}
-
-	,initComponent: function(){
-		Ext.m3.EditorObjectGrid.superclass.initComponent.call(this);
-		var store = this.getStore();
-		store.baseParams = Ext.applyIf(store.baseParams || {}, this.actionContextJson || {});
-
-
-		this.addEvents(
-			/**
-			 * Событие до запроса добавления записи - запрос отменится при возврате false
-			 * @param {ObjectGrid} this
-			 * @param {JSON} request - AJAX-запрос для отправки на сервер
-			 */
-			'beforenewrequest',
-			/**
-			 * Событие после запроса добавления записи - обработка отменится при возврате false
-			 * @param {ObjectGrid} this
-			 * @param res - результат запроса
-			 * @param opt - параметры запроса
-			 */
-			'afternewrequest',
-			/**
-			 * Событие до запроса редактирования записи - запрос отменится при возврате false
-			 * @param {ObjectGrid} this
-			 * @param {JSON} request - AJAX-запрос для отправки на сервер
-			 */
-			'beforeeditrequest',
-			/**
-			 * Событие после запроса редактирования записи - обработка отменится при возврате false
-			 * @param {ObjectGrid} this
-			 * @param res - результат запроса
-			 * @param opt - параметры запроса
-			 */
-			'aftereditrequest',
-			/**
-			 * Событие до запроса удаления записи - запрос отменится при возврате false
-			 * @param {ObjectGrid} this
-			 * @param {JSON} request - AJAX-запрос для отправки на сервер
-			 */
-			'beforedeleterequest',
-			/**
-			 * Событие после запроса удаления записи - обработка отменится при возврате false
-			 * @param {ObjectGrid} this
-			 * @param res - результат запроса
-			 * @param opt - параметры запроса
-			 */
-			'afterdeleterequest'
-			);
-
-	}
-	/**
-	 * Нажатие на кнопку "Новый"
-	 */
-	,onNewRecord: function (){
-		assert(this.actionNewUrl, 'actionNewUrl is not define');
-
-		var params = this.getMainContext();
-		params[this.rowIdName] = '';
-
-		var req = {
-			url: this.actionNewUrl,
-			params: params,
-			success: function(res, opt){
-				if (scope.fireEvent('afternewrequest', scope, res, opt)) {
-					return scope.childWindowOpenHandler(res, opt);
-				}
-			},
-			failure: Ext.emptyFn
-		};
-
-		if (this.fireEvent('beforenewrequest', this, req)) {
-			var scope = this;
-			Ext.Ajax.request(req);
-		}
-
-	}
-	/**
-	 * Нажатие на кнопку "Редактировать"
-	 */
-	/**
-	 * Нажатие на кнопку "Редактировать"
-	 */
-	,onEditRecord: function (){
-		assert(this.actionEditUrl, 'actionEditUrl is not define');
-		assert(this.rowIdName, 'rowIdName is not define');
-
-	    if (this.getSelectionModel().hasSelection()) {
-			var baseConf = this.getSelectionContext(this.localEdit);
-			var req = {
-				url: this.actionEditUrl,
-				params: baseConf,
-				success: function(res, opt){
-					if (scope.fireEvent('aftereditrequest', scope, res, opt)) {
-						return scope.childWindowOpenHandler(res, opt);
-					}
-				},
-				failure: Ext.emptyFn
-			};
-
-			if (this.fireEvent('beforeeditrequest', this, req)) {
-				var scope = this;
-				Ext.Ajax.request(req);
-			}
-	    } else {
-            Ext.Msg.show({
-                title: 'Редактирование',
-                msg: 'Элемент не выбран',
-                buttons: Ext.Msg.OK,
-                icon: Ext.MessageBox.INFO
-            });
-	    }
-	}
-	/**
-	 * Нажатие на кнопку "Удалить"
-	 */
-	,onDeleteRecord: function (){
-		assert(this.actionDeleteUrl, 'actionDeleteUrl is not define');
-		assert(this.rowIdName, 'rowIdName is not define');
-
-		var scope = this;
-		if (scope.getSelectionModel().hasSelection()) {
-		    Ext.Msg.show({
-		        title: 'Удаление записи',
-			    msg: 'Вы действительно хотите удалить выбранную запись?',
-			    icon: Ext.Msg.QUESTION,
-		        buttons: Ext.Msg.YESNO,
-		        fn:function(btn, text, opt){
-		            if (btn == 'yes') {
-						var baseConf = scope.getSelectionContext(scope.localEdit);
-						var req = {
-		                   url: scope.actionDeleteUrl,
-		                   params: baseConf,
-		                   success: function(res, opt){
-		                	   if (scope.fireEvent('afterdeleterequest', scope, res, opt)) {
-		                		   return scope.deleteOkHandler(res, opt);
-		                	   }
-						   },
-		                   failure: Ext.emptyFn
-		                };
-						if (scope.fireEvent('beforedeleterequest', scope, req)) {
-							Ext.Ajax.request(req);
-						}
-	                }
-	            }
-	        });
-		} else {
-                    Ext.Msg.show({
-                            title: 'Удаление',
-                            msg: 'Элемент не выбран',
-                            buttons: Ext.Msg.OK,
-                            icon: Ext.MessageBox.INFO
-                        });
-                }
-	}
-
-	/**
-	 * Показ и подписка на сообщения в дочерних окнах
-	 * @param {Object} response Ответ
-	 * @param {Object} opts Доп. параметры
-	 */
-	,childWindowOpenHandler: function (response, opts){
-
-	    var window = smart_eval(response.responseText);
-	    if(window){
-			var scope = this;
-	        window.on('closed_ok', function(){
-				return scope.refreshStore()
-			});
-	    }
-	}
-	/**
-	 * Хендлер на удаление окна
-	 * @param {Object} response Ответ
-	 * @param {Object} opts Доп. параметры
-	 */
-	,deleteOkHandler: function (response, opts){
-		smart_eval(response.responseText);
-		this.refreshStore();
-	}
-	,refreshStore: function (){
-		if (this.allowPaging) {
-			var pagingBar = this.getBottomToolbar();
-			if(pagingBar &&  pagingBar instanceof Ext.PagingToolbar){
-			    var active_page = Math.ceil((pagingBar.cursor + pagingBar.pageSize) / pagingBar.pageSize);
-		        pagingBar.changePage(active_page);
-			}
-		} else {
-			this.getStore().load();
-		}
-
-	}
-	/**
-     * Получение основного контекста грида
-     * Используется при ajax запросах
-     */
-    ,getMainContext: function(){
-    	return Ext.applyIf({}, this.actionContextJson);
-    }
-    /**
-     * Получение контекста выделения строк/ячеек
-     * Используется при ajax запросах
-     * @param {bool} withRow Признак добавление в контекст текущей выбранной записи
-     */
-    ,getSelectionContext: function(withRow){
-    	var baseConf = this.getMainContext();
-		var sm = this.getSelectionModel();
-		var record;
-		// для режима выделения строк
-		if (sm instanceof Ext.grid.RowSelectionModel) {
-			if (sm.singleSelect) {
-				record = sm.getSelected();
-				baseConf[this.rowIdName] = record.id;
-			} else {
-				// для множественного выделения
-				var sels = sm.getSelections();
-				var ids = [];
-				record = [];
-				for(var i = 0, len = sels.length; i < len; i++){
-					record.push(sels[i]);
-					ids.push(sels[i].id);
-				}
-				baseConf[this.rowIdName] = ids.join();
-			}
-		}
-		// для режима выделения ячейки
-		else if (sm instanceof Ext.grid.CellSelectionModel) {
-			assert(this.columnParamName, 'columnParamName is not define');
-
-			var cell = sm.getSelectedCell();
-			if (cell) {
-				record = this.getStore().getAt(cell[0]);
-				baseConf[this.rowIdName] = record.id;
-				baseConf[this.columnParamName] = this.getColumnModel().getDataIndex(cell[1]);
-			}
-		}
-		// если просят выделенную строку
-        if (withRow){
-        	// то нужно добавить в параметры текущую строку грида
-        	if (Ext.isArray(record)){
-        		// пока х.з. что делать - возьмем первую
-        		baseConf = Ext.applyIf(baseConf, record[0].json);
-        	} else {
-        		baseConf = Ext.applyIf(baseConf, record.json);
-        	}
+Ext.m3.ObjectGrid = Ext.extend(Ext.m3.GridPanel,
+    Ext.applyIf(baseObjectGrid, {
+        initComponent: function(){
+            this.configureObjectGrid();
+            Ext.m3.ObjectGrid.superclass.initComponent.call(this);
+            this.initObjectGrid();
         }
-		return baseConf;
-    }
-});
+    })
+);
+
+Ext.m3.EditorObjectGrid = Ext.extend(Ext.m3.EditorGridPanel,
+    Ext.applyIf(baseObjectGrid, {
+        initComponent: function(){
+            this.configureObjectGrid();
+            Ext.m3.EditorObjectGrid.superclass.initComponent.call(this);
+            this.initObjectGrid();
+        }
+    })
+);
 
 Ext.reg('m3-object-grid', Ext.m3.ObjectGrid);
 Ext.reg('m3-edit-object-grid', Ext.m3.EditorObjectGrid);

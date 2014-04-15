@@ -416,38 +416,3 @@ class GridCheckSelectionAction(UIAction):
         button = ext.ExtButton(text=u'Закрыть')
         window.buttons.append(button)
         return window
-
-
-@Pack.register
-class ObjectGridAction(UIAction):
-    """
-    Пример объектной таблицы (ObjectGrid)
-    """
-    title = u'Объектная таблица (ObjectGrid)'
-
-    def get_js(self, request, context):
-        return """function(win, data){
-            win.buttons[0].on('click', function(){
-                win.close(false);
-            });
-        }"""
-
-    def get_ui(self, request, context):
-        window = super(ObjectGridAction, self).get_ui(request, context)
-        window.width = 500
-        window.height = 500
-        window.layout = 'fit'
-        grid = ext.ExtObjectGrid()
-        grid.add_column(header=u'Имя', data_index='fname')
-        grid.add_column(header=u'Фамилия', data_index='lname')
-        grid.add_column(header=u'Адрес', data_index='adress')
-        grid.store = ext.ExtJsonStore(
-            url=get_url(DataAction),
-            auto_load=True, total_property='total',
-            root='rows'
-        )
-
-        window.items.append(grid)
-        button = ext.ExtButton(text=u'Закрыть')
-        window.buttons.append(button)
-        return window

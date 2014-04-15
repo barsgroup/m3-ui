@@ -46,6 +46,13 @@ class ExtObjectGrid(containers.ExtGrid):
             )
             self.menuitem_separator = menus.ExtContextMenuSeparator()
 
+            self.items.extend([
+                self.menuitem_new,
+                self.menuitem_edit,
+                self.menuitem_delete,
+                self.menuitem_separator,
+            ])
+
 
     class GridTopBar(containers.ExtToolBar):
         """
@@ -86,13 +93,27 @@ class ExtObjectGrid(containers.ExtGrid):
     # Собственно определение класса ExtObjectGrid
     #=========================================================================
 
+    _xtype = 'm3-object-grid'
+
+    js_attrs = containers.ExtGrid.js_attrs.extend(
+        allow_paging='params.allowPaging',  # Использовать постраничную навигацию
+        row_id_name='params.rowIdName',  # Поля для id записи
+        column_param_name='params.columnParamName',  # Имя параметра, через который передается имя выделенной колонки
+        local_edit='params.localEdit',  # Признак редактирования на клиенте - особенным образом обрабатываются данные при редактировании
+        url_new='params.actions.newUrl',  # Адрес для новой записи.
+        url_edit='params.actions.editUrl',  # Адрес для изменения
+        url_delete='params.actions.deleteUrl',  # Адрес для удаления
+        url_data='params.actions.dataUrl',  # Адрес для данных
+    )
+
     def __init__(self, *args, **kwargs):
         super(ExtObjectGrid, self).__init__(*args, **kwargs)
-        self.template = 'ext-grids/ext-object-grid.js'
 
         #======================================================================
         # Действия, выполняемые изнутри грида
         #======================================================================
+
+        #Адреса имеют приоритет над экшенами!
 
         # Экшен для новой записи
         self.action_new = None
@@ -106,18 +127,6 @@ class ExtObjectGrid(containers.ExtGrid):
         # Экшен для данных
         self.action_data = None
 
-        # Адрес для новой записи. Адреса имеют приоритет над экшенами!
-        self.url_new = None
-
-        # Адрес для изменения
-        self.url_edit = None
-
-        # Адрес для удаления
-        self.url_delete = None
-
-        # Адрес для данных
-        self.url_data = None
-
         # Флаг о состоянии грида.
         # True означает что грид предназначен только для чтения.
         self.read_only = False
@@ -127,43 +136,36 @@ class ExtObjectGrid(containers.ExtGrid):
         #======================================================================
 
         # Стор для загрузки данных
-        self.store = misc.ExtJsonStore(
-            auto_load=True, root='rows', id_property='id')
-
-        # Признак того, маскировать ли грид при загрузки
-        self.load_mask = True
-
-        # Поля для id записи
-        self.row_id_name = 'row_id'
-
-        # имя параметра, через который передается имя выделенной колонки
-        self.column_param_name = 'column'
-
-        # Использовать постраничную навигацию
-        self.allow_paging = True
+        self.setdefault('store', misc.ExtJsonStore(
+            auto_load=True, root='rows', id_property='id'
+        ))
+        self.setdefault('load_mask', True)
+        self.setdefault('row_id_name', 'row_id')
+        self.setdefault('column_param_name', 'column')
+        self.setdefault('allow_paging', True)
 
         #======================================================================
         # Контекстное меню и бары грида
         #======================================================================
 
         # Контекстное меню для строки грида
-        self.context_menu_row = ExtObjectGrid.GridContextMenu()
+        self.setdefault('handler_rowcontextmenu',
+                        ExtObjectGrid.GridContextMenu())
 
         # Контекстное меню для грида, если произошел счелчок не на строке
-        self.context_menu_grid = ExtObjectGrid.GridContextMenu()
+        self.setdefault('handler_contextmenu',
+                        ExtObjectGrid.GridContextMenu())
 
         # Топ бар для грида
-        self.top_bar = ExtObjectGrid.GridTopBar()
+        self.setdefault('top_bar', ExtObjectGrid.GridTopBar())
 
         # Paging бар для постраничной навигации
-        self.paging_bar = containers.ExtPagingBar()
+        self.setdefault('paging_bar', containers.ExtPagingBar())
 
         # Обработчик двойного клика
         self.dblclick_handler = 'onEditRecord'
 
-        # Признак редактирования на клиенте
-        # - особенным образом обрабатываются данные при редактировании
-        self.local_edit = False
+        self.setdefault('local_edit', False)
 
         # Атрибут store из store baseParams вынесен,
         # для одновременного изменения с атрибутом page_size paging_bar-а
@@ -232,47 +234,6 @@ class ExtObjectGrid(containers.ExtGrid):
             self.context_menu_row.items.append(
                 self.context_menu_row.menuitem_delete)
 
-        # контекстное меню прицепляется к гриду только в том случае, если
-        # в нем есть хотя бы один пункт
-        if self.context_menu_grid.items:
-            self.handler_contextmenu = self.context_menu_grid
-        if self.context_menu_row.items:
-            self.handler_rowcontextmenu = self.context_menu_row
-
-        #======================================================================
-        # Настройка top bar
-        #======================================================================
-        def remove(this):
-            if this in self.top_bar.items:
-                self.top_bar.items.remove(this)
-
-        # @TODO: Отрефакторить данный метод, чтобы он был не в рендеринге
-        if (not self.action_data and not self.url_data and
-                self.top_bar.button_refresh in self.top_bar.items):
-            remove(self.top_bar.button_refresh)
-
-        if (not self.action_delete and not self.url_delete and
-                self.top_bar.button_delete in self.top_bar.items):
-            remove(self.top_bar.button_delete)
-
-        if (not self.action_edit and not self.url_edit and
-                self.top_bar.button_edit in self.top_bar.items):
-            remove(self.top_bar.button_edit)
-
-        if (not self.action_new and not self.url_new and
-                self.top_bar.button_new in self.top_bar.items):
-            remove(self.top_bar.button_new)
-
-        # тонкая настройка self.store
-        if not self.store.url and self.action_data:
-            self.store.url = get_url(self.action_data)
-
-        if self.url_data:
-            self.store.url = self.url_data
-
-        # Стор может быть пустой
-        # assert self.store.url, 'Url for store or action_data is not define'
-
         if self.allow_paging:
             # Значение self.store.start и так будет равно 0
 
@@ -286,44 +247,6 @@ class ExtObjectGrid(containers.ExtGrid):
         self.render_base_config()
         self.render_params()
         return render_component(self)
-
-    def render_params(self):
-        super(ExtObjectGrid, self).render_params()
-
-        # Получение адресов для грида.
-        # Текстовые адреса более приоритетны чем экшены!
-        if not self.url_new and self.action_new:
-            self.url_new = get_url(self.action_new)
-        if not self.url_edit and self.action_edit:
-            self.url_edit = get_url(self.action_edit)
-        if not self.url_delete and self.action_delete:
-            self.url_delete = get_url(self.action_delete)
-        if not self.url_data and self.action_data:
-            self.url_data = get_url(self.action_data)
-
-        context_json = (
-            self.action_context.json if self.action_context else None)
-
-        self._put_params_value(
-            'actions',
-            {
-                'newUrl': self.url_new,
-                'editUrl': self.url_edit,
-                'deleteUrl': self.url_delete,
-                'dataUrl': self.url_data,
-                'contextJson': context_json})
-
-        self._put_params_value('rowIdName', self.row_id_name)
-        self._put_params_value('columnParamName', self.column_param_name)
-        self._put_params_value('allowPaging', self.allow_paging)
-        self._put_params_value('readOnly', self.read_only)
-        self._put_params_value('localEdit', self.local_edit)
-
-    def t_render_base_config(self):
-        return self._get_config_str()
-
-    def t_render_params(self):
-        return self._get_params_str()
 
     @property
     def limit(self):
