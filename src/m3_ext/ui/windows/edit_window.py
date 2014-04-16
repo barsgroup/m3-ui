@@ -1,8 +1,6 @@
 #coding:utf-8
 """
 Created on 02.03.2010
-
-@author: akvarats
 """
 
 from base import BaseExtWindow
