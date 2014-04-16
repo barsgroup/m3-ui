@@ -64,7 +64,6 @@ class ExtDictSelectField(BaseExtTriggerField):
     def __init__(self, *args, **kwargs):
         super(ExtDictSelectField, self).__init__(*args, **kwargs)
 
-        self.setdefault('actions', {})
         self.setdefault('record_value', {})
         self.setdefault('hide_clear_trigger', False)
         self.setdefault('hide_edit_trigger', False)
