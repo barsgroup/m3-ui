@@ -106,6 +106,11 @@ class ExtObjectGrid(containers.ExtGrid):
         url_data='params.actions.dataUrl',  # Адрес для данных
     )
 
+    deprecated_attrs = containers.ExtGrid.deprecated_attrs + (
+        'handler_beforenew',
+        'handler_beforeedit',
+    )
+
     def __init__(self, *args, **kwargs):
         super(ExtObjectGrid, self).__init__(*args, **kwargs)
 
@@ -161,8 +166,9 @@ class ExtObjectGrid(containers.ExtGrid):
 
         # Атрибут store из store baseParams вынесен,
         # для одновременного изменения с атрибутом page_size paging_bar-а
-        self._limit = self.store.limit if hasattr(self.store, 'limit') else -1
+        self.setdefault('limit', 25)
 
+    # FIXME: перенести make_read_only в js-код
     def _make_read_only(
             self, access_off=True, exclude_list=(), *args, **kwargs):
         self.read_only = access_off
@@ -185,77 +191,6 @@ class ExtObjectGrid(containers.ExtGrid):
                         item.make_read_only):
                     item.make_read_only(
                         access_off, exclude_list, *args, **kwargs)
-
-        # убираем редактирование записи по даблклику
-        self.dblclick_handler = 'Ext.emptyFn'
-
-    @property
-    def handler_beforenew(self):
-        return self._listeners.get('beforenewrequest')
-
-    @handler_beforenew.setter
-    def handler_beforenew(self, function):
-        self._listeners['beforenewrequest'] = function
-
-    @property
-    def handler_beforeedit(self):
-        return self._listeners.get('beforeeditrequest')
-
-    @handler_beforeedit.setter
-    def handler_beforeedit(self, function):
-        self._listeners['beforeeditrequest'] = function
-
-    def render(self):
-        """
-        Переопределяем рендер грида для того,
-        чтобы модифицировать содержимое его
-        панелей и контекстных меню
-        """
-        if self.action_new or self.url_new:
-            self.context_menu_row.items.append(
-                self.context_menu_row.menuitem_new)
-            self.context_menu_grid.items.append(
-                self.context_menu_grid.menuitem_new)
-
-        if self.action_edit or self.url_edit:
-            self.context_menu_row.items.append(
-                self.context_menu_row.menuitem_edit)
-            self.handler_dblclick = self.dblclick_handler
-
-        if self.action_delete or self.url_delete:
-            self.context_menu_row.items.append(
-                self.context_menu_row.menuitem_delete)
-
-        if self.allow_paging:
-            # Значение self.store.start и так будет равно 0
-
-            # Если store не экземпляр ExtJsonStore,
-            # то у него нет атрибута limit
-            if hasattr(self.store, 'limit'):
-                self.store.limit = (
-                    self.store.limit if self.store.limit > 0 else 25)
-            self.bottom_bar = self.paging_bar
-
-        self.render_base_config()
-        self.render_params()
-        return render_component(self)
-
-    @property
-    def limit(self):
-        return self._limit
-
-    @limit.setter
-    def limit(self, limit):
-
-        self._limit = limit
-        # Если не экземпляр ExtJSONStore, то у него нет атрибута limit.
-        if hasattr(self.store, 'limit'):
-            self.store.limit = limit
-
-        # Размер страниц устанавливаем только,
-        # если позволена постраничная навигация.
-        if self.allow_paging:
-            self.paging_bar.page_size = limit
 
 
 class ExtMultiGroupinGrid(containers.ExtGrid):

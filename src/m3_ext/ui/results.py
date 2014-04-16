@@ -69,6 +69,16 @@ class UIJsonEncoder(_M3JSONEncoder):
             if (not hasattr(obj, 'url_data') or not obj.url_data) and obj.action_data:
                 obj.url_data = urls.get_url(obj.action_data)
 
+            # Если store не экземпляр ExtJsonStore,
+            # то у него нет атрибута limit
+            if hasattr(obj.store, 'limit'):
+                obj.store.limit = obj.limit
+
+            # Настройка постраничного просмотра
+            if obj.allow_paging:
+                obj.paging_bar.page_size = obj.limit
+                obj.bottom_bar = obj.paging_bar
+
         return obj
 
 

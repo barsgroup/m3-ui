@@ -28,10 +28,10 @@ class ObjectGridAction(UIAction):
         grid = ext.ExtObjectGrid()
         grid.add_column(header=u'Код', data_index='code')
         grid.add_column(header=u'Наименование', data_index='name')
-        #grid.url_data = get_url(DataAction)
+        # разнообразный способ назначения url
         grid.action_data = DataAction
         grid.url_new = get_url(ObjectGridNewAction)
-        grid.url_edit = get_url(ObjectGridEditAction)
+        grid.action_edit = ObjectGridEditAction
 
         window.items.append(grid)
         button = ext.ExtButton(text=u'Закрыть')

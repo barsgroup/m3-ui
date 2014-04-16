@@ -66,6 +66,7 @@ class ExtGrid(BaseExtPanel):
         'handler_click',  # через js
         'handler_dblclick',  # через js
         'get_row_class',  # через js
+        'handler_dblclick',
     )
 
     def __init__(self, *args, **kwargs):
@@ -171,9 +172,6 @@ class ExtGrid(BaseExtPanel):
             for column in self.columns:
                 column.make_read_only(
                     self.read_only, exclude_list, *args, **kwargs)
-
-        # убираем редактирование записи по даблклику
-        self.handler_dblclick = 'Ext.emptyFn'
 
         # контекстное меню.
         context_menu_items = [self.handler_contextmenu,

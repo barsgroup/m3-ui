@@ -12418,44 +12418,43 @@ Ext.m3.BaseObjectGrid = {
             this.store.url = this.actionDataUrl;
         }
     }
+    /**
+     * Внутренняя функция для поиска и настройки элементов тулбара и контекстного меню
+     */
+    , configureItem: function (container, itemId, enabled, handler) {
+        var item = container.getComponent(itemId);
+        if (item) {
+            if (!enabled) {
+                item.hide();
+            }
+            if (!item.handler) {
+                item.setHandler(handler, this);
+            }
+        }
+        return item;
+    }
+
     ,initObjectGrid: function () {
         // настроим кнопки тулбара
-        var add_item = this.getTopToolbar().getComponent("button_new");
-        if (add_item) {
-            if (!this.actionNewUrl) {
-                add_item.hide();
-            }
-            if (!add_item.handler) {
-                add_item.setHandler(this.onNewRecord, this);
-            }
-        }
-        var edit_item = this.getTopToolbar().getComponent("button_edit");
+        this.configureItem(this.getTopToolbar(), "button_new", this.actionNewUrl, this.onNewRecord);
+        var edit_item = this.configureItem(this.getTopToolbar(), "button_edit", this.actionEditUrl, this.onEditRecord);
         if (edit_item) {
-            if (!this.actionEditUrl) {
-                edit_item.hide();
-            }
-            if (!edit_item.handler) {
-                edit_item.setHandler(this.onEditRecord, this);
-            }
             this.on('dblclick', edit_item.handler);
         }
-        var delete_item = this.getTopToolbar().getComponent("button_delete");
-        if (delete_item) {
-            if (!this.actionDeleteUrl) {
-                delete_item.hide();
-            }
-            if (!delete_item.handler) {
-                delete_item.setHandler(this.onDeleteRecord, this);
-            }
+        this.configureItem(this.getTopToolbar(), "button_delete", this.actionDeleteUrl, this.onDeleteRecord);
+        this.configureItem(this.getTopToolbar(), "button_refresh", this.actionDataUrl, this.refreshStore);
+
+        // настроим меню в зависимости от переданных адресов
+        var params = this.params || {};
+        if (params.contextMenu) {
+            this.configureItem(params.contextMenu, "menuitem_new", this.actionNewUrl, this.onNewRecord);
+            this.configureItem(params.contextMenu, "menuitem_edit", this.actionEditUrl, this.onEditRecord);
+            this.configureItem(params.contextMenu, "menuitem_delete", this.actionDeleteUrl, this.onDeleteRecord);
         }
-        var refresh_item = this.getTopToolbar().getComponent("button_refresh");
-        if (refresh_item) {
-            if (!this.actionDataUrl) {
-                refresh_item.hide();
-            }
-            if (!refresh_item.handler) {
-                refresh_item.setHandler(this.refreshStore, this);
-            }
+        if (params.rowContextMenu) {
+            this.configureItem(params.rowContextMenu, "menuitem_new", this.actionNewUrl, this.onNewRecord);
+            this.configureItem(params.rowContextMenu, "menuitem_edit", this.actionEditUrl, this.onEditRecord);
+            this.configureItem(params.rowContextMenu, "menuitem_delete", this.actionDeleteUrl, this.onDeleteRecord);
         }
 
         var store = this.getStore();
