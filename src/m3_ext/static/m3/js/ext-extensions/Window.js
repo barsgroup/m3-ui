@@ -32,7 +32,7 @@ Ext.m3.Window = Ext.extend(Ext.Window, {
     initTools: function(){
         if (this.m3HelpTopic){
             var m3HelpTopic = this.m3HelpTopic;
-            this.addTool({id: 'help', handler:function(){ showHelpWindow(m3HelpTopic);}});
+            this.addTool({id: 'help', handler: function(){ showHelpWindow(m3HelpTopic);}});
         }
         Ext.m3.Window.superclass.initTools.call(this);
     }

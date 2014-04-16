@@ -46,7 +46,7 @@ var ajax = Ext.Ajax;
 			var tree = Ext.getCmp('{{ component.tree.client_id}}');
 			if (!isTreeSelected(tree, 'Новый', 'Выберите элемент в дереве!') ) {
 				return;
-			};
+			}
 			params = Ext.applyIf({ '{{ component.contextTreeIdName }}': tree.getSelectionModel().getSelectedNode().id},{% if component.action_context %}{{component.action_context.json|safe}}{% else %}{}{% endif %});
 		{%endif%}
 

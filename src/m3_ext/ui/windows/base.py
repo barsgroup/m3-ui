@@ -19,6 +19,11 @@ class BaseExtWindow(ExtUIComponent):
     ALIGN_RIGHT = align_right = 'right'
 
 
+    # FIXME: перенести parentWindowID и action_context
+    # FIXME: перенести close_action
+    # FIXME: перенести t_render_keys, сейчас будет неправильно работать
+    # FIXME: вернуть функцию find_by_name
+
     js_attrs = ExtUIComponent.js_attrs.extend(
         'title',
         'modal',
@@ -67,6 +72,8 @@ class BaseExtWindow(ExtUIComponent):
         self.setdefault('draggable', True)
         self.setdefault('resizable', True)
 
+
+    # FIXME: Перенести параметр help_topic
     # def _help_topic_full_path(self):
     #     """
     #     Возвращает квалицифирующее имя топика помощи
