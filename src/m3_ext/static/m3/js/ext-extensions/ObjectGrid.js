@@ -3,7 +3,7 @@
  */
 
 
-var baseObjectGrid = {
+Ext.m3.BaseObjectGrid = {
     /**
      * Настройка объектного грида по расширенному конфигу из параметров
      */
@@ -455,7 +455,7 @@ var baseObjectGrid = {
 };
 
 Ext.m3.ObjectGrid = Ext.extend(Ext.m3.GridPanel,
-    Ext.applyIf(baseObjectGrid, {
+    Ext.applyIf(Ext.m3.BaseObjectGrid, {
         initComponent: function(){
             this.configureObjectGrid();
             Ext.m3.ObjectGrid.superclass.initComponent.call(this);
@@ -465,7 +465,7 @@ Ext.m3.ObjectGrid = Ext.extend(Ext.m3.GridPanel,
 );
 
 Ext.m3.EditorObjectGrid = Ext.extend(Ext.m3.EditorGridPanel,
-    Ext.applyIf(baseObjectGrid, {
+    Ext.applyIf(Ext.m3.BaseObjectGrid, {
         initComponent: function(){
             this.configureObjectGrid();
             Ext.m3.EditorObjectGrid.superclass.initComponent.call(this);

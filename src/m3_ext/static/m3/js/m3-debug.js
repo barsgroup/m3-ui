@@ -3990,54 +3990,35 @@ Ext.reg('m3-combobox', Ext.m3.ComboBox);
  * @param {Object} config
  */
 
-var baseM3Grid = {
+Ext.m3.BaseM3Grid = {
     /**
      * Настройка грида по расширенному конфигу из параметров
      */
-    configureM3Grid: function () {
+    configureGrid: function () {
         var params = this.params || {};
-
         // Создание ColumnModel если надо
-        var colModel = this.cm;
-        if (colModel) {
-            // раньше был экземпляр ColModel, теперь приходи конфиг
-            if (!(colModel instanceof Ext.grid.ColumnModel)) {
-                colModel = Ext.create(colModel);
-            }
-            delete this.cm;
-            this.colModel = colModel;
+        // раньше был экземпляр ColModel, теперь приходи конфиг
+        if (this.cm && !(this.cm instanceof Ext.grid.ColumnModel)) {
+            this.cm = Ext.create(this.cm);
         }
 
         // Добавлене selection model если нужно
-        var selModel = this.sm;
-        if (selModel) {
-            // раньше был экземпляр SelModel, теперь приходи конфиг
-            if (!(selModel instanceof Ext.grid.AbstractSelectionModel)) {
-                selModel = Ext.create(selModel);
+        // раньше был экземпляр SelModel, теперь приходи конфиг
+        if (this.sm && !(this.sm instanceof Ext.grid.AbstractSelectionModel)) {
+            this.sm = Ext.create(this.sm);
+        }
+
+        // если это чекбоксы, то добавим колонку
+        if (this.sm instanceof Ext.grid.CheckboxSelectionModel) {
+            if (this.columns) {
+                this.columns.unshift(this.sm);
             }
-            // если это чекбоксы, то добавим колонку
-            if (selModel instanceof Ext.grid.CheckboxSelectionModel) {
-                if (this.colModel) {
-                    this.colModel.columns.unshift(selModel);
-                } else {
-                    if (this.columns) {
-                        this.columns.unshift(selModel);
-                    }
-                }
-            }
-            delete this.sm;
-            this.sm = selModel;
         }
 
         // Создание GridView если надо
-        var view = this.view;
-        if (view) {
-            // раньше был экземпляр GridView, теперь приходи конфиг
-            if (!(view instanceof Ext.grid.GridView)) {
-                view = Ext.create(view);
-            }
-            delete this.view;
-            this.view = view;
+        // раньше был экземпляр GridView, теперь приходи конфиг
+        if (this.view && !(this.view instanceof Ext.grid.GridView)) {
+            this.view = Ext.create(this.view);
         }
 
         // Навешивание обработчиков на контекстное меню если нужно
@@ -4129,7 +4110,7 @@ var baseM3Grid = {
     /**
      * Инициализация грида после создания
      */
-    ,initM3Grid: function () {
+    ,initGrid: function () {
         var store = this.getStore();
 		store.on('exception', this.storeException, this);
     }
@@ -4154,21 +4135,21 @@ var baseM3Grid = {
 };
 
 Ext.m3.GridPanel = Ext.extend(Ext.grid.GridPanel,
-    Ext.applyIf(baseM3Grid, {
+    Ext.applyIf(Ext.m3.BaseM3Grid, {
         initComponent: function() {
-            this.configureM3Grid();
+            this.configureGrid();
             Ext.m3.GridPanel.superclass.initComponent.call(this);
-            this.initM3Grid();
+            this.initGrid();
         }
     })
 );
 
 Ext.m3.EditorGridPanel = Ext.extend(Ext.grid.EditorGridPanel,
-    Ext.applyIf(baseM3Grid, {
+    Ext.applyIf(Ext.m3.BaseM3Grid, {
         initComponent: function() {
-            this.configureM3Grid();
+            this.configureGrid();
             Ext.m3.EditorGridPanel.superclass.initComponent.call(this);
-            this.initM3Grid();
+            this.initGrid();
         }
     })
 );
@@ -12408,7 +12389,7 @@ Ext.ux.Notification = Ext.extend(Ext.Window, {
  */
 
 
-var baseObjectGrid = {
+Ext.m3.BaseObjectGrid = {
     /**
      * Настройка объектного грида по расширенному конфигу из параметров
      */
@@ -12860,7 +12841,7 @@ var baseObjectGrid = {
 };
 
 Ext.m3.ObjectGrid = Ext.extend(Ext.m3.GridPanel,
-    Ext.applyIf(baseObjectGrid, {
+    Ext.applyIf(Ext.m3.BaseObjectGrid, {
         initComponent: function(){
             this.configureObjectGrid();
             Ext.m3.ObjectGrid.superclass.initComponent.call(this);
@@ -12870,7 +12851,7 @@ Ext.m3.ObjectGrid = Ext.extend(Ext.m3.GridPanel,
 );
 
 Ext.m3.EditorObjectGrid = Ext.extend(Ext.m3.EditorGridPanel,
-    Ext.applyIf(baseObjectGrid, {
+    Ext.applyIf(Ext.m3.BaseObjectGrid, {
         initComponent: function(){
             this.configureObjectGrid();
             Ext.m3.EditorObjectGrid.superclass.initComponent.call(this);
