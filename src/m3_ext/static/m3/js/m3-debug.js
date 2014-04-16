@@ -6243,7 +6243,7 @@ Ext.m3.Window = Ext.extend(Ext.Window, {
     initTools: function(){
         if (this.m3HelpTopic){
             var m3HelpTopic = this.m3HelpTopic;
-            this.addTool({id: 'help', handler:function(){ showHelpWindow(m3HelpTopic);}});
+            this.addTool({id: 'help', handler: function(){ showHelpWindow(m3HelpTopic);}});
         }
         Ext.m3.Window.superclass.initTools.call(this);
     }
@@ -7568,6 +7568,16 @@ Ext.m3.AdvancedDataField = Ext.extend(Ext.form.DateField, {
 
 Ext.reg('m3-date', Ext.m3.AdvancedDataField);
 
+/**
+ * Created by prefer on 16/04/14.
+ */
+
+Ext.m3.DictionaryWindow = Ext.extend(Ext.m3.Window , {
+
+
+});
+
+Ext.reg('m3-dictionary-window', Ext.m3.DictionaryWindow);
 /**
  * Окно на базе Ext.m3.Window, которое включает такие вещи, как:
  * 1) Submit формы, если она есть;
@@ -12446,6 +12456,7 @@ var baseObjectGrid = {
             if (!edit_item.handler) {
                 edit_item.setHandler(this.onEditRecord, this);
             }
+            this.on('dblclick', edit_item.handler);
         }
         var delete_item = this.getTopToolbar().getComponent("button_delete");
         if (delete_item) {

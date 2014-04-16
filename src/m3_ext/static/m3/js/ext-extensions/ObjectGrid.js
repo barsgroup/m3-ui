@@ -51,6 +51,7 @@ var baseObjectGrid = {
             if (!edit_item.handler) {
                 edit_item.setHandler(this.onEditRecord, this);
             }
+            this.on('dblclick', edit_item.handler);
         }
         var delete_item = this.getTopToolbar().getComponent("button_delete");
         if (delete_item) {

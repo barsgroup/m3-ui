@@ -8,7 +8,8 @@ from m3 import M3JSONEncoder as _M3JSONEncoder
 from m3.actions import (
     ActionResult as _ActionResult,
     BaseContextedResult as _BaseContextedResult,
-    ControllerCache)
+    ControllerCache,
+    urls)
 
 from m3.actions.results import PreJsonResult as _PreJsonResult
 
@@ -55,6 +56,18 @@ class UIJsonEncoder(_M3JSONEncoder):
         elif hasattr(obj, 'columns') and hasattr(obj, 'store'):
             fields = [obj.store.id_property] + [col.data_index for col in obj.columns]
             obj.store.setdefault('fields', fields)
+
+        # для ObjectGrid надо проставлять url из экшенов
+        if class_name == 'ExtObjectGrid':
+            # Адреса имеют приоритет над экшенами!
+            if (not hasattr(obj, 'url_new') or not obj.url_new) and obj.action_new:
+                obj.url_new = urls.get_url(obj.action_new)
+            if (not hasattr(obj, 'url_edit') or not obj.url_edit) and obj.action_edit:
+                obj.url_edit = urls.get_url(obj.action_edit)
+            if (not hasattr(obj, 'url_delete') or not obj.url_delete) and obj.action_delete:
+                obj.url_delete = urls.get_url(obj.action_delete)
+            if (not hasattr(obj, 'url_data') or not obj.url_data) and obj.action_data:
+                obj.url_data = urls.get_url(obj.action_data)
 
         return obj
 

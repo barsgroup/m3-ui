@@ -113,23 +113,17 @@ class ExtObjectGrid(containers.ExtGrid):
         # Действия, выполняемые изнутри грида
         #======================================================================
 
-        #Адреса имеют приоритет над экшенами!
-
         # Экшен для новой записи
-        self.action_new = None
+        self.setdefault('action_new', None)
 
         # Экшен для  изменения
-        self.action_edit = None
+        self.setdefault('action_edit', None)
 
         # Экшен для удаления
-        self.action_delete = None
+        self.setdefault('action_delete', None)
 
         # Экшен для данных
-        self.action_data = None
-
-        # Флаг о состоянии грида.
-        # True означает что грид предназначен только для чтения.
-        self.read_only = False
+        self.setdefault('action_data', None)
 
         #======================================================================
         # Источник данных для грида
@@ -162,9 +156,7 @@ class ExtObjectGrid(containers.ExtGrid):
         # Paging бар для постраничной навигации
         self.setdefault('paging_bar', containers.ExtPagingBar())
 
-        # Обработчик двойного клика
-        self.dblclick_handler = 'onEditRecord'
-
+        # Признак локального редактирования
         self.setdefault('local_edit', False)
 
         # Атрибут store из store baseParams вынесен,
