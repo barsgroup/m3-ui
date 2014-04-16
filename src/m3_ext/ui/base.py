@@ -181,6 +181,11 @@ class BaseExtComponent(object):
                 super(BaseExtComponent, self).__setattr__(attr, value)
             return
 
+        if attr in self.deprecated_attrs:
+            # предупреждение об устаревших атрибутах
+            warn("\"%s.%s\" is deprecated!" % (self.__class__.__name__, attr),
+                 UserWarning, stacklevel=2)
+
         if self.js_attrs.maps(attr):
             conf = super(BaseExtComponent, self).__getattribute__('_config')
             conf[attr] = value
@@ -192,9 +197,6 @@ class BaseExtComponent(object):
             # компонентам проставляется itemId
             if isinstance(value, BaseExtComponent):
                 value.item_id = attr
-        elif attr in self.deprecated_attrs:
-            # предупреждение об устаревших атрибутах
-            warn("\"%s\" is deprecated!" % attr, UserWarning, stacklevel=2)
         else:
             # всё прочее
             data = super(BaseExtComponent, self).__getattribute__('_data')

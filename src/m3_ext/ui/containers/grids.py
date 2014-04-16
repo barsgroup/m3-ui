@@ -229,8 +229,19 @@ class BaseExtGridColumn(BaseExtComponent):
         'fixed',  # Запрет на изменение ширины колонки
         'locked',  # Признак зафиксированности колонки, use вместе с ExtGridLockingView и ExtGridLockingColumnModel
         'colspan',  # продолжительность для группировочной колонки
+        'hideable',  # Возможность скрываться
+        'groupable',  # Возможность группироваться, только для таблиц с группировкой
+        'filter',  # Компонент фильтра
+        'css',  # Класс стиля
         data_index='dataIndex',  # Уникальное название колонки в пределах column model
         menu_disabled='menuDisabled',
+        summary_type='summaryType',  # Тип группировки: "sum", "count"..., только для таблиц с группировкой
+        name_field='nameField',  # Имя поля для расшифровки, только для таблиц с группировкой
+    )
+
+    # кортеж атрибутов, которые считаются устаревшими
+    deprecated_attrs = BaseExtComponent.deprecated_attrs + (
+        'extra',  # перенести в обычные атрибуты колонки
     )
 
     def __init__(self, *args, **kwargs):
@@ -241,9 +252,9 @@ class BaseExtGridColumn(BaseExtComponent):
         self.setdefault('locked', False)
         self.setdefault('menu_disabled', False)
 
-        # FIXME: придумать как избавиться от этого
+        # FIXME: будет удалено
         # дополнительные атрибуты колонки
-        self.extra = {}
+        self.setdefault('extra', {})
 
     def _make_read_only(
             self, access_off=True, exclude_list=(), *args, **kwargs):

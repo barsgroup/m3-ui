@@ -79,6 +79,10 @@ class UIJsonEncoder(_M3JSONEncoder):
                 obj.paging_bar.page_size = obj.limit
                 obj.bottom_bar = obj.paging_bar
 
+        # для контролов, которые еще используют extra
+        if hasattr(obj, 'extra') and isinstance(obj.extra, dict):
+            obj._config.update(obj.extra)
+
         return obj
 
 
