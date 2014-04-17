@@ -2,19 +2,19 @@
  * Здесь нужно перегружать объекты и дополнять функционал.
  * Этот файл подключается последним.
  */
- 
+
 /**
- * Нужно для правильной работы окна 
+ * Нужно для правильной работы окна
  */
 Ext.onReady(function(){
 	Ext.override(Ext.Window, {
-	
+
 	  /*
 	   *  Если установлена модальность и есть родительское окно, то
-	   *  флаг модальности помещается во временную переменную tmpModal, и 
+	   *  флаг модальности помещается во временную переменную tmpModal, и
 	   *  this.modal = false;
 	   */
-	  tmpModal: false 
+	  tmpModal: false
 	  ,manager: new Ext.WindowGroup()
 	  // 2011.01.14 kirov
 	  // убрал, т.к. совместно с desktop.js это представляет собой гремучую смесь
@@ -23,48 +23,48 @@ Ext.onReady(function(){
 	  ,constrain: true
 	  /**
 	   * Выводит окно на передний план
-	   * Вызывается в контексте дочернего 
+	   * Вызывается в контексте дочернего
 	   * по отношению к parentWindow окну
 	   */
 	  ,activateChildWindow: function(){
 	    this.toFront();
 	  }
 	  ,listeners: {
-	
+
 	    'beforeshow': function (){
-                var renderTo = Ext.get(this.renderTo); 
+                var renderTo = Ext.get(this.renderTo);
                 if ( renderTo ) {
-                    if (renderTo.getHeight() < this.getHeight() ) 
+                    if (renderTo.getHeight() < this.getHeight() )
                         this.setHeight( renderTo.getHeight() );
                 }
-				
+
 				if (this.parentWindow) {
-					
+
 					this.parentWindow.setDisabled(true);
-					
+
 					/*
 					 * В Extjs 3.3 Добавили общую проверку в функцию mask, см:
 					 *  if (!(/^body/i.test(dom.tagName) && me.getStyle('position') == 'static')) {
 	                    	me.addClass(XMASKEDRELATIVE);
 	               		 }
-					 * 
-					 * было до версии 3.3: 
+					 *
+					 * было до версии 3.3:
 					 *  if(!/^body/i.test(dom.tagName) && me.getStyle('position') == 'static'){
 		            		me.addClass(XMASKEDRELATIVE);
 		        		}
 					 * Теперь же расположение замаскированых окон должно быть относительным
 					 * (relative) друг друга
-					 * 
+					 *
 					 * Такое поведение нам не подходит и другого решения найдено не было.
 					 * Кроме как удалять данный класс
 					 * */
 					this.parentWindow.el.removeClass('x-masked-relative');
-	
+
 					this.parentWindow.on('activate', this.activateChildWindow, this);
-					
+
 					this.modal = false;
 					this.tmpModal = true;
-	                
+
 					if (window.AppDesktop) {
 						var el = AppDesktop.getDesktop().taskbar.tbPanel.getTabWin(this.parentWindow);
 						if (el) {
@@ -84,11 +84,11 @@ Ext.onReady(function(){
 				}
 			}
 			,'close': function (){
-				if (this.tmpModal && this.parentWindow) {			
+				if (this.tmpModal && this.parentWindow) {
 					this.parentWindow.un('activate', this.activateChildWindow, this);
 					this.parentWindow.setDisabled(false);
 					this.parentWindow.toFront();
-	
+
 					if (window.AppDesktop) {
 						var el = AppDesktop.getDesktop().taskbar.tbPanel.getTabWin(this.parentWindow);
 						if (el) {
@@ -96,7 +96,7 @@ Ext.onReady(function(){
 						}
 					}
 				}
-	
+
 				if (this.modal){
 	 				var taskbar = Ext.get('ux-taskbar');
 					if (taskbar) {
@@ -123,20 +123,20 @@ Ext.onReady(function(){
 				}
 			}
 		}
-	}); 
+	});
 })
 /**
  * Обновим TreeGrid чтобы колонки занимали всю ширину дерева
  */
 Ext.override(Ext.ux.tree.TreeGrid, {
-	
+
 	// добавлено
 	fitColumns: function() {
         var nNewTotalWidth = this.getInnerWidth() - Ext.num(this.scrollOffset, Ext.getScrollBarWidth());
         var nOldTotalWidth = this.getTotalColumnWidth();
         var cs = this.getVisibleColumns();
         var n, nUsed = 0;
-        
+
         for (n = 0; n < cs.length; n++) {
             if (n == cs.length - 1) {
                 cs[n].width = nNewTotalWidth - nUsed - 1;
@@ -145,13 +145,13 @@ Ext.override(Ext.ux.tree.TreeGrid, {
             cs[n].width = Math.floor((nNewTotalWidth / 100) * (cs[n].width * 100 / nOldTotalWidth)) - 1;
             nUsed += cs[n].width;
         }
-        
+
         this.updateColumnWidths();
     },
 	// <--
 	onResize : function(w, h) {
         Ext.ux.tree.TreeGrid.superclass.onResize.apply(this, arguments);
-        
+
         var bd = this.innerBody.dom;
         var hd = this.innerHd.dom;
 
@@ -163,7 +163,7 @@ Ext.override(Ext.ux.tree.TreeGrid, {
             bd.style.height = this.body.getHeight(true) - hd.offsetHeight + 'px';
         }
 
-        if(Ext.isNumber(w)){                        
+        if(Ext.isNumber(w)){
             var sw = Ext.num(this.scrollOffset, Ext.getScrollBarWidth());
             if(this.reserveScrollOffset || ((bd.offsetWidth - bd.clientWidth) > 10)){
                 this.setScrollOffset(sw);
@@ -176,21 +176,21 @@ Ext.override(Ext.ux.tree.TreeGrid, {
         }
 		this.fitColumns(); // добавилась/заменила
     }
-}); 
+});
 
 Ext.override(Ext.tree.ColumnResizer, {
 
     onEnd : function(e){
         var nw = this.proxy.getWidth(),
             tree = this.tree;
-        
+
         this.proxy.remove();
         delete this.dragHd;
-        
+
         tree.columns[this.hdIndex].width = nw;
         //tree.updateColumnWidths(); // закомментировано
 		tree.fitColumns();			// добавлено
-        
+
         setTimeout(function(){
             tree.headersDisabled = false;
         }, 100);
@@ -210,7 +210,7 @@ Ext.override(Ext.tree.TreeNodeUI, {
             if(this.checkbox){
                 this.toggleCheck();
             }
-			// закомментировано. 
+			// закомментировано.
             //if(!this.animating && this.node.isExpandable()){
             //    this.node.toggle();
             //}
@@ -291,7 +291,7 @@ Ext.override(Ext.form.Checkbox, {
 
 /**
  * Раньше нельзя было перейти на конкретную страницу в движках webkit. Т.к.
- * Событие PagingBlur наступает раньше pagingChange, и обновлялась текущая 
+ * Событие PagingBlur наступает раньше pagingChange, и обновлялась текущая
  * страница, т.к. PagingBlur обновляет индекс.
  */
 Ext.override(Ext.PagingToolbar, {
@@ -316,11 +316,11 @@ if  (Ext.isIE7 || Ext.isIE6) {
         }
         }
     });
-}    
-    
+}
+
 /**
  * добавим поддержку чекбоксов по аналогии с TreePanel
- * чек боксы включаются просто передачей checked в сторе 
+ * чек боксы включаются просто передачей checked в сторе
  */
 Ext.override(Ext.ux.tree.TreeGridNodeUI, {
     renderElements : function(n, a, targetNode, bulkRender){
@@ -390,10 +390,10 @@ Ext.override(Ext.ux.tree.TreeGridNodeUI, {
         this.textNode = cs[index].firstChild;
     }
 });
-    
+
 /**
  * добавим поддержку чекбоксов по аналогии с TreePanel
- * чек боксы включаются просто передачей checked в сторе 
+ * чек боксы включаются просто передачей checked в сторе
  */
 Ext.override(Ext.ux.tree.TreeGrid, {
 
@@ -458,8 +458,10 @@ var setReadOnlyField = Ext.form.Field.prototype.setReadOnly.bind({});
 var restoreClass = function(readOnly){
     if(readOnly) {
         this.addClass('m3-grey-field');
+        this.el.dom.setAttribute('readonly', '');
     } else {
         this.removeClass('m3-grey-field');
+        this.el.dom.removeAttribute('readonly');
     }
 };
 
