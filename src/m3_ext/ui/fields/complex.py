@@ -137,6 +137,7 @@ class ExtFileUploadField(BaseExtField):
         file_url='fileUrl',
         possible_file_extensions='possibleFileExtensions',
         prefix='prefixUploadField',
+        read_only='readOnlyButton',
 
     )
 

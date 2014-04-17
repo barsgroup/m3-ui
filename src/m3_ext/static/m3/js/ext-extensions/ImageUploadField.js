@@ -26,24 +26,27 @@ Ext.ux.form.ImageUploadField = Ext.extend(Ext.form.FileUploadField, {
     initComponent: function () {
         Ext.ux.form.ImageUploadField.superclass.initComponent.call(this);
 
-        var mass = this.fileUrl.split('/');
-        var dir = mass.slice(0, mass.length - 1);
-        var file_name = mass[mass.length - 1];
-        var prefix = this.prefixThumbnailImg || '';
-        var url = String.format('{0}/{1}{2}', dir.join('/'), prefix, file_name);
-
         if (this.fileUrl) {
-            this.previewTip = new Ext.QuickTip({
-                id: 'preview_tip_window',
-                html: String.format('<a href="{0}" rel="lightbox"><image src="{1}" WIDTH={2} HEIGHT={3} OnClick=Ext.getCmp("preview_tip_window").hide()></a>',
-                    this.fileUrl,
-                    this.getFileUrl(url),
-                    this.thumbnailSize[0],
-                    this.thumbnailSize[1]),
-                autoHide: false,
-                width: this.thumbnailSize[0] + 10,
-                height: this.thumbnailSize[1] + 10
-            });
+
+            var mass = this.fileUrl.split('/');
+            var dir = mass.slice(0, mass.length - 1);
+            var fileName = mass[mass.length - 1];
+            var prefix = this.prefixThumbnailImg || '';
+            var url = String.format('{0}/{1}{2}', dir.join('/'), prefix, fileName);
+
+            if (this.fileUrl) {
+                this.previewTip = new Ext.QuickTip({
+                    id: 'preview_tip_window',
+                    html: String.format('<a href="{0}" rel="lightbox"><image src="{1}" WIDTH={2} HEIGHT={3} OnClick=Ext.getCmp("preview_tip_window").hide()></a>',
+                        this.fileUrl,
+                        this.getFileUrl(url),
+                        this.thumbnailSize[0],
+                        this.thumbnailSize[1]),
+                    autoHide: false,
+                    width: this.thumbnailSize[0] + 10,
+                    height: this.thumbnailSize[1] + 10
+                });
+            }
         }
     },
     renderHelperBtn: function () {

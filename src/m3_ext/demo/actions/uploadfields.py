@@ -19,8 +19,8 @@ class UploadFieldsAction(UIAction):
                                resizable=False)
 
         window.items.extend([
-            ext.ExtFileUploadField(anchor='99%'),
-            ext.ExtImageUploadField(anchor='99%')
+            ext.ExtFileUploadField(label=u'Выбор файла', anchor='99%'),
+            ext.ExtImageUploadField(label=u'Выбор картинки', anchor='99%')
         ])
 
         return window

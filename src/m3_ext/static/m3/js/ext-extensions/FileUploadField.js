@@ -6,6 +6,9 @@ Ext.ux.form.FileUploadField = Ext.extend(Ext.form.TextField, {
      * @cfg {Object} buttonCfg A standard {@link Ext.Button} config object.
      */
 
+    // По-умолчанию контрол в режиме read-only, за исключением кнопки выбора файла
+    readOnlyButton: false,
+
     // private
     readOnly: true,
 
@@ -96,7 +99,7 @@ Ext.ux.form.FileUploadField = Ext.extend(Ext.form.TextField, {
         this.bindListeners();
         this.resizeEl = this.positionEl = this.wrap;
 
-        if (this.readOnly) {
+        if (this.readOnlyButton) {
             this.buttonFile.setDisabled(true);
             // Перекрывает невидимый индекс
             this.buttonFile.getEl().setStyle('z-index', 3);
