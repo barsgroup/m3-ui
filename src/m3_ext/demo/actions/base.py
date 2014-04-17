@@ -15,8 +15,10 @@ class Pack(ActionPack):
 
     def __init__(self):
         super(Pack, self).__init__()
-        for a in self.action_classses:
-            self.actions.append(a())
+        for cls in self.action_classses:
+            action = cls()
+            setattr(self, cls.__name__.lower(), action)
+            self.actions.append(action)
 
     def extend_menu(self, menu):
         return tuple(
