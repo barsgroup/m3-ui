@@ -12,3 +12,4 @@ from searchfield import *
 from uploadfields import *
 from conteintertable import *
 from objectgrid import *
+from trees import *
