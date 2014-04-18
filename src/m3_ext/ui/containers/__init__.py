@@ -16,7 +16,7 @@ from grids import (ExtGrid,
                    ExtGridCheckBoxSelModel,
                    ExtGridRowSelModel,
                    ExtGridCellSelModel, )
-from trees import ExtTree, ExtTreeNode
+from trees import ExtTree
 from containers import (ExtContainer,
                         ExtToolBar,
                         ExtPagingBar,

@@ -53,34 +53,35 @@ class UIJsonEncoder(_M3JSONEncoder):
                 obj.setdefault('edit_url', pack.get_edit_url())  # url формы редактирования элемента
                 obj.setdefault('autocomplete_url', pack.get_autocomplete_url())  # url автокомплита и данных
 
+        # Для гридов
         elif hasattr(obj, 'columns') and hasattr(obj, 'store'):
             fields = [obj.store.id_property] + [col.data_index for col in obj.columns]
             obj.store.setdefault('fields', fields)
 
-        # для ObjectGrid надо проставлять url из экшенов
-        if class_name == 'ExtObjectGrid':
-            # Адреса имеют приоритет над экшенами!
-            if (not hasattr(obj, 'url_new') or not obj.url_new) and obj.action_new:
-                obj.url_new = urls.get_url(obj.action_new)
-            if (not hasattr(obj, 'url_edit') or not obj.url_edit) and obj.action_edit:
-                obj.url_edit = urls.get_url(obj.action_edit)
-            if (not hasattr(obj, 'url_delete') or not obj.url_delete) and obj.action_delete:
-                obj.url_delete = urls.get_url(obj.action_delete)
-            if (not hasattr(obj, 'url_data') or not obj.url_data) and obj.action_data:
-                obj.url_data = urls.get_url(obj.action_data)
+            # для ObjectGrid надо проставлять url из экшенов
+            if class_name == 'ExtObjectGrid':
+                # Адреса имеют приоритет над экшенами!
+                if (not hasattr(obj, 'url_new') or not obj.url_new) and obj.action_new:
+                    obj.url_new = urls.get_url(obj.action_new)
+                if (not hasattr(obj, 'url_edit') or not obj.url_edit) and obj.action_edit:
+                    obj.url_edit = urls.get_url(obj.action_edit)
+                if (not hasattr(obj, 'url_delete') or not obj.url_delete) and obj.action_delete:
+                    obj.url_delete = urls.get_url(obj.action_delete)
+                if (not hasattr(obj, 'url_data') or not obj.url_data) and obj.action_data:
+                    obj.url_data = urls.get_url(obj.action_data)
 
-            # Если store не экземпляр ExtJsonStore,
-            # то у него нет атрибута limit
-            if hasattr(obj.store, 'limit'):
-                obj.store.limit = obj.limit
+                # Если store не экземпляр ExtJsonStore,
+                # то у него нет атрибута limit
+                if hasattr(obj.store, 'limit'):
+                    obj.store.limit = obj.limit
 
-            # Настройка постраничного просмотра
-            if obj.allow_paging:
-                obj.paging_bar.page_size = obj.limit
-                obj.bottom_bar = obj.paging_bar
+                # Настройка постраничного просмотра
+                if obj.allow_paging:
+                    obj.paging_bar.page_size = obj.limit
+                    obj.bottom_bar = obj.paging_bar
 
         # для контролов, которые еще используют extra
-        if hasattr(obj, 'extra') and isinstance(obj.extra, dict):
+        elif hasattr(obj, 'extra') and isinstance(obj.extra, dict):
             obj._config.update(obj.extra)
 
         return obj
