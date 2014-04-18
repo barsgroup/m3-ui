@@ -268,6 +268,7 @@ class ExtMultiGroupinGrid(containers.ExtGrid):
         url_edit='params.actions.editUrl',  # Адрес для изменения
         url_delete='params.actions.deleteUrl',  # Адрес для удаления
         url_data='params.actions.dataUrl',  # Адрес для данных
+        url_export='params.actions.exportUrl',  # Адрес для выгрузки
         buffer_size='viewConfig.bufferSize',
         near_limit='viewConfig.nearLimit',
         data_id_field='params.dataIdField',
@@ -292,13 +293,20 @@ class ExtMultiGroupinGrid(containers.ExtGrid):
         # Поля группировки по-умолчанию (список имен полей)
         self.setdefault('grouped', [])
 
-        # Для данных
-        self.action_data = None
+        # Экшен для новой записи
+        self.setdefault('action_new', None)
 
-        self.action_new = None  # Экшен для новой записи
-        self.action_edit = None  # Экшен для  изменения
-        self.action_delete = None  # Экшен для удаления
-        self.action_export = None  # Экшен для экспорта
+        # Экшен для  изменения
+        self.setdefault('action_edit', None)
+
+        # Экшен для удаления
+        self.setdefault('action_delete', None)
+
+        # Экшен для данных
+        self.setdefault('action_data', None)
+
+        # Экшен для экспорта
+        self.setdefault('action_export', None)
 
         # Поля для id записи
         self.setdefault('row_id_name', 'row_id')
@@ -344,75 +352,6 @@ class ExtMultiGroupinGrid(containers.ExtGrid):
 
         # Url для пака
         self.url_data = self.url_new = self.url_edit = self.url_delete = None
-
-    def render(self):
-        self.store.url = self.store.url or self.url_data
-
-        assert self.store.url or self.action_data, 'Action data is not defined'
-        # тонкая настройка self.store
-        if not self.store.url and self.action_data:
-            self.store.url = get_url(self.action_data)
-
-        self.render_base_config()
-        self.render_params()
-        return render_component(self)
-
-    def render_base_config(self):
-        # Добавление происходит перед вызовом родителя,
-        # т.к. в нём _view_config уже будет сериализован
-        if self.header_style:
-            self._view_config['headerStyle'] = self.header_style
-        super(ExtMultiGroupinGrid, self).render_base_config()
-
-    def render_params(self):
-        super(ExtMultiGroupinGrid, self).render_params()
-
-        data_url = self.url_data or (get_url(
-            self.action_data) if self.action_data else None)
-
-        def remove(this):
-            if this in self._top_bar.items:
-                self._top_bar.items.remove(this)
-
-        new_url = self.url_new or (get_url(
-            self.action_new) if self.action_new else None)
-        if not new_url:
-            remove(self._top_bar.button_new)
-
-        edit_url = self.url_edit or (get_url(
-            self.action_edit) if self.action_edit else None)
-        if not edit_url:
-            remove(self._top_bar.button_edit)
-        else:
-            self.handler_dblclick = self.dblclick_handler
-
-        delete_url = self.url_delete or (get_url(
-            self.action_delete) if self.action_delete else None)
-        if not delete_url:
-            remove(self._top_bar.button_delete)
-
-        export_url = get_url(
-            self.action_export) if self.action_export else None
-        if not self.action_export:
-            remove(self._top_bar.button_export)
-        context_json = (
-            self.action_context.json if self.action_context else None)
-
-        for args in (
-            (
-                'actions',
-                {
-                    'dataUrl': data_url,
-                    'newUrl': new_url,
-                    'editUrl': edit_url,
-                    'deleteUrl': delete_url,
-                    'exportUrl': export_url,
-                    'contextJson': context_json
-                }
-            ),
-            ('toolbar', self._top_bar.t_render_items),
-        ):
-            self._put_params_value(*args)
 
     @property
     def handler_beforenew(self):

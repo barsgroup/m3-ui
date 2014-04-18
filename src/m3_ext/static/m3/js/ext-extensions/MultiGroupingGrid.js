@@ -769,6 +769,7 @@ Ext.m3.MultiGroupingGridPanel = Ext.extend(Ext.ux.grid.livegrid.GridPanel, Ext.a
         this.actionEditUrl = params.actions.editUrl;
         this.actionDeleteUrl = params.actions.deleteUrl;
         this.actionDataUrl = params.actions.dataUrl;
+        this.actionExportUrl = params.actions.exportUrl;
         this.actionContextJson = params.actions.contextJson;
         // признак клиентского редактирования
         this.localEdit = params.localEdit;
@@ -819,6 +820,7 @@ Ext.m3.MultiGroupingGridPanel = Ext.extend(Ext.ux.grid.livegrid.GridPanel, Ext.a
         }
         this.configureItem(this.getTopToolbar(), "button_delete", this.actionDeleteUrl, this.onDeleteRecord);
         this.configureItem(this.getTopToolbar(), "button_refresh", this.actionDataUrl, this.refreshStore);
+        this.configureItem(this.getTopToolbar(), "button_export", this.actionExportUrl, this.exportData);
 
         // настроим меню в зависимости от переданных адресов
         if (params.contextMenu) {

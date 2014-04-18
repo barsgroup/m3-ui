@@ -70,6 +70,11 @@ class UIJsonEncoder(_M3JSONEncoder):
                 if (not hasattr(obj, 'url_data') or not obj.url_data) and obj.action_data:
                     obj.url_data = urls.get_url(obj.action_data)
 
+                if class_name == 'ExtMultiGroupinGrid':
+                    if (not hasattr(obj, 'url_export') or
+                            not obj.url_export) and obj.action_export:
+                        obj.url_export = urls.get_url(obj.action_export)
+
                 # store надо обязательно проставить url
                 if obj.url_data:
                     obj.store.url = obj.url_data

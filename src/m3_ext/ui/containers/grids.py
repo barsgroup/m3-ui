@@ -57,7 +57,8 @@ class ExtGrid(BaseExtPanel):
         force_fit='viewConfig.forceFit',  # Разворачивать колонки грида по всей ширине (True)
         show_preview='viewConfig.showPreview',
         enable_row_body='viewConfig.enableRowBody',
-        banded_columns='params.bandedColumns'  # Группировочные колонки
+        banded_columns='params.bandedColumns',  # Группировочные колонки
+        header_style='viewConfig.headerStyle',
     )
 
     deprecated_attrs = BaseExtPanel.deprecated_attrs + (
