@@ -58,8 +58,8 @@ class UIJsonEncoder(_M3JSONEncoder):
             fields = [obj.store.id_property] + [col.data_index for col in obj.columns]
             obj.store.setdefault('fields', fields)
 
-            # для ObjectGrid надо проставлять url из экшенов
-            if class_name == 'ExtObjectGrid':
+            # для ObjectGrid и ExtMultiGroupinGrid надо проставлять url из экшенов
+            if class_name == 'ExtMultiGroupinGrid' or class_name == 'ExtObjectGrid':
                 # Адреса имеют приоритет над экшенами!
                 if (not hasattr(obj, 'url_new') or not obj.url_new) and obj.action_new:
                     obj.url_new = urls.get_url(obj.action_new)
@@ -70,6 +70,12 @@ class UIJsonEncoder(_M3JSONEncoder):
                 if (not hasattr(obj, 'url_data') or not obj.url_data) and obj.action_data:
                     obj.url_data = urls.get_url(obj.action_data)
 
+                # store надо обязательно проставить url
+                if obj.url_data:
+                    obj.store.url = obj.url_data
+
+            # для ObjectGrid
+            if class_name == 'ExtObjectGrid':
                 # Если store не экземпляр ExtJsonStore,
                 # то у него нет атрибута limit
                 if hasattr(obj.store, 'limit'):

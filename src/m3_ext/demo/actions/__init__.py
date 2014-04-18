@@ -13,3 +13,4 @@ from uploadfields import *
 from conteintertable import *
 from objectgrid import *
 from trees import *
+from multigroupinggrid import *

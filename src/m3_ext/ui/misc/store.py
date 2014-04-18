@@ -88,9 +88,14 @@ class ExtMultiGroupingStore(ExtJsonStore):
     """
     Хранилище используемое для грида с множественной серверной группировкой
     """
+    _xtype = 'm3-live-store'
+
+    js_attrs = BaseExtStore.js_attrs.extend(
+        'bufferSize',  # Размер буфера
+    )
+
     def __init__(self, *args, **kwargs):
         super(ExtMultiGroupingStore, self).__init__(*args, **kwargs)
         self.template = 'ext-misc/ext-livegrid-store.js'
         self.version_property = 'version'
-        self.bufferSize = 200
-        self.init_component(*args, **kwargs)
+        self.setdefault('bufferSize', 200)

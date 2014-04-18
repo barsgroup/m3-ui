@@ -226,10 +226,11 @@ class ExtMultiGroupinGrid(containers.ExtGrid):
         """
         Внутренний класс для удобной работы топбаром грида
         """
+        _xtype = 'livegrid-toolbar'
+
         def __init__(self, *args, **kwargs):
             super(ExtMultiGroupinGrid.LiveGridTopBar, self).__init__(
                 *args, **kwargs)
-            self._ext_name = "Ext.ux.grid.livegrid.Toolbar"
             self.button_new = controls.ExtButton(
                 text=u'Добавить',
                 icon_cls='add_item',
@@ -259,22 +260,40 @@ class ExtMultiGroupinGrid(containers.ExtGrid):
                 self.button_export,
             ])
 
+    _xtype = 'm3-multigrouping-grid'
 
-    # Поле в котором будет содержаться значение ключа группировки
-    # должно отличаться от ключевого поля Store,
-    # т.к. должно содержать совсем другие данные
-    data_id_field = 'id'
-
-    # Поле отображаемое вместо идентификатора группировки
-    # (по-умолчанию отображается сам идентификатор)
-    data_display_field = 'id'
-
-    # Поля группировки по-умолчанию (список имен полей)
-    grouped = None
+    js_attrs = containers.ExtGrid.js_attrs.extend(
+        'groupable',
+        row_id_name='params.rowIdName',  # Поля для id записи
+        local_edit='params.localEdit',  # Признак редактирования на клиенте - особенным образом обрабатываются данные при редактировании
+        url_new='params.actions.newUrl',  # Адрес для новой записи.
+        url_edit='params.actions.editUrl',  # Адрес для изменения
+        url_delete='params.actions.deleteUrl',  # Адрес для удаления
+        url_data='params.actions.dataUrl',  # Адрес для данных
+        buffer_size='viewConfig.bufferSize',
+        near_limit='viewConfig.nearLimit',
+        data_id_field='dataIdField',
+        data_display_field='dataDisplayField',
+        display_info='displayInfo',
+        display_message='displayMsg',
+        grouped='groupedColumns',
+    )
 
     def __init__(self, *args, **kwargs):
         super(ExtMultiGroupinGrid, self).__init__(*args, **kwargs)
         self.template = 'ext-grids/ext-multigrouping-grid.js'
+        # Поле в котором будет содержаться значение ключа группировки
+        # должно отличаться от ключевого поля Store,
+        # т.к. должно содержать совсем другие данные
+        self.setdefault('data_id_field', 'id')
+
+        # Поле отображаемое вместо идентификатора группировки
+        # (по-умолчанию отображается сам идентификатор)
+        self.setdefault('data_display_field', 'id')
+
+        # Поля группировки по-умолчанию (список имен полей)
+        self.setdefault('grouped', [])
+
         # Для данных
         self.action_data = None
 
@@ -284,13 +303,13 @@ class ExtMultiGroupinGrid(containers.ExtGrid):
         self.action_export = None  # Экшен для экспорта
 
         # Поля для id записи
-        self.row_id_name = 'row_id'
+        self.setdefault('row_id_name', 'row_id')
 
         # Обработчик двойного клика
         self.dblclick_handler = 'onEditRecord'
 
         # Топ бар для грида
-        self._top_bar = ExtMultiGroupinGrid.LiveGridTopBar()
+        #self.setdefault('top_bar', ExtMultiGroupinGrid.LiveGridTopBar())
 
         # Признак того, маскировать ли грид при загрузки
         self.load_mask = True
@@ -299,30 +318,27 @@ class ExtMultiGroupinGrid(containers.ExtGrid):
         self.store = misc.store.ExtMultiGroupingStore(
             auto_load=True, root='rows', id_property='index')
 
-        # Начальный перечень сгруппированных колонок
-        self.grouped = []
-
         # Признак редактирования на клиенте
         # - особенным образом обрабатываются данные при редактировании
-        self.local_edit = False
+        self.setdefault('local_edit', False)
 
         # Признак возможности группировки (показывает панель)
-        self.groupable = True
+        self.setdefault('groupable', True)
 
         # Признак отображения информации о записях
-        self.display_info = True
+        self.setdefault('display_info', True)
 
         # Формат отображения информации о записях
-        self.display_message = u'Показано {0}-{1} из {2}'
+        self.setdefault('display_message', u'Показано {0}-{1} из {2}')
 
         # Объем буфера записей - должен быть больше,
         # чем число соседних элементов + число видимых строк
-        self.buffer_size = 200
+        self.setdefault('buffer_size', 200)
 
         # Число соседних элементов сверху и снизу от видимой области,
         # для предотвращения запросов.
         # Обычно 1/4 или 1/2 от объема буфера
-        self.near_limit = 100
+        self.setdefault('near_limit', 100)
 
         # Стиль заголовка колонки.
         # Применяется ко всем колонкам. Например: 'text-align: center;'
@@ -396,30 +412,9 @@ class ExtMultiGroupinGrid(containers.ExtGrid):
                     'contextJson': context_json
                 }
             ),
-            (
-                'groupedColumns',
-                lambda: '[%s]' % ','.join(
-                    ["'%s'" % col for col in self.grouped]
-                )
-            ),
-            ('dataIdField', self.data_id_field),
-            ('dataDisplayField', self.data_display_field),
             ('toolbar', self._top_bar.t_render_items),
-            ('rowIdName', self.row_id_name),
-            ('localEdit', self.local_edit),
-            ('groupable', self.groupable),
-            ('displayInfo', self.display_info),
-            ('displayMsg', self.display_message),
-            ('bufferSize', self.buffer_size),
-            ('nearLimit', self.near_limit),
         ):
             self._put_params_value(*args)
-
-    def t_render_base_config(self):
-        return self._get_config_str()
-
-    def t_render_params(self):
-        return self._get_params_str()
 
     @property
     def handler_beforenew(self):

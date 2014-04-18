@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from m3.actions import Action
 from m3.actions.urls import get_url
+from m3.actions.utils import extract_int
 from m3_ext.demo.actions import UIAction, Pack
 from m3_ext.ui import all_components as ext
 from m3_ext.ui.results import ExtGridDataQueryResult
@@ -48,9 +49,12 @@ class DataAction(Action):
 
     def run(self, request, context):
         data = [
-            {'id': '1', 'code': u'Код 1', 'name': u'Наименование 1'}
+            {'id': str(i), 'code': u'Код %s' % i, 'name': u'Наименование %s' % i}
+            for i in xrange(100)
         ]
-        return ExtGridDataQueryResult(data)
+        start = extract_int(request, 'start')
+        limit = extract_int(request, 'limit')
+        return ExtGridDataQueryResult(data, start, limit)
 
 
 @Pack.register

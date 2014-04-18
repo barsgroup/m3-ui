@@ -743,7 +743,88 @@ Ext.ns('Ext.m3');
  * 
  * @param {Object} config
  */
-Ext.m3.MultiGroupingGridPanel = Ext.extend(Ext.ux.grid.livegrid.GridPanel, {
+Ext.m3.MultiGroupingGridPanel = Ext.extend(Ext.ux.grid.livegrid.GridPanel, Ext.apply(Ext.m3.BaseM3Grid, {
+    initComponent: function() {
+        this.configureGrid();
+
+        var params = this.params || {};
+
+        // Добавление selection model если нужно
+		if (!params.sm) {
+		    this.sm = new Ext.ux.grid.livegrid.RowSelectionModel({singleSelect: true});
+        }
+        // Подменяем вью
+        this.view = new Ext.ux.grid.livegrid.GridView(this.viewConfig);
+
+        Ext.m3.MultiGroupingGridPanel.superclass.initComponent.call(this);
+        this.initGrid();
+
+        var store = this.getStore();
+		store.on('load', this.onLoad, this);
+        store.baseParams = Ext.applyIf(store.baseParams || {}, this.actionContextJson || {});
+
+        this.addEvents(
+			/**
+			 * Событие до запроса добавления записи - запрос отменится при возврате false
+			 * @param ObjectGrid this
+			 * @param JSON request - AJAX-запрос для отправки на сервер
+			 */
+			'beforenewrequest',
+			/**
+			 * Событие после запроса добавления записи - обработка отменится при возврате false
+			 * @param ObjectGrid this
+			 * @param res - результат запроса
+			 * @param opt - параметры запроса
+			 */
+			'afternewrequest',
+			/**
+			 * Событие до запроса редактирования записи - запрос отменится при возврате false
+			 * @param ObjectGrid this
+			 * @param JSON request - AJAX-запрос для отправки на сервер
+			 */
+			'beforeeditrequest',
+			/**
+			 * Событие после запроса редактирования записи - обработка отменится при возврате false
+			 * @param ObjectGrid this
+			 * @param res - результат запроса
+			 * @param opt - параметры запроса
+			 */
+			'aftereditrequest',
+			/**
+			 * Событие до запроса удаления записи - запрос отменится при возврате false
+			 * @param ObjectGrid this
+			 * @param JSON request - AJAX-запрос для отправки на сервер
+			 */
+			'beforedeleterequest',
+			/**
+			 * Событие после запроса удаления записи - обработка отменится при возврате false
+			 * @param ObjectGrid this
+			 * @param res - результат запроса
+			 * @param opt - параметры запроса
+			 */
+			'afterdeleterequest',
+            /**
+             * Событие после успешного диалога добавления записи - встроенная обработка отменится при возврате false
+             * @param ObjectGrid this
+             * @param res - результат добавления (ответ сервера)
+             */
+            'rowadded',
+            /**
+             * Событие после успешного диалога редактирования записи - встроенная обработка отменится при возврате false
+             * @param ObjectGrid this
+             * @param res - результат редактирования  (ответ сервера)
+             */
+            'rowedited',
+            /**
+             * Событие после успешного диалога удаления записи - встроенная обработка отменится при возврате false
+             * @param ObjectGrid this
+             * @param res - результат удаления (ответ сервера)
+             */
+            'rowdeleted'
+		);
+    }
+
+/*
 	constructor: function(baseConfig, params){
         params = baseConfig.params || params;
 
@@ -862,73 +943,7 @@ Ext.m3.MultiGroupingGridPanel = Ext.extend(Ext.ux.grid.livegrid.GridPanel, {
 		
 		Ext.m3.MultiGroupingGridPanel.superclass.constructor.call(this, config);
 	}
-	,initComponent: function(){
-		Ext.m3.MultiGroupingGridPanel.superclass.initComponent.call(this);
-		var store = this.getStore();
-		store.on('exception', this.storeException, this);
-		store.on('load', this.onLoad, this);
-		
-		store.baseParams = Ext.applyIf(store.baseParams || {}, this.actionContextJson || {});
-		this.addEvents(
-			/**
-			 * Событие до запроса добавления записи - запрос отменится при возврате false
-			 * @param ObjectGrid this
-			 * @param JSON request - AJAX-запрос для отправки на сервер
-			 */
-			'beforenewrequest',
-			/**
-			 * Событие после запроса добавления записи - обработка отменится при возврате false
-			 * @param ObjectGrid this
-			 * @param res - результат запроса
-			 * @param opt - параметры запроса 
-			 */
-			'afternewrequest',
-			/**
-			 * Событие до запроса редактирования записи - запрос отменится при возврате false
-			 * @param ObjectGrid this
-			 * @param JSON request - AJAX-запрос для отправки на сервер 
-			 */
-			'beforeeditrequest',
-			/**
-			 * Событие после запроса редактирования записи - обработка отменится при возврате false
-			 * @param ObjectGrid this
-			 * @param res - результат запроса
-			 * @param opt - параметры запроса 
-			 */
-			'aftereditrequest',
-			/**
-			 * Событие до запроса удаления записи - запрос отменится при возврате false
-			 * @param ObjectGrid this
-			 * @param JSON request - AJAX-запрос для отправки на сервер 
-			 */
-			'beforedeleterequest',
-			/**
-			 * Событие после запроса удаления записи - обработка отменится при возврате false
-			 * @param ObjectGrid this
-			 * @param res - результат запроса
-			 * @param opt - параметры запроса 
-			 */
-			'afterdeleterequest',
-            /**
-             * Событие после успешного диалога добавления записи - встроенная обработка отменится при возврате false
-             * @param ObjectGrid this
-             * @param res - результат добавления (ответ сервера)
-             */
-            'rowadded',
-            /**
-             * Событие после успешного диалога редактирования записи - встроенная обработка отменится при возврате false
-             * @param ObjectGrid this
-             * @param res - результат редактирования  (ответ сервера)
-             */
-            'rowedited',
-            /**
-             * Событие после успешного диалога удаления записи - встроенная обработка отменится при возврате false
-             * @param ObjectGrid this
-             * @param res - результат удаления (ответ сервера)
-             */
-            'rowdeleted'
-			);
-	}
+*/
     /**
      * При перезагрузке данных снимем выделение, если запись исчезла
      */
@@ -946,12 +961,6 @@ Ext.m3.MultiGroupingGridPanel = Ext.extend(Ext.ux.grid.livegrid.GridPanel, {
             }
         }
     }
-	/**
-	 * Обработчик исключений хранилица
-	 */
-	,storeException: function (proxy, type, action, options, response, arg){
-		uiAjaxFailMessage(response, options);
-	}
 	/**
 	 * Экспортер данных грида
 	 */
@@ -1420,8 +1429,9 @@ Ext.m3.MultiGroupingGridPanel = Ext.extend(Ext.ux.grid.livegrid.GridPanel, {
         }
 		return baseConf;
     }
-});
+}));
 
+Ext.reg('m3-multigrouping-grid', Ext.m3.MultiGroupingGridPanel);
 
 /*******************
  * Плагин для экпорта в xls - отправляет на сервер запрос с нужными параметрами
@@ -1826,6 +1836,12 @@ Ext.extend(Ext.ux.grid.MultiGroupingSummary, Ext.util.Observable, {
 Ext.reg('multigroupingsummary', Ext.ux.grid.MultiGroupingSummary);
 
 Ext.m3.LiveStore = function(config) {
+    config.reader = new Ext.m3.LiveStoreReader({
+        fields: config.fields,
+        id: config.idProperty,
+        root: config.root,
+        totalProperty: config.totalProperty
+    });
     Ext.m3.LiveStore.superclass.constructor.call(this, config);
 };
 
@@ -1849,3 +1865,7 @@ Ext.extend(Ext.m3.LiveStoreReader, Ext.ux.grid.livegrid.JsonReader, {
 		return intercept;
 	}
 });
+
+Ext.reg('m3-live-store', Ext.m3.LiveStore);
+
+Ext.reg('livegrid-toolbar', Ext.ux.grid.livegrid.Toolbar);
