@@ -12,29 +12,48 @@ from m3_ext.ui.containers import (
 )
 
 
-#==============================================================================
 class ExtTree(BaseExtPanel):
     """
     Дерево с колонками
     """
+
+
+    # FIXME: Не забывать передавать контекст
+    # def pre_render(self):
+    #     self.tree_loader.action_context = self.action_context
+    #     super(ExtTree, self).pre_render()
+
     _xtype = "m3-tree"
 
     js_attrs = BaseExtPanel.js_attrs.extend(
-        "columns",
-        nodes="params.Nodes",
-        tree_loader="params.loader",
-        root_text="params.rootText", # Текст для корневого элемента
-        allow_container_drop="dropConfig.allowContainerDrop",
-        allow_parent_insert="dropConfig.allowParentInsert",
-        drag_drop="enableDD",
-        enable_drop="enableDrop",
-        enable_drag="enableDrag",
-        handler_contextmenu="params.contextMenu",
-        handler_containercontextmenu="params.containerContextMenu",
-        url="params.url", # url для загрузки данных
-        read_only="params.readOnly", # Если включен - не рендерим drag'n'drop
-        custom_load="params.customLoad",
-        plugins="params.plugins",
+        "columns",  # список колонок
+        "root",
+
+        # _root_node_type='root.nodeType',
+        _root_id='root.id',
+        _root_expanded='root.expanded',
+        _root_allow_drag='root.allowDrag',
+        root_text="root.rootText",  # Текст для корневого элемента
+        nodes='root.children',  # список узлов
+
+        allow_container_drop="dropConfig.allowContainerDrop",  # разрешить перетаскивать элементы в корень
+        allow_parent_insert="dropConfig.allowParentInsert",  # Разрешает вставку узлов между родительскими элементами
+        drag_drop="enableDD",  # Возможность использовать drag & drop
+        enable_drop="enableDrop",  # Разрешить только драгить (перемещать из дерево)
+        enable_drag="enableDrag",  # Разрешить только дропить (перемещать в дерево)
+        handler_contextmenu="contextMenu",
+        handler_containercontextmenu="containerContextMenu",
+        url="dataUrl",  # url для загрузки данных
+        read_only="readOnly",  # Если включен - не рендерим drag'n'drop
+
+        # Если выставлен данный атрибут, то работает схема:
+        # Всегда подгружается уровни дочерних элементов, в то время как
+        # дочерние элементы уже подгружены.
+        # Таким образом создается впечатление,
+        # что дерево не динамическое и все узлы видны пользователю
+        custom_load="customLoad",
+
+        plugins="plugins",  # перечень плагинов
     )
 
     deprecated_attrs = BaseExtPanel.deprecated_attrs + (
@@ -51,39 +70,24 @@ class ExtTree(BaseExtPanel):
     def __init__(self, *args, **kwargs):
         super(ExtTree, self).__init__(*args, **kwargs)
 
-        # список узлов
+        self.setdefault('_root_node_type', 'async')
+        self.setdefault('_root_id', '-1')
+        self.setdefault('_root_expanded', True)
+        self.setdefault('_root_allow_drag', False)
         self.setdefault("nodes", [])
-        # список колонок
+
         self.setdefault("columns", [])
-
-        # Разрешить только дропить (перемещать в дерево)
         self.setdefault("enable_drop", False)
-        # Разрешить только драгить (перемещать из дерево)
         self.setdefault("enable_drag", False)
-        # разрешить перетаскивать элементы в корень
-        # (путем кидания просто в контейнер)
         self.setdefault("allow_container_drop", True)
-        # Разрешает вставку узлов между родительскими элементами
         self.setdefault("allow_parent_insert", False)
-
-        # Специальный загрузчик для дерева
-        self.setdefault("tree_loader", ExtTreeLoader())
-
-        # Возможность использовать drag & drop
         self.setdefault('drag_drop', False)
-
-        # Если выставлен данный атрибут, то работает схема:
-        # Всегда подгружается уровни дочерних элементов, в то время как
-        # дочерние элементы уже подгружены.
-        # Таким образом создается впечатление,
-        # что дерево не динамическое и все узлы видны пользователю
         self.setdefault("custom_load", False)
-
-        # перечень плагинов
         self.setdefault("plugins", [])
 
     def _make_read_only(
             self, access_off=True, exclude_list=None, *args, **kwargs):
+
         exclude_list = exclude_list or []
         # Выключаем\включаем компоненты.
         super(ExtTree, self)._make_read_only(
@@ -143,7 +147,6 @@ class ExtTree(BaseExtPanel):
         self.columns.append(ExtGridDateColumn(**kwargs))
 
 
-#==============================================================================
 class ExtTreeNode(BaseExtComponent):
     """
     Узел дерева
@@ -152,11 +155,11 @@ class ExtTreeNode(BaseExtComponent):
 
     js_attrs = BaseExtComponent.js_attrs.extend(
         "leaf",
-        "text", # Отображаемый текст
+        "text",  # Отображаемый текст
         "expanded",
         "checked",
         "children",
-        icon_cls="iconCls", # CSS класс для иконки
+        icon_cls="iconCls",  # CSS класс для иконки
     )
 
     deprecated_attrs = BaseExtComponent.deprecated_attrs + (
@@ -178,21 +181,3 @@ class ExtTreeNode(BaseExtComponent):
         атрибут "parent" на текущий (родительский) узел
         """
         self.children.append(children)
-
-
-#==============================================================================
-class ExtTreeLoader(BaseExtComponent):
-    """
-    Загрузчик данных для ExtTree
-    """
-    _xtype = "treeloader"
-
-    js_attrs = BaseExtComponent.js_attrs.extend(
-        url="dataUrl",
-        base_params="baseParams"
-    )
-
-    deprecated_attrs = BaseExtComponent.deprecated_attrs + (
-        "ui_providers",
-        "listeners"
-    )

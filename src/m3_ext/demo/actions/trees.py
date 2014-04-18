@@ -12,13 +12,14 @@ class TreeAction(UIAction):
     """
     Пример оконного экшна
     """
-    title = u'Дерево ExtTree со статичными данными'
+    title = u'ExtTree со статичными данными'
 
     def get_ui(self, request, context):
         win = super(TreeAction, self).get_ui(request, context)
         win.layout = 'fit'
         win.width, win.height = 300, 300
         tree = ext.ExtTree(
+            # url = self.parent.treedataaction.get_absolute_url(),
             nodes=[
                 ext.ExtTreeNode(text="1", leaf=False, children=[
                     ext.ExtTreeNode(text="1.1", leaf=True)
@@ -38,15 +39,14 @@ class TreeAction(UIAction):
                 ext.ExtContextMenuItem(text=u'Нет')
             ]
         )
-        # url для получения данных
-        # tree.tree_loader.url = self.parent.treedataaction.get_absolute_url()
-        # tree.custom_load = True
 
         win.items.append(tree)
         return win
 
+
 @Pack.register
 class TreeDataAction(Action):
     url = r'/treedata'
+
     def run(self, request, context):
         return PreJsonResult(data=[])

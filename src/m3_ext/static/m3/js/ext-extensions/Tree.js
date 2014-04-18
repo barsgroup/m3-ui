@@ -1,115 +1,120 @@
-var baseTree = {
-	configureTree: function() {
-		var params = this.params || {};
-		this.useArrows = true;
-		this.autoScroll = false;
-		this.animate = true;
-		this.containerScroll = true;
-		this.border = false;
-		this.split = true;
+/**
+ *
+ * @type {*|void}
+ */
+Ext.m3.Tree = Ext.extend(Ext.ux.tree.TreeGrid, {
 
-		// если выставлен флаг read_only, выключаем drag&drop
-		if (params.readOnly) {
-			this.enableDD = false;
-			this.enableDrag = false;
-			this.enableDrop = false;
-		};
+        useArrows: true,
+        autoScroll: false,
+        animate: true,
+        containerScroll: true,
+        border: false,
+        split: true,
 
-		// если не указан корневой элемент, содаем тут
-		if (!this.root) {
-			var cfg = {
-				id: '-1'
-				,expanded: true
-				,allowDrag: false
-			};
-			if (params.rootText) {
-				cfg.text = params.rootText;
-			};
-			if (params.Nodes) {
-				cfg.children = params.Nodes;
-			}
-			this.root = new Ext.tree.AsyncTreeNode(cfg);
-        };
-        // контекстные меню
-        if (params.contextMenu) {
-        	var menu = Ext.create(params.contextMenu);
-        	this.listeners = this.listeners || {};
-        	this.listeners.contextmenu = function(node, e) {
-        		node.select();
-        		menu.contextNode = node;
-        		menu.showAt(e.getXY());
-        	};
-        };
-        if (params.containerContextMenu) {
-        	var menu = Ext.create(params.containerContextMenu);
-        	this.listeners = this.listeners || {};
-        	this.listeners.containercontextmenu = function(node, e) {
-        		e.stopEvent();
-        		menu.showAt(e.getXY());
-        	};
-        };
-	},
+//        rootText: '',
+//        nodes: [],
+        customLoad: false,
 
-	initTree: function() {
-		var params = this.params || {};
+        constructor: function (config) {
 
-		// // url для загрузки данных
-		// if (params.url && this.loader != undefined && !this.loader.url) {
-		// 	this.loader.url = params.url;
-		// };
+//            var cfg = {
+//                id: '-1',
+//                expanded: true,
+//                allowDrag: false
+//            };
+//
+//            cfg.text = config['root']['text'];
+//            cfg.children = config['root']['children'];
+//
+//            var root = ;
+//
+//            debugger;
+//            config['root']['rootVisible'] = false;
+//            config['root'] = new Ext.tree.AsyncTreeNode(config['root']);
 
-		// загрузка единым запросом
-		if (params.customLoad) {
-			assert(params.url !== undefined, "Url must be specified!")
-			var ajax = Ext.Ajax;
-			this.on('expandnode', function (node){
-				var nodeList = new Array();
-				if (node.hasChildNodes()){
-					for (var i=0; i < node.childNodes.length; i++){
-						if (!node.childNodes[i].isLoaded()) {
-							nodeList.push(node.childNodes[i].id);
-						}
-					}
-				}
-				if (nodeList.length > 0)
-					ajax.request({
-						url: params.url
-						, params: {
-							'list_nodes': nodeList.join(',')
-						}
-						, success: function(response, opts){
-							var res = Ext.util.JSON.decode(response.responseText);
+            Ext.m3.Tree.superclass.constructor.call(this, config);
+        },
 
-							if (res) {
-								for (var i=0; i < res.length; i++){
-									var curr_node = node.childNodes[i];
-									for (var j=0; j < res[i].children.length; j++){
-										var newNode = new Ext.tree.AsyncTreeNode(res[i].children[j]);
-										curr_node.appendChild(newNode);
-										curr_node.loaded = true;
-									}
-								}
-							}
-						}
-						,failure: function(response, opts){
-						   Ext.Msg.alert('','failed');
-						}
-					});
-			});
-		};
-	}
-};
+        initComponent: function () {
 
-Ext.m3.Tree = Ext.extend(Ext.ux.tree.TreeGrid,
-    Ext.applyIf(baseTree, {
-        initComponent: function(){
-            this.configureTree();
+
+            // если выставлен флаг read_only, выключаем drag&drop
+            if (this.readOnly) {
+                this.enableDD = false;
+                this.enableDrag = false;
+                this.enableDrop = false;
+            }
+
+            // если не указан корневой элемент, содаем тут
+            var root = new Ext.tree.AsyncTreeNode(this.root);
+            this.root = root;
+
+
+            // Контекстное меню на узлы
+            if (this.contextMenu) {
+                this.contextMenu = Ext.create(this.contextMenu);
+                this.addListener('contextmenu', function (node, e) {
+                    node.select();
+                    this.contextMenu.contextNode = node;
+                    this.contextMenu.showAt(e.getXY());
+                }, this);
+            }
+
+            // Контекстное меню на контейнер
+            if (this.containerContextMenu) {
+                this.containerContextMenu = Ext.create(this.containerContextMenu);
+                this.addListener('containercontextmenu', function (node, e) {
+                    e.stopEvent();
+                    this.containerContextMenu.showAt(e.getXY());
+                }, this);
+            }
+
+            if (this.customLoad) {
+                assert(this.dataUrl, "Url must be specified!");
+
+                this.on('expandnode', function (node) {
+                    var nodeList = [];
+                    if (node.hasChildNodes()) {
+                        for (var i = 0; i < node.childNodes.length; i++) {
+                            if (!node.childNodes[i].isLoaded()) {
+                                nodeList.push(node.childNodes[i].id);
+                            }
+                        }
+                    }
+                    if (nodeList.length > 0)
+                        Ext.Ajax.request({
+                            url: this.dataUrl,
+                            params: {
+                                'list_nodes': nodeList.join(',')
+                            },
+                            success: function (response, opts) {
+                                var res = Ext.decode(response.responseText);
+
+                                if (res) {
+                                    for (var i = 0; i < res.length; i++) {
+                                        var currNode = node.childNodes[i];
+                                        for (var j = 0; j < res[i].children.length; j++) {
+                                            var newNode = new Ext.tree.AsyncTreeNode(res[i].children[j]);
+                                            currNode.appendChild(newNode);
+                                            currNode.loaded = true;
+                                        }
+                                    }
+                                }
+                            },
+                            failure: function (response, opts) {
+                                Ext.Msg.alert('', 'failed');
+                            }
+                        });
+                });
+
+            }
+
             Ext.m3.Tree.superclass.initComponent.call(this);
-            this.initTree();
         }
-    })
+    }
 );
 
 Ext.reg('m3-tree', Ext.m3.Tree);
+
 // hack, позволяющий в TreeGrid использовать колонки с родным xtype=gridcolumn
 Ext.reg('tggridcolumn', Ext.tree.Column);

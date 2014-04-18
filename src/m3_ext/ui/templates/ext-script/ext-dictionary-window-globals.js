@@ -553,7 +553,7 @@ function selectValue(){
     var win = Ext.getCmp('{{ component.client_id}}');
     win.fireEvent('closed_ok', id, displayText);
     win.close();
-};
+}
 {% endif %}
 
 {% if component.mode == 2%}
