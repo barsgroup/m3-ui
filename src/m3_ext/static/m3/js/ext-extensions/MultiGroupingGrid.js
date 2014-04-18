@@ -67,7 +67,7 @@ Ext.extend(Ext.ux.grid.MultiGrouping, Ext.util.Observable, {
             this.cm.config.unshift(this.grouppingColumn);
             this.cm.lookup[this.groupFieldId] = this.grouppingColumn;
             this.cm.fireEvent('configchange', this.cm);
-            this.grouppingColumn.hidden=!(this.groupedColumns.length>0);
+            this.grouppingColumn.hidden = !(this.groupedColumns.length>0);
 
             // повесимся на клик, чтобы раскрывать/скрывать уровни группировки
             this.grid.on('click', this.onNodeClick, this);
@@ -744,20 +744,93 @@ Ext.ns('Ext.m3');
  * @param {Object} config
  */
 Ext.m3.MultiGroupingGridPanel = Ext.extend(Ext.ux.grid.livegrid.GridPanel, Ext.apply(Ext.m3.BaseM3Grid, {
+    /**
+     * Внутренняя функция для поиска и настройки элементов тулбара и контекстного меню
+     */
+    configureItem: function (container, itemId, enabled, handler) {
+        var item = container.getComponent(itemId);
+        if (item) {
+            if (!enabled) {
+                item.hide();
+            }
+            if (!item.handler) {
+                item.setHandler(handler, this);
+            }
+        }
+        return item;
+    },
+
     initComponent: function() {
         this.configureGrid();
 
         var params = this.params || {};
 
+        this.actionNewUrl = params.actions.newUrl;
+        this.actionEditUrl = params.actions.editUrl;
+        this.actionDeleteUrl = params.actions.deleteUrl;
+        this.actionDataUrl = params.actions.dataUrl;
+        this.actionContextJson = params.actions.contextJson;
+        // признак клиентского редактирования
+        this.localEdit = params.localEdit;
+        // имя для сабмита в режиме клиентского редактирования
+        this.name = params.name;
+        // проставление адреса запроса за данными
+        if (this.store && !this.store.url) {
+            this.store.url = this.actionDataUrl;
+        }
+
         // Добавление selection model если нужно
-		if (!params.sm) {
+		if (!this.sm) {
 		    this.sm = new Ext.ux.grid.livegrid.RowSelectionModel({singleSelect: true});
         }
         // Подменяем вью
         this.view = new Ext.ux.grid.livegrid.GridView(this.viewConfig);
+        // и подменяем тулбар
+        if (!(this.tbar instanceof Ext.ux.grid.livegrid.Toolbar)) {
+            this.tbar = new Ext.ux.grid.livegrid.Toolbar({
+    	        displayInfo: this.params.displayInfo,
+    	        view: this.view,
+    	        items: this.tbar.items,
+    	        displayMsg: this.params.displayMsg,
+    	        emptyMsg: 'Нет данных',
+    	        refreshText: "Обновить"
+	       	})
+        }
+
+        // плагин для группировки колонок
+		if (this.params.groupable){
+			var group_param = {
+				groupedColumns: this.params.groupedColumns || [],
+				dataIdField: this.params.dataIdField,
+				dataDisplayField: this.params.dataDisplayField
+			};
+            this.plugins = this.plugins || [];
+			this.plugins.push(new Ext.ux.grid.MultiGrouping(group_param));
+		}
 
         Ext.m3.MultiGroupingGridPanel.superclass.initComponent.call(this);
         this.initGrid();
+
+        // настроим кнопки тулбара
+        this.configureItem(this.getTopToolbar(), "button_new", this.actionNewUrl, this.onNewRecord);
+        var edit_item = this.configureItem(this.getTopToolbar(), "button_edit", this.actionEditUrl, this.onEditRecord);
+        if (edit_item) {
+            this.on('dblclick', edit_item.handler);
+        }
+        this.configureItem(this.getTopToolbar(), "button_delete", this.actionDeleteUrl, this.onDeleteRecord);
+        this.configureItem(this.getTopToolbar(), "button_refresh", this.actionDataUrl, this.refreshStore);
+
+        // настроим меню в зависимости от переданных адресов
+        if (params.contextMenu) {
+            this.configureItem(params.contextMenu, "menuitem_new", this.actionNewUrl, this.onNewRecord);
+            this.configureItem(params.contextMenu, "menuitem_edit", this.actionEditUrl, this.onEditRecord);
+            this.configureItem(params.contextMenu, "menuitem_delete", this.actionDeleteUrl, this.onDeleteRecord);
+        }
+        if (params.rowContextMenu) {
+            this.configureItem(params.rowContextMenu, "menuitem_new", this.actionNewUrl, this.onNewRecord);
+            this.configureItem(params.rowContextMenu, "menuitem_edit", this.actionEditUrl, this.onEditRecord);
+            this.configureItem(params.rowContextMenu, "menuitem_delete", this.actionDeleteUrl, this.onDeleteRecord);
+        }
 
         var store = this.getStore();
 		store.on('load', this.onLoad, this);
@@ -1848,7 +1921,9 @@ Ext.m3.LiveStore = function(config) {
 Ext.extend(Ext.m3.LiveStore, Ext.ux.grid.livegrid.Store, {
 	loadRecords : function(o, options, success){
 		// сохраним итоговую строку для дальнейшей обработки
-    	this.totalRow = o.totalRow;
+        if (o) {
+    	    this.totalRow = o.totalRow;
+        }
 		return Ext.m3.LiveStore.superclass.loadRecords.call(this, o, options, success);
 	}
 });
@@ -1861,7 +1936,9 @@ Ext.extend(Ext.m3.LiveStoreReader, Ext.ux.grid.livegrid.JsonReader, {
 	readRecords : function(o) {
 		var intercept = Ext.m3.LiveStoreReader.superclass.readRecords.call(this, o);
 		// сохраним итоговую строку для дальнейшей обработки
-		intercept.totalRow = o.totalRow;
+        if (o) {
+		    intercept.totalRow = o.totalRow;
+        }
 		return intercept;
 	}
 });

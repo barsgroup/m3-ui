@@ -226,8 +226,6 @@ class ExtMultiGroupinGrid(containers.ExtGrid):
         """
         Внутренний класс для удобной работы топбаром грида
         """
-        _xtype = 'livegrid-toolbar'
-
         def __init__(self, *args, **kwargs):
             super(ExtMultiGroupinGrid.LiveGridTopBar, self).__init__(
                 *args, **kwargs)
@@ -263,7 +261,7 @@ class ExtMultiGroupinGrid(containers.ExtGrid):
     _xtype = 'm3-multigrouping-grid'
 
     js_attrs = containers.ExtGrid.js_attrs.extend(
-        'groupable',
+        groupable='params.groupable',
         row_id_name='params.rowIdName',  # Поля для id записи
         local_edit='params.localEdit',  # Признак редактирования на клиенте - особенным образом обрабатываются данные при редактировании
         url_new='params.actions.newUrl',  # Адрес для новой записи.
@@ -272,11 +270,11 @@ class ExtMultiGroupinGrid(containers.ExtGrid):
         url_data='params.actions.dataUrl',  # Адрес для данных
         buffer_size='viewConfig.bufferSize',
         near_limit='viewConfig.nearLimit',
-        data_id_field='dataIdField',
-        data_display_field='dataDisplayField',
-        display_info='displayInfo',
-        display_message='displayMsg',
-        grouped='groupedColumns',
+        data_id_field='params.dataIdField',
+        data_display_field='params.dataDisplayField',
+        display_info='params.displayInfo',
+        display_message='params.displayMsg',
+        grouped='params.groupedColumns',
     )
 
     def __init__(self, *args, **kwargs):
@@ -309,7 +307,7 @@ class ExtMultiGroupinGrid(containers.ExtGrid):
         self.dblclick_handler = 'onEditRecord'
 
         # Топ бар для грида
-        #self.setdefault('top_bar', ExtMultiGroupinGrid.LiveGridTopBar())
+        self.setdefault('top_bar', ExtMultiGroupinGrid.LiveGridTopBar())
 
         # Признак того, маскировать ли грид при загрузки
         self.load_mask = True
