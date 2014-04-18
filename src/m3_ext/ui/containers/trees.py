@@ -29,7 +29,6 @@ class ExtTree(BaseExtPanel):
         "columns",  # список колонок
         "root",
 
-        # _root_node_type='root.nodeType',
         _root_id='root.id',
         _root_expanded='root.expanded',
         _root_allow_drag='root.allowDrag',
@@ -70,7 +69,6 @@ class ExtTree(BaseExtPanel):
     def __init__(self, *args, **kwargs):
         super(ExtTree, self).__init__(*args, **kwargs)
 
-        self.setdefault('_root_node_type', 'async')
         self.setdefault('_root_id', '-1')
         self.setdefault('_root_expanded', True)
         self.setdefault('_root_allow_drag', False)

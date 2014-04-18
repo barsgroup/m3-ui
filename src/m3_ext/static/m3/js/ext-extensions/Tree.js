@@ -2,6 +2,8 @@
  *
  * @type {*|void}
  */
+
+// FIXME: Если дерево небольшое по размерам, узлы могут не отображаться
 Ext.m3.Tree = Ext.extend(Ext.ux.tree.TreeGrid, {
 
         useArrows: true,
@@ -10,33 +12,9 @@ Ext.m3.Tree = Ext.extend(Ext.ux.tree.TreeGrid, {
         containerScroll: true,
         border: false,
         split: true,
-
-//        rootText: '',
-//        nodes: [],
         customLoad: false,
 
-        constructor: function (config) {
-
-//            var cfg = {
-//                id: '-1',
-//                expanded: true,
-//                allowDrag: false
-//            };
-//
-//            cfg.text = config['root']['text'];
-//            cfg.children = config['root']['children'];
-//
-//            var root = ;
-//
-//            debugger;
-//            config['root']['rootVisible'] = false;
-//            config['root'] = new Ext.tree.AsyncTreeNode(config['root']);
-
-            Ext.m3.Tree.superclass.constructor.call(this, config);
-        },
-
         initComponent: function () {
-
 
             // если выставлен флаг read_only, выключаем drag&drop
             if (this.readOnly) {
@@ -46,9 +24,7 @@ Ext.m3.Tree = Ext.extend(Ext.ux.tree.TreeGrid, {
             }
 
             // если не указан корневой элемент, содаем тут
-            var root = new Ext.tree.AsyncTreeNode(this.root);
-            this.root = root;
-
+            this.root = new Ext.tree.AsyncTreeNode(this.root);
 
             // Контекстное меню на узлы
             if (this.contextMenu) {

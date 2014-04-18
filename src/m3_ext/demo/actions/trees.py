@@ -19,7 +19,7 @@ class TreeAction(UIAction):
         win.layout = 'fit'
         win.width, win.height = 300, 300
         tree = ext.ExtTree(
-            # url = self.parent.treedataaction.get_absolute_url(),
+            url=self.parent.treedataaction.get_absolute_url(),
             nodes=[
                 ext.ExtTreeNode(text="1", leaf=False, children=[
                     ext.ExtTreeNode(text="1.1", leaf=True)
