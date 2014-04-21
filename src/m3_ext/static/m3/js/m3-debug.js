@@ -7252,10 +7252,13 @@ Ext.m3.AdvancedComboBox = Ext.extend(Ext.m3.ComboBox, {
         if (this.fireEvent('beforerequest', this)) {
 
             var parentWin = Ext.getCmp(this.actionContextJson['m3_window_id']),
+                mask;
+            if (parentWin) {
                 mask = new Ext.LoadMask(parentWin.getEl(),
                     {msg: "Пожалуйста выберите элемент...", msgCls: 'x-mask'});
+                mask.show();
+            }
 
-            mask.show();
             Ext.Ajax.request({
                 url: this.actionSelectUrl,
                 method: 'POST',
@@ -7269,14 +7272,17 @@ Ext.m3.AdvancedComboBox = Ext.extend(Ext.m3.ComboBox, {
                                 this.addRecordToStore(id, displayText);
                             }
                         }, this);
-
-                        win.on('close', function () {
-                            mask.hide();
-                        });
+                        if (mask) {
+                            win.on('close', function () {
+                                mask.hide();
+                            });
+                        }
                     }
                 },
                 failure: function (response, opts) {
-                    mask.hide();
+                    if (mask) {
+                        mask.hide();
+                    }
                     uiAjaxFailMessage.apply(this, arguments);
                 },
                 scope: this
@@ -13783,122 +13789,64 @@ Ext.m3.SearchField = Ext.extend(Ext.form.TwinTriggerField, {
     }
 });
 Ext.reg('m3-search-field', Ext.m3.SearchField);
-var baseTree = {
-	configureTree: function() {
-		var params = this.params || {};
-		this.useArrows = true;
-		this.autoScroll = false;
-		this.animate = true;
-		this.containerScroll = true;
-		this.border = false;
-		this.split = true;
+/**
+ *
+ * @type {*|void}
+ */
 
-		// если выставлен флаг read_only, выключаем drag&drop
-		if (params.readOnly) {
-			this.enableDD = false;
-			this.enableDrag = false;
-			this.enableDrop = false;
-		};
+// FIXME: Если дерево небольшое по размерам, узлы могут не отображаться,
+// но ресайз окна/контрола возвращает их обратно
+// FIXME: Здесь также должен быть проброс action context'a
+Ext.m3.Tree = Ext.extend(Ext.ux.tree.TreeGrid, {
 
-		// если не указан корневой элемент, содаем тут
-		if (!this.root) {
-			var cfg = {
-				id: '-1'
-				,expanded: true
-				,allowDrag: false
-			};
-			if (params.rootText) {
-				cfg.text = params.rootText;
-			};
-			if (params.Nodes) {
-				cfg.children = params.Nodes;
-			}
-			this.root = new Ext.tree.AsyncTreeNode(cfg);
-        };
-        // контекстные меню
-        if (params.contextMenu) {
-        	var menu = Ext.create(params.contextMenu);
-        	this.listeners = this.listeners || {};
-        	this.listeners.contextmenu = function(node, e) {
-        		node.select();
-        		menu.contextNode = node;
-        		menu.showAt(e.getXY());
-        	};
-        };
-        if (params.containerContextMenu) {
-        	var menu = Ext.create(params.containerContextMenu);
-        	this.listeners = this.listeners || {};
-        	this.listeners.containercontextmenu = function(node, e) {
-        		e.stopEvent();
-        		menu.showAt(e.getXY());
-        	};
-        };
-	},
+        useArrows: true,
+        autoScroll: false,
+        animate: true,
+        containerScroll: true,
+        border: false,
+        split: true,
+        customLoad: false,
 
-	initTree: function() {
-		var params = this.params || {};
+        initComponent: function () {
 
-		// // url для загрузки данных
-		// if (params.url && this.loader != undefined && !this.loader.url) {
-		// 	this.loader.url = params.url;
-		// };
+            // если выставлен флаг read_only, выключаем drag&drop
+            if (this.readOnly) {
+                this.enableDD = false;
+                this.enableDrag = false;
+                this.enableDrop = false;
+            }
 
-		// загрузка единым запросом
-		if (params.customLoad) {
-			assert(params.url !== undefined, "Url must be specified!")
-			var ajax = Ext.Ajax;
-			this.on('expandnode', function (node){
-				var nodeList = new Array();
-				if (node.hasChildNodes()){
-					for (var i=0; i < node.childNodes.length; i++){
-						if (!node.childNodes[i].isLoaded()) {
-							nodeList.push(node.childNodes[i].id);
-						}
-					}
-				}
-				if (nodeList.length > 0)
-					ajax.request({
-						url: params.url
-						, params: {
-							'list_nodes': nodeList.join(',')
-						}
-						, success: function(response, opts){
-							var res = Ext.util.JSON.decode(response.responseText);
+            // создание корневого элемента из конфига
+            this.root = new Ext.tree.AsyncTreeNode(this.root);
 
-							if (res) {
-								for (var i=0; i < res.length; i++){
-									var curr_node = node.childNodes[i];
-									for (var j=0; j < res[i].children.length; j++){
-										var newNode = new Ext.tree.AsyncTreeNode(res[i].children[j]);
-										curr_node.appendChild(newNode);
-										curr_node.loaded = true;
-									}
-								}
-							}
-						}
-						,failure: function(response, opts){
-						   Ext.Msg.alert('','failed');
-						}
-					});
-			});
-		};
-	}
-};
+            // Контекстное меню на узлы
+            if (this.contextMenu) {
+                this.contextMenu = Ext.create(this.contextMenu);
+                this.addListener('contextmenu', function (node, e) {
+                    node.select();
+                    this.contextMenu.contextNode = node;
+                    this.contextMenu.showAt(e.getXY());
+                }, this);
+            }
 
-Ext.m3.Tree = Ext.extend(Ext.ux.tree.TreeGrid,
-    Ext.applyIf(baseTree, {
-        initComponent: function(){
-            this.configureTree();
+            // Контекстное меню на контейнер
+            if (this.containerContextMenu) {
+                this.containerContextMenu = Ext.create(this.containerContextMenu);
+                this.addListener('containercontextmenu', function (node, e) {
+                    e.stopEvent();
+                    this.containerContextMenu.showAt(e.getXY());
+                }, this);
+            }
+
             Ext.m3.Tree.superclass.initComponent.call(this);
-            this.initTree();
         }
-    })
+    }
 );
 
 Ext.reg('m3-tree', Ext.m3.Tree);
+
 // hack, позволяющий в TreeGrid использовать колонки с родным xtype=gridcolumn
 Ext.reg('tggridcolumn', Ext.tree.Column);
-
 /**
  * Ext.ux.DateTimePicker & Ext.ux.form.DateTimeField
  * http://www.sencha.com/forum/showthread.php?98292-DateTime-field-again-and-again-)
