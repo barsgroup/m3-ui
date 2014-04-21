@@ -9,7 +9,7 @@ from m3_ext.ui.containers.base import BaseExtContainer
 from m3_ext.ui.controls.base import BaseExtControl
 
 
-class BaseExtWindow(ExtUIComponent):
+class ExtWindow(ExtUIComponent):
     """
     Базовый класс для всех окон
     """
@@ -18,6 +18,7 @@ class BaseExtWindow(ExtUIComponent):
     ALIGN_CENTER = align_center = 'center'
     ALIGN_RIGHT = align_right = 'right'
 
+    _xtype = 'm3-window'
 
     # FIXME: перенести parentWindowID и action_context
     # FIXME: перенести close_action
@@ -72,20 +73,6 @@ class BaseExtWindow(ExtUIComponent):
         self.setdefault('draggable', True)
         self.setdefault('resizable', True)
 
-
-    # FIXME: Перенести параметр help_topic
-    # def _help_topic_full_path(self):
-    #     """
-    #     Возвращает квалицифирующее имя топика помощи
-    #     """
-    #     if not self.help_topic:
-    #         return ''
-    #     assert isinstance(self.help_topic, tuple)
-    #     assert len(self.help_topic) > 0
-    #     return self.help_topic[0] + '.html' + (
-    #         '#' + self.help_topic[1] if len(self.help_topic) > 1 else ''
-    #     )
-
     def _make_read_only(
             self, access_off=True, exclude_list=None, *args, **kwargs):
         exclude_list = exclude_list or []
@@ -113,3 +100,6 @@ class BaseExtWindow(ExtUIComponent):
             assert isinstance(button, BaseExtControl)
             button.make_read_only(
                 self.read_only, exclude_list, *args, **kwargs)
+
+# backwards compatible
+BaseExtWindow = ExtWindow

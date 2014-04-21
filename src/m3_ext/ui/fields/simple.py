@@ -25,10 +25,6 @@ class ExtStringField(BaseExtField):
     #     if self.value:
     #         self.value = self.value.replace('\\', '\\\\')
 
-    # FIXME: Написать override для mask_re
-    # def t_render_mask_re(self):
-    #     return '/%s/' % self.mask_re
-
     _xtype = 'textfield'
 
     js_attrs = BaseExtField.js_attrs.extend(
@@ -54,7 +50,7 @@ class ExtDateField(BaseExtField):
 
     # FIXME: Переписать в js-е функцию date2str
     # Вызывалось в render_base_config
-    #         if isinstance(self.value, datetime) or isinstance(self.value, date):
+    #     if isinstance(self.value, datetime) or isinstance(self.value, date):
     #         value = date2str(self.value)
     #     else:
     #         value = self.value
@@ -129,13 +125,6 @@ class ExtTextArea(BaseExtField):
     """
     Большое :) Текстовое поле
     """
-
-    # FIXME: Экранирование значений нужно делать в json.dumps
-    #
-    #  def render_base_config(self):
-    #     if self.value:
-    #         self.value = escapejs(self.value)
-    #     super(ExtTextArea, self).render_base_config()
 
     _xtype = 'textarea'
 

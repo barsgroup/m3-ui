@@ -1,10 +1,7 @@
 #coding:utf-8
 """
 Created on 27.02.2010
-
-@author: akvarats
 """
-from m3.actions import _must_be_replaced_by
 
 from m3_ext.ui.base import ExtUIComponent
 
@@ -14,27 +11,13 @@ class BaseExtField(ExtUIComponent):
     Базовый класс для полей
     """
 
-    # FIXME: Реализовать override на стороне js-a
-    # def t_render_regex(self):
-    #     return '/%s/' % self.regex
-
-    # FIXME: Реализовать override на стороне js-a
-    # Вызывалось в render_base_config
-    #     if self.read_only:
-    #         grey_cls = 'm3-grey-field'
-    #         self.cls = grey_cls if not self.cls else self.cls + grey_cls
-
-    # FIXME: Реализовать override на стороне js-a
-    # Вызывалось в render_base_config
-    # дополнительно вешаем DOM-атрибуты через Ext.Field.autoCreate
-    #     if self.max_length:
-    #         self.auto_create.update({"maxlength": self.max_length})
-    #         self._put_config_value('autoCreate', self.auto_create)
-
     _xtype = 'field'
 
     js_attrs = ExtUIComponent.js_attrs.extend(
-        'value', 'vtype', 'regex',
+        'value',
+        'vtype',
+        'regex',
+        'plugins',
         read_only='readOnly',
         allow_blank='allowBlank',
         is_edit='isEdit',
@@ -48,8 +31,6 @@ class BaseExtField(ExtUIComponent):
         invalid_class='invalidClass',
         invalid_text='invalidText',
         auto_create='autoCreate'
-        # ('plugins',
-        #     (lambda: '[%s]' % ','.join(self.plugins)), self.plugins)
     )
 
     def __init__(self, *args, **kwargs):
@@ -86,44 +67,12 @@ class BaseExtTriggerField(BaseExtField):
     Базовый класс для комбобокса, поля выбора справочника
     """
 
-    # FIXME: атрибут mode - удалено, так как не используется в js
-    # Использовался
-    # def set_store(self, store):
-    #     self.mode = 'local' if isinstance(store, ExtDataStore) else 'remote'
-    #     self.__store = store
-
-
-    # FIXME: Необходимо перенести на сторону js
-    # иные имена полей (кроме id и display_field),
-    # которые будут попадать в store
-    # self.fields
-
     # FIXME: Разобраться с action_context
     # Был такой метод:
     # def pre_render(self):
     #     if self.get_store():
     #         self.get_store().action_context = self.action_context
     #     super(BaseExtTriggerField, self).pre_render()
-
-    # FIXME: Необходимо в overrid'e использовать в качестве hiddenName значение name
-    # Для поддержки обратной совместимости по коду
-    # @property
-    # def name(self):
-    #     return self.hidden_name
-    #
-    # @name.setter
-    # def name(self, value):
-    #     self.hidden_name = value
-
-
-    # FIXME: Необходимо перенести добавление колонок на сторону js
-    #  def t_render_store(self):
-    #     assert self.__store, 'Store is not define'
-    #     # отрисуем стор с полями
-    #     if self.display_field in self.fields:
-    #         return self.__store.render(self.fields)
-    #     else:
-    #         return self.__store.render([self.display_field] + self.fields)
 
     ALL = 'all'  # Признак, что отображаться при выборе будут все записи
     QUERY = 'query'  # Признак того, что отображаются только те записи, которые подходят по тексту
@@ -138,6 +87,7 @@ class BaseExtTriggerField(BaseExtField):
         display_field='displayField',  # Поле, которое будет отображаться при выборе
         value_field='valueField',  # Поле, которое будет использоваться в качестве значения
         hidden_name='hiddenName',
+        name='hiddenName',  # deprecation: backwards compat - use hidden_name
         hide_trigger='hideTrigger',  # Скрыть триггера выподающего списка
         type_ahead='typeAhead',
         query_param='queryParam',
@@ -153,6 +103,10 @@ class BaseExtTriggerField(BaseExtField):
 
     )
 
+    deprecated_attrs = BaseExtField.deprecated_attrs + (
+        'trigger_action_all',
+    )
+
     def __init__(self, *args, **kwargs):
         super(BaseExtTriggerField, self).__init__(*args, **kwargs)
         self.setdefault('hide_trigger', False)
@@ -163,23 +117,6 @@ class BaseExtTriggerField(BaseExtField):
 
         # Поля, которые должны попасть в store
         self.setdefault('fields', [])
-
-    @property
-    def trigger_action_all(self):
-        """
-        deprecated
-        Для обратной совместимости
-        """
-        return self.trigger_action == BaseExtTriggerField.ALL
-
-    @trigger_action_all.setter
-    def trigger_action_all(self, value):
-        """
-        deprecated
-        Для обратной совместимости
-        """
-        self.trigger_action = BaseExtTriggerField.ALL if value else \
-            BaseExtTriggerField.QUERY
 
 
 

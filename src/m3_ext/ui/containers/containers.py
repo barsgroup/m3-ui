@@ -135,12 +135,6 @@ class ExtRadioGroup(BaseExtContainer):
     Компонент-контейнер для радио-полей
     """
 
-    # FIXME: columns - раньше не использовалось, сейчас удалили
-    # def render_base_config(self):
-    #     if self.columns:
-    #         self._put_config_value('columns', self.columns)
-
-
     _xtype = 'radiogroup'
 
     js_attrs = BaseExtContainer.js_attrs.extend(
