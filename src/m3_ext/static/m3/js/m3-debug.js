@@ -7349,10 +7349,13 @@ Ext.m3.AdvancedComboBox = Ext.extend(Ext.m3.ComboBox, {
         if (this.fireEvent('beforerequest', this)) {
 
             var parentWin = Ext.getCmp(this.actionContextJson['m3_window_id']),
+                mask;
+            if (parentWin) {
                 mask = new Ext.LoadMask(parentWin.getEl(),
                     {msg: "Пожалуйста выберите элемент...", msgCls: 'x-mask'});
+                mask.show();
+            }
 
-            mask.show();
             Ext.Ajax.request({
                 url: this.actionSelectUrl,
                 method: 'POST',
@@ -7366,14 +7369,17 @@ Ext.m3.AdvancedComboBox = Ext.extend(Ext.m3.ComboBox, {
                                 this.addRecordToStore(id, displayText);
                             }
                         }, this);
-
-                        win.on('close', function () {
-                            mask.hide();
-                        });
+                        if (mask) {
+                            win.on('close', function () {
+                                mask.hide();
+                            });
+                        }
                     }
                 },
                 failure: function (response, opts) {
-                    mask.hide();
+                    if (mask) {
+                        mask.hide();
+                    }
                     uiAjaxFailMessage.apply(this, arguments);
                 },
                 scope: this

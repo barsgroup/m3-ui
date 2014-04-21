@@ -442,7 +442,6 @@ Ext.m3.AdvancedComboBox = Ext.extend(Ext.m3.ComboBox, {
                 mask.show();
             }
 
-            mask.show();
             Ext.Ajax.request({
                 url: this.actionSelectUrl,
                 method: 'POST',
