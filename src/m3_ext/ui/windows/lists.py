@@ -5,10 +5,8 @@ Created on 26.05.2010
 @author: akvarats
 """
 
-from m3_ext.ui.containers.grids import ExtGrid
-from m3_ext.ui.misc import ExtJsonStore
-
 from base import BaseExtWindow
+from m3_ext.ui.panels.grids import ExtObjectGrid
 
 
 class BaseExtListWindow(BaseExtWindow):
@@ -23,16 +21,5 @@ class BaseExtListWindow(BaseExtWindow):
         self.setdefault('maximized', True)
         self.setdefault('layout', 'border')
 
-        # FIXME: заменить на полноценный ExtObjectGrid, как только его адаптируют
-        grid = ExtGrid(region="center")
-        grid.add_column(header=u'Первая колонка',
-                        data_index='first',
-                        width=400)
-        grid.add_column(header=u'Вторая колонка',
-                        data_index='second',
-                        width=400)
-        grid.store = ExtJsonStore(root='rows',
-                                  total_property='total')
-
-        self.grid = grid
+        self.grid = ExtObjectGrid(region='center')
         self.items.append(self.grid)

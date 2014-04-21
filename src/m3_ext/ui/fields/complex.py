@@ -77,37 +77,6 @@ class ExtDictSelectField(BaseExtTriggerField):
 
         self.setdefault('pack', None)
 
-        # FIXME: Перенести код ниже в M3JSONEncoder, и там будет сериализоваться пак
-        # def _set_urls_from_pack(self, ppack):
-        #     """
-        #     Настраивает поле выбора под указанный экшенпак ppack.
-        #     Причем в качестве аргумента может быть как сам класс пака,
-        #     так и имя. Это связано с тем, что не во всех формах можно
-        #     импортировать паки и может произойти кроссимпорт.
-        #     Поиск пака производится по всем экшенконтроллерам в системе.
-        #     Используется первый найденный, т.к. при правильном дизайне
-        #     один и тот же пак не должен быть в нескольких
-        #     контроллерах одновременно.
-        #     @param ppack: Имя класса пака или класс пака.
-        #     """
-        #     assert isinstance(ppack, basestring) or hasattr(ppack, '__bases__'), (
-        #         'Argument %s must be a basestring or class' % ppack)
-        #     ppack = ControllerCache.find_pack(ppack)
-        #     assert ppack, 'Pack %s not found in ControllerCache' % ppack
-        #     assert isinstance(ppack, ISelectablePack), (
-        #         'Pack %s must provide ISelectablePack interface' % ppack)
-        #     self._pack = ppack
-        #
-        #     # старый спосом подключения Pack теперь не действует
-        #     # - всё должно быть в рамках интерфейса ISelectablePack
-        #
-        #     # url формы редактирования элемента
-        #     self.edit_url = ppack.get_edit_url()
-        #     # url автокомплита и данных
-        #     self.autocomplete_url = ppack.get_autocomplete_url()
-        #     # url формы выбора
-        #     self.url = ppack.get_select_url()
-
 
 class ExtSearchField(BaseExtField):
     """Поле поиска"""
@@ -253,41 +222,8 @@ class ExtMultiSelectField(ExtDictSelectField):
     js_attrs = ExtDictSelectField.js_attrs.extend(
         'delimeter',
         multiple_display_value='multipleDisplayValue',
-
     )
 
     def __init__(self, *args, **kwargs):
         super(ExtMultiSelectField, self).__init__(*args, **kwargs)
         self.setdefault('value', [])
-
-
-
-    # FIXME: Теперь заботиться о обработке значений нужно в прикладном коде
-    # @value.setter
-    # def value(self, value):
-    #     if self._init_flag:
-    #         self._init_flag = False
-    #         return
-    #
-    #     if not value:
-    #         value = []
-    #
-    #     if isinstance(value, basestring):
-    #         value = json.loads(value)
-    #
-    #     if isinstance(value, (list, tuple)):
-    #         self._value = json.dumps(value)
-    #     else:
-    #         raise TypeError(
-    #             u'ExtMultiSelectField value must be list or tuple of values')
-
-    # FIXME: Перенести в UIJsonEncoder
-    # @pack.setter
-    # def pack(self, ppack):
-    #     assert isinstance(ppack, basestring) or hasattr(ppack, '__bases__'), (
-    #         'Argument %s must be a basestring or class' % ppack)
-    #     ppack_class = ControllerCache.find_pack(ppack)
-    #     assert isinstance(ppack_class, IMultiSelectablePack), (
-    #         'Pack %s must provide IMultiSelectablePack interface' % ppack)
-    #     self._set_urls_from_pack(ppack)
-    #     self.url = self._pack.get_multi_select_url()

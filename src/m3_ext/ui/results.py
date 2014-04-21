@@ -2,7 +2,9 @@
 """
 Результаты выполнения Action`s
 """
+from django.conf import settings
 from django import http
+from django.utils.html import escapejs
 
 from m3 import M3JSONEncoder as _M3JSONEncoder
 from m3.actions import (
@@ -39,7 +41,11 @@ class UIJsonEncoder(_M3JSONEncoder):
         # Проверяются наследники класса BaseExtTriggerField
         # и из fields проставляются fields в store
         elif hasattr(obj, 'store') and hasattr(obj, 'fields'):
-            obj.store.setdefault('fields', obj.fields)
+            fields = obj.fields
+            if obj.display_field not in obj.fields:
+                fields = [obj.display_field] + obj.fields
+
+            obj.store.setdefault('fields', fields)
 
             if hasattr(obj, 'pack') and obj.pack:
                 assert isinstance(obj.pack, basestring) or hasattr(obj.pack, '__bases__'), (
@@ -62,10 +68,10 @@ class UIJsonEncoder(_M3JSONEncoder):
             if hasattr(obj, 'GridTopBar') or hasattr(obj, 'LiveGridTopBar'):
 
                 def _set_url(_obj, url, action):
+                    # url имеют приоритет над action
                     if not getattr(_obj, url, None) and getattr(_obj, action):
                         setattr(_obj, url, urls.get_url(getattr(_obj, action)))
 
-                # url имеют приоритет над action
                 _set_url(obj, 'url_new', 'action_new')
                 _set_url(obj, 'url_edit', 'action_edit')
                 _set_url(obj, 'url_delete', 'action_delete')
@@ -92,6 +98,30 @@ class UIJsonEncoder(_M3JSONEncoder):
         # для контролов, которые еще используют extra
         elif hasattr(obj, 'extra') and isinstance(obj.extra, dict):
             obj._config.update(obj.extra)
+
+        # Поля
+        if hasattr(obj, 'invalid_class'):
+            if getattr(obj, 'read_only', None):
+                grey_cls = 'm3-grey-field'
+                if getattr(obj, 'cls', None):
+                    obj.cls += ' %s' % grey_cls
+                obj.cls = grey_cls
+
+            if hasattr(obj, 'regex'):
+                obj.regex = '/%s/' % obj.regex
+
+            if getattr(obj, 'max_length', None):
+                obj.auto_create.update({"maxlength": obj.max_length})
+
+            if hasattr(obj, 'mask_re'):
+                obj.mask_re = '/%s/' % obj.mask_re
+
+            if hasattr(obj, 'value'):
+                obj.value = escapejs(obj.value)
+
+        if hasattr(obj, 'help_topic'):
+            obj.help_topic = settings.HELP_PREFIX + obj.help_topic[0] + '.html' + (
+                '#' + obj.help_topic[1] if len(obj.help_topic) > 1 else '')
 
         return obj
 

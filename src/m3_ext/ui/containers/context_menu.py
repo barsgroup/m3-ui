@@ -38,24 +38,27 @@ class ExtContextMenuItem(ExtUIComponent):
     Элемент контекстного меню
     """
 
+    # FIXME: Что-то сомнительное. См. функцию render
+    # self.custom_handler = False
+
     _xtype = 'menuitem'
 
     js_attrs = ExtUIComponent.js_attrs.extend(
-        'menu', 'text', 'disabled', icon_cls='iconCls')
+        'menu',  # Ссылка на меню, если имеется вложенное меню
+        'text',  # Текст для отображения
+        'disabled',  # Флаг недоступности элемента меню
+        icon_cls='iconCls'  # CSS класс иконок
+    )
+
+    deprecated_attrs = ExtUIComponent.deprecated_attrs + (
+        'handler',  # bind to handler in js-file
+    )
 
     def __init__(self, *args, **kwargs):
         super(ExtContextMenuItem, self).__init__(*args, **kwargs)
-
-        # Текст для отображения
         self.setdefault('text', None)
-
-        # Ссылка на меню, если имеется вложенное меню
         self.setdefault('menu', None)
-
-        # Флаг недоступности элемента меню
         self.setdefault('disabled', False)
-
-        # CSS класс иконок
         self.setdefault('icon_cls', '')
 
         # # Идентификатор внутри меню
@@ -63,9 +66,6 @@ class ExtContextMenuItem(ExtUIComponent):
 
         # # Функция-обработчик
         # self.handler = None
-
-        # # FIXME: Что-то сомнительное. См. функцию render
-        # self.custom_handler = False
 
         # TODO: Написать и использовать отдельные классы: menucheckitem, etc.
         # этим параметром можно задавать тип элемента меню: menucheckitem,

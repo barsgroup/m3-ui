@@ -45,6 +45,7 @@ class ExtGrid(BaseExtPanel):
         'view',  # grid view
         'cm',  # модель колонок
         'plugins',  # список плагинов
+        col_model='cm',  # deprecation: backwards compat - use cm
         view_config='viewConfig',
         stripe_rows='stripeRows',  # Раскраска строк черз одну
         column_lines='columnLines',  # Признак отображения вертикальных линий в гриде
@@ -68,6 +69,7 @@ class ExtGrid(BaseExtPanel):
         'handler_dblclick',  # через js
         'get_row_class',  # через js
         'handler_dblclick',
+        'col_model',  # use cm
     )
 
     def __init__(self, *args, **kwargs):
@@ -153,11 +155,11 @@ class ExtGrid(BaseExtPanel):
         """
         self.banded_columns = []
 
-    @_must_be_replaced_by('store')
+    @_must_be_replaced_by('use store attr')
     def set_store(self, store):
         self.store = store
 
-    @_must_be_replaced_by('store')
+    @_must_be_replaced_by('use store attr')
     def get_store(self):
         return self.store
 
@@ -198,17 +200,15 @@ class ExtEditorGrid(ExtGrid):
     _xtype = 'm3-edit-grid'
 
     js_attrs = ExtGrid.js_attrs.extend(
-        clicks_to_edit='clicksToEdit',
+        clicks_to_edit='clicksToEdit',  # Сколько раз нужно щелкнуть для редактирования ячейки.
     )
 
     def __init__(self, *args, **kwargs):
         super(ExtEditorGrid, self).__init__(*args, **kwargs)
-        # Сколько раз нужно щелкнуть для редактирования ячейки.
-        # Только для EditorGridPanel
         self.setdefault('clicks_to_edit', 2)
 
 
-class BaseExtGridColumn(BaseExtComponent):
+class ExtGridColumn(BaseExtComponent):
     """
     Базовая модель колонки грида
     """
@@ -246,9 +246,9 @@ class BaseExtGridColumn(BaseExtComponent):
     )
 
     def __init__(self, *args, **kwargs):
-        super(BaseExtGridColumn, self).__init__(*args, **kwargs)
+        super(ExtGridColumn, self).__init__(*args, **kwargs)
         self.setdefault('sortable', False)
-        self.setdefault('width', BaseExtGridColumn.GRID_COLUMN_DEFAULT_WIDTH)
+        self.setdefault('width', ExtGridColumn.GRID_COLUMN_DEFAULT_WIDTH)
         self.setdefault('fixed', False)
         self.setdefault('locked', False)
         self.setdefault('menu_disabled', False)
@@ -266,20 +266,13 @@ class BaseExtGridColumn(BaseExtComponent):
                 self.read_only, exclude_list, *args, **kwargs)
 
 
-class ExtGridColumn(BaseExtGridColumn):
-    """
-    Модель колонки грида
-    """
-    pass
-
-
-class ExtGridBooleanColumn(BaseExtGridColumn):
+class ExtGridBooleanColumn(ExtGridColumn):
     """
     Модель булевой колонки грида
     """
     _xtype = 'booleancolumn'
 
-    js_attrs = BaseExtGridColumn.js_attrs.extend(
+    js_attrs = ExtGridColumn.js_attrs.extend(
         text_false='falseText',
         text_true='trueText',
         text_undefined='undefinedText',
@@ -291,21 +284,21 @@ class ExtGridBooleanColumn(BaseExtGridColumn):
         self.setdefault('text_true', 'true')
 
 
-class ExtGridCheckColumn(BaseExtGridColumn):
+class ExtGridCheckColumn(ExtGridColumn):
     """
     Модель колонки грида, содержащей чекбоксы
     """
     _xtype = 'checkcolumn'
 
 
-class ExtGridNumberColumn(BaseExtGridColumn):
+class ExtGridNumberColumn(ExtGridColumn):
     """
     Модель колонки грида, содержащей числа
     """
     _xtype = 'numbercolumn'
 
 
-class ExtGridDateColumn(BaseExtGridColumn):
+class ExtGridDateColumn(ExtGridColumn):
     """
     Модель колонки грида с форматом даты
     """
@@ -319,19 +312,13 @@ class ExtGridDateColumn(BaseExtGridColumn):
             self.format = 'd.m.Y'
 
 
-class BaseExtGridSelModel(BaseExtComponent):
-    """
-    Базовая модель для грида с выбором
-    """
-    pass
-
-class ExtGridCheckBoxSelModel(BaseExtGridSelModel):
+class ExtGridCheckBoxSelModel(BaseExtComponent):
     """
     Модель для грида с возможностью выбора ячейки
     """
     _xtype = 'sm-checkbox'
 
-    js_attrs = BaseExtGridSelModel.js_attrs.extend(
+    js_attrs = BaseExtComponent.js_attrs.extend(
         single_select='singleSelect',
         check_only='checkOnly',
     )
@@ -342,13 +329,13 @@ class ExtGridCheckBoxSelModel(BaseExtGridSelModel):
         self.setdefault('check_only', False)
 
 
-class ExtGridRowSelModel(BaseExtGridSelModel):
+class ExtGridRowSelModel(BaseExtComponent):
     """
     Модель для грида с выбором строк
     """
     _xtype = 'sm-row'
 
-    js_attrs = BaseExtGridSelModel.js_attrs.extend(
+    js_attrs = BaseExtComponent.js_attrs.extend(
         single_select='singleSelect',
     )
 
@@ -357,25 +344,11 @@ class ExtGridRowSelModel(BaseExtGridSelModel):
         self.setdefault('single_select', False)
 
 
-class ExtGridCellSelModel(BaseExtGridSelModel):
+class ExtGridCellSelModel(BaseExtComponent):
     """
     Модель для грида с выбором ячеек
     """
     _xtype = 'sm-cell'
-
-
-class ExtGridDefaultColumnModel(BaseExtComponent):
-    """
-    Модель колонок для грида по-умолчанию
-    """
-    # TODO: Этот класс, т.к. ссылка на грид порождает цикличную связь
-    def __init__(self, *args, **kwargs):
-        super(ExtGridDefaultColumnModel, self).__init__(*args, **kwargs)
-        self.grid = None
-
-    def render(self):
-        return 'new Ext.grid.ColumnModel({columns:%s})' % (
-            self.grid.t_render_columns())
 
 
 class ExtGridLockingColumnModel(BaseExtComponent):

@@ -146,6 +146,11 @@ class ExtTabPanel(BaseExtPanel):
         # Если False, то TabPanel указывается фиксированная ширина, либо она подчиняется layout родителя
         auto_width='autoWidth',
         tab_position='tabPosition',  # Позиция отображения табов: возможные варианты TOP и BOTTOM
+        tabs='items',  # deprecation: use items
+    )
+
+    deprecated_attrs = ExtPanel.deprecated_attrs + (
+        'tabs',
     )
 
     def __init__(self, *args, **kwargs):
@@ -162,10 +167,6 @@ class ExtTabPanel(BaseExtPanel):
         self.tabs.append(panel)
         return panel
 
-    @property
-    def tabs(self):
-        return self.items
-
 
 class ExtFieldSet(ExtPanel):
     """
@@ -175,27 +176,15 @@ class ExtFieldSet(ExtPanel):
     _xtype = 'fieldset'
 
     js_attrs = ExtPanel.js_attrs.extend(
+        'checkboxToggle',  # deprecation: use checkbox_toggle
         checkbox_toggle='checkboxToggle',
         checkbox_name='checkboxName',
+    )
+
+    deprecated_attrs = ExtPanel.deprecated_attrs + (
+        'checkboxToggle',
     )
 
     def __init__(self, *args, **kwargs):
         super(ExtFieldSet, self).__init__(*args, **kwargs)
         self.setdefault('checkbox_toggle', False)
-
-
-    @property
-    def checkboxToggle(self):
-        """
-        TODO: Посмотреть список мест, где используется
-        deprecated: Оставлено для обратной совместимости
-        """
-        return self.checkbox_toggle
-
-    @checkboxToggle.setter
-    def checkboxToggle(self, value):
-        """
-        TODO: Посмотреть список мест, где используется
-        deprecated: Оставлено для обратной совместимости
-        """
-        self.checkbox_toggle = value

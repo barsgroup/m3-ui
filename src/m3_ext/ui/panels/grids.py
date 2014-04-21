@@ -91,7 +91,7 @@ class ExtObjectGrid(containers.ExtGrid):
         row_id_name='params.rowIdName',  # Поля для id записи
         column_param_name='params.columnParamName',  # Имя параметра, через который передается имя выделенной колонки
 
-        # Признак редактирования на клиенте - особенным образом обрабатываются данные при редактировании
+        # Признак редактирования на клиентеpaging_bar - особенным образом обрабатываются данные при редактировании
         local_edit='params.localEdit',
         url_new='params.actions.newUrl',  # Адрес для новой записи.
         url_edit='params.actions.editUrl',  # Адрес для изменения
@@ -315,7 +315,7 @@ class ExtMultiGroupinGrid(containers.ExtGrid):
         self.setdefault('load_mask', True)
 
         # Стор для загрузки данных
-        self.store = misc.store.ExtMultiGroupingStore(
+        self.store = misc.ExtMultiGroupingStore(
             auto_load=True, root='rows', id_property='index')
 
         # Признак редактирования на клиенте

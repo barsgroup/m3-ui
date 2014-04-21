@@ -1,8 +1,6 @@
 #coding:utf-8
 """
 Created on 3.3.2010
-
-@author: prefer
 """
 
 from m3_ext.ui.base import BaseExtComponent
