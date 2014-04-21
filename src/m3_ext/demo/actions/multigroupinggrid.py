@@ -1,10 +1,9 @@
 # -*- coding: utf-8 -*-
 from m3.actions import Action, ACD, PreJsonResult
-from m3.actions.urls import get_url
-from m3.actions.utils import extract_int
 from m3_ext.demo.actions import UIAction, Pack
 from m3_ext.ui import all_components as ext
 from m3_ext.ui.results import ExtGridDataQueryResult
+from m3_legacy.datagrouping import GroupingRecordDataProvider
 
 
 @Pack.register
@@ -30,6 +29,7 @@ class MultiGroupingGridAction(UIAction):
         grid.add_column(header=u'Код', data_index='code')
         grid.add_column(header=u'Наименование', data_index='name')
         grid.add_column(header=u'Категория', data_index='cat', groupable=True)
+        grid.add_column(header=u'Тип', data_index='type', groupable=True)
         grid.action_data = MultiGroupingDataAction
         grid.groupable = True
 
@@ -47,6 +47,7 @@ class MultiGroupingDataAction(Action):
     url = '/multigroupinggrid-data'
 
     cats = [u'Категория А', u'Категория Б', u'Категория В', u'Категория Г']
+    types = [u'Группа 0', u'Группа 1', u'Группа 2']
 
     def context_declaration(self):
         return [
@@ -54,25 +55,32 @@ class MultiGroupingDataAction(Action):
             ACD(name='limit', type=int, required=True, default=200),
             ACD(name='exp', type=object, required=True, default=[]),
             ACD(name='grouped', type=object, required=True, default=[]),
-            # ACD(name='grouping', required=True, type=int),
-            # ACD(name='multisort', required=False, type=object),
         ]
 
     def run(self, request, context):
         data = [
-            {'id': str(i), 'code': u'Код %s' % i,
-             'name': u'Наименование %s' % i,
-             'cat': u'Категория %s' % self.cats[i%4]}
-            for i in xrange(100000)
+            {
+                'id': str(i), 'code': u'Код %s' % i,
+                'name': u'Наименование %s' % i,
+                'cat': self.cats[i%4],
+                'type': self.types[i%3]
+            }
+            for i in xrange(1000)
         ]
         start = context.start
         limit = context.limit
-        return ExtGridDataQueryResult(data, start, limit)
-        # rows = []
-        # return PreJsonResult({
-        #     "data": rows,
-        #     "count": len(rows),
-        #     "totalCount": total[0] if isinstance(total, Iterable) else total,
-        #     "totalRow": total[1] if isinstance(total, Iterable) else total,
-        #     "exp" : exp
-        # })
+        # Пытаемся группировать
+        exp = context.exp
+        proxy = {'id': None, 'code': None, 'name': None, 'cat': None, 'type': None}
+        provider = GroupingRecordDataProvider(proxy=proxy, data=data)
+        rows, total = provider.get_elements(
+            begin=start,
+            end=start+limit,
+            grouped=context.grouped,
+            expanded=exp,
+            sorting=[])
+        return PreJsonResult({
+            "rows": rows,
+            "total": total,
+            "exp": exp
+        })

@@ -278,9 +278,13 @@ class ExtMultiGroupinGrid(containers.ExtGrid):
         grouped='params.groupedColumns',
     )
 
+    deprecated_attrs = containers.ExtGrid.deprecated_attrs + (
+        'handler_beforenew',
+        'handler_beforeedit',
+    )
+
     def __init__(self, *args, **kwargs):
         super(ExtMultiGroupinGrid, self).__init__(*args, **kwargs)
-        self.template = 'ext-grids/ext-multigrouping-grid.js'
         # Поле в котором будет содержаться значение ключа группировки
         # должно отличаться от ключевого поля Store,
         # т.к. должно содержать совсем другие данные
@@ -311,14 +315,11 @@ class ExtMultiGroupinGrid(containers.ExtGrid):
         # Поля для id записи
         self.setdefault('row_id_name', 'row_id')
 
-        # Обработчик двойного клика
-        self.dblclick_handler = 'onEditRecord'
-
         # Топ бар для грида
         self.setdefault('top_bar', ExtMultiGroupinGrid.LiveGridTopBar())
 
         # Признак того, маскировать ли грид при загрузки
-        self.load_mask = True
+        self.setdefault('load_mask', True)
 
         # Стор для загрузки данных
         self.store = misc.store.ExtMultiGroupingStore(
@@ -346,29 +347,7 @@ class ExtMultiGroupinGrid(containers.ExtGrid):
         # Обычно 1/4 или 1/2 от объема буфера
         self.setdefault('near_limit', 100)
 
-        # Стиль заголовка колонки.
-        # Применяется ко всем колонкам. Например: 'text-align: center;'
-        self.header_style = ''
-
-        # Url для пака
-        self.url_data = self.url_new = self.url_edit = self.url_delete = None
-
-    @property
-    def handler_beforenew(self):
-        return self._listeners.get('beforenewrequest')
-
-    @handler_beforenew.setter
-    def handler_beforenew(self, function):
-        self._listeners['beforenewrequest'] = function
-
-    @property
-    def handler_beforeedit(self):
-        return self._listeners.get('beforeeditrequest')
-
-    @handler_beforeedit.setter
-    def handler_beforeedit(self, function):
-        self._listeners['beforeeditrequest'] = function
-
+    # FIXME: перенести make_read_only в js-код
     def _make_read_only(
             self, access_off=True, exclude_list=(), *args, **kwargs):
 

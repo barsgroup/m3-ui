@@ -33,7 +33,6 @@ class ExtJsonStore(BaseExtStore):
         start='baseParams.start',  # Начальная позиция для показа, если используется постраничная навигация
         limit='baseParams.limit',  # Количество записей для показа, если используется постраничная навигация
         remote_sort='remoteSort'  # Использовать ли удаленную сортировку
-
     )
 
     def __init__(self, *args, **kwargs):
@@ -92,10 +91,10 @@ class ExtMultiGroupingStore(ExtJsonStore):
 
     js_attrs = BaseExtStore.js_attrs.extend(
         'bufferSize',  # Размер буфера
+        version_property='version',
     )
 
     def __init__(self, *args, **kwargs):
         super(ExtMultiGroupingStore, self).__init__(*args, **kwargs)
-        self.template = 'ext-misc/ext-livegrid-store.js'
-        self.version_property = 'version'
+        self.setdefault('version_property', 'version')
         self.setdefault('bufferSize', 200)
