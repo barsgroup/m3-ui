@@ -140,7 +140,7 @@ class DesktopModel(object):
             :rtype: bool
             """
             pack = getattr(elem, 'pack', None)
-            if pack is None:
+            if pack is None or isinstance(pack, ActionPack):
                 return True
             else:
                 return pack.has_perm(request)
