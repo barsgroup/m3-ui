@@ -20,6 +20,7 @@ class UIJsonEncoder(_M3JSONEncoder):
     """
     JSONEncoder, совместимый с клиентским рендерингом
     """
+
     def default(self, obj):
         cfg = getattr(self.make_compatible(obj), '_config')
         if cfg is not None:
@@ -41,7 +42,6 @@ class UIJsonEncoder(_M3JSONEncoder):
             obj.store.setdefault('fields', obj.fields)
 
             if hasattr(obj, 'pack') and obj.pack:
-
                 assert isinstance(obj.pack, basestring) or hasattr(obj.pack, '__bases__'), (
                     'Argument %s must be a basestring or class' % obj.pack)
                 pack = ControllerCache.find_pack(obj.pack)
@@ -59,37 +59,35 @@ class UIJsonEncoder(_M3JSONEncoder):
             obj.store.setdefault('fields', fields)
 
             # для ObjectGrid и ExtMultiGroupinGrid надо проставлять url из экшенов
-            if class_name == 'ExtMultiGroupinGrid' or class_name == 'ExtObjectGrid':
-                # Адреса имеют приоритет над экшенами!
-                if (not hasattr(obj, 'url_new') or not obj.url_new) and obj.action_new:
-                    obj.url_new = urls.get_url(obj.action_new)
-                if (not hasattr(obj, 'url_edit') or not obj.url_edit) and obj.action_edit:
-                    obj.url_edit = urls.get_url(obj.action_edit)
-                if (not hasattr(obj, 'url_delete') or not obj.url_delete) and obj.action_delete:
-                    obj.url_delete = urls.get_url(obj.action_delete)
-                if (not hasattr(obj, 'url_data') or not obj.url_data) and obj.action_data:
-                    obj.url_data = urls.get_url(obj.action_data)
+            if hasattr(obj, 'GridTopBar') or hasattr(obj, 'LiveGridTopBar'):
 
-                if class_name == 'ExtMultiGroupinGrid':
-                    if (not hasattr(obj, 'url_export') or
-                            not obj.url_export) and obj.action_export:
-                        obj.url_export = urls.get_url(obj.action_export)
+                def _set_url(_obj, url, action):
+                    if not getattr(_obj, url, None) and getattr(_obj, action):
+                        setattr(_obj, url, urls.get_url(getattr(_obj, action)))
+
+                # url имеют приоритет над action
+                _set_url(obj, 'url_new', 'action_new')
+                _set_url(obj, 'url_edit', 'action_edit')
+                _set_url(obj, 'url_delete', 'action_delete')
+                _set_url(obj, 'url_data', 'action_data')
+
+                if hasattr(obj, 'LiveGridTopBar'):
+                    _set_url(obj, 'url_export', 'action_export')
+
+                elif hasattr(obj, 'GridTopBar'):
+                    # Если store не экземпляр ExtJsonStore,
+                    # то у него нет атрибута limit
+                    if hasattr(obj.store, 'limit'):
+                        obj.store.limit = obj.limit
+
+                    # Настройка постраничного просмотра
+                    if obj.allow_paging:
+                        obj.paging_bar.page_size = obj.limit
+                        obj.bottom_bar = obj.paging_bar
 
                 # store надо обязательно проставить url
                 if obj.url_data:
                     obj.store.url = obj.url_data
-
-            # для ObjectGrid
-            if class_name == 'ExtObjectGrid':
-                # Если store не экземпляр ExtJsonStore,
-                # то у него нет атрибута limit
-                if hasattr(obj.store, 'limit'):
-                    obj.store.limit = obj.limit
-
-                # Настройка постраничного просмотра
-                if obj.allow_paging:
-                    obj.paging_bar.page_size = obj.limit
-                    obj.bottom_bar = obj.paging_bar
 
         # для контролов, которые еще используют extra
         elif hasattr(obj, 'extra') and isinstance(obj.extra, dict):
@@ -102,6 +100,7 @@ class UIResult(_PreJsonResult):
     """
     Результат, совместимый с клиентским рендерингом
     """
+
     def __init__(self, data, *args, **kwargs):
         super(UIResult, self).__init__({
             'success': True,
@@ -120,6 +119,7 @@ class ExtUIScriptResult(_BaseContextedResult):
     .. note::
         Т.е. должен быть вызван метод self.data.get_script()
     """
+
     def __init__(
             self, data=None, context=None,
             http_params=None, secret_values=False):
@@ -144,6 +144,7 @@ class ExtUIComponentResult(_BaseContextedResult):
     В self.data хранится некоторый наследник класса m3_ext_demo.ui.ExtUiComponent.
     Метод get_http_response выполняет метод render у объекта в self.data.
     """
+
     def get_http_response(self):
         self.data.action_context = self.context
         return http.HttpResponse(self.data.render())
@@ -155,6 +156,7 @@ class ExtGridDataQueryResult(_ActionResult):
     который выдает данные в формате, пригодном для
     отображения в гриде
     """
+
     def __init__(self, data=None, start=-1, limit=-1):
         super(ExtGridDataQueryResult, self).__init__(data)
         self.start = start

@@ -29,6 +29,7 @@ class ObjectGridAction(UIAction):
         grid = ext.ExtObjectGrid()
         grid.add_column(header=u'Код', data_index='code')
         grid.add_column(header=u'Наименование', data_index='name')
+
         # разнообразный способ назначения url
         grid.action_data = DataAction
         grid.url_new = get_url(ObjectGridNewAction)

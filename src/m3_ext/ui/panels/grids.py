@@ -3,14 +3,11 @@
 Модуль с преднастроенными панелями-гридами
 
 Created on 26.05.2010
-
-@author: akvarats
 """
 import json
 
-from m3_ext.ui import containers, controls, menus, misc, render_component
+from m3_ext.ui import containers, controls, menus, misc
 from m3_ext.ui.base import ExtUIComponent, BaseExtComponent
-from m3.actions.urls import get_url
 from m3_ext.ui.containers.grids import ExtGridCheckBoxSelModel
 
 
@@ -53,7 +50,6 @@ class ExtObjectGrid(containers.ExtGrid):
                 self.menuitem_separator,
             ])
 
-
     class GridTopBar(containers.ExtToolBar):
         """
         Внутренний класс для удобной работы топбаром грида
@@ -88,18 +84,15 @@ class ExtObjectGrid(containers.ExtGrid):
                 self.button_refresh,
             ])
 
-
-    #==========================================================================
-    # Собственно определение класса ExtObjectGrid
-    #=========================================================================
-
     _xtype = 'm3-object-grid'
 
     js_attrs = containers.ExtGrid.js_attrs.extend(
         allow_paging='params.allowPaging',  # Использовать постраничную навигацию
         row_id_name='params.rowIdName',  # Поля для id записи
         column_param_name='params.columnParamName',  # Имя параметра, через который передается имя выделенной колонки
-        local_edit='params.localEdit',  # Признак редактирования на клиенте - особенным образом обрабатываются данные при редактировании
+
+        # Признак редактирования на клиенте - особенным образом обрабатываются данные при редактировании
+        local_edit='params.localEdit',
         url_new='params.actions.newUrl',  # Адрес для новой записи.
         url_edit='params.actions.editUrl',  # Адрес для изменения
         url_delete='params.actions.deleteUrl',  # Адрес для удаления
@@ -168,7 +161,6 @@ class ExtObjectGrid(containers.ExtGrid):
         # для одновременного изменения с атрибутом page_size paging_bar-а
         self.setdefault('limit', 25)
 
-    # FIXME: перенести make_read_only в js-код
     def _make_read_only(
             self, access_off=True, exclude_list=(), *args, **kwargs):
         self.read_only = access_off
@@ -221,7 +213,6 @@ class ExtMultiGroupinGrid(containers.ExtGrid):
                 self.csv,
             ])
 
-
     class LiveGridTopBar(containers.ExtToolBar):
         """
         Внутренний класс для удобной работы топбаром грида
@@ -263,7 +254,9 @@ class ExtMultiGroupinGrid(containers.ExtGrid):
     js_attrs = containers.ExtGrid.js_attrs.extend(
         groupable='params.groupable',
         row_id_name='params.rowIdName',  # Поля для id записи
-        local_edit='params.localEdit',  # Признак редактирования на клиенте - особенным образом обрабатываются данные при редактировании
+
+        # Признак редактирования на клиенте - особенным образом обрабатываются данные при редактировании
+        local_edit='params.localEdit',
         url_new='params.actions.newUrl',  # Адрес для новой записи.
         url_edit='params.actions.editUrl',  # Адрес для изменения
         url_delete='params.actions.deleteUrl',  # Адрес для удаления
