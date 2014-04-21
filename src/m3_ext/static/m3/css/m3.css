@@ -293,3 +293,13 @@ span.CodeMirror-selected {
     -webkit-box-sizing: border-box;
 }
 
+/*
+Исправление отображения столбцов грида в Webkit. По мотивам:
+http://stackoverflow.com/questions/19000022/ext-js-grid-body-width-issue-on-google-chrome
+*/
+@media screen and (-webkit-min-device-pixel-ratio: 0) {
+    .x-grid3-cell, /* Normal grid cell */
+    .x-grid3-gcell { /* Grouped grid cell (esp. in head) */
+        box-sizing: border-box;
+    }
+}  
