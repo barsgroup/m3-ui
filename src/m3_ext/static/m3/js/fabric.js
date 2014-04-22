@@ -31,7 +31,7 @@ function UI(config) {
                 // FIXME: static/ - необходимо настраивать в index.html
 
                 require([config['staticPrefix'] + module + '.js'], function () {
-                    if (true){
+                    if (config['debug']){
                         require.undef(config['staticPrefix'] + module + '.js');
                     }
 

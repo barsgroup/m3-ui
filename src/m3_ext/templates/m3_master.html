@@ -126,9 +126,9 @@
     function evalResult(data) {
         var obj = Ext.decode(data);
         if (!obj) {
-            return;
+            return null;
         }
-        return Q().then(function () {
+        return new Q().then(function () {
             if (obj.message) {
                 return msgBox({
                     title: 'Внимание',
@@ -144,17 +144,15 @@
         }).then(function () {
             if (obj.code) {
                 if (obj.code.ui) {
-                    return appUI.create(
-                                    obj.code
-                            ).then(function (win) {
-                                AppDesktop.getDesktop().createWindow(win);
-                                win.show();
-                            })
+                    return appUI.create(obj.code).then(function (win) {
+                        AppDesktop.getDesktop().createWindow(win);
+                        win.show();
+                    })
                 } else {
                     return obj.code
                 }
             } else {
-                return;
+                return null;
             }
         });
     }

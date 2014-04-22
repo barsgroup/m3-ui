@@ -18,6 +18,7 @@ Ext.demo.EditWindow = Ext.extend(Ext.m3.EditWindow, {
             this.close();
         }, this);
     }
+
 });
 
 Ext.reg('demo-edit-window', Ext.demo.EditWindow);
