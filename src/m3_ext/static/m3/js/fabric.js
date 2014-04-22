@@ -25,16 +25,19 @@ function UI(config) {
 
             // FIXME: Эти штуки надо exclud'ить в m3.js
             // иметь возможность сделать exclude в index.html
-            if (['m3-edit-window',
-                'm3-window',
-                'window'
-            ].indexOf(module) >= 0) {
+            if (config['requireExclude'].indexOf(module) >= 0) {
                 result.resolve(cfg);
             } else {
                 // FIXME: static/ - необходимо настраивать в index.html
-                require(['static/' + module], function () {
+
+                require([config['staticPrefix'] + module + '.js'], function () {
+                    if (true){
+                        require.undef(config['staticPrefix'] + module + '.js');
+                    }
+
                     result.resolve(cfg);
                 });
+
             }
 
             return result.promise;

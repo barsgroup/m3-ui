@@ -10,15 +10,14 @@ Ext.demo.EditWindow = Ext.extend(Ext.m3.EditWindow, {
         var form = this.find('itemId', 'form')[0],
             field = this.find('itemId', 'edit-field-id')[0];
 
-        form.buttons[0].on('click', function (b, e) {
+        this.buttons[0].on('click', function (b, e) {
             Ext.Msg.alert("", field.getValue());
         }, this);
 
-        form.buttons[1].on('click', function (b, e) {
+        this.buttons[1].on('click', function (b, e) {
             this.close();
         }, this);
     }
-
 });
 
 Ext.reg('demo-edit-window', Ext.demo.EditWindow);

@@ -103,6 +103,13 @@
     });
 
     var appUI = new UI({
+        staticPrefix: '{{ STATIC_URL }}',
+        debug: true,
+        requireExclude: [
+            'm3-edit-window',
+            'm3-window',
+            'window'
+        ],
         confStorage: function (key) {
             // конфиги всегда будут грузиться с сервера
             return UI.ajax(key, {'ui': true}, 'ui').then(evalResult);

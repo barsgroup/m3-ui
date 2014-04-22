@@ -14,32 +14,25 @@ class EditWindowAction(UIAction):
     def get_ui(self, request, context):
         win = ext.ExtEditWindow(
             xtype='demo-edit-window',
-            # title=u'Окно с формой',
+            title=u'Окно с формой',
             layout='form',
             width=250,
-            height=150)
-
-        # FIXME: Заменить на полноценный ExtForm c полями после конвертации
-        win.form = {
-            'labelWidth': 75,
-            'width': 230,
-            'height': 100,
-            'frame': True,
-            'itemId': 'form',
-            'xtype': 'form',
-            'defaultType': 'textfield',
-            'items': [
-                {
-                    'fieldLabel': u'Поле ввода',
-                    'xtype': 'textfield',
-                    'itemId': 'edit-field-id'
-                },
-            ],
-            'buttons': [
+            height=150,
+            buttons=[
                 ext.ExtButton(text=u'Отобразить'),
                 ext.ExtButton(text=u'Отмена')
-            ]
-        }
+            ])
+
+        win.form = ext.ExtForm(
+            label_width=75,
+            width=230,
+            height=100,
+            frame=True,
+            default_type='textfield',
+            items=[
+                ext.ExtStringField(item_id='edit-field-id')
+            ],
+        )
 
         return win
 
