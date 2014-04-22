@@ -4,8 +4,7 @@ from m3.actions import Action
 from m3.actions.urls import get_url
 from m3_ext.ui import all_components as ext
 
-from base import Pack, UIAction
-
+from m3_ext.demo.actions.base import Pack, UIAction
 
 @Pack.register
 class SimpleGridAction(UIAction):

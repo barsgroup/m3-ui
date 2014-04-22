@@ -18,7 +18,7 @@ def register_actions():
 def register_desktop_menu():
     uificate_the_controller(
         controller,
-        menu_root=MainMenu.SubMenu(u'M3_Ext Demo')
+        # menu_root=MainMenu.SubMenu(u'M3_Ext Demo')
     )
 
 

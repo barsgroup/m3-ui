@@ -1,7 +1,7 @@
 #coding: utf-8
+from m3_ext.ui import all_components as ext
 
-from base import Pack, UIAction
-from m3_ext.ui import all_components as ext, all_components
+from m3_ext.demo.actions import UIAction, Pack
 
 __author__ = 'prefer'
 

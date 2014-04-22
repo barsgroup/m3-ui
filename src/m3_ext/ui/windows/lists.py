@@ -5,11 +5,11 @@ Created on 26.05.2010
 @author: akvarats
 """
 
-from base import BaseExtWindow
+from base import ExtWindow
 from m3_ext.ui.panels.grids import ExtObjectGrid
 
 
-class BaseExtListWindow(BaseExtWindow):
+class BaseExtListWindow(ExtWindow):
     """
     Базовое окно со списком записей.
     """

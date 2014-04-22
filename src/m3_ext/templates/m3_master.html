@@ -103,7 +103,9 @@
     var appUI = new UI({
         jsStorage: function (key) {
             return UI.ajax(
-                    key, {'js': true}, 'js'
+                    key,
+                    {'js': true},
+                    'js'
             ).then(function (s) {
                         // костыль, ибо нельзя эвалить анонимные функции
                         return eval('false||' + s);
@@ -123,7 +125,7 @@
     }
 
     function evalResult(data) {
-        var obj = Ext.util.JSON.decode(data);
+        var obj = Ext.decode(data);
         if (!obj) {
             return;
         }

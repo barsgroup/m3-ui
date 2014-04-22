@@ -10,6 +10,7 @@ class MenuAction(UIAction):
     Пример панели
     """
     title = u'Окно с меню'
+    menu = 'other'
 
     def get_js(self, request, context):
         return u"""function(win, data){

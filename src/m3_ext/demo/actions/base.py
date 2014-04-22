@@ -1,6 +1,9 @@
 #coding: utf-8
+import os
+import inspect
 
 from django import http
+
 from m3.actions import ActionPack, Action
 from m3_ext.ui import all_components as ext
 from m3_ext.ui.results import UIResult
@@ -22,13 +25,22 @@ class Pack(ActionPack):
 
     def extend_menu(self, menu):
         return tuple(
-            menu.Item(a.title, pack=a)
+            menu.SubMenu(
+                a.menu,
+                menu.Item(a.title, pack=a)
+            )
             for a in self.actions
             if getattr(a, 'title', None)
         )
 
     @classmethod
     def register(cls, action_clz):
+
+        if not getattr(action_clz, 'menu', None):
+            action_clz.menu = os.path.basename(
+                os.path.dirname(
+                    inspect.getsourcefile(action_clz)))
+
         cls.action_classses.add(action_clz)
         return action_clz
 
@@ -40,6 +52,8 @@ class UIAction(Action):
         Название пункта меню и умолчательный заголовок окна
         """
         return self.__class__.__name__
+
+    menu = None
 
     @property
     def url(self):

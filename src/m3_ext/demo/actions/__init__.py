@@ -1,16 +1,13 @@
 # -*- coding: utf-8 -*-
 
 from base import *
-from grid import *
-from sample import *
-from windows import *
-from forms import *
+from containers.forms import *
 from menus import *
 from fields import *
-from dictfield import *
-from searchfield import *
-from uploadfields import *
-from conteintertable import *
-from objectgrid import *
-from trees import *
-from multigroupinggrid import *
+from fields.dictfield import *
+from fields.searchfield import *
+from fields.uploadfields import *
+from containers.conteintertable import *
+from grids.objectgrid import *
+from tree.trees import *
+from grids.multigroupinggrid import *

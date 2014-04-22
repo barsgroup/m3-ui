@@ -11,6 +11,7 @@ class SampleAction(UIAction):
     Пример оконного экшна
     """
     title = u'Простое окно с кнопкой'
+    menu = 'other'
 
     def get_js(self, request, context):
         return """function(w, d){

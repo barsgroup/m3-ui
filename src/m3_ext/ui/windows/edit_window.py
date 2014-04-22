@@ -3,22 +3,22 @@
 Created on 02.03.2010
 """
 
-from base import BaseExtWindow
+from base import ExtWindow
 
 
-class ExtEditWindow(BaseExtWindow):
+class ExtEditWindow(ExtWindow):
     """
     Базовый класс окна редактрирования
     """
 
     _xtype = 'm3-edit-window'
 
-    js_attrs = BaseExtWindow.js_attrs.extend(
+    js_attrs = ExtWindow.js_attrs.extend(
         'form',
         data_url='dataUrl',
     )
 
-    deprecated_attrs = BaseExtWindow.deprecated_attrs + (
+    deprecated_attrs = ExtWindow.deprecated_attrs + (
         'handler_beforesubmit',
     )
 

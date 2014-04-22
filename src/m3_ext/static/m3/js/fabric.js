@@ -27,7 +27,7 @@ function UI(config) {
         ]).spread(function(cfgAndData, init){
             // формируем UI widget
             var widget = that.uiFabric(cfgAndData[0]);
-            // и вызываем инициализирующую функцияю (полученную из jsStorage)
+            // и вызываем инициализирующую функцию (полученную из jsStorage)
             return Q.fcall(
                 init, widget, cfgAndData[1]
             ).then(function(){
@@ -44,6 +44,7 @@ function UI(config) {
 UI.ajax = function(url, params, queryString) {
     var result = Q.defer(),
         fullUrl = url + (queryString != undefined ? ("?" + queryString) : "");
+
     Ext.Ajax.request({
         url: fullUrl,
         method: 'GET',
