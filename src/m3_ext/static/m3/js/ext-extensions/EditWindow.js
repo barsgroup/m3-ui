@@ -25,11 +25,12 @@ Ext.m3.EditWindow = Ext.extend(Ext.m3.Window, {
      * Инициализация дополнительного функционала
      */
     initComponent: function () {
-        if (this.form){
-            this.insert(0, this.form);
+        Ext.m3.EditWindow.superclass.initComponent.call(this);
+
+        if (this.form) {
+            this.insert(0, Ext.create(this.form));
         }
 
-        Ext.m3.EditWindow.superclass.initComponent.call(this);
 
         // Устанавливает функции на изменение значения
         this.items.each(function (item) {
@@ -378,7 +379,7 @@ Ext.m3.EditWindow = Ext.extend(Ext.m3.Window, {
             this.getForm().doAction('load', {
                 url: this.dataUrl,
                 params: Ext.applyIf({
-                    isGetData: true},
+                        isGetData: true},
                     this.actionContextJson || {}),
                 success: this.onSuccessLoadForm.createDelegate(this, [mask], true),
                 failure: this.onFailureLoadForm.createDelegate(this, [mask], true),

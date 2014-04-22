@@ -11,3 +11,4 @@ from containers.conteintertable import *
 from grids.objectgrid import *
 from tree.trees import *
 from grids.multigroupinggrid import *
+from windows.windows import *

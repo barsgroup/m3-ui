@@ -1,4 +1,5 @@
 #coding: utf-8
+from m3_ext.demo.actions.grids.grid import DataAction
 from m3_ext.ui import all_components as ext
 
 from m3_ext.demo.actions import UIAction, Pack
@@ -53,7 +54,7 @@ class EditWindowAction(UIAction):
                 ext.ExtButton(text=u'Отмена')
             ]
         }
-        win.items.append(win.form)
+
         return win
 
 
@@ -64,20 +65,11 @@ class ListWindowAction(UIAction):
     """
     title = u'Окно со списком'
 
-    def get_js(self, request, context):
-        return """function(w, d){
-            var grid = w.find('itemId', 'grid')[0];
-            grid.store.loadData(d);
-        }"""
-
     def get_ui(self, request, context):
         win = ext.BaseExtListWindow()
+
+        win.grid.add_column(header=u'Код', data_index='lname')
+        win.grid.add_column(header=u'Наименование', data_index='fname')
+        win.grid.action_data = DataAction
         return win
 
-    def get_result(self, request, context):
-        res = super(ListWindowAction, self).get_result(request, context)
-        res['data']['total'] = 2
-        res['data']['rows'] = [
-            {'first': u'Первая', 'second': u'Вторая'},
-        ]
-        return res

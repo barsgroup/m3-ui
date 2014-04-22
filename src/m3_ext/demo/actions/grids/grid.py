@@ -6,6 +6,7 @@ from m3_ext.ui import all_components as ext
 
 from m3_ext.demo.actions.base import Pack, UIAction
 
+
 @Pack.register
 class SimpleGridAction(UIAction):
     """
@@ -108,7 +109,7 @@ class EditGridAction(UIAction):
         #grid.add_column(header=u'Выбор из справочника', data_index = 'from_dict', editor = field)
 
         grid.set_store(ext.ExtDataStore([[1, 'Юрий', 'Кофтун', 'пр. Мира', '', '', 'false'],
-                                     [2, 'Анатоле', 'Кожемякин', 'пл. Земля ', '', '', 'true']]
+                                         [2, 'Анатоле', 'Кожемякин', 'пл. Земля ', '', '', 'true']]
         ))
 
         window.items.append(grid)
@@ -180,8 +181,8 @@ class GridRemoteStoreAction(UIAction):
         grid.add_column(header=u'Фамилия', data_index='lname')
         grid.add_column(header=u'Адрес', data_index='adress')
         grid.store = ext.ExtJsonStore(url=get_url(DataAction),
-                                  auto_load=True, total_property='total',
-                                  root='rows')
+                                      auto_load=True, total_property='total',
+                                      root='rows')
 
         window.items.append(grid)
         button = ext.ExtButton(text=u'Закрыть')
@@ -215,8 +216,8 @@ class BandedColumnAction(UIAction):
         grid.add_column(header=u'Адрес 2', data_index='adress')
         grid.add_column(header=u'Адрес 3', data_index='adress')
         grid.store = ext.ExtJsonStore(url=get_url(DataAction),
-                                  auto_load=True, total_property='total',
-                                  root='rows')
+                                      auto_load=True, total_property='total',
+                                      root='rows')
         # Бандитские колонки
         grid.add_banded_column(None, 0, 1)
         grid.add_banded_column(ext.ExtGridColumn(header=u'Мегаколонка', align='center'), 0, 4)
@@ -408,8 +409,8 @@ class GridCheckSelectionAction(UIAction):
         grid.add_column(header=u'Фамилия', data_index='lname')
         grid.add_column(header=u'Адрес', data_index='adress')
         grid.store = ext.ExtJsonStore(url=get_url(DataAction),
-                                  auto_load=True, total_property='total',
-                                  root='rows')
+                                      auto_load=True, total_property='total',
+                                      root='rows')
 
         window.items.append(grid)
         button = ext.ExtButton(text=u'Закрыть')

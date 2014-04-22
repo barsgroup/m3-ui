@@ -67,18 +67,13 @@ class UIJsonEncoder(_M3JSONEncoder):
             # для ObjectGrid и ExtMultiGroupinGrid надо проставлять url из экшенов
             if hasattr(obj, 'GridTopBar') or hasattr(obj, 'LiveGridTopBar'):
 
-                def _set_url(_obj, url, action):
-                    # url имеют приоритет над action
-                    if not getattr(_obj, url, None) and getattr(_obj, action):
-                        setattr(_obj, url, urls.get_url(getattr(_obj, action)))
-
-                _set_url(obj, 'url_new', 'action_new')
-                _set_url(obj, 'url_edit', 'action_edit')
-                _set_url(obj, 'url_delete', 'action_delete')
-                _set_url(obj, 'url_data', 'action_data')
+                obj.setdefault('url_new', urls.get_url(obj.action_new))
+                obj.setdefault('url_edit', urls.get_url(obj.action_edit))
+                obj.setdefault('url_delete', urls.get_url(obj.action_delete))
+                obj.setdefault('url_data', urls.get_url(obj.action_data))
 
                 if hasattr(obj, 'LiveGridTopBar'):
-                    _set_url(obj, 'url_export', 'action_export')
+                    obj.setdefault('url_export', urls.get_url(obj.action_export))
 
                 elif hasattr(obj, 'GridTopBar'):
                     # Если store не экземпляр ExtJsonStore,
@@ -92,8 +87,8 @@ class UIJsonEncoder(_M3JSONEncoder):
                         obj.bottom_bar = obj.paging_bar
 
                 # store надо обязательно проставить url
-                if obj.url_data:
-                    obj.store.url = obj.url_data
+                if hasattr(obj, 'url_data'):
+                    obj.store.url = getattr(obj, 'url_data')
 
         # для контролов, которые еще используют extra
         elif hasattr(obj, 'extra') and isinstance(obj.extra, dict):
