@@ -11,24 +11,10 @@ __author__ = 'prefer'
 class EditWindowAction(UIAction):
     title = u'Окно редактирование с формой'
 
-    def get_js(self, request, context):
-        """
-        Метод должен вернуть в виде строки js-код для окна
-        """
-        return """function(w, d) {
-            var form = w.find('itemId', 'form')[0];
-            var field = w.find('itemId', 'edit-field-id')[0];
-            form.buttons[0].on('click', function(b, e){
-                alert(field.getValue());
-            });
-            form.buttons[1].on('click', function(b, e){
-                w.close();
-            });
-        }"""
-
     def get_ui(self, request, context):
         win = ext.ExtEditWindow(
-            title=u'Окно с формой',
+            xtype='demo-edit-window',
+            # title=u'Окно с формой',
             layout='form',
             width=250,
             height=150)

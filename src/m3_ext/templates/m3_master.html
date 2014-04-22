@@ -40,6 +40,7 @@
     <!-- m3 lightbox css-->
     <link rel='stylesheet' type='text/css' href='{{ STATIC_URL }}ext/css/lightbox.css'/>
 
+
     <!-- базовые файлы extjs -->
     <script type="text/javascript" src="{{ STATIC_URL }}vendor/extjs/adapter/ext/ext-base.js"></script>
     <script type='text/javascript' src='{{ STATIC_URL }}vendor/extjs/ext-all-debug.js'></script>
@@ -52,10 +53,11 @@
 
     <!-- m3 js-->
     <script type='text/javascript' src='{{ STATIC_URL }}m3/js/m3-debug.js'></script>
-    <script type='text/javascript' src='{{ STATIC_URL }}m3/js/ext-extensions/EditWindow.js'></script>
+    {#    <script type='text/javascript' src='{{ STATIC_URL }}/demo-edit-window.js'></script>#}
 
     <script type="text/javascript" src="{{ STATIC_URL }}vendor/q.js"></script>
     <script type="text/javascript" src="{{ STATIC_URL }}m3/js/fabric.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}vendor/require.js"></script>
 
     <link rel='stylesheet' type='text/css' href='{{ STATIC_URL }}m3/css/locking-grouping-grid.css'/>
     <script src="{{ STATIC_URL }}m3/js/ext-extensions/LockingGridColumnWithHeaderGroup.js"></script>
@@ -101,16 +103,6 @@
     });
 
     var appUI = new UI({
-        jsStorage: function (key) {
-            return UI.ajax(
-                    key,
-                    {'js': true},
-                    'js'
-            ).then(function (s) {
-                        // костыль, ибо нельзя эвалить анонимные функции
-                        return eval('false||' + s);
-                    });
-        },
         confStorage: function (key) {
             // конфиги всегда будут грузиться с сервера
             return UI.ajax(key, {'ui': true}, 'ui').then(evalResult);
@@ -136,8 +128,8 @@
                     msg: obj.message,
                     buttons: Ext.Msg.OK,
                     icon: (
-                        obj.success != undefined && !obj.success
-                    ) ? Ext.Msg.WARNING : Ext.Msg.Info
+                            obj.success != undefined && !obj.success
+                            ) ? Ext.Msg.WARNING : Ext.Msg.Info
                 });
             } else {
                 return "ok"
@@ -146,11 +138,11 @@
             if (obj.code) {
                 if (obj.code.ui) {
                     return appUI.create(
-                        obj.code
-                    ).then(function(win) {
-                        AppDesktop.getDesktop().createWindow(win);
-                        win.show();
-                    })
+                                    obj.code
+                            ).then(function (win) {
+                                AppDesktop.getDesktop().createWindow(win);
+                                win.show();
+                            })
                 } else {
                     return obj.code
                 }
