@@ -20,7 +20,6 @@ class ExtForm(BaseExtPanel):
     _xtype = 'form'
 
     js_attrs = BaseExtPanel.js_attrs.extend(
-        'padding',
         'url',
         base_cls='baseCls',
         file_upload='fileUpload',
@@ -67,8 +66,6 @@ class ExtPanel(BaseExtPanel):
     _xtype = 'panel'
 
     js_attrs = BaseExtPanel.js_attrs.extend(
-        'title',
-        'padding',  # Отступ от внешних границ
         'collapsible',  # Возможность сворачивать панель
         'floatable',  # Позволять ли панели быть "плавающей", (см Ext.layout.BorderLayout.Region)
         body_border='bodyBorder',  # Показывать ли внутреннюю границу у элемента

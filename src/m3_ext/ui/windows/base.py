@@ -3,20 +3,14 @@
 Created on 25.02.2010
 """
 
-from m3_ext.ui.base import ExtUIComponent
-
-from m3_ext.ui.containers.base import BaseExtContainer
+from m3_ext.ui.containers.base import BaseExtContainer, BaseExtPanel
 from m3_ext.ui.controls.base import BaseExtControl
 
 
-class ExtWindow(ExtUIComponent):
+class ExtWindow(BaseExtPanel):
     """
     Базовый класс для всех окон
     """
-    #deprecated: Использовать атрибуты с верхним регистром
-    ALIGN_LEFT = align_left = 'left'
-    ALIGN_CENTER = align_center = 'center'
-    ALIGN_RIGHT = align_right = 'right'
 
     _xtype = 'm3-window'
 
@@ -25,51 +19,30 @@ class ExtWindow(ExtUIComponent):
     # FIXME: перенести t_render_keys, сейчас будет неправильно работать
     # FIXME: вернуть функцию find_by_name
 
-    js_attrs = ExtUIComponent.js_attrs.extend(
-        'title',
+    js_attrs = BaseExtPanel.js_attrs.extend(
         'modal',
         'maximizable',
         'maximized',
         'minimizable',
         'minimized',
         'closable',
-        'border',
         'resizable',
         'draggable',
         'keys',
-        'items',
         'buttons',
-        'layout',
-        'padding',
-        body_style='bodyStyle',
-        icon_cls='iconCls',
-        top_bar='tbar',
-        bottom_bar='bar',
-        footer_bar='fbar',
-        button_align='buttonAlign',
-        label_width='labelWidth',
         label_align='labelAlign',
         label_pad='labelPad',
         help_topic='helpTopic',
-        context_json='contextJson',
+        # context_json='contextJson',
     )
 
     def __init__(self, *args, **kwargs):
         super(BaseExtWindow, self).__init__(*args, **kwargs)
-        self.setdefault('items', [])
         self.setdefault('buttons', [])
         self.setdefault('keys', [])
-
-        self.setdefault('top_bar', [])
-        self.setdefault('bottom_bar', [])
-        self.setdefault('footer_bar', [])
-
         self.setdefault('width', 400)
         self.setdefault('height', 300)
-
         self.setdefault('body_style', 'padding:5px;')
-
-        self.setdefault('border', True)
         self.setdefault('draggable', True)
         self.setdefault('resizable', True)
 

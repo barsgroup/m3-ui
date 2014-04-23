@@ -47,11 +47,15 @@ class BaseExtPanel(BaseExtContainer):
     """
     Базовый класс для визуальных контейнерных компонентов
     """
+    #deprecated: Использовать атрибуты с верхним регистром
+    ALIGN_LEFT = align_left = 'left'
+    ALIGN_CENTER = align_center = 'center'
+    ALIGN_RIGHT = align_right = 'right'
 
     js_attrs = BaseExtContainer.js_attrs.extend(
         'title',
+        'padding',
         'border',
-        'split',
         'header',
         icon_cls='iconCls',
         dd_group='ddGroup',
@@ -60,13 +64,14 @@ class BaseExtPanel(BaseExtContainer):
         footer_bar='fbar',
         collapse_mode='collapseMode',
         collapsed='collapsed',
+        button_align='buttonAlign',
+        body_style='bodyStyle',
     )
 
     def __init__(self, *args, **kwargs):
         super(BaseExtPanel, self).__init__(*args, **kwargs)
         self.setdefault('header', False)
         self.setdefault('border', True)
-
         self.setdefault('top_bar', [])
         self.setdefault('bottom_bar', [])
         self.setdefault('footer_bar', [])
@@ -85,6 +90,5 @@ class BaseExtPanel(BaseExtContainer):
                 for item in bar.items:
                     if hasattr(item, "make_read_only") and callable(
                             item.make_read_only):
-
                         item.make_read_only(
                             access_off, exclude_list, *args, **kwargs)
