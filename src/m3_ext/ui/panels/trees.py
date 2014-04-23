@@ -1,10 +1,6 @@
 #coding: utf-8
 """
 Модуль с преднастроенными панелями-деевьями
-
-Created on 25.06.2010
-
-@author: prefer
 """
 
 from m3_ext.ui import containers, controls, menus, render_component

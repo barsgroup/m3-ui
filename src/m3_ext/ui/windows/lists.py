@@ -1,8 +1,5 @@
 #coding: utf-8
 """
-Created on 26.05.2010
-
-@author: akvarats
 """
 
 from base import ExtWindow

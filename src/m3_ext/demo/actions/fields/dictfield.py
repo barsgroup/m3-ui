@@ -6,8 +6,6 @@ from m3.actions.urls import get_url
 from m3_ext.demo.actions.base import Pack, UIAction
 from m3_ext.demo.actions.grids.grid import DataAction
 
-__author__ = 'prefer'
-
 
 @Pack.register
 class DictFieldAction(UIAction):

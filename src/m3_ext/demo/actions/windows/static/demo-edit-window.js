@@ -1,6 +1,3 @@
-/**
- * Created by prefer on 22/04/14.
- */
 Ext.ns('Ext.demo');
 
 Ext.demo.EditWindow = Ext.extend(Ext.m3.EditWindow, {

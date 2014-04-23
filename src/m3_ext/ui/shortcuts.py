@@ -1,10 +1,6 @@
 #coding:utf-8
 """
 Модуль шорткатов для подсистемы m3_ext_demo.ui
-
-Created on 24.03.2010
-
-@author: akvarats
 """
 import json
 

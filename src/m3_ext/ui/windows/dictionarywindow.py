@@ -2,8 +2,6 @@
 
 from m3_ext.ui.windows.base import BaseExtWindow
 
-__author__ = 'prefer'
-
 
 class ExtDictionaryWindow(BaseExtWindow):
     """

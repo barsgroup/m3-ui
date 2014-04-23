@@ -1,8 +1,5 @@
 #coding:utf-8
 """
-Created on 21.04.2010
-
-@author: prefer <telepenin@bars-open.ru>
 """
 
 from m3_ext.ui.base import ExtUIComponent

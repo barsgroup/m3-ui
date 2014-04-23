@@ -105,6 +105,8 @@
     var appUI = new UI({
         staticPrefix: '{{ STATIC_URL }}',
         debug: true,
+
+        // Не загружаем модули для стандартных xtype
         requireExclude: [
             'm3-edit-window',
             'm3-window',
@@ -138,9 +140,8 @@
                             obj.success != undefined && !obj.success
                             ) ? Ext.Msg.WARNING : Ext.Msg.Info
                 });
-            } else {
-                return "ok"
             }
+            return null;
         }).then(function () {
             if (obj.code) {
                 if (obj.code.ui) {

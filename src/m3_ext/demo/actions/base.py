@@ -8,8 +8,6 @@ from m3.actions import ActionPack, Action
 from m3_ext.ui import all_components as ext
 from m3_ext.ui.results import UIResult
 
-__author__ = 'prefer'
-
 
 class Pack(ActionPack):
     url = '/pack'

@@ -6,8 +6,6 @@ from m3_ext.ui.fields.simple import ExtStringField
 
 from m3_ext.demo.actions.base import Pack, UIAction
 
-__author__ = 'prefer'
-
 
 @Pack.register
 class FieldsUiAction(UIAction):

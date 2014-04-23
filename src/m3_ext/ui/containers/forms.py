@@ -1,8 +1,5 @@
 #coding:utf-8
 """
-Created on 25.02.2010
-
-@author: akvarats
 """
 
 from m3_ext.ui.containers.base import BaseExtPanel

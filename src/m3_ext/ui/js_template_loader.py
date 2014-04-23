@@ -9,10 +9,6 @@ template-loaders в django.
 Для корректной работы загрузчика в settings.py прикладного приложения
 необходимо добавить строку 'm3_ext_demo.ui.js_template_loader.load_template_source'
 в tuple TEMPLATE_LOADERS
-
-Created on 22.02.2010
-
-@author: akvarats
 """
 
 import os

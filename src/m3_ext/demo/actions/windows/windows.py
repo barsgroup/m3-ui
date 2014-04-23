@@ -1,10 +1,8 @@
 #coding: utf-8
-from m3_ext.demo.actions.grids.grid import DataAction
 from m3_ext.ui import all_components as ext
 
+from m3_ext.demo.actions.grids.grid import DataAction
 from m3_ext.demo.actions import UIAction, Pack
-
-__author__ = 'prefer'
 
 
 @Pack.register
@@ -51,4 +49,3 @@ class ListWindowAction(UIAction):
         win.grid.add_column(header=u'Наименование', data_index='fname')
         win.grid.action_data = DataAction
         return win
-

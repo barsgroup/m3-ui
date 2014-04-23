@@ -1,10 +1,6 @@
 # coding:utf-8
 """
 Базовые окна редактирования
-
-Created on 14.12.2010
-
-@author: akvarats
 """
 
 from m3_ext.ui import windows

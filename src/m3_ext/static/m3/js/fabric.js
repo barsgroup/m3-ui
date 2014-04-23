@@ -23,12 +23,10 @@ function UI(config) {
             var module = cfg[0]['xtype'],
                 result = Q.defer();
 
-            // FIXME: Эти штуки надо exclud'ить в m3.js
-            // иметь возможность сделать exclude в index.html
+            // Не загружаем модули для списка исключений
             if (config['requireExclude'].indexOf(module) >= 0) {
                 result.resolve(cfg);
             } else {
-                // FIXME: static/ - необходимо настраивать в index.html
 
                 require([config['staticPrefix'] + module + '.js'], function () {
                     if (config['debug']){
