@@ -16,6 +16,7 @@ class EditWindowAction(UIAction):
             layout='form',
             width=250,
             height=150,
+            button_align=ext.ExtEditWindow.align_left,
             buttons=[
                 ext.ExtButton(text=u'Отобразить'),
                 ext.ExtButton(text=u'Отмена')

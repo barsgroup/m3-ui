@@ -7,7 +7,7 @@ from m3_ext.ui.base import ExtUIComponent
 
 class BaseExtContainer(ExtUIComponent):
     """
-    Базовый класс qдля контейнерных компонентов
+    Базовый класс для контейнерных компонентов
     """
     AUTO = 'auto'
     FIT = 'fit'
@@ -49,7 +49,7 @@ class BaseExtPanel(BaseExtContainer):
     """
     #deprecated: Использовать атрибуты с верхним регистром
     ALIGN_LEFT = align_left = 'left'
-    ALIGN_CENTER = align_center = 'center'
+    ALIGN_CENTER = 'center'
     ALIGN_RIGHT = align_right = 'right'
 
     js_attrs = BaseExtContainer.js_attrs.extend(
@@ -66,6 +66,12 @@ class BaseExtPanel(BaseExtContainer):
         collapsed='collapsed',
         button_align='buttonAlign',
         body_style='bodyStyle',
+    )
+
+    deprecated_attrs = BaseExtContainer.deprecated_attrs + (
+        'align_left',
+        'align_center',
+        'align_right'
     )
 
     def __init__(self, *args, **kwargs):
