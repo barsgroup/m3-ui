@@ -29,7 +29,7 @@ function UI(config) {
             } else {
 
                 require([config['staticPrefix'] + module + '.js'], function () {
-                    if (config['debug']){
+                    if (config['debug']) {
                         require.undef(config['staticPrefix'] + module + '.js');
                     }
 

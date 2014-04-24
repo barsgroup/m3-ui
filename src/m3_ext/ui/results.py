@@ -18,6 +18,14 @@ from m3.actions.results import PreJsonResult as _PreJsonResult
 import helpers as _helpers
 
 
+def _set_action_url(obj, url, action):
+    """
+    Проставляет в объект url если его нет и он есть в соответсвующем экшене
+    """
+    if getattr(obj, action, None) and not getattr(obj, url, None):
+        setattr(obj, url, urls.get_url(getattr(obj, action)))
+
+
 class UIJsonEncoder(_M3JSONEncoder):
     """
     JSONEncoder, совместимый с клиентским рендерингом
@@ -31,6 +39,9 @@ class UIJsonEncoder(_M3JSONEncoder):
 
     @staticmethod
     def make_compatible(obj):
+        # TODO: obj.setdefault - нельзя использовать
+        # так как будет перекрыто первоначальное значение
+
         class_name = obj.__class__.__name__
 
         # ExtContainerTable - это хелпер-класс
@@ -41,11 +52,12 @@ class UIJsonEncoder(_M3JSONEncoder):
         # Проверяются наследники класса BaseExtTriggerField
         # и из fields проставляются fields в store
         elif hasattr(obj, 'store') and hasattr(obj, 'fields'):
-            fields = obj.fields
-            if obj.display_field not in obj.fields:
-                fields = [obj.display_field] + obj.fields
 
-            obj.store.setdefault('fields', fields)
+            if not getattr(obj.store, 'fields', None):
+                fields = obj.fields
+                if obj.display_field not in obj.fields:
+                    fields = [obj.display_field] + obj.fields
+                obj.store.fields = fields
 
             if hasattr(obj, 'pack') and obj.pack:
                 assert isinstance(obj.pack, basestring) or hasattr(obj.pack, '__bases__'), (
@@ -55,27 +67,35 @@ class UIJsonEncoder(_M3JSONEncoder):
 
                 get_url = getattr(pack, 'get_multi_select_url', None) or getattr(pack, 'get_select_url')
 
-                obj.setdefault('url', get_url())  # url формы выбора
-                obj.setdefault('edit_url', pack.get_edit_url())  # url формы редактирования элемента
-                obj.setdefault('autocomplete_url', pack.get_autocomplete_url())  # url автокомплита и данных
+                # url формы выбора
+                if not getattr(obj, 'url', None):
+                    obj.url = get_url()
+
+                # url формы редактирования элемента
+                if not getattr(obj, 'edit_url', None):
+                    obj.edit_url = pack.get_edit_url()
+
+                # url автокомплита и данных
+                if not getattr(obj, 'autocomplete_url', None):
+                    obj.autocomplete_url = pack.get_autocomplete_url()
 
         # Для гридов
         elif hasattr(obj, 'columns') and hasattr(obj, 'store'):
-            fields = [obj.store.id_property] + [col.data_index for col in obj.columns]
-            obj.store.setdefault('fields', fields)
+
+            if not getattr(obj.store, 'fields', None):
+                fields = [obj.store.id_property] + [col.data_index for col in obj.columns]
+                obj.store.fields = fields
 
             # для ObjectGrid и ExtMultiGroupinGrid надо проставлять url из экшенов
             if hasattr(obj, 'GridTopBar') or hasattr(obj, 'LiveGridTopBar'):
 
-                obj.setdefault('url_new', urls.get_url(obj.action_new))
-                obj.setdefault('url_edit', urls.get_url(obj.action_edit))
-                obj.setdefault('url_delete', urls.get_url(obj.action_delete))
-                obj.setdefault('url_data', urls.get_url(obj.action_data))
+                _set_action_url(obj, 'url_new', 'action_new')
+                _set_action_url(obj, 'url_edit', 'action_edit')
+                _set_action_url(obj, 'url_delete', 'action_delete')
+                _set_action_url(obj, 'url_data', 'action_data')
+                _set_action_url(obj, 'url_export', 'action_export')
 
-                if hasattr(obj, 'LiveGridTopBar'):
-                    obj.setdefault('url_export', urls.get_url(obj.action_export))
-
-                elif hasattr(obj, 'GridTopBar'):
+                if hasattr(obj, 'GridTopBar'):
                     # Если store не экземпляр ExtJsonStore,
                     # то у него нет атрибута limit
                     if hasattr(obj.store, 'limit'):
@@ -90,9 +110,16 @@ class UIJsonEncoder(_M3JSONEncoder):
                 if hasattr(obj, 'url_data'):
                     obj.store.url = getattr(obj, 'url_data')
 
-        # для контролов, которые еще используют extra
+        # Для контролов, которые еще используют extra
         elif hasattr(obj, 'extra') and isinstance(obj.extra, dict):
             obj._config.update(obj.extra)
+
+        # Для object-tree
+        elif hasattr(obj, 'columns') and hasattr(obj, 'row_id_name'):
+            _set_action_url(obj, 'url_new', 'action_new')
+            _set_action_url(obj, 'url_edit', 'action_edit')
+            _set_action_url(obj, 'url_delete', 'action_delete')
+            _set_action_url(obj, 'url', 'action_data')
 
         # Поля
         if hasattr(obj, 'invalid_class'):

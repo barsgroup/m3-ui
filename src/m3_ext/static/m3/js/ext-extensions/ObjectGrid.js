@@ -155,7 +155,8 @@ Ext.m3.BaseObjectGrid = {
                     return child_win;
                 }
                 mask.hide();
-            }, failure: function () {
+            },
+            failure: function () {
                 uiAjaxFailMessage.apply(this, arguments);
                 mask.hide();
 
@@ -173,7 +174,8 @@ Ext.m3.BaseObjectGrid = {
     },
     /**
      * Нажатие на кнопку "Редактировать"
-     */onEditRecord: function () {
+     */
+    onEditRecord: function () {
         assert(this.actionEditUrl, 'actionEditUrl is not define');
         assert(this.rowIdName, 'rowIdName is not define');
 
@@ -294,7 +296,7 @@ Ext.m3.BaseObjectGrid = {
                     // если локальное редактирование
                     if (scope.localEdit) {
                         // то на самом деле нам пришла строка грида
-                        var obj = Ext.util.JSON.decode(data);
+                        var obj = Ext.decode(data);
                         var record = new Ext.data.Record(obj.data);
                         record.json = obj.data;
                         var store = scope.getStore();
@@ -312,18 +314,17 @@ Ext.m3.BaseObjectGrid = {
     onEditRecordWindowOpenHandler: function (response, opts) {
         var window = evalResult(response);
         if (window) {
-            var scope = this;
             window.on('closed_ok', function (data) {
-                if (scope.fireEvent('rowedited', scope, data)) {
+                if (this.fireEvent('rowedited', this, data)) {
                     // если локальное редактирование
-                    if (scope.localEdit) {
+                    if (this.localEdit) {
                         // то на самом деле нам пришла строка грида
-                        var obj = Ext.util.JSON.decode(data);
+                        var obj = Ext.decode(data);
                         var record = new Ext.data.Record(obj.data);
                         record.json = obj.data;
-                        var store = scope.getStore();
+                        var store = this.getStore();
                         // и надо ее заменить в сторе
-                        var sm = scope.getSelectionModel();
+                        var sm = this.getSelectionModel();
                         if (sm.hasSelection()) {
                             var baseConf = {};
                             // пока только для режима выделения строк
@@ -339,10 +340,10 @@ Ext.m3.BaseObjectGrid = {
                             }
                         }
                     } else {
-                        return scope.refreshStore();
+                        return this.refreshStore();
                     }
                 }
-            });
+            }, this);
         }
     },
     /**
@@ -355,7 +356,7 @@ Ext.m3.BaseObjectGrid = {
             // если локальное редактирование
             if (this.localEdit) {
                 // проверка на ошибки уровня приложения
-                var res = Ext.util.JSON.decode(response.responseText);
+                var res = Ext.decode(response.responseText);
                 if (!res.success) {
                     evalResult(response);
                     return;
@@ -400,7 +401,7 @@ Ext.m3.BaseObjectGrid = {
     /**
      * Получение контекста выделения строк/ячеек
      * Используется при ajax запросах
-     * @param {bool} withRow Признак добавление в контекст текущей выбранной записи
+     * @param {boolean} withRow Признак добавление в контекст текущей выбранной записи
      */
     getSelectionContext: function (withRow) {
         var baseConf = this.getMainContext();

@@ -123,7 +123,7 @@ class DataAction(Action):
     """
     Данные для грида
     """
-    url = '/data'
+    url = '/data/grid'
 
     def run(self, request, context):
         res = ['{"id":1, "lname":"Смактуновский", "fname":"Махмут",adress:"Проспект победы д. 147 кв 20"}',

@@ -107,8 +107,10 @@ class ExtToolbarMenu(ExtUIComponent):
     Класс, позволяющий вставлять меню в ToolBar
     """
     _xtype = 'button'
+
     js_attrs = ExtUIComponent.js_attrs.extend(
-        'text', 'menu',
+        'text',
+        'menu',
         icon_cls='iconCls', 
         tooltip_text='tooltip')
 

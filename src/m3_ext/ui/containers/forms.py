@@ -28,6 +28,7 @@ class ExtForm(BaseExtPanel):
     def __init__(self, *args, **kwargs):
         super(ExtForm, self).__init__(*args, **kwargs)
         self.setdefault('base_cls', 'x-plain')
+        self.setdefault('padding', '5px')
 
         # поле, которое будет под фокусом ввода после рендеринга формы
 

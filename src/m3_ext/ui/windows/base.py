@@ -42,7 +42,7 @@ class ExtWindow(BaseExtPanel):
         self.setdefault('keys', [])
         self.setdefault('width', 400)
         self.setdefault('height', 300)
-        self.setdefault('body_style', 'padding:5px;')
+        # self.setdefault('body_style', 'padding:5px;')
         self.setdefault('draggable', True)
         self.setdefault('resizable', True)
 

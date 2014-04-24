@@ -86,6 +86,7 @@ class ExtGrid(BaseExtPanel):
         self.setdefault('stateful', True)
         self.setdefault('column_lines', True)
         self.setdefault('banded_columns', [])
+        self.setdefault('border', False)
 
         #Если True не рендерим drag and drop, выключаем editor
         self.setdefault('read_only', False)
