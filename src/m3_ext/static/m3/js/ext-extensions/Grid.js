@@ -119,18 +119,18 @@ Ext.m3.BaseM3Grid = {
                 bbar.bind(store);
             }
         });
-    }
+    },
     /**
      * Инициализация грида после создания
      */
-    ,initGrid: function () {
+    initGrid: function () {
         var store = this.getStore();
 		store.on('exception', this.storeException, this);
-    }
+    },
     /**
 	 * Обработчик исключений хранилица
 	 */
-	,storeException: function (proxy, type, action, options, response, arg){
+	storeException: function (proxy, type, action, options, response, arg){
 		//console.log(proxy, type, action, options, response, arg);
 		if (type == 'remote' && action != Ext.data.Api.actions.read) {
 		    if (response.raw.message) {

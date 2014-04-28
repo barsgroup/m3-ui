@@ -4,26 +4,35 @@
     <script type="text/javascript">
 
         /**
-        * Преобразователь конфигов для элементов в собственно элементы
-        */
+         * Преобразователь конфигов для элементов в собственно элементы
+         */
         function makeItem(data) {
+            var res;
             if (data == '-') {
-                var res = data; // разделитель
+                res = data; // разделитель
             } else {
-                var res = {
-                      scope: this
-                    , text: data.text
-                    , iconCls: data.icon
+                res = {
+                    scope: this,
+                    text: data.text,
+                    iconCls: data.icon
                 };
+
                 if (data.items != undefined && data.items.length > 0) {
-                    res.handler = function() { return false; };
+                    res.handler = function () {
+                        return false;
+                    };
                     res.menu = [];
                     for (var i = 0; i < data.items.length; i += 1) {
                         res.menu.push(makeItem(data.items[i]))
                     }
                 } else {
-                    res.handler = function() {
-                        callAction(data.url, data.context);
+                    res.handler = function () {
+                        callAction({
+                            request: {
+                                url: data.url,
+                                params: data.context},
+                            failure: msgShow
+                        });
                     };
                 }
             }
@@ -37,8 +46,7 @@
              * Генератор словарей, описывающих элементы (под)меню
              */
             var Module = Ext.extend(Ext.app.Module, {
-                  id: idPrefix + idx
-                , init: function() {
+                id: idPrefix + idx, init: function () {
                     assert(data != '-', "Separator at top level!");
                     this.launcher = makeItem(data);
                     if (inStartMenu) {
@@ -55,7 +63,7 @@
          * Флаг inStartMenu=true добавит модуль в меню
          */
         function addEachModuleTo(target, source, prefix, inStartMenu) {
-            for(var i = 0; i < source.length; i += 1) {
+            for (var i = 0; i < source.length; i += 1) {
                 target.push(makeModule(source[i], prefix, i + 1, inStartMenu));
             }
         }
@@ -66,41 +74,41 @@
         // Основной объект web-desktop'a
         AppDesktop = new Ext.app.App({
             // Реализация функции, которая выводит список
-            getModules : function(){
+            getModules: function () {
                 var res = [];
 
                 // пункты Главного Меню
                 addEachModuleTo(
-                    res, desktopConfig.menuItems, 'menu-item-', true
+                        res, desktopConfig.menuItems, 'menu-item-', true
                 );
 
                 // элементы собственно Рабочего Стола
                 addEachModuleTo(
-                    res, desktopConfig.desktopItems, 'desktop-item-'
+                        res, desktopConfig.desktopItems, 'desktop-item-'
                 );
 
                 // верхняя панель
                 addEachModuleTo(
-                    res, desktopConfig.topToolbarItems, 'toptoolbar-item-'
+                        res, desktopConfig.topToolbarItems, 'toptoolbar-item-'
                 );
 
                 return res;
             },
 
             // Обязательные настройки меню "Пуск"
-            getStartConfig : function() {
+            getStartConfig: function () {
                 var items = [];
                 for (var i = 0; i < desktopConfig.toolboxItems.length; i += 1) {
                     var item = desktopConfig.toolboxItems[i];
                     items.push(makeItem(item));
                 }
                 return {
-                      toolItems: items
+                    toolItems: items
                     {% block start_menu_config %}
-                    , title: '{{ user }}'
-                    , toolsPanelWidth: 120
-                    , width: 330
-                    , iconCls: '{{ user_icon }}'
+                        , title: '{{ user }}'
+                        , toolsPanelWidth: 120
+                        , width: 330
+                        , iconCls: '{{ user_icon }}'
                     {% endblock %}
                 };
             }
@@ -120,19 +128,19 @@
             <tr>
                 <!-- Иконки в десктопе -->
                 {% for item in desktop_icons %}
-                <td id="desktop-item-{{ item.0 }}-shortcut">
-                    <a href="#">
-                    <div class="base-desktop-image {{ item.2 }}"> </div>
-                    <div class="desktop-item-shortcut-label">{{ item.1 }}</div>
-                    </a>
-                </td>
+                    <td id="desktop-item-{{ item.0 }}-shortcut">
+                        <a href="#">
+                            <div class="base-desktop-image {{ item.2 }}"></div>
+                            <div class="desktop-item-shortcut-label">{{ item.1 }}</div>
+                        </a>
+                    </td>
                 {% endfor %}
             </tr>
         </table>
 
-    <!-- Виджеты раб.стола -->
-    {% block desktop_widgets %}
-    {% endblock %}
+        <!-- Виджеты раб.стола -->
+        {% block desktop_widgets %}
+        {% endblock %}
 
     </div>
 

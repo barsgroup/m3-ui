@@ -3730,9 +3730,9 @@ function uiAjaxFailMessage (response, opt) {
 		Ext.Msg.alert(SOFTWARE_NAME, 'Извините, сервер временно не доступен.');
 		return;
 	}
-	
+
     // response['status'] === 200 -- Пользовательская ошибка, success == false
-	if (response['status'] === 200 || opt['failureType'] === "server"){
+	if (response['status'] === 200 || opt && opt['failureType'] === "server"){
 	    // Пришел OperationResult('success':False)
 	    if (opt && opt.response && opt.response.responseText) {
 	        smart_eval( opt.response.responseText );
@@ -3745,12 +3745,13 @@ function uiAjaxFailMessage (response, opt) {
     		width = (bodySize.width < 500) ? bodySize.width - 50 : 500,
     		height = (bodySize.height < 300) ? bodySize.height - 50 : 300,
     		win;
-        
+
+
         // Для submit'a response приходит вторым параметром
         if (!response.responseText && opt && opt.response){
             response = opt.response;
         }
-    	var errorMsg = response.responseText;
+    	var errorMsg = response.responseText || response;
 	
     	var win = new Ext.Window({ modal: true, width: width, height: height, 
     	    title: "Request Failure", layout: "fit", maximizable: true, 
@@ -4106,18 +4107,18 @@ Ext.m3.BaseM3Grid = {
                 bbar.bind(store);
             }
         });
-    }
+    },
     /**
      * Инициализация грида после создания
      */
-    ,initGrid: function () {
+    initGrid: function () {
         var store = this.getStore();
 		store.on('exception', this.storeException, this);
-    }
+    },
     /**
 	 * Обработчик исключений хранилица
 	 */
-	,storeException: function (proxy, type, action, options, response, arg){
+	storeException: function (proxy, type, action, options, response, arg){
 		//console.log(proxy, type, action, options, response, arg);
 		if (type == 'remote' && action != Ext.data.Api.actions.read) {
 		    if (response.raw.message) {
@@ -6190,6 +6191,64 @@ Ext.reg('Ext.ux.maximgb.tg.EditorGridPanel', Ext.ux.maximgb.tg.EditorGridPanel);
 Ext.reg('Ext.ux.maximgb.tg.PagingToolbar', Ext.ux.maximgb.tg.PagingToolbar);
 
 
+/**
+ *
+ * @type {*|void}
+ */
+
+// FIXME: Если дерево небольшое по размерам, узлы могут не отображаться,
+// но ресайз окна/контрола возвращает их обратно
+// FIXME: Здесь также должен быть проброс action context'a
+Ext.m3.Tree = Ext.extend(Ext.ux.tree.TreeGrid, {
+
+        useArrows: true,
+        autoScroll: false,
+        animate: true,
+        containerScroll: true,
+        border: false,
+        split: true,
+        customLoad: false,
+
+        initComponent: function () {
+
+            // если выставлен флаг read_only, выключаем drag&drop
+            if (this.readOnly) {
+                this.enableDD = false;
+                this.enableDrag = false;
+                this.enableDrop = false;
+            }
+
+            // создание корневого элемента из конфига
+            this.root = new Ext.tree.AsyncTreeNode(this.root);
+
+            // Контекстное меню на узлы
+            if (this.contextMenu) {
+                this.contextMenu = Ext.create(this.contextMenu);
+                this.addListener('contextmenu', function (node, e) {
+                    node.select();
+                    this.contextMenu.contextNode = node;
+                    this.contextMenu.showAt(e.getXY());
+                }, this);
+            }
+
+            // Контекстное меню на контейнер
+            if (this.containerContextMenu) {
+                this.containerContextMenu = Ext.create(this.containerContextMenu);
+                this.addListener('containercontextmenu', function (node, e) {
+                    e.stopEvent();
+                    this.containerContextMenu.showAt(e.getXY());
+                }, this);
+            }
+
+            Ext.m3.Tree.superclass.initComponent.call(this);
+        }
+    }
+);
+
+Ext.reg('m3-tree', Ext.m3.Tree);
+
+// hack, позволяющий в TreeGrid использовать колонки с родным xtype=gridcolumn
+Ext.reg('tggridcolumn', Ext.tree.Column);
 /**
  * Окно на базе Ext.Window
  */
@@ -12388,6 +12447,7 @@ Ext.m3.BaseObjectGrid = {
         this.localEdit = params.localEdit;
         // имя для сабмита в режиме клиентского редактирования
         this.name = params.name;
+
         // проставление адреса запроса за данными
         if (this.store && !this.store.url) {
             this.store.url = this.actionDataUrl;
@@ -12494,47 +12554,34 @@ Ext.m3.BaseObjectGrid = {
             'rowdeleted'
         );
     },
+
     /**
      * Нажатие на кнопку "Новый"
      */
     onNewRecord: function () {
         assert(this.actionNewUrl, 'actionNewUrl is not define');
-        var mask = new Ext.LoadMask(this.body),
-            params = this.getMainContext();
+        var params = this.getMainContext();
+
         params[this.rowIdName] = '';
 
-        var req = {
-            url: this.actionNewUrl,
-            params: params,
-            success: function (res, opt) {
-                if (scope.fireEvent('afternewrequest', scope, res, opt)) {
-                    try {
-                        var child_win = scope.onNewRecordWindowOpenHandler(res, opt);
-                    } finally {
-                        mask.hide();
-                    }
-                    return child_win;
-                }
-                mask.hide();
-            }, failure: function () {
-                uiAjaxFailMessage.apply(this, arguments);
-                mask.hide();
-
-            }
-        };
-
-        if (this.fireEvent('beforenewrequest', this, req)) {
-            var scope = this;
-
-            mask.show();
-            UI.ajax(req.url, req.params).then(req.success).catch(req.failure);
-            //Ext.Ajax.request(req);
-        }
+        callAction({
+            scope: this,
+            beforeRequest: 'beforenewrequest',
+            afterRequest: 'afternewrequest',
+            request: {
+                url: this.actionNewUrl,
+                params: params,
+                success: this.onNewRecordWindowOpenHandler.createDelegate(this),
+                failure: uiAjaxFailMessage
+            },
+            mask: this.loadMask
+        });
 
     },
     /**
      * Нажатие на кнопку "Редактировать"
-     */onEditRecord: function () {
+     */
+    onEditRecord: function () {
         assert(this.actionEditUrl, 'actionEditUrl is not define');
         assert(this.rowIdName, 'rowIdName is not define');
 
@@ -12550,33 +12597,20 @@ Ext.m3.BaseObjectGrid = {
                     icon: Ext.MessageBox.INFO
                 });
             } else {
-                var mask = new Ext.LoadMask(this.body);
-                var req = {
-                    url: this.actionEditUrl,
-                    params: baseConf,
-                    success: function (res, opt) {
-                        if (scope.fireEvent('aftereditrequest', scope, res, opt)) {
-                            try {
-                                var child_win = scope.onEditRecordWindowOpenHandler(res, opt);
-                            } finally {
-                                mask.hide();
-                            }
-                            return child_win;
-                        }
-                        mask.hide();
-                    }, failure: function () {
-                        uiAjaxFailMessage.apply(this, arguments);
-                        mask.hide();
-                    }
-                };
 
-                if (this.fireEvent('beforeeditrequest', this, req)) {
-                    var scope = this;
+                callAction({
+                    scope: this,
+                    beforeRequest: 'beforeeditrequest',
+                    afterRequest: 'aftereditrequest',
+                    request: {
+                        url: this.actionEditUrl,
+                        params: baseConf,
+                        success: this.onEditRecordWindowOpenHandler.createDelegate(this),
+                        failure: uiAjaxFailMessage
+                    },
+                    mask: this.loadMask
+                });
 
-                    mask.show();
-                    UI.ajax(req.url, req.params).then(req.success).catch(req.failure);
-                    //Ext.Ajax.request(req);
-                }
             }
         } else {
             Ext.Msg.show({
@@ -12594,40 +12628,29 @@ Ext.m3.BaseObjectGrid = {
         assert(this.actionDeleteUrl, 'actionDeleteUrl is not define');
         assert(this.rowIdName, 'rowIdName is not define');
 
-        var scope = this;
-        if (scope.getSelectionModel().hasSelection()) {
+        if (this.getSelectionModel().hasSelection()) {
             Ext.Msg.show({
                 title: 'Удаление записи',
                 msg: 'Вы действительно хотите удалить выбранную запись?',
                 icon: Ext.Msg.QUESTION,
                 buttons: Ext.Msg.YESNO,
-                fn: function (btn, text, opt) {
+                scope: this,
+                fn: function (btn) {
                     if (btn == 'yes') {
-                        var baseConf = scope.getSelectionContext(scope.localEdit);
-                        var mask = new Ext.LoadMask(scope.body);
-                        var req = {
-                            url: scope.actionDeleteUrl,
-                            params: baseConf,
-                            success: function (res, opt) {
-                                if (scope.fireEvent('afterdeleterequest', scope, res, opt)) {
-                                    try {
-                                        var child_win = scope.deleteOkHandler(res, opt);
-                                    } finally {
-                                        mask.hide();
-                                    }
-                                    return child_win;
-                                }
-                                mask.hide();
-                            }, failure: function () {
-                                uiAjaxFailMessage.apply(this, arguments);
-                                mask.hide();
-                            }
-                        };
-                        if (scope.fireEvent('beforedeleterequest', scope, req)) {
 
-                            mask.show();
-                            Ext.Ajax.request(req);
-                        }
+                        callAction({
+                            scope: this,
+                            beforeRequest: 'beforedeleterequest',
+                            afterRequest: 'afterdeleterequest',
+                            request: {
+                                url: this.actionDeleteUrl,
+                                method: 'POST',
+                                params: this.getSelectionContext(this.localEdit),
+                                success: this.deleteOkHandler.createDelegate(this),
+                                failure: uiAjaxFailMessage
+                            },
+                            mask: this.loadMask
+                        });
                     }
                 }
             });
@@ -12643,54 +12666,50 @@ Ext.m3.BaseObjectGrid = {
 
     /**
      * Показ и подписка на сообщения в дочерних окнах
-     * @param {Object} response Ответ
-     * @param {Object} opts Доп. параметры
+     * @param {Object} win Окно
      */
-    onNewRecordWindowOpenHandler: function (response, opts) {
-        var window = evalResult(response);
-        if (window) {
-            var scope = this;
-            window.on('closed_ok', function (data) {
-                if (scope.fireEvent('rowadded', scope, data)) {
+    onNewRecordWindowOpenHandler: function (win) {
+        if (win) {
+            win.on('closed_ok', function (data) {
+                if (this.fireEvent('rowadded', this, data)) {
                     // если локальное редактирование
-                    if (scope.localEdit) {
+                    if (this.localEdit) {
                         // то на самом деле нам пришла строка грида
-                        var obj = Ext.util.JSON.decode(data);
-                        var record = new Ext.data.Record(obj.data);
+                        var obj = Ext.decode(data),
+                            record = new Ext.data.Record(obj.data),
+                            store = this.getStore(),
+                            sm = this.getSelectionModel();
+
                         record.json = obj.data;
-                        var store = scope.getStore();
-                        // и надо ее добавить в стор
+
                         store.add(record);
-                        var sm = scope.getSelectionModel();
                         sm.selectRecords([record]);
                     } else {
-                        return scope.refreshStore();
+                        this.refreshStore();
                     }
                 }
-            });
+            }, this);
         }
     },
-    onEditRecordWindowOpenHandler: function (response, opts) {
-        var window = evalResult(response);
-        if (window) {
-            var scope = this;
-            window.on('closed_ok', function (data) {
-                if (scope.fireEvent('rowedited', scope, data)) {
+    onEditRecordWindowOpenHandler: function (win) {
+        if (win) {
+            win.on('closed_ok', function (data) {
+                if (this.fireEvent('rowedited', this, data)) {
                     // если локальное редактирование
-                    if (scope.localEdit) {
+                    if (this.localEdit) {
                         // то на самом деле нам пришла строка грида
-                        var obj = Ext.util.JSON.decode(data);
-                        var record = new Ext.data.Record(obj.data);
+                        var obj = Ext.decode(data),
+                            record = new Ext.data.Record(obj.data),
+                            store = this.getStore(),
+                            sm = this.getSelectionModel();
+
                         record.json = obj.data;
-                        var store = scope.getStore();
-                        // и надо ее заменить в сторе
-                        var sm = scope.getSelectionModel();
                         if (sm.hasSelection()) {
-                            var baseConf = {};
                             // пока только для режима выделения строк
                             if (sm instanceof Ext.grid.RowSelectionModel) {
-                                var rec = sm.getSelected();
-                                var index = store.indexOf(rec);
+                                var rec = sm.getSelected(),
+                                    index = store.indexOf(rec);
+
                                 store.remove(rec);
                                 if (index < 0) {
                                     index = 0;
@@ -12700,30 +12719,29 @@ Ext.m3.BaseObjectGrid = {
                             }
                         }
                     } else {
-                        return scope.refreshStore();
+                        this.refreshStore();
                     }
                 }
-            });
+            }, this);
         }
     },
     /**
-     * Хендлер на удаление окна
-     * @param {Object} response Ответ
-     * @param {Object} opts Доп. параметры
+     * Хендлер на удаление записи
+     * @param {Object} res json-ответ
      */
-    deleteOkHandler: function (response, opts) {
-        if (this.fireEvent('rowdeleted', this, response)) {
+    deleteOkHandler: function (res) {
+        if (this.fireEvent('rowdeleted', this, res)) {
             // если локальное редактирование
             if (this.localEdit) {
                 // проверка на ошибки уровня приложения
-                var res = Ext.util.JSON.decode(response.responseText);
                 if (!res.success) {
-                    evalResult(response);
                     return;
                 }
-                var store = this.getStore();
+                var store = this.getStore(),
+
                 // и надо ее заменить в сторе
-                var sm = this.getSelectionModel();
+                    sm = this.getSelectionModel();
+
                 if (sm.hasSelection()) {
                     // только для режима выделения строк
                     if (sm instanceof Ext.grid.RowSelectionModel) {
@@ -12732,7 +12750,6 @@ Ext.m3.BaseObjectGrid = {
                     }
                 }
             } else {
-                evalResult(response);
                 this.refreshStore();
             }
         }
@@ -12761,12 +12778,12 @@ Ext.m3.BaseObjectGrid = {
     /**
      * Получение контекста выделения строк/ячеек
      * Используется при ajax запросах
-     * @param {bool} withRow Признак добавление в контекст текущей выбранной записи
+     * @param {boolean} withRow Признак добавление в контекст текущей выбранной записи
      */
     getSelectionContext: function (withRow) {
-        var baseConf = this.getMainContext();
-        var sm = this.getSelectionModel();
-        var record;
+        var baseConf = this.getMainContext(),
+            sm = this.getSelectionModel(),
+            record, sels, ids, i, len;
         // для режима выделения строк
         if (sm instanceof Ext.grid.RowSelectionModel) {
             if (sm.singleSelect) {
@@ -12774,10 +12791,11 @@ Ext.m3.BaseObjectGrid = {
                 baseConf[this.rowIdName] = record.id;
             } else {
                 // для множественного выделения
-                var sels = sm.getSelections();
-                var ids = [];
+                sels = sm.getSelections();
+
+                ids = [];
                 record = [];
-                for (var i = 0, len = sels.length; i < len; i++) {
+                for (i = 0, len = sels.length; i < len; i++) {
                     record.push(sels[i]);
                     ids.push(sels[i].id);
                 }
@@ -12931,250 +12949,282 @@ Ext.reg('m3-object-selection-panel', Ext.m3.ObjectSelectionPanel);
  * Объектное дерево, включает в себя тулбар с кнопками добавить (в корень и дочерний элемент), редактировать и удалить
  * @param {Object} config
  */
-Ext.m3.ObjectTree = Ext.extend(Ext.ux.tree.TreeGrid, {
-	constructor: function(baseConfig, params){
-        params = baseConfig.params || params;
+Ext.ns('Ext.m3');
 
-		assert(params.rowIdName !== undefined,'rowIdName is undefined');
-		assert(params.actions !== undefined,'actions is undefined');
-		
-		this.allowPaging = params.allowPaging;
-		this.rowIdName = params.rowIdName;
-		this.actionNewUrl = params.actions.newUrl;
-		this.actionEditUrl = params.actions.editUrl;
-		this.actionDeleteUrl = params.actions.deleteUrl;
-		this.actionDataUrl = params.actions.dataUrl;
-		this.actionContextJson = params.actions.contextJson;
-		this.parentIdName = params.parentIdName;
-        this.incrementalUpdate = params.incrementalUpdate;
-		if (params.customLoad) {
-			var ajax = Ext.Ajax;
-			this.on('expandnode',function (node){
-				var nodeList = new Array();
-				if (node.hasChildNodes()){
-					for (var i=0; i < node.childNodes.length; i++){
-						if(!node.childNodes[i].isLoaded()) {
-							nodeList.push(node.childNodes[i].id);
-						}	
-					}
-				}
-				if (nodeList.length > 0) {
-					ajax.request({
-						url: params.actions.dataUrl
-						,params: {'list_nodes': nodeList.join(',')}
-						,success: function(response, opts){
-							var res = Ext.util.JSON.decode(response.responseText);
-							if (res) {
-								for (var i=0; i < res.length; i++){
-									var curr_node = node.childNodes[i];
-									for (var j=0; j < res[i].children.length; j++){
-										var newNode = new Ext.tree.AsyncTreeNode(res[i].children[j]);
-										curr_node.appendChild(newNode);
-										curr_node.loaded = true;
-									}
-								}
-							} 
-						}
-						,failure: function(response, opts){
-						   Ext.Msg.alert('','failed');
-						}
-					});
-				}
-			});
-		}
-		// Параметр "Сортировать папки"
-		// если true, то папки всегда будут выше простых элементов
-		// если false, то папки ведут себя также как элементы
-		baseConfig.folderSort = true;
-		baseConfig.enableSort = false;
-		if (params.folderSort != undefined) {
-			baseConfig.folderSort = params.folderSort; 
-		}
-		Ext.m3.ObjectTree.superclass.constructor.call(this, baseConfig, params);
-	},
+Ext.m3.ObjectTree = Ext.extend(Ext.m3.Tree, {
 
-	initComponent: function(){
-		var loader = this.getLoader(); 
-		loader.baseParams = this.getMainContext();
-		
-		Ext.m3.ObjectTree.superclass.initComponent.call(this);
-		// Созадем свой сортировщик с переданными параметрами
-		var sorter = new Ext.ux.tree.TreeGridSorter(this, {folderSort: this.folderSort, property: this.columns[0].dataIndex || 'text'});        
+    allowPaging: false,
+    rowIdName: 'id',
+    parentIdName: 'parent_id',
+
+    actionNewUrl: null,
+    actionEditUrl: null,
+    actionDeleteUrl: null,
+
+    actionContextJson: {},
+
+    incrementalUpdate: false,
+
+    folderSort: true,
+    enableSort: false,
+
+    loadMask: null,
+//    loadMask: new Ext.LoadMask(this.el, {msg: "Загрузка..."}),
+
+    configure: function () {
+        var contextMenu = Ext.create({}, 'menu'),
+            containerContextMenu = Ext.create({}, 'menu'),
+            tbar = Ext.create({}, 'toolbar'),
+
+            buttonNewInRoot = {
+                text: 'Новый в корне',
+                iconCls: 'add_item',
+                handler: this.onNewRecord,
+                scope: this
+            },
+            buttonNewInChild = {
+                text: 'Новый дочерний',
+                iconCls: 'add_item',
+                handler: this.onNewRecordChild,
+                scope: this
+            },
+            buttonEdit = {
+                text: 'Изменить',
+                iconCls: 'edit_item',
+                handler: this.onEditRecord,
+                scope: this
+            },
+            buttonRemove = {
+                text: 'Удалить',
+                iconCls: 'delete_item',
+                handler: this.onDeleteRecord,
+                scope: this
+            },
+            buttonRefresh = {
+                text: 'Обновить',
+                iconCls: 'refresh-icon-16',
+                handler: this.refreshStore,
+                scope: this
+            };
+
+
+        if (this.actionNewUrl) {
+            contextMenu.add(buttonNewInRoot);
+            contextMenu.add(buttonNewInChild);
+            containerContextMenu.add(buttonNewInRoot);
+
+            tbar.add({
+                text: 'Добавить',
+                iconCls: 'add_item',
+                menu: {
+                    items: [buttonNewInRoot, buttonNewInChild]
+                }
+
+            });
+
+        }
+        if (this.actionEditUrl) {
+            contextMenu.add(buttonEdit);
+            tbar.add(buttonEdit);
+
+            this.on('dblclick', this.onEditRecord, this);
+        }
+        if (this.actionDeleteUrl) {
+            contextMenu.add(buttonRemove);
+            tbar.add(buttonRemove);
+        }
+
+        // add separator
+        if (this.actionNewUrl || this.actionEditUrl || this.actionDeleteUrl) {
+            tbar.add('-');
+            contextMenu.add('-');
+            containerContextMenu.add('-');
+        }
+
+        if (this.dataUrl) {
+            tbar.add(buttonRefresh);
+            contextMenu.add(buttonRefresh);
+            containerContextMenu.add(buttonRefresh);
+        }
+
+        if (contextMenu.items.length > 0) {
+            this.contextMenu = contextMenu;
+        }
+        if (containerContextMenu.items.length > 0) {
+            this.containerContextMenu = containerContextMenu;
+        }
+        if (tbar.items.length > 0) {
+            this.tbar = tbar;
+        }
+    },
+
+    initComponent: function () {
+        this.configure();
+
+        Ext.m3.ObjectTree.superclass.initComponent.call(this);
+
+        var loader = this.getLoader();
+        loader.baseParams = this.getMainContext();
+
+
         // Повесим отображение маски при загрузке дерева
         loader.on('beforeload', this.onBeforeLoad, this);
         loader.on('load', this.onLoad, this);
         loader.on('loadexception', this.onLoadException, this);
+
         // еще настроим loader, чтобы правильно передавал узел через параметр
-        loader.nodeParameter = this.rowIdName; 
+        loader.nodeParameter = this.rowIdName;
 
         this.addEvents(
-			/**
-			 * Событие до запроса добавления записи - запрос отменится при возврате false
-			 * @param {ObjectTree} this - само дерево
-			 * @param {JSON} request - AJAX-запрос для отправки на сервер
+            /**
+             * Событие до запроса добавления записи - запрос отменится при возврате false
+             * @param {ObjectTree} this - само дерево
+             * @param {JSON} request - AJAX-запрос для отправки на сервер
              * @param isChild - флаг того, что запрос идет на дочерний узел
-			 */
-			'beforenewrequest',
+             */
+            'beforenewrequest',
 
             /**
-			 * Событие до запроса редактирования записи - запрос отменится при возврате false
-			 * @param {ObjectTree} this - само дерево
-			 * @param {JSON} request - AJAX-запрос для отправки на сервер
-			 */
-			'beforeeditrequest',
+             * Событие до запроса редактирования записи - запрос отменится при возврате false
+             * @param {ObjectTree} this - само дерево
+             * @param {JSON} request - AJAX-запрос для отправки на сервер
+             */
+            'beforeeditrequest',
 
             /**
-			 * Событие до запроса удаления записи - запрос отменится при возврате false
-			 * @param {ObjectTree} this - само дерево
-			 * @param {JSON} request - AJAX-запрос для отправки на сервер
-			 */
-			'beforedeleterequest'
+             * Событие до запроса удаления записи - запрос отменится при возврате false
+             * @param {ObjectTree} this - само дерево
+             * @param {JSON} request - AJAX-запрос для отправки на сервер
+             */
+            'beforedeleterequest'
         );
-	},
-	
-	showMask: function(visible) {
-		var loader = this.getLoader();
-		if (this.treeLoadingMask == undefined) {
-			this.treeLoadingMask = new Ext.LoadMask(this.el, {msg:"Загрузка..."});
-		}
-		if (visible) {
-			this.treeLoadingMask.show();
-		} else {
-			this.treeLoadingMask.hide();
-		}
-	},
-	
-	onBeforeLoad: function(treeloader, node, callback){
-		this.showMask(true);
-	},
-	
-	onLoad: function(treeloader, node, response){
-		this.showMask(false);
-	},
-	
-	onLoadException: function(treeloader, node, response){
-		this.showMask(false);
-	},
+    },
 
-	onNewRecord: function (){
-		assert(this.actionNewUrl, 'actionNewUrl is not define');
+    getMask: function () {
+        if (!this.loadMask) {
+            this.loadMask = new Ext.LoadMask(this.el,
+                {msg: "Загрузка..."});
+        }
+        return this.loadMask;
+    },
 
-        var req = {
-            url: this.actionNewUrl,
-	        method: 'POST',
-	        params: this.getMainContext(),
+    showMask: function (visible) {
+        var mask = this.getMask();
+        if (visible) {
+            mask.show();
+        } else {
+            mask.hide();
+        }
+    },
+
+    onBeforeLoad: function () {
+        this.showMask(true);
+    },
+
+    onLoad: function () {
+        this.showMask(false);
+    },
+
+    onLoadException: function () {
+        this.showMask(false);
+    },
+
+    onNewRecord: function () {
+        assert(this.actionNewUrl, 'actionNewUrl is not define');
+
+        callAction({
             scope: this,
-	        success: function(res, opt){
-		   		return this.childWindowOpenHandler(res, opt, 'new');
-		    },
-	        failure: function(){
-                uiAjaxFailMessage.apply(this, arguments);
-            }
-    	};
+            beforeRequest: 'beforenewrequest',
+            request: {
+                url: this.actionNewUrl,
+                params: this.getMainContext(),
+                success: this.childWindowOpenHandler.createDelegate('new'),
+                failure: uiAjaxFailMessage
+            },
+            mask: this.getMask()
+        });
+    },
 
-        if (this.fireEvent('beforenewrequest', this, req, false)) {
-			Ext.Ajax.request(req);
-		}
-	},
+    onNewRecordChild: function () {
+        assert(this.actionNewUrl, 'actionNewUrl is not define');
 
-	onNewRecordChild: function (){
-		assert(this.actionNewUrl, 'actionNewUrl is not define');
-		
-		if (!this.getSelectionModel().getSelectedNode()) {
-			Ext.Msg.show({
-			   title: 'Новый',
-			   msg: 'Элемент не выбран',
-			   buttons: Ext.Msg.OK,
-			   icon: Ext.MessageBox.INFO
-			});
-			return;
-		}
-		var baseConf = this.getSelectionContext();
-		baseConf[this.parentIdName] = baseConf[this.rowIdName];
-		delete baseConf[this.rowIdName];
-		var scope = this;
+        if (!this.getSelectionModel().getSelectedNode()) {
+            Ext.Msg.show({
+                title: 'Новый',
+                msg: 'Элемент не выбран',
+                buttons: Ext.Msg.OK,
+                icon: Ext.MessageBox.INFO
+            });
+            return;
+        }
+        var baseConf = this.getSelectionContext();
+        baseConf[this.parentIdName] = baseConf[this.rowIdName];
+        delete baseConf[this.rowIdName];
 
-        var req = {
-            url: this.actionNewUrl,
+        callAction({
             scope: this,
-	        method: "POST",
-	        params: baseConf,
-	        success: function(res, opt){
-		   		return this.childWindowOpenHandler(res, opt, 'newChild');
-		    },
-	        failure: function(){
-                uiAjaxFailMessage.apply(this, arguments);
-            }
-    	};
+            beforeRequest: 'beforenewrequest',
+            request: {
+                url: this.actionNewUrl,
+                params: baseConf,
+                success: this.childWindowOpenHandler.createDelegate('newChild'),
+                failure: uiAjaxFailMessage
+            },
+            mask: this.getMask()
+        });
+    },
 
-        if (this.fireEvent('beforenewrequest', this, req, true)) {
-			Ext.Ajax.request(req);
-		}
-	},
+    onEditRecord: function () {
+        assert(this.actionEditUrl, 'actionEditUrl is not define');
+        assert(this.rowIdName, 'rowIdName is not define');
 
-	onEditRecord: function (){
-		assert(this.actionEditUrl, 'actionEditUrl is not define');
-		assert(this.rowIdName, 'rowIdName is not define');
-		
-	    if (this.getSelectionModel().getSelectedNode()) {
-			var baseConf = this.getSelectionContext();
-
-            var req = {
-		        url: this.actionEditUrl,
+        if (this.getSelectionModel().getSelectedNode()) {
+            callAction({
                 scope: this,
-		        method: 'POST',
-		        params: baseConf,
-		        success: function(res, opt){
-			   		return this.childWindowOpenHandler(res, opt, 'edit');
-			    },
-		        failure: function(){
-                    uiAjaxFailMessage.apply(this, arguments);
-                }
-		    };
+                beforeRequest: 'beforeeditrequest',
+                request: {
+                    url: this.actionEditUrl,
+                    params: this.getSelectionContext(),
+                    success: this.childWindowOpenHandler.createDelegate('edit'),
+                    failure: uiAjaxFailMessage
+                },
+                mask: this.getMask()
+            });
 
-            if (this.fireEvent('beforeeditrequest', this, req)) {
-			    Ext.Ajax.request(req);
-		    }
-    	}
-	},
+        }
+    },
 
-	onDeleteRecord: function (){
+    onDeleteRecord: function () {
         assert(this.actionDeleteUrl, 'actionDeleteUrl is not define');
         assert(this.rowIdName, 'rowIdName is not define');
-        var node = this.getSelectionModel().getSelectedNode()
+        var node = this.getSelectionModel().getSelectedNode();
         if (node) {
-        
+
             Ext.Msg.show({
-               title: 'Удаление записи',
-               scope: this,
-               msg: 'Вы действительно хотите удалить выбранную запись?',
-               icon: Ext.Msg.QUESTION,
-               buttons: Ext.Msg.YESNO,
-               fn: function(btn, text, opt){
-                   if (btn != 'yes')
-                    return;
-    
+                title: 'Удаление записи',
+                scope: this,
+                msg: 'Вы действительно хотите удалить выбранную запись?',
+                icon: Ext.Msg.QUESTION,
+                buttons: Ext.Msg.YESNO,
+                fn: function (btn) {
+                    if (btn != 'yes')
+                        return;
+
                     if (this.getSelectionModel().getSelectedNode()) {
-                        var baseConf = this.getSelectionContext();
-    
-                        var req = {
-                            url: this.actionDeleteUrl,
+                        callAction({
                             scope: this,
-                            params: baseConf,
-                            success: function(res, opt){
-                                 return this.deleteOkHandler(res, opt);
+                            beforeRequest: 'beforedeleterequest',
+                            request: {
+                                url: this.actionDeleteUrl,
+                                params: this.getSelectionContext(),
+                                success: this.deleteOkHandler.createDelegate(this),
+                                failure: uiAjaxFailMessage
                             },
-                            failure: function(){
-                                uiAjaxFailMessage.apply(this, arguments);
-                            }
-                        };
-    
-                        if (this.fireEvent('beforedeleterequest', this, req)) {
-                            Ext.Ajax.request(req);
-                        }
+                            mask: this.getMask()
+                        });
                     }
                 }
-           });
+            });
         } else {
             Ext.Msg.show({
                 title: 'Удаление',
@@ -13185,24 +13235,23 @@ Ext.m3.ObjectTree = Ext.extend(Ext.ux.tree.TreeGrid, {
         }
     },
 
-	childWindowOpenHandler: function (response, opts, operation){
-        
-        var window = smart_eval(response.responseText);
-        if(window){
-            window.on('closed_ok', function(data){
-                if (this.incrementalUpdate){
+    childWindowOpenHandler: function (win) {
+        debugger;
+        if (win) {
+            win.on('closed_ok', function (data) {
+                if (this.incrementalUpdate) {
                     // нам пришел узел дерева
-                    var obj = Ext.util.JSON.decode(data);
-                    var selectedNode = this.getSelectionModel().getSelectedNode();
+                    var obj = Ext.decode(data),
+                        selectedNode = this.getSelectionModel().getSelectedNode();
                     var newSelectNode = this.getLoader().createNode(obj.data);
-                    switch (operation){
+                    switch (operation) {
                         case 'edit':
                             // при редактировании заменим старый узел на новый
                             var parentNode = selectedNode.parentNode;
                             parentNode.removeChild(selectedNode);
-		             if (!parentNode.expanded) {
-               	         parentNode.expand(false, false);
-           		     }
+                            if (!parentNode.expanded) {
+                                parentNode.expand(false, false);
+                            }
                             parentNode.appendChild(newSelectNode);
                             break;
 
@@ -13226,7 +13275,7 @@ Ext.m3.ObjectTree = Ext.extend(Ext.ux.tree.TreeGrid, {
                                     // если узел еще не загружен
                                     if (!selectedNode.leaf && selectedNode.childNodes.length == 0) {
                                         // загружаем его так, чтобы после загрузки выделить элемент
-                                        selectedNode.on('expand', function(){
+                                        selectedNode.on('expand', function () {
                                             var newSelectNode = this.getNodeById(obj.data.id);
                                             newSelectNode.select();
                                         }, this, {single: true});
@@ -13250,17 +13299,14 @@ Ext.m3.ObjectTree = Ext.extend(Ext.ux.tree.TreeGrid, {
                     }
                 }
                 else {
-                    return this.refreshStore()
+                    this.refreshStore();
                 }
             }, this);
         }
-    }
-	,deleteOkHandler: function (response, opts){
-        if (this.incrementalUpdate){
-            // проверка на ошибки уровня приложения
-            var res = Ext.util.JSON.decode(response.responseText);
-            if(!res.success){
-                smart_eval(response.responseText);
+    },
+    deleteOkHandler: function (res) {
+        if (this.incrementalUpdate) {
+            if (!res.success) {
                 return;
             }
             // нам просто надо удалить выделенный элемент
@@ -13269,32 +13315,30 @@ Ext.m3.ObjectTree = Ext.extend(Ext.ux.tree.TreeGrid, {
             parentNode.removeChild(selectedNode);
             parentNode.select();
         } else {
-            smart_eval(response.responseText);
             this.refreshStore();
         }
-	}
-	,refreshStore: function (){
-		this.getLoader().baseParams = this.getMainContext();
-		this.getLoader().load(this.getRootNode());
-	}
-	/**
+    },
+    refreshStore: function () {
+        this.getLoader().baseParams = this.getMainContext();
+        this.getLoader().load(this.getRootNode());
+    },
+    /**
      * Получение основного контекста дерева
      * Используется при ajax запросах
      */
-    ,getMainContext: function(){
-    	return Ext.applyIf({}, this.actionContextJson);
-    }
+    getMainContext: function () {
+        return Ext.applyIf({}, this.actionContextJson);
+    },
     /**
      * Получение контекста выделения строк/ячеек
      * Используется при ajax запросах
-     * @param {bool} withRow Признак добавление в контекст текущей выбранной записи
      */
-    ,getSelectionContext: function(withRow){
-    	var baseConf = this.getMainContext();
-    	if (this.getSelectionModel().getSelectedNode()) {
-			baseConf[this.rowIdName] = this.getSelectionModel().getSelectedNode().id;
-		}
-		return baseConf;
+    getSelectionContext: function () {
+        var baseConf = this.getMainContext();
+        if (this.getSelectionModel().getSelectedNode()) {
+            baseConf[this.rowIdName] = this.getSelectionModel().getSelectedNode().id;
+        }
+        return baseConf;
     }
 });
 
@@ -13758,64 +13802,6 @@ Ext.m3.SearchField = Ext.extend(Ext.form.TwinTriggerField, {
     }
 });
 Ext.reg('m3-search-field', Ext.m3.SearchField);
-/**
- *
- * @type {*|void}
- */
-
-// FIXME: Если дерево небольшое по размерам, узлы могут не отображаться,
-// но ресайз окна/контрола возвращает их обратно
-// FIXME: Здесь также должен быть проброс action context'a
-Ext.m3.Tree = Ext.extend(Ext.ux.tree.TreeGrid, {
-
-        useArrows: true,
-        autoScroll: false,
-        animate: true,
-        containerScroll: true,
-        border: false,
-        split: true,
-        customLoad: false,
-
-        initComponent: function () {
-
-            // если выставлен флаг read_only, выключаем drag&drop
-            if (this.readOnly) {
-                this.enableDD = false;
-                this.enableDrag = false;
-                this.enableDrop = false;
-            }
-
-            // создание корневого элемента из конфига
-            this.root = new Ext.tree.AsyncTreeNode(this.root);
-
-            // Контекстное меню на узлы
-            if (this.contextMenu) {
-                this.contextMenu = Ext.create(this.contextMenu);
-                this.addListener('contextmenu', function (node, e) {
-                    node.select();
-                    this.contextMenu.contextNode = node;
-                    this.contextMenu.showAt(e.getXY());
-                }, this);
-            }
-
-            // Контекстное меню на контейнер
-            if (this.containerContextMenu) {
-                this.containerContextMenu = Ext.create(this.containerContextMenu);
-                this.addListener('containercontextmenu', function (node, e) {
-                    e.stopEvent();
-                    this.containerContextMenu.showAt(e.getXY());
-                }, this);
-            }
-
-            Ext.m3.Tree.superclass.initComponent.call(this);
-        }
-    }
-);
-
-Ext.reg('m3-tree', Ext.m3.Tree);
-
-// hack, позволяющий в TreeGrid использовать колонки с родным xtype=gridcolumn
-Ext.reg('tggridcolumn', Ext.tree.Column);
 /**
  * Ext.ux.DateTimePicker & Ext.ux.form.DateTimeField
  * http://www.sencha.com/forum/showthread.php?98292-DateTime-field-again-and-again-)
@@ -15014,7 +15000,6 @@ Ext.reg('imageuploadfield', Ext.ux.form.ImageUploadField);
 
 /**
  * Функции рендера компонентов-контейнеров
- * @author: prefer
  */
 
 /**

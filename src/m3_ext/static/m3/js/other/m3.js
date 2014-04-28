@@ -190,9 +190,9 @@ function uiAjaxFailMessage (response, opt) {
 		Ext.Msg.alert(SOFTWARE_NAME, 'Извините, сервер временно не доступен.');
 		return;
 	}
-	
+
     // response['status'] === 200 -- Пользовательская ошибка, success == false
-	if (response['status'] === 200 || opt['failureType'] === "server"){
+	if (response['status'] === 200 || opt && opt['failureType'] === "server"){
 	    // Пришел OperationResult('success':False)
 	    if (opt && opt.response && opt.response.responseText) {
 	        smart_eval( opt.response.responseText );
@@ -205,12 +205,13 @@ function uiAjaxFailMessage (response, opt) {
     		width = (bodySize.width < 500) ? bodySize.width - 50 : 500,
     		height = (bodySize.height < 300) ? bodySize.height - 50 : 300,
     		win;
-        
+
+
         // Для submit'a response приходит вторым параметром
         if (!response.responseText && opt && opt.response){
             response = opt.response;
         }
-    	var errorMsg = response.responseText;
+    	var errorMsg = response.responseText || response;
 	
     	var win = new Ext.Window({ modal: true, width: width, height: height, 
     	    title: "Request Failure", layout: "fit", maximizable: true, 

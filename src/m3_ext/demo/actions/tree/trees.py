@@ -8,6 +8,7 @@ from m3_ext.ui.results import UIJsonEncoder
 
 from m3_ext.demo.actions import UIAction, Pack
 
+
 @Pack.register
 class TreeAction(UIAction):
     """
@@ -117,17 +118,20 @@ class TreeDataAction(Action):
 
     def run(self, request, context):
         nodes = [
-            {"first_name": u"Иван",
+            {"id": 1,
+             "first_name": u"Иван",
              "second_name": u'Иванов',
              "load_type": True,
              "leaf": False,
              "children": [
-                 {"first_name": u"Петр",
+                 {"id": 2,
+                  "first_name": u"Петр",
                   "second_name": u'Петров',
                   "load_type": True,
                   "leaf": True}
              ]},
-            {"first_name": u"Сидор",
+            {"id": 3,
+             "first_name": u"Сидор",
              "second_name": u'Сидоров',
              "load_type": True,
              "leaf": True}

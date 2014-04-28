@@ -2,6 +2,8 @@
  * Объектное дерево, включает в себя тулбар с кнопками добавить (в корень и дочерний элемент), редактировать и удалить
  * @param {Object} config
  */
+Ext.ns('Ext.m3');
+
 Ext.m3.ObjectTree = Ext.extend(Ext.m3.Tree, {
 
     allowPaging: false,
@@ -18,6 +20,9 @@ Ext.m3.ObjectTree = Ext.extend(Ext.m3.Tree, {
 
     folderSort: true,
     enableSort: false,
+
+    loadMask: null,
+//    loadMask: new Ext.LoadMask(this.el, {msg: "Загрузка..."}),
 
     configure: function () {
         var contextMenu = Ext.create({}, 'menu'),
@@ -114,6 +119,7 @@ Ext.m3.ObjectTree = Ext.extend(Ext.m3.Tree, {
         var loader = this.getLoader();
         loader.baseParams = this.getMainContext();
 
+
         // Повесим отображение маски при загрузке дерева
         loader.on('beforeload', this.onBeforeLoad, this);
         loader.on('load', this.onLoad, this);
@@ -147,15 +153,20 @@ Ext.m3.ObjectTree = Ext.extend(Ext.m3.Tree, {
         );
     },
 
-    showMask: function (visible) {
-        if (!this.treeLoadingMask) {
-            this.treeLoadingMask = new Ext.LoadMask(this.el,
+    getMask: function () {
+        if (!this.loadMask) {
+            this.loadMask = new Ext.LoadMask(this.el,
                 {msg: "Загрузка..."});
         }
+        return this.loadMask;
+    },
+
+    showMask: function (visible) {
+        var mask = this.getMask();
         if (visible) {
-            this.treeLoadingMask.show();
+            mask.show();
         } else {
-            this.treeLoadingMask.hide();
+            mask.hide();
         }
     },
 
@@ -174,24 +185,17 @@ Ext.m3.ObjectTree = Ext.extend(Ext.m3.Tree, {
     onNewRecord: function () {
         assert(this.actionNewUrl, 'actionNewUrl is not define');
 
-        var scope = this;
-        var req = {
-            url: this.actionNewUrl,
-//            method: 'POST',
-            params: this.getMainContext(),
-//            scope: this,
-            success: function (res) {
-                return scope.childWindowOpenHandler(res, 'new');
+        callAction({
+            scope: this,
+            beforeRequest: 'beforenewrequest',
+            request: {
+                url: this.actionNewUrl,
+                params: this.getMainContext(),
+                success: this.childWindowOpenHandler.createDelegate('new'),
+                failure: uiAjaxFailMessage
             },
-            failure: function () {
-                uiAjaxFailMessage.apply(scope, arguments);
-            }
-        };
-
-        if (this.fireEvent('beforenewrequest', this, req, false)) {
-            UI.ajax(req.url, req.params).then(req.success).catch(req.failure);
-//            Ext.Ajax.request(req);
-        }
+            mask: this.getMask()
+        });
     },
 
     onNewRecordChild: function () {
@@ -210,24 +214,17 @@ Ext.m3.ObjectTree = Ext.extend(Ext.m3.Tree, {
         baseConf[this.parentIdName] = baseConf[this.rowIdName];
         delete baseConf[this.rowIdName];
 
-        var scope = this;
-        var req = {
-            url: this.actionNewUrl,
-//            scope: this,
-//            method: "POST",
-            params: baseConf,
-            success: function (res) {
-                return scope.childWindowOpenHandler(res, 'newChild');
+        callAction({
+            scope: this,
+            beforeRequest: 'beforenewrequest',
+            request: {
+                url: this.actionNewUrl,
+                params: baseConf,
+                success: this.childWindowOpenHandler.createDelegate('newChild'),
+                failure: uiAjaxFailMessage
             },
-            failure: function () {
-                uiAjaxFailMessage.apply(scope, arguments);
-            }
-        };
-
-        if (this.fireEvent('beforenewrequest', this, req, true)) {
-            UI.ajax(req.url, req.params).then(req.success).catch(req.failure);
-//            Ext.Ajax.request(req);
-        }
+            mask: this.getMask()
+        });
     },
 
     onEditRecord: function () {
@@ -235,26 +232,18 @@ Ext.m3.ObjectTree = Ext.extend(Ext.m3.Tree, {
         assert(this.rowIdName, 'rowIdName is not define');
 
         if (this.getSelectionModel().getSelectedNode()) {
-            var baseConf = this.getSelectionContext();
-
-            var scope = this;
-            var req = {
-                url: this.actionEditUrl,
-//                scope: this,
-                params: baseConf,
-                success: function (res) {
-//                    debugger;
-                    return scope.childWindowOpenHandler(res, 'edit');
+            callAction({
+                scope: this,
+                beforeRequest: 'beforeeditrequest',
+                request: {
+                    url: this.actionEditUrl,
+                    params: this.getSelectionContext(),
+                    success: this.childWindowOpenHandler.createDelegate('edit'),
+                    failure: uiAjaxFailMessage
                 },
-                failure: function () {
-                    uiAjaxFailMessage.apply(scope, arguments);
-                }
-            };
+                mask: this.getMask()
+            });
 
-            if (this.fireEvent('beforeeditrequest', this, req)) {
-                UI.ajax(req.url, req.params).then(req.success).catch(req.failure);
-//                Ext.Ajax.request(req);
-            }
         }
     },
 
@@ -275,25 +264,17 @@ Ext.m3.ObjectTree = Ext.extend(Ext.m3.Tree, {
                         return;
 
                     if (this.getSelectionModel().getSelectedNode()) {
-                        var baseConf = this.getSelectionContext();
-
-                        var scope = this;
-                        var req = {
-                            url: this.actionDeleteUrl,
-//                            scope: this,
-                            params: baseConf,
-                            success: function (res, opt) {
-                                return scope.deleteOkHandler(res, opt);
+                        callAction({
+                            scope: this,
+                            beforeRequest: 'beforedeleterequest',
+                            request: {
+                                url: this.actionDeleteUrl,
+                                params: this.getSelectionContext(),
+                                success: this.deleteOkHandler.createDelegate(this),
+                                failure: uiAjaxFailMessage
                             },
-                            failure: function () {
-                                uiAjaxFailMessage.apply(scope, arguments);
-                            }
-                        };
-
-                        if (this.fireEvent('beforedeleterequest', this, req)) {
-                            UI.ajax(req.url, req.params).then(req.success).catch(req.failure);
-//                            Ext.Ajax.request(req);
-                        }
+                            mask: this.getMask()
+                        });
                     }
                 }
             });
@@ -307,9 +288,8 @@ Ext.m3.ObjectTree = Ext.extend(Ext.m3.Tree, {
         }
     },
 
-    childWindowOpenHandler: function (response, operation) {
-
-        var win = evalResult(response);
+    childWindowOpenHandler: function (win) {
+        debugger;
         if (win) {
             win.on('closed_ok', function (data) {
                 if (this.incrementalUpdate) {
@@ -377,12 +357,9 @@ Ext.m3.ObjectTree = Ext.extend(Ext.m3.Tree, {
             }, this);
         }
     },
-    deleteOkHandler: function (response) {
+    deleteOkHandler: function (res) {
         if (this.incrementalUpdate) {
-            // проверка на ошибки уровня приложения
-            var res = Ext.decode(response.responseText);
             if (!res.success) {
-                smart_eval(response.responseText);
                 return;
             }
             // нам просто надо удалить выделенный элемент
@@ -391,7 +368,6 @@ Ext.m3.ObjectTree = Ext.extend(Ext.m3.Tree, {
             parentNode.removeChild(selectedNode);
             parentNode.select();
         } else {
-            evalResult(response);
             this.refreshStore();
         }
     },

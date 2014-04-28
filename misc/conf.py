@@ -28,7 +28,7 @@ FILE_EXTENSIONS = ('js', )
 HIGH_PRIORITY_OUTER = ('Reorderer.js', )
 
 # Приоритетные js файлы для загрузки
-HIGH_PRIORITY = ('m3.js', 'ComboBox.js', 'Grid.js', 'TreeGrid.js', 'Window.js',)
+HIGH_PRIORITY = ('m3.js', 'ComboBox.js', 'Grid.js', 'TreeGrid.js', 'Tree.js', 'Window.js',)
 
 # Файлы с наименьшим приоритетом
 LOW_PRIORITY = ('FileUploadField.js', 'ImageUploadField.js', 

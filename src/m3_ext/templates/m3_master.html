@@ -54,6 +54,8 @@
     <!-- m3 js-->
     <script type='text/javascript' src='{{ STATIC_URL }}m3/js/m3-debug.js'></script>
     <script type='text/javascript' src='{{ STATIC_URL }}m3/js/ext-extensions/ObjectTree.js'></script>
+    <script type='text/javascript' src='{{ STATIC_URL }}m3/js/ext-extensions/ObjectGrid.js'></script>
+    <script type='text/javascript' src='{{ STATIC_URL }}m3/js/other/m3.js'></script>
 
     <script type="text/javascript" src="{{ STATIC_URL }}vendor/q.js"></script>
     <script type="text/javascript" src="{{ STATIC_URL }}m3/js/fabric.js"></script>
@@ -114,65 +116,16 @@
         ],
         confStorage: function (key) {
             // конфиги всегда будут грузиться с сервера
-            return UI.ajax(key, {'ui': true}, 'ui').then(evalResult);
+            return callAction({
+                request: {
+                    url: key,
+                    params: {'ui': true}
+                }
+            });
         },
         uiFabric: Ext.create
     });
 
-    function msgBox(cfg) {
-        var result = Q.defer();
-        Ext.Msg.show(Ext.apply(cfg, {fn: result.resolve}));
-        return result.promise;
-    }
-
-    function evalResult(data) {
-        var obj = Ext.decode(data);
-        if (!obj) {
-            return null;
-        }
-        return new Q().then(function () {
-            if (obj.message) {
-                return msgBox({
-                    title: 'Внимание',
-                    msg: obj.message,
-                    buttons: Ext.Msg.OK,
-                    icon: (
-                            obj.success != undefined && !obj.success
-                            ) ? Ext.Msg.WARNING : Ext.Msg.Info
-                });
-            }
-            return null;
-        }).then(function () {
-            if (obj.code) {
-                if (obj.code.ui) {
-                    return appUI.create(obj.code).then(function (win) {
-                        AppDesktop.getDesktop().createWindow(win);
-                        win.show();
-                    })
-                } else {
-                    return obj.code
-                }
-            } else {
-                return null;
-            }
-        });
-    }
-
-
-    function callAction(url, params) {
-        UI.ajax(url, params).then(evalResult).catch(function (ex) {
-            Ext.Msg.show({
-                title: 'Внимание',
-                msg: 'Произошла непредвиденная ошибка!',
-                buttons: Ext.Msg.OK,
-                fn: Ext.emptyFn,
-                animEl: 'elId',
-                icon: Ext.MessageBox.WARNING
-            });
-            console.error(ex);
-            throw ex;
-        });
-    }
 
 </script>
 

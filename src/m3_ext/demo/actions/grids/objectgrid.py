@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from m3.actions import Action
+from m3.actions.results import OperationResult
 from m3.actions.urls import get_url
 from m3.actions.utils import extract_int
 
@@ -35,6 +36,7 @@ class ObjectGridAction(UIAction):
         grid.action_data = DataAction
         grid.url_new = get_url(ObjectGridNewAction)
         grid.action_edit = ObjectGridEditAction
+        grid.action_delete = ObjectGridDeleteAction
 
         window.items.append(grid)
         button = ext.ExtButton(text=u'Закрыть')
@@ -109,3 +111,11 @@ class ObjectGridEditAction(UIAction):
         button = ext.ExtButton(text=u'Закрыть')
         window.buttons.append(button)
         return window
+
+@Pack.register
+class ObjectGridDeleteAction(Action):
+
+    url = '/data/grid/delete'
+
+    def run(self, request, context):
+        return OperationResult(success=True)

@@ -4,7 +4,7 @@ from django import http
 from m3.actions import Action
 from m3.actions.results import PreJsonResult
 from m3.actions.urls import get_url
-from m3_ext.demo.actions.grids.objectgrid import ObjectGridNewAction, ObjectGridEditAction
+from m3_ext.demo.actions.grids.objectgrid import ObjectGridNewAction, ObjectGridEditAction, ObjectGridDeleteAction
 from m3_ext.demo.actions.tree.trees import TreeDataAction
 
 from m3_ext.ui import all_components as ext
@@ -43,7 +43,7 @@ class ObjectTreeAction(UIAction):
 
         adv_tree.url_new = get_url(ObjectGridNewAction)
         adv_tree.action_edit = ObjectGridEditAction
-        # adv_tree.action_delete = TreeDataAction
+        adv_tree.action_delete = ObjectGridDeleteAction
         #adv_tree.top_bar.button_new.text = u'Добавить новую роль'
         adv_tree.row_id_name = 'userrole_id'
         adv_tree.use_bbar = True

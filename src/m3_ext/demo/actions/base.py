@@ -69,11 +69,7 @@ class UIAction(Action):
         """
         # В режиме дебага по-умолчанию при закрытие окна
         # идет еще один запрос на это окно
-        return (
-            "function(w, d) { "
-            "w.on('close', function(){callAction('%s');}) }" %
-            self.get_absolute_url()
-        )
+        return
 
     def get_ui(self, request, context):
         """
