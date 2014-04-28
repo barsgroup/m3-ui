@@ -144,7 +144,7 @@ Ext.m3.BaseObjectGrid = {
 
         params[this.rowIdName] = '';
 
-        callAction({
+        UI.callAction({
             scope: this,
             beforeRequest: 'beforenewrequest',
             afterRequest: 'afternewrequest',
@@ -178,7 +178,7 @@ Ext.m3.BaseObjectGrid = {
                 });
             } else {
 
-                callAction({
+                UI.callAction({
                     scope: this,
                     beforeRequest: 'beforeeditrequest',
                     afterRequest: 'aftereditrequest',
@@ -218,7 +218,7 @@ Ext.m3.BaseObjectGrid = {
                 fn: function (btn) {
                     if (btn == 'yes') {
 
-                        callAction({
+                        UI.callAction({
                             scope: this,
                             beforeRequest: 'beforedeleterequest',
                             afterRequest: 'afterdeleterequest',

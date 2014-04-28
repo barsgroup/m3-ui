@@ -4,50 +4,50 @@
  * @param config
  * @constructor
  */
-function UI(config) {
-    var that = this;
+UI = function (config) {
 
     this.confStorage = config['confStorage']; // хранилище базовых конфигураций окон
     this.uiFabric = config['uiFabric'];       // собственно, формирователь UI
 
-    this.create = function (data) {         // словарь параметров должен содержать
+    UI.create = function (data) {         // словарь параметров должен содержать
         var customConfig = data['config'], // - config экземпляра окна
             initialData = data['data'],    // - словарь данных для инициализации
             key = data['ui'];              // - key, однозначно идентифицирующий окно в хранилище
 
         // грузим конфиг из хранилища...
-        return that.confStorage(key).then(function (result) {
-            // ..., который затем патчим конкретным конфигом,...
-            var conf = Ext.apply(result.config || {}, customConfig || {}),
-                data = Ext.apply(result.data || {}, initialData || {});
-            return [conf, data];
-        }).then(function (cfg) {
-            var module = cfg[0]['xtype'],
-                result = Q.defer();
+        return this.confStorage(key)
+            .then(function (result) {
+                // ..., который затем патчим конкретным конфигом,...
+                var conf = Ext.apply(result.config || {}, customConfig || {}),
+                    data = Ext.apply(result.data || {}, initialData || {});
+                return [conf, data];
+            }).then(function (cfg) {
+                var module = cfg[0]['xtype'],
+                    result = Q.defer();
 
-            // Не загружаем модули для списка исключений
-            if (config['requireExclude'].indexOf(module) >= 0) {
-                result.resolve(cfg);
-            } else {
-
-                require([config['staticPrefix'] + module + '.js'], function () {
-                    if (config['debug']) {
-                        require.undef(config['staticPrefix'] + module + '.js');
-                    }
-
+                // Не загружаем модули для списка исключений
+                if (config['requireExclude'].indexOf(module) >= 0) {
                     result.resolve(cfg);
-                });
+                } else {
 
-            }
+                    require([config['staticPrefix'] + module + '.js'], function () {
+                        if (config['debug']) {
+                            require.undef(config['staticPrefix'] + module + '.js');
+                        }
 
-            return result.promise;
+                        result.resolve(cfg);
+                    });
 
-        }).then(function (cfgAndData) {
-            // формируем UI widget
-            return that.uiFabric(cfgAndData[0]);
-        });
-    };
-}
+                }
+
+                return result.promise;
+
+            }).then(function (cfgAndData) {
+                // формируем UI widget
+                return this.uiFabric(cfgAndData[0]);
+            }.bind(this));
+    }.bind(this);
+};
 
 /**
  * Загружает JSON AJAX-запросом и кладёт в promise
@@ -78,19 +78,18 @@ UI.ajax = function (cfg) {
  * @param cfg
  * @returns {promise|Q.promise}
  */
-function msgBox(cfg) {
+UI.msgBox = function (cfg) {
     var result = Q.defer();
     Ext.Msg.show(Ext.apply(cfg, {fn: result.resolve}));
     return result.promise;
-}
+};
 
 /**
  *
  * @param response
- * @param opt
  * @returns {*}
  */
-function evalResult(response, opt) {
+UI.evalResult = function (response) {
     var obj = Ext.decode(response.responseText);
     if (!obj) {
         return null;
@@ -112,11 +111,15 @@ function evalResult(response, opt) {
         }).then(function () {
             if (obj.code) {
                 if (obj.code.ui) {
-                    return appUI
+
+                    return UI
                         .create(obj.code)
                         .then(function (win) {
-                            AppDesktop.getDesktop().createWindow(win);
-                            win.show();
+
+                            AppDesktop.getDesktop()
+                                .createWindow(win)
+                                .show();
+
                             return win;
                         })
                 } else {
@@ -125,24 +128,43 @@ function evalResult(response, opt) {
             } else {
                 return obj;
             }
-        });
-}
+        }.bind(this));
+};
 
-function msgShow(ex) {
-    Ext.Msg.show({
-        title: 'Внимание',
-        msg: 'Произошла непредвиденная ошибка!',
-        buttons: Ext.Msg.OK,
-        fn: Ext.emptyFn,
-        animEl: 'elId',
-        icon: Ext.MessageBox.WARNING
-    });
-    console.error(ex);
+/**
+ *
+ * @param ex
+ */
+UI.errorShow = function (ex) {
+    ex.statusText = ex.message;
+    ex.responseText = ex.stack.replace(new RegExp("\n", 'g'), '<br />');
+
+    uiAjaxFailMessage(ex);
     throw ex;
-}
+};
 
-
-function callAction(cfg) {
+/**
+ *
+ * @param cfg Конфигурация для отправки запроса и получения ui-данных
+ *
+ * Например:
+ *
+ *         callAction({
+ *            scope: this,
+ *            beforeRequest: 'beforenewrequest',
+ *            afterRequest: 'afternewrequest',
+ *            request: {
+ *                url: this.actionNewUrl,
+ *                params: params,
+ *                success: this.onNewRecordWindowOpenHandler.createDelegate(this),
+ *                failure: uiAjaxFailMessage
+ *            },
+ *            mask: this.loadMask
+ *         });
+ *
+ * @returns {*} q-object
+ */
+UI.callAction = function (cfg) {
 
     var scope = cfg['scope'],
         success = cfg['success'] || cfg['request']['success'],
@@ -171,9 +193,9 @@ function callAction(cfg) {
             }
             return arguments;
         });
-        ui = ui.spread(evalResult);
+        ui = ui.spread(this.evalResult.bind(this));
     } else {
-        ui = ui.then(evalResult);
+        ui = ui.then(this.evalResult.bind(this));
     }
 
     if (success) {
@@ -193,4 +215,4 @@ function callAction(cfg) {
         })
     }
     return ui;
-}
+};

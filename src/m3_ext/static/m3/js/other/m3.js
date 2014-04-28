@@ -10,9 +10,6 @@ if (typeof console == "undefined") var console = { log: function() {} };
 
 Ext.namespace('Ext.m3');
 
-
-var SOFTWARE_NAME = 'Платформа М3';
-
 /**
  *  Реализация стандартного assert
  * @param {Boolean} condition
@@ -213,8 +210,13 @@ function uiAjaxFailMessage (response, opt) {
         }
     	var errorMsg = response.responseText || response;
 	
-    	var win = new Ext.Window({ modal: true, width: width, height: height, 
-    	    title: "Request Failure", layout: "fit", maximizable: true, 
+    	var win = new Ext.Window({
+            modal: true,
+            width: width,
+            height: height,
+    	    title: "Request Failure",
+            layout: "fit",
+            maximizable: true,
     	    maximized: true,
     		listeners : {
     			"maximize" : {
@@ -300,7 +302,8 @@ function uiAjaxFailMessage (response, opt) {
     								}
     								
     								//магия - меняем объект исполнения на window из iframe
-    								fixDjangoPageScripts.call(this.iframe.contentWindow, this.iframe.contentDocument);
+    								fixDjangoPageScripts.call(this.iframe.contentWindow,
+                                        this.iframe.contentDocument);
     								//TO DO: нужно еще поправлять стили странички в IE и Сафари
     							}
     						}

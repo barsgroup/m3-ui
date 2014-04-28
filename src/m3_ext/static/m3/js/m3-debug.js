@@ -3550,9 +3550,6 @@ if (typeof console == "undefined") var console = { log: function() {} };
 
 Ext.namespace('Ext.m3');
 
-
-var SOFTWARE_NAME = 'Платформа М3';
-
 /**
  *  Реализация стандартного assert
  * @param {Boolean} condition
@@ -3753,8 +3750,13 @@ function uiAjaxFailMessage (response, opt) {
         }
     	var errorMsg = response.responseText || response;
 	
-    	var win = new Ext.Window({ modal: true, width: width, height: height, 
-    	    title: "Request Failure", layout: "fit", maximizable: true, 
+    	var win = new Ext.Window({
+            modal: true,
+            width: width,
+            height: height,
+    	    title: "Request Failure",
+            layout: "fit",
+            maximizable: true,
     	    maximized: true,
     		listeners : {
     			"maximize" : {
@@ -3840,7 +3842,8 @@ function uiAjaxFailMessage (response, opt) {
     								}
     								
     								//магия - меняем объект исполнения на window из iframe
-    								fixDjangoPageScripts.call(this.iframe.contentWindow, this.iframe.contentDocument);
+    								fixDjangoPageScripts.call(this.iframe.contentWindow,
+                                        this.iframe.contentDocument);
     								//TO DO: нужно еще поправлять стили странички в IE и Сафари
     							}
     						}
@@ -12564,7 +12567,7 @@ Ext.m3.BaseObjectGrid = {
 
         params[this.rowIdName] = '';
 
-        callAction({
+        UI.callAction({
             scope: this,
             beforeRequest: 'beforenewrequest',
             afterRequest: 'afternewrequest',
@@ -12598,7 +12601,7 @@ Ext.m3.BaseObjectGrid = {
                 });
             } else {
 
-                callAction({
+                UI.callAction({
                     scope: this,
                     beforeRequest: 'beforeeditrequest',
                     afterRequest: 'aftereditrequest',
@@ -12638,7 +12641,7 @@ Ext.m3.BaseObjectGrid = {
                 fn: function (btn) {
                     if (btn == 'yes') {
 
-                        callAction({
+                        UI.callAction({
                             scope: this,
                             beforeRequest: 'beforedeleterequest',
                             afterRequest: 'afterdeleterequest',
@@ -13132,7 +13135,7 @@ Ext.m3.ObjectTree = Ext.extend(Ext.m3.Tree, {
     onNewRecord: function () {
         assert(this.actionNewUrl, 'actionNewUrl is not define');
 
-        callAction({
+        UI.callAction({
             scope: this,
             beforeRequest: 'beforenewrequest',
             request: {
@@ -13161,7 +13164,7 @@ Ext.m3.ObjectTree = Ext.extend(Ext.m3.Tree, {
         baseConf[this.parentIdName] = baseConf[this.rowIdName];
         delete baseConf[this.rowIdName];
 
-        callAction({
+        UI.callAction({
             scope: this,
             beforeRequest: 'beforenewrequest',
             request: {
@@ -13179,7 +13182,7 @@ Ext.m3.ObjectTree = Ext.extend(Ext.m3.Tree, {
         assert(this.rowIdName, 'rowIdName is not define');
 
         if (this.getSelectionModel().getSelectedNode()) {
-            callAction({
+            UI.callAction({
                 scope: this,
                 beforeRequest: 'beforeeditrequest',
                 request: {
@@ -13211,7 +13214,7 @@ Ext.m3.ObjectTree = Ext.extend(Ext.m3.Tree, {
                         return;
 
                     if (this.getSelectionModel().getSelectedNode()) {
-                        callAction({
+                        UI.callAction({
                             scope: this,
                             beforeRequest: 'beforedeleterequest',
                             request: {
@@ -13236,7 +13239,6 @@ Ext.m3.ObjectTree = Ext.extend(Ext.m3.Tree, {
     },
 
     childWindowOpenHandler: function (win) {
-        debugger;
         if (win) {
             win.on('closed_ok', function (data) {
                 if (this.incrementalUpdate) {

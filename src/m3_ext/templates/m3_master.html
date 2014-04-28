@@ -102,28 +102,29 @@
             opacity: 0.1,
             easing: 'bounceOut'
         });
-    });
 
-    var appUI = new UI({
-        staticPrefix: '{{ STATIC_URL }}',
-        debug: true,
+        new UI({
+            staticPrefix: '{{ STATIC_URL }}',
+            debug: true,
 
-        // Не загружаем модули для стандартных xtype
-        requireExclude: [
-            'm3-edit-window',
-            'm3-window',
-            'window'
-        ],
-        confStorage: function (key) {
-            // конфиги всегда будут грузиться с сервера
-            return callAction({
-                request: {
-                    url: key,
-                    params: {'ui': true}
-                }
-            });
-        },
-        uiFabric: Ext.create
+            // Не загружаем модули для стандартных xtype
+            requireExclude: [
+                'm3-edit-window',
+                'm3-window',
+                'window'
+            ],
+            confStorage: function (key) {
+                // конфиги всегда будут грузиться с сервера
+                return UI.callAction({
+                    request: {
+                        url: key,
+                        params: {'ui': true}
+                    }
+                });
+            },
+            uiFabric: Ext.create
+        });
+
     });
 
 

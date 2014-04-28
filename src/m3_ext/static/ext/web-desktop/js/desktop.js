@@ -890,7 +890,7 @@ Ext.Desktop = function(app){
     });
 
     var ms = app.getModules();
-    tools_not_created = true;
+    var toolsNotCreated = true;
     if (ms.length > 0) {
         var pnl;
         var tbar;
@@ -898,11 +898,11 @@ Ext.Desktop = function(app){
             var m = ms[i];
             if (m && m.id) {                           
                 if (m.id.indexOf('toptoolbar-item') == 0) {
-                    if(tools_not_created){
+                    if(toolsNotCreated){
                         pnl = new TopToolbar();
                         tbar = pnl.getTopToolbar();
-                        tools_not_created = false;
-                    };
+                        toolsNotCreated = false;
+                    }
                     if(m.launcher.text == 'FILLBLOCK'){
                         tbar.add('->');
                     } else if(m.launcher.text == 'TIMEBLOCK'){
@@ -922,14 +922,14 @@ Ext.Desktop = function(app){
                            ,menu: m.launcher.menu
     					   ,tooltip: m.launcher.tooltip
                         });
-                    };
-                };
+                    }
+                }
             }
-        };
-        if(!tools_not_created){
+        }
+        if(!toolsNotCreated){
             pnl.doLayout();
         }
-    };  
+    }
 
     function minimizeWin(win){
         win.minimized = true;

@@ -185,7 +185,7 @@ Ext.m3.ObjectTree = Ext.extend(Ext.m3.Tree, {
     onNewRecord: function () {
         assert(this.actionNewUrl, 'actionNewUrl is not define');
 
-        callAction({
+        UI.callAction({
             scope: this,
             beforeRequest: 'beforenewrequest',
             request: {
@@ -214,7 +214,7 @@ Ext.m3.ObjectTree = Ext.extend(Ext.m3.Tree, {
         baseConf[this.parentIdName] = baseConf[this.rowIdName];
         delete baseConf[this.rowIdName];
 
-        callAction({
+        UI.callAction({
             scope: this,
             beforeRequest: 'beforenewrequest',
             request: {
@@ -232,7 +232,7 @@ Ext.m3.ObjectTree = Ext.extend(Ext.m3.Tree, {
         assert(this.rowIdName, 'rowIdName is not define');
 
         if (this.getSelectionModel().getSelectedNode()) {
-            callAction({
+            UI.callAction({
                 scope: this,
                 beforeRequest: 'beforeeditrequest',
                 request: {
@@ -264,7 +264,7 @@ Ext.m3.ObjectTree = Ext.extend(Ext.m3.Tree, {
                         return;
 
                     if (this.getSelectionModel().getSelectedNode()) {
-                        callAction({
+                        UI.callAction({
                             scope: this,
                             beforeRequest: 'beforedeleterequest',
                             request: {
@@ -289,7 +289,6 @@ Ext.m3.ObjectTree = Ext.extend(Ext.m3.Tree, {
     },
 
     childWindowOpenHandler: function (win) {
-        debugger;
         if (win) {
             win.on('closed_ok', function (data) {
                 if (this.incrementalUpdate) {
