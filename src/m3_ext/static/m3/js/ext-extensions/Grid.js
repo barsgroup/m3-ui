@@ -3,11 +3,9 @@
  * @param {Object} config
  */
 
-Ext.m3.BaseM3Grid = {
-    /**
-     * Настройка грида по расширенному конфигу из параметров
-     */
-    configureGrid: function () {
+(function () {
+
+    function configure() {
         var params = this.params || {};
         // Создание ColumnModel если надо
         // раньше был экземпляр ColModel, теперь приходи конфиг
@@ -42,7 +40,7 @@ Ext.m3.BaseM3Grid = {
                 params.contextMenu = Ext.create(params.contextMenu);
             }
 
-            funcContMenu = function(e){
+            funcContMenu = function (e) {
                 e.stopEvent();
                 params.contextMenu.showAt(e.getXY())
             }
@@ -57,7 +55,7 @@ Ext.m3.BaseM3Grid = {
                 params.rowContextMenu = Ext.create(params.rowContextMenu);
             }
 
-            funcRowContMenu = function(grid, index, e){
+            funcRowContMenu = function (grid, index, e) {
                 e.stopEvent();
                 if (!this.getSelectionModel().isSelected(index)) {
                     this.getSelectionModel().selectRow(index);
@@ -94,11 +92,11 @@ Ext.m3.BaseM3Grid = {
         }
         if (columns) {
             var needFilterPlugin = false;
-            Ext.each(columns, function(col) {
-               if (col.filter) {
-                   needFilterPlugin = true;
-                   return false;
-               }
+            Ext.each(columns, function (col) {
+                if (col.filter) {
+                    needFilterPlugin = true;
+                    return false;
+                }
             });
             if (needFilterPlugin) {
                 this.plugins.push(
@@ -110,68 +108,64 @@ Ext.m3.BaseM3Grid = {
         // объединение обработчиков
         this.on('contextmenu', funcContMenu);
         this.on('rowcontextmenu', funcRowContMenu);
-        this.on('beforerender', function(grid) {
+        this.on('beforerender', function (grid) {
+
+            this.getStore().on('exception', storeException, this);
+
             var bbar = this.getBottomToolbar();
-            if (bbar && bbar instanceof Ext.PagingToolbar){
+            if (bbar && bbar instanceof Ext.PagingToolbar) {
                 var store = this.getStore();
-                store.setBaseParam('start',0);
-                store.setBaseParam('limit',bbar.pageSize);
+                store.setBaseParam('start', 0);
+                store.setBaseParam('limit', bbar.pageSize);
                 bbar.bind(store);
             }
         });
-    },
+    }
+
     /**
-     * Инициализация грида после создания
+     * Обработчик исключений хранилица
      */
-    initGrid: function () {
-        var store = this.getStore();
-		store.on('exception', this.storeException, this);
-    },
-    /**
-	 * Обработчик исключений хранилица
-	 */
-	storeException: function (proxy, type, action, options, response, arg){
-		//console.log(proxy, type, action, options, response, arg);
-		if (type == 'remote' && action != Ext.data.Api.actions.read) {
-		    if (response.raw.message) {
-  		        Ext.Msg.show({
-  		            title: 'Внимание!',
-  		            msg: response.raw.message,
-  		            buttons: Ext.Msg.CANCEL,
-  		            icon: Ext.Msg.WARNING
-  		        });
-  		    }
-		} else {
-		    uiAjaxFailMessage(response, options);
-		}
-	}
-};
-
-Ext.m3.GridPanel = Ext.extend(Ext.grid.GridPanel,
-    Ext.applyIf(Ext.m3.BaseM3Grid, {
-        initComponent: function() {
-            this.configureGrid();
-            Ext.m3.GridPanel.superclass.initComponent.call(this);
-            this.initGrid();
+    function storeException(proxy, type, action, options, response, arg) {
+        //console.log(proxy, type, action, options, response, arg);
+        if (type == 'remote' && action != Ext.data.Api.actions.read) {
+            if (response.raw.message) {
+                Ext.Msg.show({
+                    title: 'Внимание!',
+                    msg: response.raw.message,
+                    buttons: Ext.Msg.CANCEL,
+                    icon: Ext.Msg.WARNING
+                });
+            }
+        } else {
+            uiAjaxFailMessage(response, options);
         }
-    })
-);
+    }
 
-Ext.m3.EditorGridPanel = Ext.extend(Ext.grid.EditorGridPanel,
-    Ext.applyIf(Ext.m3.BaseM3Grid, {
-        initComponent: function() {
-            this.configureGrid();
-            Ext.m3.EditorGridPanel.superclass.initComponent.call(this);
-            this.initGrid();
+    Ext.m3.GridPanel = Ext.extend(Ext.grid.GridPanel, {
+            initComponent: function () {
+                configure.apply(this);
+                Ext.m3.GridPanel.superclass.initComponent.call(this);
+            }
         }
-    })
-);
+    );
 
-Ext.reg('m3-grid', Ext.m3.GridPanel);
-Ext.reg('m3-edit-grid', Ext.m3.EditorGridPanel);
+    Ext.m3.EditorGridPanel = Ext.extend(Ext.grid.EditorGridPanel, {
+            initComponent: function () {
+                configure.apply(this);
+                Ext.m3.EditorGridPanel.superclass.initComponent.call(this);
+            }
+        }
+    );
 
-Ext.reg('sm-cell', Ext.grid.CellSelectionModel);
-Ext.reg('sm-checkbox', Ext.grid.CheckboxSelectionModel);
-Ext.reg('sm-row', Ext.grid.RowSelectionModel);
+    Ext.reg('m3-grid', Ext.m3.GridPanel);
+    Ext.reg('m3-edit-grid', Ext.m3.EditorGridPanel);
 
-Ext.reg('view-grouping', Ext.grid.GroupingView);
+    Ext.reg('sm-cell', Ext.grid.CellSelectionModel);
+    Ext.reg('sm-checkbox', Ext.grid.CheckboxSelectionModel);
+    Ext.reg('sm-row', Ext.grid.RowSelectionModel);
+
+    Ext.reg('view-grouping', Ext.grid.GroupingView);
+
+})();
+
+

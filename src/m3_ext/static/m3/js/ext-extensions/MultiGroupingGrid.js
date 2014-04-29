@@ -1035,11 +1035,11 @@ Ext.m3.MultiGroupingGridPanel = Ext.extend(Ext.ux.grid.livegrid.GridPanel, Ext.a
                 }
             }
         }
-    }
+    },
 	/**
 	 * Экспортер данных грида
 	 */
-	,exportData: function(exportType){
+	exportData: function(exportType){
 		var groupPlugin;
 		// найдем плагин группировки
         for (var i = 0; i <= this.plugins.length; i++) {
@@ -1120,11 +1120,11 @@ Ext.m3.MultiGroupingGridPanel = Ext.extend(Ext.ux.grid.livegrid.GridPanel, Ext.a
             params: params,
             scope: this
         });
-    }
+    },
     /**
 	 * Нажатие на кнопку "Новый"
 	 */
-	,onNewRecord: function (){
+	onNewRecord: function (){
 		assert(this.actionNewUrl, 'actionNewUrl is not define');
 		var mask = new Ext.LoadMask(this.body);
         var baseConf = this.getMainContext();
@@ -1166,11 +1166,11 @@ Ext.m3.MultiGroupingGridPanel = Ext.extend(Ext.ux.grid.livegrid.GridPanel, Ext.a
 			Ext.Ajax.request(req);
 		}
 		
-	}
+	},
 	/**
 	 * Нажатие на кнопку "Редактировать"
 	 */
-	,onEditRecord: function (){
+	onEditRecord: function (){
 		assert(this.actionEditUrl, 'actionEditUrl is not define');
 		assert(this.rowIdName, 'rowIdName is not define');
 		
@@ -1215,11 +1215,11 @@ Ext.m3.MultiGroupingGridPanel = Ext.extend(Ext.ux.grid.livegrid.GridPanel, Ext.a
                 icon: Ext.MessageBox.INFO
             });
         }
-	}
+	},
 	/**
      * Нажатие на кнопку "Удалить"
      */
-    ,onDeleteRecord: function (){
+    onDeleteRecord: function (){
         assert(this.actionDeleteUrl, 'actionDeleteUrl is not define');
         assert(this.rowIdName, 'rowIdName is not define');
         
@@ -1273,14 +1273,14 @@ Ext.m3.MultiGroupingGridPanel = Ext.extend(Ext.ux.grid.livegrid.GridPanel, Ext.a
                 icon: Ext.MessageBox.INFO
             });
         }
-    }
+    },
 
     /**
      * Показ и подписка на сообщения в дочерних окнах
      * @param {Object} response Ответ
      * @param {Object} opts Доп. параметры
      */
-    ,onNewRecordWindowOpenHandler: function (response, opts){
+    onNewRecordWindowOpenHandler: function (response, opts){
         var window = smart_eval(response.responseText);
         if(window){
             window.on('closed_ok', function(data){
@@ -1299,14 +1299,14 @@ Ext.m3.MultiGroupingGridPanel = Ext.extend(Ext.ux.grid.livegrid.GridPanel, Ext.a
                 }
             }, this);
         }
-    }
+    },
     /**
      * Общий метод создания новой записи в store
      * Используется при локальном редактировании (инкрементальном обновлении)
      * @param {Object} data json-данные, полученные с сервера при локальном редактировании
      * @param {boolean} isCreate признак создания или редактирования записи
      */
-    ,createOrReplaceRecord: function(data, isCreate){
+    createOrReplaceRecord: function(data, isCreate){
         // если локальное редактирование
         if (this.localEdit){
             // на самом деле нам пришла строка грида
@@ -1356,13 +1356,13 @@ Ext.m3.MultiGroupingGridPanel = Ext.extend(Ext.ux.grid.livegrid.GridPanel, Ext.a
         } else {
             return this.refreshStore();
         }
-    }
+    },
 	/**
 	 * Хендлер на удаление окна
 	 * @param {Object} response Ответ
 	 * @param {Object} opts Доп. параметры
 	 */
-	,deleteOkHandler: function (response, opts){
+	deleteOkHandler: function (response, opts){
         if (this.fireEvent('rowdeleted', this, response)) {
             // если локальное редактирование
             if (this.localEdit){
@@ -1400,11 +1400,11 @@ Ext.m3.MultiGroupingGridPanel = Ext.extend(Ext.ux.grid.livegrid.GridPanel, Ext.a
                 }
             }
         }
-	}
-	,refreshStore: function (){
+	},
+	refreshStore: function (){
 		this.view.reset(true);
-	}
-	,disableToolbars: function(disabled){
+	},
+	disableToolbars: function(disabled){
         var toolbars = [this.getTopToolbar(), this.getFooterToolbar(), 
                        this.getBottomToolbar()]
         for (var i=0; i<toolbars.length; i++){
@@ -1412,11 +1412,11 @@ Ext.m3.MultiGroupingGridPanel = Ext.extend(Ext.ux.grid.livegrid.GridPanel, Ext.a
                 toolbars[i].setDisabled(disabled);
             }
         }
-    }
+    },
     /**
      * Получение текущего состояния тулбаров
      */
-    ,getToolbarsState: function(){
+    getToolbarsState: function(){
         var toolbars = [this.getTopToolbar(), this.getFooterToolbar(),
             this.getBottomToolbar()],
             state = [];
@@ -1430,11 +1430,11 @@ Ext.m3.MultiGroupingGridPanel = Ext.extend(Ext.ux.grid.livegrid.GridPanel, Ext.a
             }
         }
         return state;
-    }
+    },
     /**
      * Установка состояния тулбаров
      */
-    ,setToolbarsState: function(state){
+    setToolbarsState: function(state){
         var toolbars = [this.getTopToolbar(), this.getFooterToolbar(),
                     this.getBottomToolbar()];
         for (var i=0; i<toolbars.length; i++){
@@ -1446,20 +1446,20 @@ Ext.m3.MultiGroupingGridPanel = Ext.extend(Ext.ux.grid.livegrid.GridPanel, Ext.a
                 }
             }
         }
-    }
+    },
     /**
      * Получение основного контекста грида
      * Используется при ajax запросах
      */
-    ,getMainContext: function(){
+    getMainContext: function(){
     	return Ext.applyIf({}, this.actionContextJson);
-    }
+    },
     /**
      * Получение контекста выделения строк/ячеек
      * Используется при ajax запросах
-     * @param {bool} withRow Признак добавление в контекст текущей выбранной записи
+     * @param {boolean} withRow Признак добавление в контекст текущей выбранной записи
      */
-    ,getSelectionContext: function(withRow){
+    getSelectionContext: function(withRow){
     	var baseConf = this.getMainContext();
 		var sm = this.getSelectionModel();
 		var idField = this.getStore().idProperty;

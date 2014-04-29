@@ -15,7 +15,8 @@ class UploadFieldsAction(UIAction):
     def get_ui(self, request, context):
         window = ext.ExtWindow(title=u'Контролы загрузки файлов и картинок',
                                layout='form',
-                               resizable=False)
+                               resizable=False,
+                               padding=5)
 
         window.items.extend([
             ext.ExtFileUploadField(label=u'Выбор файла', anchor='99%'),

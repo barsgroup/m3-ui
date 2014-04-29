@@ -66,7 +66,7 @@ UI.ajax = function (cfg) {
             result.resolve.apply(this, arguments);
         },
         failure: function (response) {
-            result.reject(new Error(response.responseText));
+            result.reject(response);
         }
     }, cfg);
     Ext.Ajax.request(obj);
@@ -112,8 +112,7 @@ UI.evalResult = function (response) {
             if (obj.code) {
                 if (obj.code.ui) {
 
-                    return UI
-                        .create(obj.code)
+                    return UI.create(obj.code)
                         .then(function (win) {
 
                             AppDesktop.getDesktop()
@@ -122,6 +121,7 @@ UI.evalResult = function (response) {
 
                             return win;
                         })
+
                 } else {
                     return obj.code;
                 }
@@ -129,18 +129,6 @@ UI.evalResult = function (response) {
                 return obj;
             }
         }.bind(this));
-};
-
-/**
- *
- * @param ex
- */
-UI.errorShow = function (ex) {
-    ex.statusText = ex.message;
-    ex.responseText = ex.stack.replace(new RegExp("\n", 'g'), '<br />');
-
-    uiAjaxFailMessage(ex);
-    throw ex;
 };
 
 /**
@@ -168,7 +156,7 @@ UI.callAction = function (cfg) {
 
     var scope = cfg['scope'],
         success = cfg['success'] || cfg['request']['success'],
-        failure = cfg['failure'] || cfg['request']['failure'],
+        failure = cfg['failure'] || cfg['request']['failure'] || uiAjaxFailMessage,
         beforeRequest = cfg['beforeRequest'],
         afterRequest = cfg['afterRequest'],
         request = cfg['request'],
@@ -206,6 +194,8 @@ UI.callAction = function (cfg) {
         // Если событие после запроса не обработано
         if (!e['eventProcessed'] && failure) {
             failure(e);
+            e.eventProcessed = true;
+            throw e;
         }
     });
 

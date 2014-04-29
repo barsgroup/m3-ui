@@ -421,6 +421,7 @@ Ext.m3.EditorObjectGrid = Ext.extend(Ext.m3.EditorGridPanel,
     Ext.applyIf(Ext.m3.BaseObjectGrid, {
         initComponent: function () {
             this.configureObjectGrid();
+
             Ext.m3.EditorObjectGrid.superclass.initComponent.call(this);
             this.initObjectGrid();
         }
