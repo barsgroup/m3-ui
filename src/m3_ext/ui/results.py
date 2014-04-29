@@ -34,7 +34,10 @@ class UIJsonEncoder(_M3JSONEncoder):
 
     def default(self, obj):
         if isinstance(obj, _ActionContext):
-            return obj.json()
+            return dict(
+                kv for kv in obj.__dict__.iteritems()
+                if not kv[0].startswith('_')
+            )
         cfg = getattr(self.make_compatible(obj), '_config')
         if cfg is not None:
             return cfg
