@@ -94,5 +94,6 @@ class UIAction(Action):
         else:
             kwargs = self.get_result(request, context)
             kwargs.setdefault('model', {})
+            kwargs.setdefault('context', context)
             result = DataResult(**kwargs)
         return result
