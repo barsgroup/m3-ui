@@ -16,13 +16,6 @@ class ObjectGridAction(UIAction):
     """
     title = u'Объектная таблица (ObjectGrid)'
 
-    def get_js(self, request, context):
-        return """function(win, data){
-            win.buttons[0].on('click', function(){
-                win.close(false);
-            });
-        }"""
-
     def get_ui(self, request, context):
         window = super(ObjectGridAction, self).get_ui(request, context)
         window.width = 500
@@ -51,14 +44,25 @@ class DataAction(Action):
     """
     url = '/objgrid-data'
 
+    @staticmethod
+    def context_declaration():
+        return {
+            'start': {'type': 'int', 'default': -1},
+            'limit': {'type': 'int', 'default': -1},
+        }
+
     def run(self, request, context):
         data = [
-            {'id': str(i), 'code': u'Код %s' % i, 'name': u'Наименование %s' % i}
+            {
+                'id': str(i),
+                'code': u'Код %s' % i,
+                'name': u'Наименование %s' % i
+            }
             for i in xrange(100)
         ]
-        start = extract_int(request, 'start')
-        limit = extract_int(request, 'limit')
-        return ExtGridDataQueryResult(data, start, limit)
+        return ExtGridDataQueryResult(
+            data, context.start, context.limit
+        )
 
 
 @Pack.register
@@ -68,15 +72,7 @@ class ObjectGridNewAction(UIAction):
     """
     title = None
 
-    def get_js(self, request, context):
-        return """function(win, data){
-            win.buttons[0].on('click', function(){
-                win.close(false);
-            });
-        }"""
-
     def get_ui(self, request, context):
-        #window = ext.ExtEditWindow(title=u'Добавление записи в грид')
         window = super(ObjectGridNewAction, self).get_ui(request, context)
         window.title = u'Добавление записи в грид'
         window.width = 200
@@ -94,15 +90,7 @@ class ObjectGridEditAction(UIAction):
     """
     title = None
 
-    def get_js(self, request, context):
-        return """function(win, data){
-            win.buttons[0].on('click', function(){
-                win.close(false);
-            });
-        }"""
-
     def get_ui(self, request, context):
-        #window = ext.ExtEditWindow(title=u'Добавление записи в грид')
         window = super(ObjectGridEditAction, self).get_ui(request, context)
         window.title = u'Редактирование записи в гриде'
         window.width = 200
