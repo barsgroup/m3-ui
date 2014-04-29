@@ -250,11 +250,11 @@ class BaseExtWindow(ExtUIComponent):
         :param name: имя экземпляра
         :type name: str
         """
-        for item in self._items:
+        for item in self.items:
             if hasattr(item, 'name') and name == getattr(item, 'name'):
                 return item
 
-            if hasattr(item, '_items'):
+            if hasattr(item, 'find_by_name'):
                 res = item.find_by_name(name)
                 if res:
                     return res
