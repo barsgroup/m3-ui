@@ -6,7 +6,7 @@ from django import http
 
 from m3.actions import ActionPack, Action
 from m3_ext.ui import all_components as ext
-from m3_ext.ui.results import UIResult
+from m3_ext.ui.results import UIResult, DataResult
 
 
 class Pack(ActionPack):
@@ -44,6 +44,7 @@ class Pack(ActionPack):
 
 
 class UIAction(Action):
+
     @property
     def title(self):
         """
@@ -60,16 +61,7 @@ class UIAction(Action):
     def context_declaration(self):
         return {
             'ui': {'type': 'boolean', 'default': False},
-            'js': {'type': 'boolean', 'default': False}
         }
-
-    def get_js(self, request, context):
-        """
-        Метод должен вернуть в виде строки js-код для окна
-        """
-        # В режиме дебага по-умолчанию при закрытие окна
-        # идет еще один запрос на это окно
-        return
 
     def get_ui(self, request, context):
         """
@@ -85,6 +77,7 @@ class UIAction(Action):
         """
         Метод должен вернуть словарь вида {
             "ui":     :: str  - url для получения базового конфига окна
+            "model"   :: dict - объект данных
             "config": :: dict - конфиг для конкретного окна
             "data":   :: dict - данные для конкретного окна
         }
@@ -97,18 +90,9 @@ class UIAction(Action):
 
     def run(self, request, context):
         if context.ui:
-            result = self.get_ui(request, context)
-            if hasattr(result, '_config'):
-                result = {
-                    'config': result._config,
-                    'data': result._data,
-                }
-        elif context.js:
-            result = self.get_js(request, context)
-            return http.HttpResponse(result, mimetype='application/javascript')
+            result = UIResult(self.get_ui(request, context))
         else:
-            result = self.get_result(request, context)
-        assert result
-        return UIResult(result)
-
-
+            kwargs = self.get_result(request, context)
+            kwargs.setdefault('model', {})
+            result = DataResult(**kwargs)
+        return result

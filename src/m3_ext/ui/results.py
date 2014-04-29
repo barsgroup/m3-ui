@@ -148,17 +148,62 @@ class UIJsonEncoder(_M3JSONEncoder):
         return obj
 
 
-class UIResult(_PreJsonResult):
+class RawUIResult(_PreJsonResult):
     """
-    Результат, совместимый с клиентским рендерингом
+    Результат, совместимый с клиентским рендерингом.
     """
-
-    def __init__(self, data, *args, **kwargs):
-        super(UIResult, self).__init__({
+    def __init__(self, config, data=None):
+        """
+        :config dict: конфигурация виджета (включая xtype)
+        :data dict: данные для инициализации виджета
+        """
+        super(RawUIResult, self).__init__({
             'success': True,
-            'code': data
+            'code': {
+                'config': config,
+                'data': data or {}
+            }
         })
         self.encoder_clz = UIJsonEncoder
+
+
+class UIResult(RawUIResult):
+    """
+    Результат, возвращающий виджет в виде конфигурации и данных
+    """
+    def __init__(self, ui):
+        """
+        :ui object: либо dict с config+data, либо ExtComponent
+        """
+        if isinstance(ui, dict):
+            assert set(ui.keys()) == set(('config', 'data'))
+            kwargs = ui
+        else:
+            kwargs = {
+                'config': ui._config,
+                'data': ui._data,
+            }
+        super(UIResult, self).__init__(**kwargs)
+
+
+class DataResult(RawUIResult):
+    """
+    Результат запроса, возвращающий объект данных
+    и доп.настройки для виджета лтображения
+    """
+    def __init__(self, model, ui, context=None, config=None, data=None):
+        """
+        :model object: объект данных
+        :ui string: ключ, идентифицирующий виджет для отображения
+        :context object: объект контекста выполнения запроса
+        :config dict: доп.конфигурация виджета
+        :data dict: доп.данные для инициализации виджета
+        """
+        super(DataResult, self).__init__(config or {}, data)
+        res = self.data['code']
+        res['ui'] = ui
+        res['data']['model'] = model
+        res['data']['context'] = context or {}
 
 
 class ExtUIScriptResult(_BaseContextedResult):
