@@ -2,5 +2,9 @@
 """
 Дополнительный функционал
 """
-from store import ExtDataStore, ExtJsonStore, ExtJsonWriter, ExtMultiGroupingStore
+from store import (ExtDataStore,
+                   ExtJsonStore,
+                   ExtJsonWriter,
+                   ExtMultiGroupingStore,
+                   ExtGroupingStore)
 from label import ExtLabel

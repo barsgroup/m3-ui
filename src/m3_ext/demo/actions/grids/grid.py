@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+import json
+from django import http
 from django.http import HttpResponse
 from m3.actions import Action
 from m3.actions.urls import get_url
@@ -126,6 +128,7 @@ class DataAction(Action):
     url = '/data/grid'
 
     def run(self, request, context):
+
         res = ['{"id":1, "lname":"Смактуновский", "fname":"Махмут",adress:"Проспект победы д. 147 кв 20"}',
                '{"id":2,"lname":"Гете","fname":"Йоган",adress:" Бунден штрассе"}',
                '{"id":3,"lname":"Квазимовский","fname":"Йоган",adress:" Бунден штрассе"}',
@@ -177,7 +180,7 @@ class GridRemoteStoreAction(UIAction):
         window.height = 500
         window.layout = 'fit'
         grid = ext.ExtGrid()
-        grid.add_column(header=u'Имя', data_index='fname')
+        grid.add_column(header=u'Имя1', data_index='fname')
         grid.add_column(header=u'Фамилия', data_index='lname')
         grid.add_column(header=u'Адрес', data_index='adress')
         grid.store = ext.ExtJsonStore(url=get_url(DataAction),
@@ -416,3 +419,55 @@ class GridCheckSelectionAction(UIAction):
         button = ext.ExtButton(text=u'Закрыть')
         window.buttons.append(button)
         return window
+
+
+@Pack.register
+class GroupingViewSelectionAction(UIAction):
+    """
+    Пример таблицы с выбором строк галочками
+    """
+    title = u'ExtGridGroupingView'
+
+    def get_ui(self, request, context):
+
+        win = ext.ExtWindow(layout=ext.ExtWindow.FIT,
+                            title=u'ExtGridGroupingView')
+
+        grid = ext.ExtGrid()
+        map(lambda i: grid.add_column(data_index=i,
+                                      header=str(i),
+                                      extra={'summaryType': '"sum"'}),
+            range(1, 13))
+
+        store = ext.ExtGroupingStore(url=get_url(GroupingDataAction), auto_load=True,)
+        store.group_field = '1'
+
+        grid.store = store
+
+        grid.view = ext.ExtGridGroupingView()
+
+        win.items.append(grid)
+
+        return win
+
+@Pack.register
+class GroupingDataAction(Action):
+    """
+    Пример таблицы с выбором строк галочками
+    """
+
+    url = '/data/locking-grouping-grid'
+
+    def run(self, request, context):
+        """
+
+        """
+        res = []
+        for j in range(99):
+            d = dict(id=j)
+            for i, value in enumerate(range(1, 12)):
+                d[str(i)] = value
+
+            res.append(d)
+
+        return http.HttpResponse('{"total":100,"rows":%s}' % json.dumps(res))

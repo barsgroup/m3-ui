@@ -11,11 +11,10 @@ from grids import (ExtGrid,
                    ExtGridCheckColumn,
                    ExtGridDateColumn,
                    ExtGridNumberColumn,
-                   ExtGridLockingView,
-                   ExtGridLockingColumnModel,
                    ExtGridCheckBoxSelModel,
                    ExtGridRowSelModel,
-                   ExtGridCellSelModel, )
+                   ExtGridCellSelModel,
+                   ExtGridGroupingView)
 from trees import ExtTree
 from containers import (ExtContainer,
                         ExtToolBar,

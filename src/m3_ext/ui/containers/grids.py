@@ -352,68 +352,27 @@ class ExtGridCellSelModel(BaseExtComponent):
     _xtype = 'sm-cell'
 
 
-class ExtGridLockingColumnModel(BaseExtComponent):
-    """
-    Модель колонок для грида блокирования
-    """
-    # TODO: Этот класс, т.к. ссылка на грид порождает цикличную связь
-    def __init__(self, *args, **kwargs):
-        super(ExtGridLockingColumnModel, self).__init__(*args, **kwargs)
-        self.grid = None
-        self.init_component(*args, **kwargs)
-
-    def render(self):
-        return 'new Ext.ux.grid.LockingColumnModel({columns:%s})' % (
-            self.grid.t_render_columns())
-
-
 class ExtGridGroupingView(BaseExtComponent):
     """
-    Компонент используемый для группировки
+    Компонент используемый для view-группировки
     """
+
+    _xtype = 'view-grouping'
+
+    js_attrs = BaseExtComponent.js_attrs.extend(
+        force_fit='forceFit',
+        show_preview='showPreview',
+        enable_row_body='enableRowBody',
+        get_row_class='getRowClass',
+        group_text_template='groupTextTpl',
+    )
+
     def __init__(self, *args, **kwargs):
         super(ExtGridGroupingView, self).__init__(*args, **kwargs)
-        self.force_fit = True
-        self.show_preview = False
-        self.enable_row_body = False
-        self.get_row_class = None
-        self.group_text_template = '{text} ({[values.rs.length]})'
-        self.init_component(*args, **kwargs)
-
-    def render_params(self):
-        super(ExtGridGroupingView, self).render_params()
-        if self.force_fit:
-            self._put_params_value('forceFit', self.force_fit)
-        if self.show_preview:
-            self._put_params_value('showPreview', self.show_preview)
-        if self.enable_row_body:
-            self._put_params_value('enableRowBody', self.enable_row_body)
-        if self.get_row_class:
-            self._put_params_value('getRowClass', self.get_row_class)
-        self._put_params_value('groupTextTpl', self.group_text_template)
-
-    def render(self):
-        try:
-            self.pre_render()
-            self.render_base_config()
-            self.render_params()
-        except UnicodeDecodeError as msg:
-            raise Exception(msg)
-        params = self._get_params_str()
-        return 'new Ext.grid.GroupingView({%s})' % params
-
-
-class ExtGridLockingView(BaseExtComponent):
-    """
-    Компонент используемый для блокирования колонок
-    """
-    def __init__(self, *args, **kwargs):
-        super(ExtGridLockingView, self).__init__(*args, **kwargs)
-        self.init_component(*args, **kwargs)
-
-    def render(self):
-        result = 'new Ext.ux.grid.LockingGridView()'
-        return result
+        self.setdefault('force_fit', True)
+        self.setdefault('show_preview', False)
+        self.setdefault('enable_row_body', False)
+        self.setdefault('group_text_template', '{text} ({[values.rs.length]})')
 
 
 class ExtLiveGridCheckBoxSelModel(ExtGridCheckBoxSelModel):
@@ -503,6 +462,7 @@ class ExtGridLockingHeaderGroupPlugin(BaseExtComponent):
         from m3_ext.ui.misc.store import ExtGroupingStore, ExtJsonReader
         store = ExtGroupingStore(
             url=grid.store.url, auto_load=grid.store.auto_load)
+
         store.reader = ExtJsonReader(total_property='total', root='rows')
         store.reader.set_fields(*grid.columns)
         grid.set_store(store)
