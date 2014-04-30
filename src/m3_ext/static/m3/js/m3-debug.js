@@ -3755,8 +3755,7 @@ function uiAjaxFailMessage(response, opt) {
             errorMsg = response.stack.replace(new RegExp("\n", 'g'), '<br />');
         }
 
-
-        var win = new Ext.Window({
+        win = new Ext.Window({
             modal: true,
             width: width,
             height: height,
@@ -4022,7 +4021,11 @@ Ext.reg('m3-combobox', Ext.m3.ComboBox);
         }
 
         // если это чекбоксы, то добавим колонку
-        if (this.sm instanceof Ext.grid.CheckboxSelectionModel) {
+        if (this.sm instanceof Ext.grid.CheckboxSelectionModel ||
+
+            // FIXME: лучше использовать утиную типизацию
+            this.sm instanceof Ext.ux.grid.livegrid.CheckboxSelectionModel) {
+
             if (this.columns) {
                 this.columns.unshift(this.sm);
             }
@@ -4169,7 +4172,7 @@ Ext.reg('m3-combobox', Ext.m3.ComboBox);
     Ext.reg('view-grouping', Ext.grid.GroupingView);
 
 
-})()
+})();
 
 if (Ext.version == '3.0') {
     Ext.override(Ext.grid.GridView, {
@@ -11964,7 +11967,7 @@ Ext.ux.grid.LockingGridColumnWithHeaderGroup = Ext.extend(Ext.util.Observable, {
     }
 });
 
-Ext.reg('m3-locking-column-header-group', Ext.ux.grid.LockingGridColumnWithHeaderGroup);
+Ext.preg('m3-locking-column-header-group', Ext.ux.grid.LockingGridColumnWithHeaderGroup);
 Ext.ux.MonthPickerPlugin = Ext.extend(Ext.util.Observable,{
     constructor: function(config){
         if (config) Ext.apply(this, config);
@@ -12892,6 +12895,13 @@ Ext.m3.ObjectSelectionPanel = Ext.extend(Ext.Container, {
     initComponent: function(){
         assert(this.selectionColumns, 'Columns for selection is undefined!');
 
+        if (!(this.grid instanceof Ext.grid.GridPanel)){
+            this.grid.sm = new Ext.grid.CheckboxSelectionModel();
+            this.grid = Ext.create(this.grid);
+        } else {
+            assert(this.grid.sm instanceof Ext.grid.CheckboxSelectionModel,
+                'sm has been Ext.grid.CheckboxSelectionModel')
+        }
         this.add(this.grid);
 
         var fields = ['_check'];
