@@ -16,23 +16,6 @@ class SimpleGridAction(UIAction):
     """
     title = u'Простая таблица с контекстным меню'
 
-    def get_js(self, request, context):
-        return """function(win, data){
-            win.buttons[0].on('click', function(){
-                win.close(false);
-            });
-            win.find('itemId', 'grid')[0].on('dblclick', function(){
-                alert('Хватит кликать!');
-            });
-
-            // вместо handler у пункта меню
-            var grid = win.getComponent("grid");
-            var item = grid.params.rowContextMenu.getComponent("get_name");
-            item.on('click', function(cmp, e){
-                Ext.Msg.alert("Проверка", grid.getSelectionModel().getSelected().get("fname"));
-            });
-        }"""
-
     def get_ui(self, request, context):
         win = super(SimpleGridAction, self).get_ui(request, context)
         win.layout = 'fit'

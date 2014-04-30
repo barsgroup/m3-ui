@@ -147,7 +147,7 @@ class ExtGrid(BaseExtPanel):
 
         if len(self.banded_columns) <= level:
             # дополним список уровней до нужного level
-            self.banded_columns += [[]]*(1 + level - len(self.banded_columns))
+            self.banded_columns += [[]] * (1 + level - len(self.banded_columns))
         self.banded_columns[level].append(column)
 
     def clear_banded_columns(self):
@@ -182,10 +182,10 @@ class ExtGrid(BaseExtPanel):
                               self.handler_rowcontextmenu]
         for context_menu in context_menu_items:
             if (
-                context_menu and
-                hasattr(context_menu, 'items') and
-                context_menu.items and
-                hasattr(context_menu.items, '__iter__')
+                                context_menu and
+                                hasattr(context_menu, 'items') and
+                            context_menu.items and
+                        hasattr(context_menu.items, '__iter__')
             ):
                 for item in context_menu.items:
                     if isinstance(item, ExtUIComponent):
@@ -220,7 +220,7 @@ class ExtGridColumn(BaseExtComponent):
 
     js_attrs = BaseExtComponent.js_attrs.extend(
         'header',  # Заголовок
-        'align',   # Расположение
+        'align',  # Расположение
         'width',  # Ширина
         'sortable',  # Возможность сортировки
         'format',
@@ -260,7 +260,6 @@ class ExtGridColumn(BaseExtComponent):
 
     def _make_read_only(
             self, access_off=True, exclude_list=(), *args, **kwargs):
-
         self.read_only = access_off
         if self.editor and isinstance(self.editor, ExtUIComponent):
             self.editor.make_read_only(
@@ -394,16 +393,24 @@ class ExtGridLockingHeaderGroupPlugin(BaseExtComponent):
     Плагин для группировки и одновременного закрепления колонок
     """
 
-    def __init__(self, config):
+    ptype = 'm3-locking-column-header-group'
+
+    js_attrs = BaseExtComponent.js_attrs.extend(
+        'ptype',
+        column_model_cfg='columnModelCfg',
+        rows='columnModelCfg.rows',
+        locked_count='columnModelCfg.lockedCount',
+
+        view_cfg='viewCfg',
+        hide_group_column='viewCfg.hideGroupedColumn',
+    )
+
+    def __init__(self, *args, **kwargs):
         """
         :param dict config: Конфигурация плагина, описание выше
         """
-        super(ExtGridLockingHeaderGroupPlugin, self).__init__()
-        self._ext_name = 'Ext.ux.grid.LockingGridColumnWithHeaderGroup'
-        self.config = config
-
-    def render(self):
-        return 'new %s(%s)' % (self._ext_name, json.dumps(self.config))
+        super(ExtGridLockingHeaderGroupPlugin, self).__init__(*args, **kwargs)
+        self.setdefault('ptype', self.ptype)
 
     @classmethod
     def configure_grid(cls, grid, locked_count=1, config=None):
@@ -419,32 +426,32 @@ class ExtGridLockingHeaderGroupPlugin(BaseExtComponent):
         # адаптация колонок
         rows = [
             [
-                {'header': c.header, 'colspan': c.colspan, 'align': c.align}
+                {'header': c.header,
+                 'colspan': c.colspan,
+                 'align': c.align}
                 for c in cs
             ]
-            for cs in grid.banded_columns.values()
+            for cs in grid.banded_columns
         ]
-        grid.banded_columns = {}
+        grid.banded_columns = []
 
         # настройка плагина
-        plugin_config = {
-            'columnModelCfg': {
-                'rows': rows,
-                'lockedCount': locked_count
-            },
-            'viewCfg': {
-                'hideGroupedColumn': True
-            }
-        }
+        plugin_config = dict(rows=rows,
+                             locked_count=locked_count,
+                             hide_group_column=True)
+
         if config is not None:
             plugin_config.update(config)
-        grid.plugins.append(cls(plugin_config))
+        grid.plugins.append(cls(**plugin_config))
 
         # настройка store
-        from m3_ext.ui.misc.store import ExtGroupingStore, ExtJsonReader
-        store = ExtGroupingStore(
-            url=grid.store.url, auto_load=grid.store.auto_load)
+        from m3_ext.ui.misc.store import ExtGroupingStore
 
-        store.reader = ExtJsonReader(total_property='total', root='rows')
-        store.reader.set_fields(*grid.columns)
-        grid.set_store(store)
+        store = ExtGroupingStore(
+            url=grid.store.url,
+            auto_load=grid.store.auto_load,
+            total_property='total',
+            root='rows',
+            fields=[dict(name=i.data_index, mapping=i.data_index) for i in grid.columns])
+
+        grid.store = store
