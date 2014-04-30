@@ -743,7 +743,7 @@ Ext.ns('Ext.m3');
  * 
  * @param {Object} config
  */
-Ext.m3.MultiGroupingGridPanel = Ext.extend(Ext.ux.grid.livegrid.GridPanel, Ext.apply(Ext.m3.BaseM3Grid, {
+Ext.m3.MultiGroupingGridPanel = Ext.extend(Ext.ux.grid.livegrid.GridPanel, {
     /**
      * Внутренняя функция для поиска и настройки элементов тулбара и контекстного меню
      */
@@ -761,7 +761,6 @@ Ext.m3.MultiGroupingGridPanel = Ext.extend(Ext.ux.grid.livegrid.GridPanel, Ext.a
     },
 
     initComponent: function() {
-        this.configureGrid();
 
         var params = this.params || {};
 
@@ -809,8 +808,8 @@ Ext.m3.MultiGroupingGridPanel = Ext.extend(Ext.ux.grid.livegrid.GridPanel, Ext.a
 			this.plugins.push(new Ext.ux.grid.MultiGrouping(group_param));
 		}
 
+        Ext.m3.configureGrid.apply(this);
         Ext.m3.MultiGroupingGridPanel.superclass.initComponent.call(this);
-        this.initGrid();
 
         // настроим кнопки тулбара
         this.configureItem(this.getTopToolbar(), "button_new", this.actionNewUrl, this.onNewRecord);
@@ -897,132 +896,12 @@ Ext.m3.MultiGroupingGridPanel = Ext.extend(Ext.ux.grid.livegrid.GridPanel, Ext.a
              */
             'rowdeleted'
 		);
-    }
+    },
 
-/*
-	constructor: function(baseConfig, params){
-        params = baseConfig.params || params;
-
-		// Добавление selection model если нужно
-		//var selModel = params.selModel;
-		var selModel = params.selModel ? params.selModel : new Ext.ux.grid.livegrid.RowSelectionModel({singleSelect: true});
-		var gridColumns = params.colModel || [];
-		if (selModel && (selModel instanceof Ext.grid.CheckboxSelectionModel ||
-            selModel instanceof Ext.ux.grid.livegrid.CheckboxSelectionModel) ) {
-			gridColumns.columns.unshift(selModel);
-		}
-		
-		// Навешивание обработчиков на контекстное меню если нужно 
-		var funcContMenu;
-		if (params.menus.contextMenu && 
-			params.menus.contextMenu instanceof Ext.menu.Menu) {
-			
-			funcContMenu = function(e){
-				e.stopEvent();
-	            params.menus.contextMenu.showAt(e.getXY())
-			}
-		} else {
-			funcContMenu = Ext.emptyFn;
-		}
-		
-		var funcRowContMenu;
-		if (params.menus.rowContextMenu && 
-			params.menus.rowContextMenu instanceof Ext.menu.Menu) {
-			
-			funcRowContMenu = function(grid, index, e){
-				e.stopEvent();
-				if (!this.getSelectionModel().isSelected(index)) {
-						this.getSelectionModel().selectRow(index);
-				}
-                params.menus.rowContextMenu.showAt(e.getXY())
-			}
-		} else {
-			funcRowContMenu = Ext.emptyFn;
-		}
-		
-		var plugins = [];
-		// плугин для группировки колонок
-		if (params.groupable){
-			var group_param = {
-				groupedColumns: params.groupedColumns,
-				dataIdField: params.dataIdField,
-				dataDisplayField: params.dataDisplayField
-			};
-			plugins.push(new Ext.ux.grid.MultiGrouping(group_param));
-		}
-		
-		plugins = plugins.concat(params.plugins || []);
-		var bundedColumns = params.bundedColumns;
-		if (bundedColumns && bundedColumns instanceof Array &&
-			bundedColumns.length > 0) {
-			plugins.push( 
-				new Ext.ux.grid.ColumnHeaderGroup({
-					rows: bundedColumns
-				})
-			);
-		}
-		// объединение обработчиков
-		baseConfig.listeners = Ext.applyIf({
-			contextmenu: funcContMenu
-			,rowcontextmenu: funcRowContMenu
-		}, baseConfig.listeners || {});
-
-		// настройка представления
-		var viewConfig = {
-			nearLimit: params.nearLimit // количество соседних загружаемых элементов при буферизации
-			,bufferSize: params.bufferSize //объем буфера для запоминания (размер страницы)
-		    ,loadMask: { msg :  'Загрузка, подождите...' }
-		};
-		
-		if (baseConfig.viewConfig){
-			viewConfig = Ext.applyIf(viewConfig, baseConfig.viewConfig);
-		}
-		
-		var mgView = new Ext.ux.grid.livegrid.GridView(viewConfig);
-		   
-		// элементы тулбара
-		var tools = params.toolbar;
-		
-		this.rowIdName = params.rowIdName;
-		
-		// признак клиентского редактирования
-		this.localEdit = params.localEdit;
-        
-        // имя для сабмита в режиме клиентского редактирования
-        this.name = params.name;
-
-		// обработчики
-		if (params.actions) {
-			baseConfig.actionNewUrl = params.actions.newUrl;
-			baseConfig.actionEditUrl = params.actions.editUrl;
-			baseConfig.actionDeleteUrl = params.actions.deleteUrl;
-			baseConfig.actionDataUrl = params.actions.dataUrl;
-			baseConfig.actionContextJson = params.actions.contextJson;
-
-			baseConfig.exportUrl = params.actions.exportUrl;
-		}
-		var config = Ext.applyIf({
-			sm: selModel
-			,colModel: gridColumns
-			,plugins: plugins
-			,view: mgView
-			,tbar: new Ext.ux.grid.livegrid.Toolbar({
-    	        displayInfo: params.displayInfo,
-    	        view: mgView,
-    	        items: tools,
-    	        displayMsg: params.displayMsg,
-    	        emptyMsg: 'Нет данных',
-    	        refreshText: "Обновить"
-	       	})
-		}, baseConfig);
-		
-		Ext.m3.MultiGroupingGridPanel.superclass.constructor.call(this, config);
-	}
-*/
     /**
      * При перезагрузке данных снимем выделение, если запись исчезла
      */
-    ,onLoad: function (store) {
+    onLoad: function (store) {
         var sm = this.getSelectionModel();
         if (sm.hasSelection()) {
             if (sm instanceof Ext.grid.RowSelectionModel && sm.singleSelect) {
@@ -1289,8 +1168,8 @@ Ext.m3.MultiGroupingGridPanel = Ext.extend(Ext.ux.grid.livegrid.GridPanel, Ext.a
                 }
             }, this);
         }
-    }
-    ,onEditRecordWindowOpenHandler: function (response, opts){
+    },
+    onEditRecordWindowOpenHandler: function (response, opts){
         var window = smart_eval(response.responseText);
         if(window){
             window.on('closed_ok', function(data){
@@ -1504,7 +1383,7 @@ Ext.m3.MultiGroupingGridPanel = Ext.extend(Ext.ux.grid.livegrid.GridPanel, Ext.a
         }
 		return baseConf;
     }
-}));
+});
 
 Ext.reg('m3-multigrouping-grid', Ext.m3.MultiGroupingGridPanel);
 

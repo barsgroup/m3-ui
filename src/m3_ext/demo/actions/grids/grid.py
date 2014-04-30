@@ -128,7 +128,6 @@ class DataAction(Action):
     url = '/data/grid'
 
     def run(self, request, context):
-
         res = ['{"id":1, "lname":"Смактуновский", "fname":"Махмут",adress:"Проспект победы д. 147 кв 20"}',
                '{"id":2,"lname":"Гете","fname":"Йоган",adress:" Бунден штрассе"}',
                '{"id":3,"lname":"Квазимовский","fname":"Йоган",adress:" Бунден штрассе"}',
@@ -429,9 +428,10 @@ class GroupingViewSelectionAction(UIAction):
     title = u'ExtGridGroupingView'
 
     def get_ui(self, request, context):
-
         win = ext.ExtWindow(layout=ext.ExtWindow.FIT,
-                            title=u'ExtGridGroupingView')
+                            title=u'ExtGridGroupingView',
+                            # xtype='grouping-window'
+        )
 
         grid = ext.ExtGrid()
         map(lambda i: grid.add_column(data_index=i,
@@ -439,7 +439,13 @@ class GroupingViewSelectionAction(UIAction):
                                       extra={'summaryType': '"sum"'}),
             range(1, 13))
 
-        store = ext.ExtGroupingStore(url=get_url(GroupingDataAction), auto_load=True,)
+        store = ext.ExtGroupingStore(url=get_url(GroupingDataAction),
+                                     auto_load=True,
+                                     total_property='total',
+                                     root='rows', )
+
+        store.fields = [dict(name=i, mapping=i) for i in range(12)]
+
         store.group_field = '1'
 
         grid.store = store
@@ -449,6 +455,7 @@ class GroupingViewSelectionAction(UIAction):
         win.items.append(grid)
 
         return win
+
 
 @Pack.register
 class GroupingDataAction(Action):
@@ -470,4 +477,5 @@ class GroupingDataAction(Action):
 
             res.append(d)
 
-        return http.HttpResponse('{"total":100,"rows":%s}' % json.dumps(res))
+        return http.HttpResponse('{"total":100,"rows":%s}' % json.dumps(res),
+                                 mimetype='application/json')

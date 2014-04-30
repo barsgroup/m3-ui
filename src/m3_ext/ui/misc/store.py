@@ -66,7 +66,7 @@ class ExtGroupingStore(BaseExtStore):
     Хранилище используемое для группировки по определенным полям в гриде
     """
 
-    _xtype = 'groupingstore'
+    _xtype = 'm3-grouping-json-store'
 
     js_attrs = BaseExtStore.js_attrs.extend(
         remote_group='remoteGroup',  # Серверная группировка

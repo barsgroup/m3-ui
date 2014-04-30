@@ -5,7 +5,8 @@
 
 (function () {
 
-    function configure() {
+    Ext.m3.configureGrid = function () {
+
         var params = this.params || {};
         // Создание ColumnModel если надо
         // раньше был экземпляр ColModel, теперь приходи конфиг
@@ -143,7 +144,7 @@
 
     Ext.m3.GridPanel = Ext.extend(Ext.grid.GridPanel, {
             initComponent: function () {
-                configure.apply(this);
+                Ext.m3.configureGrid.apply(this);
                 Ext.m3.GridPanel.superclass.initComponent.call(this);
             }
         }
@@ -151,7 +152,7 @@
 
     Ext.m3.EditorGridPanel = Ext.extend(Ext.grid.EditorGridPanel, {
             initComponent: function () {
-                configure.apply(this);
+                Ext.m3.configureGrid.apply(this);
                 Ext.m3.EditorGridPanel.superclass.initComponent.call(this);
             }
         }
@@ -166,6 +167,5 @@
 
     Ext.reg('view-grouping', Ext.grid.GroupingView);
 
-})();
 
-
+})()
