@@ -21,7 +21,11 @@
         }
 
         // если это чекбоксы, то добавим колонку
-        if (this.sm instanceof Ext.grid.CheckboxSelectionModel) {
+        if (this.sm instanceof Ext.grid.CheckboxSelectionModel ||
+
+            // FIXME: лучше использовать утиную типизацию
+            this.sm instanceof Ext.ux.grid.livegrid.CheckboxSelectionModel) {
+
             if (this.columns) {
                 this.columns.unshift(this.sm);
             }
@@ -168,4 +172,4 @@
     Ext.reg('view-grouping', Ext.grid.GroupingView);
 
 
-})()
+})();

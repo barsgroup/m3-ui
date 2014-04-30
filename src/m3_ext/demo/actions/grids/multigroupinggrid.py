@@ -13,19 +13,12 @@ class MultiGroupingGridAction(UIAction):
     """
     title = u'"Живая" таблица с серверной группировкой (LiveGrid, ExtMultiGroupinGrid)'
 
-    def get_js(self, request, context):
-        return """function(win, data){
-            win.buttons[0].on('click', function(){
-                win.close(false);
-            });
-        }"""
-
     def get_ui(self, request, context):
         window = super(MultiGroupingGridAction, self).get_ui(request, context)
         window.width = 800
         window.height = 500
-        window.layout = 'fit'
-        grid = ext.ExtMultiGroupinGrid()
+        window.layout = window.FIT
+        grid = ext.ExtMultiGroupinGrid(sm=ext.ExtLiveGridCheckBoxSelModel())
         grid.add_column(header=u'Код', data_index='code')
         grid.add_column(header=u'Наименование', data_index='name')
         grid.add_column(header=u'Категория', data_index='cat', groupable=True)

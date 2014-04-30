@@ -9,7 +9,6 @@ from django.utils.html import escapejs
 from m3 import M3JSONEncoder as _M3JSONEncoder
 from m3.actions import (
     ActionResult as _ActionResult,
-    BaseContextedResult as _BaseContextedResult,
     ControllerCache,
     urls)
 

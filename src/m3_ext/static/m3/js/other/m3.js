@@ -215,8 +215,7 @@ function uiAjaxFailMessage(response, opt) {
             errorMsg = response.stack.replace(new RegExp("\n", 'g'), '<br />');
         }
 
-
-        var win = new Ext.Window({
+        win = new Ext.Window({
             modal: true,
             width: width,
             height: height,

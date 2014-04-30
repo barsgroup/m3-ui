@@ -14,7 +14,10 @@ from grids import (ExtGrid,
                    ExtGridCheckBoxSelModel,
                    ExtGridRowSelModel,
                    ExtGridCellSelModel,
-                   ExtGridGroupingView)
+                   ExtGridGroupingView,
+                   ExtLiveGridCheckBoxSelModel,
+                   ExtLiveGridRowSelModel,
+                   ExtGridLockingHeaderGroupPlugin)
 from trees import ExtTree
 from containers import (ExtContainer,
                         ExtToolBar,

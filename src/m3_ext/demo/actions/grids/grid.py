@@ -405,7 +405,7 @@ class GridCheckSelectionAction(UIAction):
         window = super(GridCheckSelectionAction, self).get_ui(request, context)
         window.width = 500
         window.height = 500
-        window.layout = 'fit'
+        window.layout = window.FIT
         grid = ext.ExtGrid(sm=ext.ExtGridCheckBoxSelModel())
         grid.add_column(header=u'Имя', data_index='fname')
         grid.add_column(header=u'Фамилия', data_index='lname')

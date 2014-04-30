@@ -1827,3 +1827,6 @@ Ext.extend(Ext.m3.LiveStoreReader, Ext.ux.grid.livegrid.JsonReader, {
 Ext.reg('m3-live-store', Ext.m3.LiveStore);
 
 Ext.reg('livegrid-toolbar', Ext.ux.grid.livegrid.Toolbar);
+
+Ext.reg('sm-live-checkbox', Ext.ux.grid.livegrid.CheckboxSelectionModel);
+Ext.reg('sm-live-row', Ext.ux.grid.livegrid.RowSelectionModel);
