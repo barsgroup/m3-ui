@@ -153,26 +153,7 @@ class UIJsonEncoder(_M3JSONEncoder):
         return obj
 
 
-class RawUIResult(_PreJsonResult):
-    """
-    Результат, совместимый с клиентским рендерингом.
-    """
-    def __init__(self, config, data=None):
-        """
-        :config dict: конфигурация виджета (включая xtype)
-        :data dict: данные для инициализации виджета
-        """
-        super(RawUIResult, self).__init__({
-            'success': True,
-            'code': {
-                'config': config,
-                'data': data or {}
-            }
-        })
-        self.encoder_clz = UIJsonEncoder
-
-
-class UIResult(RawUIResult):
+class UIResult(_PreJsonResult):
     """
     Результат, возвращающий виджет в виде конфигурации и данных
     """
@@ -182,33 +163,42 @@ class UIResult(RawUIResult):
         """
         if isinstance(ui, dict):
             assert set(ui.keys()) == set(('config', 'data'))
-            kwargs = ui
+            code = ui
         else:
-            kwargs = {
+            code = {
                 'config': ui._config,
                 'data': ui._data,
             }
-        super(UIResult, self).__init__(**kwargs)
+        super(UIResult, self).__init__({
+            'success': True,
+            'code': code
+        })
+        self.encoder_clz = UIJsonEncoder
 
 
-class DataResult(RawUIResult):
+class DataResult(_PreJsonResult):
     """
     Результат запроса, возвращающий объект данных
     и доп.настройки для виджета лтображения
     """
-    def __init__(self, model, ui, context=None, config=None, data=None):
+    def __init__(self, model, ui, context=None, data=None):
         """
         :model object: объект данных
         :ui string: ключ, идентифицирующий виджет для отображения
         :context object: объект контекста выполнения запроса
-        :config dict: доп.конфигурация виджета
         :data dict: доп.данные для инициализации виджета
         """
-        super(DataResult, self).__init__(config or {}, data)
-        res = self.data['code']
-        res['ui'] = ui
-        res['data']['model'] = model
-        res['data']['context'] = context or {}
+        data = data or {}
+        data['model'] = model
+        data['context'] = context or {}
+        super(DataResult, self).__init__({
+            'success': True,
+            'code': {
+                'data': data,
+                'ui': ui,
+            }
+        })
+        self.encoder_clz = UIJsonEncoder
 
 
 class ExtGridDataQueryResult(_ActionResult):

@@ -78,13 +78,11 @@ class UIAction(Action):
         Метод должен вернуть словарь вида {
             "ui":     :: str  - url для получения базового конфига окна
             "model"   :: dict - объект данных
-            "config": :: dict - конфиг для конкретного окна
             "data":   :: dict - данные для конкретного окна
         }
         """
         return {
             'ui': self.get_absolute_url(),
-            'config': {},
             'data': {}
         }
 

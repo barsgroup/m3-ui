@@ -10,17 +10,15 @@ UI = function (config) {
     this.uiFabric = config['uiFabric'];       // собственно, формирователь UI
 
     UI.create = function (data) {         // словарь параметров должен содержать
-        var customConfig = data['config'], // - config экземпляра окна
-            initialData = data['data'],    // - словарь данных для инициализации
+        var initialData = data['data'],    // - словарь данных для инициализации
             key = data['ui'];              // - key, однозначно идентифицирующий окно в хранилище
 
-        // грузим конфиг из хранилища...
+        // грузим конфиг и данные из хранилища...
         return this.confStorage(key)
             .then(function (result) {
-                // ..., который затем патчим конкретным конфигом,...
-                var conf = Ext.apply(result.config || {}, customConfig || {}),
-                    data = Ext.apply(result.data || {}, initialData || {});
-                return [conf, data];
+                // ..., данные затем патчим инициализирующими данными,...
+                var data = Ext.apply(result.data || {}, initialData || {});
+                return [result.config, data];
             }).then(function (cfg) {
                 var module = cfg[0]['xtype'],
                     result = Q.defer();
@@ -29,22 +27,21 @@ UI = function (config) {
                 if (config['requireExclude'].indexOf(module) >= 0) {
                     result.resolve(cfg);
                 } else {
-
                     require([config['staticPrefix'] + module + '.js'], function () {
                         if (config['debug']) {
                             require.undef(config['staticPrefix'] + module + '.js');
                         }
-
                         result.resolve(cfg);
                     });
-
                 }
-
                 return result.promise;
-
             }).then(function (cfgAndData) {
                 // формируем UI widget
-                return this.uiFabric(cfgAndData[0]);
+                var win = this.uiFabric(cfgAndData[0]);
+                if (win.bind) {
+                    win.bind(cfgAndData[1]);
+                };
+                return win;
             }.bind(this));
     }.bind(this);
 };

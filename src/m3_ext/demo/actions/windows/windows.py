@@ -28,12 +28,22 @@ class EditWindowAction(UIAction):
             height=100,
             frame=True,
             default_type='textfield',
+            item_id='form',
             items=[
-                ext.ExtStringField(item_id='edit-field-id')
+                ext.ExtStringField(
+                    item_id='edit-field-id',
+                    name="name",
+                    label="Name",
+                    anchor="100%"
+                )
             ],
         )
-
         return win
+
+    def get_result(self, request, context):
+        data = super(EditWindowAction, self).get_result(request, context)
+        data['model'] = {'name': 'Moe'}
+        return data
 
 
 @Pack.register
