@@ -364,44 +364,17 @@ class ExtObjectSelectionPanel(containers.ExtContainer):
     Класс, совмещающий возможность ObjectGrid'a
     и возможности выбора и запоминания значений в случае Paging'a
     """
+    _xtype = 'm3-object-selection-panel'
 
-    def __init__(self,
-                 grid=None,
-                 selection_columns=None,
-                 selection_grid_conf=None,
-                 *args,
-                 **kwargs):
+
+    js_attrs = containers.ExtContainer.js_attrs.extend(
+        'grid',
+        selection_columns='selectionColumns',
+        selection_grid_conf='selectionGridConf',
+    )
+
+    def __init__(self, *args, **kwargs):
         super(ExtObjectSelectionPanel, self).__init__(*args, **kwargs)
-
-        #self.xtype = 'object-selection-panel'
-        self.layout = 'border'
-        self.grid = grid
-        self.selection_grid_conf = selection_grid_conf or {}
-        self.selection_columns = selection_columns or []
-
-        self._ext_name = 'Ext.m3.ObjectSelectionPanel'
-
-    def render_base_config(self):
-        super(ExtObjectSelectionPanel, self).render_base_config()
-        assert self.grid, 'Grid should be define'
-
-        if not isinstance(self.grid.sm, ExtGridCheckBoxSelModel):
-            self.grid.sm = ExtGridCheckBoxSelModel()
-
-        self._put_config_value('grid', self.grid.render)
-        self._put_config_value('selectionColumns', lambda: json.dumps(self.selection_columns))
-        self._put_config_value('selectionGridConf', self._render_selection_conf)
-
-    def _render_selection_conf(self):
-        """
-        Рендеринг параметров грида для выделения записей
-        :return: str
-        """
-        res = []
-        for k, v in self.selection_grid_conf.items():
-            if isinstance(v, BaseExtComponent):
-                res.append('%s:%s' % (k, v.render()))
-            else:
-                res.append('%s:%s' % (k, json.dumps(v)))
-
-        return '{%s}' % ','.join(res)
+        self.setdefault('layout', self.BORDER)
+        self.setdefault('selection_columns', [])
+        self.setdefault('selection_grid_conf', {})

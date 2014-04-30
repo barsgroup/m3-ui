@@ -16,6 +16,13 @@ Ext.m3.ObjectSelectionPanel = Ext.extend(Ext.Container, {
     initComponent: function(){
         assert(this.selectionColumns, 'Columns for selection is undefined!');
 
+        if (!(this.grid instanceof Ext.grid.GridPanel)){
+            this.grid.sm = new Ext.grid.CheckboxSelectionModel();
+            this.grid = Ext.create(this.grid);
+        } else {
+            assert(this.grid.sm instanceof Ext.grid.CheckboxSelectionModel,
+                'sm has been Ext.grid.CheckboxSelectionModel')
+        }
         this.add(this.grid);
 
         var fields = ['_check'];
