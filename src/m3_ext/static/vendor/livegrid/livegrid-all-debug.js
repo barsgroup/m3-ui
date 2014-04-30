@@ -3752,6 +3752,7 @@ Ext.ux.grid.livegrid.CheckboxSelectionModel = Ext.extend(Ext.ux.grid.livegrid.Ro
     id : 'checker',
     headerCheckbox : null,
     markAll : false,
+    isColumn: true,
 
     constructor : function(cfg)
     {
