@@ -9,6 +9,7 @@ Ext.demo.EditWindow = Ext.extend(Ext.m3.EditWindow, {
         this.form = form;
 
         this.buttons[0].on('click', function (b, e) {
+            console.log(field.getContext());
             Ext.Msg.alert("", field.getValue());
         }, this);
 
