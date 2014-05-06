@@ -15644,3 +15644,21 @@ Ext.override(Ext.grid.GridView, {
     }
 });
 
+/*********************************************
+* инжектирование getContext
+****/
+Ext.override(Ext.Component, {
+    getContext: function() {
+        var owner = this.ownerCt;
+        while (owner) {
+            var context = (owner.initialData || {}).context;
+            if (context) {
+                return context
+            } else {
+                owner = owner.ownerCt;
+            };
+        };
+        throw new Exception("not context found!");
+    }
+});
+

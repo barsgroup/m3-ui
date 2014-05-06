@@ -37,9 +37,11 @@ UI = function (config) {
                 return result.promise;
             }).then(function (cfgAndData) {
                 // формируем UI widget
-                var win = this.uiFabric(cfgAndData[0]);
+                var win = this.uiFabric(cfgAndData[0]),
+                    data = cfgAndData[1];
                 if (win.bind) {
-                    win.bind(cfgAndData[1]);
+                    win.initialData = data;
+                    win.bind(data);
                 };
                 return win;
             }.bind(this));
