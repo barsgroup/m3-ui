@@ -11,6 +11,9 @@ class BaseExtStore(BaseExtComponent):
     Базовый класс для Store - компонента хранения данных
     """
 
+    LOCAL = 'local'
+    REMOTE = 'remote'
+
     _xtype = 'store'
 
     js_attrs = BaseExtComponent.js_attrs.extend(

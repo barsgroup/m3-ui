@@ -6,104 +6,69 @@
  */
 
 Ext.m3.AdvancedComboBox = Ext.extend(Ext.m3.ComboBox, {
-    constructor: function (baseConfig, params) {
 
-        params = baseConfig.params || params;
+    askBeforeDeleting: true,
 
-        // Будет ли задаваться вопрос перед очисткой значения
-        this.askBeforeDeleting = true;
+    actionSelectUrl: null,
+    actionEditUrl: null,
+    actionContextJson: null,
 
-        this.actionSelectUrl = null;
-        this.actionEditUrl = null;
-        this.actionContextJson = null;
+    hideBaseTrigger: false,
 
-        this.hideBaseTrigger = false;
+    defaultValue: null,
+    defaultText: null,
+    defaultRecord: null,
 
-        this.defaultValue = null;
-        this.defaultText = null;
-        this.defaultRecord = null;
+    // кнопка очистки
+    hideTriggerClear: false,
+    hideTriggerDropDown: false,
+    hideTriggerDictSelect: false,
+    hideTriggerDictEdit: true,
 
-        // кнопка очистки
-        this.hideTriggerClear = params.hideClearTrigger || false;
+    defaultLimit: '50',
 
-        // кнопка выбора из выпадающего списка
-        this.hideTriggerDropDown = false;
+    triggerClearClass: 'x-form-clear-trigger',
+    triggerSelectClass: 'x-form-select-trigger',
+    triggerEditClass: 'x-form-edit-trigger',
 
-        // кнопка выбора из справочника
-        this.hideTriggerDictSelect = params.hideDictSelectTrigger || false;
-
-        // кнопка редактирования элемента
-        this.hideTriggerDictEdit = true;
-        if (!params.hideEditTrigger) {
-            this.hideTriggerDictEdit = params.hideEditTrigger;
+    baseTriggers: [
+        {
+            iconCls: 'x-form-clear-trigger',
+            handler: null,
+            hide: null
+        },
+        {
+            iconCls: '',
+            handler: null,
+            hide: null
+        },
+        {
+            iconCls: 'x-form-select-trigger',
+            handler: null,
+            hide: null
+        },
+        {
+            iconCls: 'x-form-edit-trigger',
+            handler: null,
+            hide: true
         }
+    ],
 
-        // Количество записей, которые будут отображаться при нажатии на кнопку
-        // выпадающего списка
-        this.defaultLimit = '50';
-
-        // css классы для иконок на триггеры
-        this.triggerClearClass = 'x-form-clear-trigger';
-        this.triggerSelectClass = 'x-form-select-trigger';
-        this.triggerEditClass = 'x-form-edit-trigger';
-
-        assert(params.actions, 'params.actions is undefined');
-
-        if (params.actions.actionSelectUrl) {
-            this.actionSelectUrl = params.actions.actionSelectUrl;
-        }
-
-        if (params.actions.actionEditUrl) {
-            this.actionEditUrl = params.actions.actionEditUrl;
-        }
-        if (!baseConfig.store.url && params.actions.autocompleteUrl) {
-            baseConfig.store.url = params.actions.autocompleteUrl;
-        }
-
-        this.askBeforeDeleting = params.askBeforeDeleting;
-        this.actionContextJson = params.actions.contextJson;
-
-        this.hideBaseTrigger = false;
-        if (baseConfig.hideTrigger) {
-            delete baseConfig.hideTrigger;
-            this.hideBaseTrigger = true;
-        }
-
-
-        this.defaultValue = params.defaultValue;
-        this.defaultText = params.defaultText;
-        this.defaultRecord = params.recordValue;
-
-        this.baseTriggers = [
-            {
-                iconCls: 'x-form-clear-trigger',
-                handler: null,
-                hide: null
-            },
-            {
-                iconCls: '',
-                handler: null,
-                hide: null
-            },
-            {
-                iconCls: 'x-form-select-trigger',
-                handler: null,
-                hide: null
-            },
-            {
-                iconCls: 'x-form-edit-trigger',
-                handler: null,
-                hide: true
-            }
-        ];
-        this.allTriggers = [].concat(this.baseTriggers);
-
-        Ext.m3.AdvancedComboBox.superclass.constructor.call(this, baseConfig);
-    },
     /**
      * Конфигурация компонента
      */
     initComponent: function () {
+        if (!this.store.url && this.autocompleteUrl) {
+            this.store.url = this.autocompleteUrl;
+        }
+
+        if (this.hideTrigger) {
+            delete this.hideTrigger;
+            this.hideBaseTrigger = true;
+        }
+
+        this.allTriggers = [].concat(this.baseTriggers);
+
         Ext.m3.AdvancedComboBox.superclass.initComponent.call(this);
 
         // см. TwinTriggerField
@@ -129,7 +94,7 @@ Ext.m3.AdvancedComboBox = Ext.extend(Ext.m3.ComboBox, {
         }
 
         // Значения по-умолчанию
-        if (this.defaultRecord) {
+        if (Object.getOwnPropertyNames(this.defaultRecord).length !== 0) { // Проверка на пустоту объекта
             var record = new Ext.data.Record(this.defaultRecord);
             this.setRecord(record);
         } else {

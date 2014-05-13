@@ -27,19 +27,19 @@ class ExtDictSelectField(BaseExtTriggerField):
 
     js_attrs = BaseExtTriggerField.js_attrs.extend(
 
-        hide_clear_trigger='params.hideClearTrigger',  # Скрыть кнопку очистки
-        hide_edit_trigger='params.hideEditTrigger',  # Скрыть кнопку редактирования элемента
-        hide_dict_select_trigger='params.hideDictSelectTrigger',  # Скрыть кнопку выбора из справочника
+        hide_clear_trigger='hideTriggerClear',  # Скрыть кнопку очистки
+        hide_edit_trigger='hideTriggerDictEdit',  # Скрыть кнопку редактирования элемента
+        hide_dict_select_trigger='hideTriggerDictSelect',  # Скрыть кнопку выбора из справочника
 
-        ask_before_deleting='params.askBeforeDeleting',
-        default_text='params.defaultText',
-        value='params.defaultValue',
-        record_value='params.recordValue',  # Значение, которое будет передано в store
+        ask_before_deleting='askBeforeDeleting',
+        default_text='defaultText',
+        value='defaultValue',
+        record_value='defaultRecord',  # Значение, которое будет передано в store
 
-        actions='params.actions',
-        url='params.actions.actionSelectUrl',
-        edit_url='params.actions.actionEditUrl',
-        autocomplete_url='params.actions.autocompleteUrl',
+        url='actionSelectUrl',
+        edit_url='actionEditUrl',
+        autocomplete_url='autocompleteUrl',
+
     )
 
     deprecated_attrs = BaseExtTriggerField.deprecated_attrs + (
@@ -66,7 +66,8 @@ class ExtDictSelectField(BaseExtTriggerField):
         self.setdefault('hide_edit_trigger', False)
         self.setdefault('hide_dict_select_trigger', False)
         self.setdefault('min_chars', 2)
-        self.setdefault('store', ExtJsonStore(total_property='total', root='rows'))
+        self.setdefault('store', ExtJsonStore(total_property='total',
+                                              root='rows'))
         self.setdefault('query_param', 'filter')
 
         self.setdefault('value_field', 'id')

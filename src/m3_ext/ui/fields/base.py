@@ -18,6 +18,10 @@ class BaseExtField(ExtUIComponent):
         'vtype',
         'regex',
         'plugins',
+
+        'tooltip',
+        'filterName',
+
         read_only='readOnly',
         allow_blank='allowBlank',
         is_edit='isEdit',
@@ -30,7 +34,7 @@ class BaseExtField(ExtUIComponent):
         tab_index='tabIndex',
         invalid_class='invalidClass',
         invalid_text='invalidText',
-        auto_create='autoCreate'
+        auto_create='autoCreate',
     )
 
     def __init__(self, *args, **kwargs):
@@ -40,6 +44,7 @@ class BaseExtField(ExtUIComponent):
         # те, которые allow_blank=False подсвечивались автоматически после
         # рендеринга
         self.setdefault('value', '')
+
         self.setdefault('is_edit', True)
         self.setdefault('allow_blank', True)
         self.setdefault('invalid_class', 'm3-form-invalid')
@@ -82,6 +87,7 @@ class BaseExtTriggerField(BaseExtField):
     js_attrs = BaseExtField.js_attrs.extend(
         'store',
         'editable',
+        'mode',
         'resizable',  # Изменение ширины выпадающего списка
 
         display_field='displayField',  # Поле, которое будет отображаться при выборе

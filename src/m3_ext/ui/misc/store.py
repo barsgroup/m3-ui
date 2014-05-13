@@ -21,6 +21,7 @@ class ExtDataStore(BaseExtStore):
         self.setdefault('data', data)
 
 
+
 class ExtJsonStore(BaseExtStore):
     """
     Хранилище данных, которое отправляет запрос на сервер и ждет, что данные
