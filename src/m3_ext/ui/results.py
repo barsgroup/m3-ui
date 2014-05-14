@@ -197,7 +197,7 @@ class DataResult(_PreJsonResult):
                 'ui': ui,
             }
         })
-        self.encoder_clz = UIJsonEncoder
+        #self.encoder_clz = UIJsonEncoder
 
 
 class ExtGridDataQueryResult(_ActionResult):
