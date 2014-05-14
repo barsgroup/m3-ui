@@ -147,7 +147,9 @@ class ExtGrid(BaseExtPanel):
 
         if len(self.banded_columns) <= level:
             # дополним список уровней до нужного level
-            self.banded_columns += [[]] * (1 + level - len(self.banded_columns))
+            self.banded_columns += [
+               [] for _ in range(1 + level - len(self.banded_columns))
+            ]
         self.banded_columns[level].append(column)
 
     def clear_banded_columns(self):
