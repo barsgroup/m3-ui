@@ -28,7 +28,7 @@ Ext.m3.ObjectTree = Ext.extend(Ext.m3.Tree, {
 
         var contextMenu = Ext.create({}, 'menu'),
             containerContextMenu = Ext.create({}, 'menu'),
-            tbar = this.tbar || [],
+            tbar = Ext.create(this.tbar),
 
             buttonNewInRoot = {
                 text: 'Новый в корне',
@@ -66,7 +66,7 @@ Ext.m3.ObjectTree = Ext.extend(Ext.m3.Tree, {
             contextMenu.add(buttonNewInChild);
             containerContextMenu.add(buttonNewInRoot);
 
-            tbar.splice(0, 0, {
+            tbar.insert(0, {
                 text: 'Добавить',
                 iconCls: 'add_item',
                 menu: {
@@ -78,24 +78,24 @@ Ext.m3.ObjectTree = Ext.extend(Ext.m3.Tree, {
         }
         if (this.actionEditUrl) {
             contextMenu.add(buttonEdit);
-            tbar.splice(0, 0, buttonEdit);
+            tbar.insert(0, buttonEdit);
 
             this.on('dblclick', this.onEditRecord, this);
         }
         if (this.actionDeleteUrl) {
             contextMenu.add(buttonRemove);
-            tbar.splice(0, 0, buttonRemove);
+            tbar.insert(0, buttonRemove);
         }
 
         // add separator
         if (this.actionNewUrl || this.actionEditUrl || this.actionDeleteUrl) {
-            tbar.splice(0, 0, '-');
+            tbar.insert(0, '-');
             contextMenu.add('-');
             containerContextMenu.add('-');
         }
 
         if (this.dataUrl) {
-            tbar.splice(0, 0, buttonRefresh);
+            tbar.insert(0, buttonRefresh);
             contextMenu.add(buttonRefresh);
             containerContextMenu.add(buttonRefresh);
         }
@@ -108,7 +108,6 @@ Ext.m3.ObjectTree = Ext.extend(Ext.m3.Tree, {
         }
 
         this.tbar = tbar;
-
     },
 
     initComponent: function () {

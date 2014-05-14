@@ -5,7 +5,6 @@
 
 from m3_ext.ui import containers
 
-
 class ExtObjectTree(containers.ExtTree):
     """
     Панель с деревом для управления списком объектов
@@ -44,3 +43,4 @@ class ExtObjectTree(containers.ExtTree):
         self.setdefault('row_id_name', 'id')
         self.setdefault('parent_id_name', 'parent_id')
         self.setdefault('allow_paging', False)
+        self.setdefault('top_bar', containers.ExtToolBar())
