@@ -12913,9 +12913,10 @@ Ext.m3.ObjectTree = Ext.extend(Ext.m3.Tree, {
 //    loadMask: new Ext.LoadMask(this.el, {msg: "Загрузка..."}),
 
     configure: function () {
+
         var contextMenu = Ext.create({}, 'menu'),
             containerContextMenu = Ext.create({}, 'menu'),
-            tbar = Ext.create({}, 'toolbar'),
+            tbar = this.tbar || [],
 
             buttonNewInRoot = {
                 text: 'Новый в корне',
@@ -12948,13 +12949,12 @@ Ext.m3.ObjectTree = Ext.extend(Ext.m3.Tree, {
                 scope: this
             };
 
-
         if (this.actionNewUrl) {
             contextMenu.add(buttonNewInRoot);
             contextMenu.add(buttonNewInChild);
             containerContextMenu.add(buttonNewInRoot);
 
-            tbar.add({
+            tbar.splice(0, 0, {
                 text: 'Добавить',
                 iconCls: 'add_item',
                 menu: {
@@ -12966,40 +12966,41 @@ Ext.m3.ObjectTree = Ext.extend(Ext.m3.Tree, {
         }
         if (this.actionEditUrl) {
             contextMenu.add(buttonEdit);
-            tbar.add(buttonEdit);
+            tbar.splice(0, 0, buttonEdit);
 
             this.on('dblclick', this.onEditRecord, this);
         }
         if (this.actionDeleteUrl) {
             contextMenu.add(buttonRemove);
-            tbar.add(buttonRemove);
+            tbar.splice(0, 0, buttonRemove);
         }
 
         // add separator
         if (this.actionNewUrl || this.actionEditUrl || this.actionDeleteUrl) {
-            tbar.add('-');
+            tbar.splice(0, 0, '-');
             contextMenu.add('-');
             containerContextMenu.add('-');
         }
 
         if (this.dataUrl) {
-            tbar.add(buttonRefresh);
+            tbar.splice(0, 0, buttonRefresh);
             contextMenu.add(buttonRefresh);
             containerContextMenu.add(buttonRefresh);
         }
 
-        if (contextMenu.items.length > 0) {
+        if (contextMenu.items && contextMenu.items.length > 0) {
             this.contextMenu = contextMenu;
         }
-        if (containerContextMenu.items.length > 0) {
+        if (containerContextMenu.items && containerContextMenu.items.length > 0) {
             this.containerContextMenu = containerContextMenu;
         }
-        if (tbar.items.length > 0) {
-            this.tbar = tbar;
-        }
+
+        this.tbar = tbar;
+
     },
 
     initComponent: function () {
+
         this.configure();
 
         Ext.m3.ObjectTree.superclass.initComponent.call(this);

@@ -24,10 +24,14 @@ class ExtObjectTree(containers.ExtTree):
         url_new='actionNewUrl',
         url_edit='actionEditUrl',
         url_delete='actionDeleteUrl',
+
+        # use url
+        url_data='dataUrl',
     )
 
     deprecated_attrs = containers.ExtTree.deprecated_attrs + (
         'load_mask',
+        'url_data',
     )
 
     def __init__(self, *args, **kwargs):
