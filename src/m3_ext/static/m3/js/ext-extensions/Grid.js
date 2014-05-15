@@ -4,8 +4,7 @@
  */
 
 (function () {
-
-    Ext.m3.configureGrid = function () {
+    function initComponent() {
 
         var params = this.params || {};
         // Создание ColumnModel если надо
@@ -125,6 +124,8 @@
                 bbar.bind(store);
             }
         });
+
+        this.callParent();
     }
 
     /**
@@ -146,30 +147,26 @@
         }
     }
 
-    Ext.m3.GridPanel = Ext.extend(Ext.grid.GridPanel, {
-            initComponent: function () {
-                Ext.m3.configureGrid.apply(this);
-                Ext.m3.GridPanel.superclass.initComponent.call(this);
-            }
+
+    Ext.define('Ext.m3.GridPanel', {
+            extend: 'Ext.grid.GridPanel',
+            xtype: 'm3-grid',
+
+            initComponent: initComponent
         }
     );
 
-    Ext.m3.EditorGridPanel = Ext.extend(Ext.grid.EditorGridPanel, {
-            initComponent: function () {
-                Ext.m3.configureGrid.apply(this);
-                Ext.m3.EditorGridPanel.superclass.initComponent.call(this);
-            }
+    Ext.define('Ext.m3.EditorGridPanel', {
+            extend: 'Ext.grid.EditorGridPanel',
+            xtype: 'm3-edit-grid',
+
+            initComponent: initComponent
         }
     );
-
-    Ext.reg('m3-grid', Ext.m3.GridPanel);
-    Ext.reg('m3-edit-grid', Ext.m3.EditorGridPanel);
-
-    Ext.reg('sm-cell', Ext.grid.CellSelectionModel);
-    Ext.reg('sm-checkbox', Ext.grid.CheckboxSelectionModel);
-    Ext.reg('sm-row', Ext.grid.RowSelectionModel);
-
-    Ext.reg('view-grouping', Ext.grid.GroupingView);
-
-
 })();
+
+Ext.reg('sm-cell', Ext.grid.CellSelectionModel);
+Ext.reg('sm-checkbox', Ext.grid.CheckboxSelectionModel);
+Ext.reg('sm-row', Ext.grid.RowSelectionModel);
+
+Ext.reg('view-grouping', Ext.grid.GroupingView);
