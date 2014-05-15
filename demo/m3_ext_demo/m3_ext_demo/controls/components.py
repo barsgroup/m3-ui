@@ -3,13 +3,11 @@
 
 __author__ = 'prefer'
 
-
 import json
 
 from django import http
 
 from datetime import datetime
-
 
 from m3_ext.ui.containers import ExtGrid, ExtContextMenu, ExtGridColumn, ExtTabPanel, ExtPanel, ExtFieldSet, \
     ExtPagingBar, ExtContainerTable, ExtGridCellSelModel, ExtGridLockingColumnModel, \
@@ -148,7 +146,7 @@ def grid_data_store(request):
                                  [3, u'Анатоле', u'Кожемякин', u'пл. Земля '],
                                  [4, u'Анатоле', u'Кожемякин', u'пл. Земля '],
                                  [5, u'Анатоле', u'Кожемякин', u'пл. Земля '],
-                                 [6, u'Анатоле', u'Кожемякин', u'пл. Земля '],]))
+                                 [6, u'Анатоле', u'Кожемякин', u'пл. Земля '], ]))
     menu = ExtContextMenu()
     menu.add_item(text=u'Тупой пункт на весь грид')
     grid.handler_contextmenu = menu
@@ -249,7 +247,7 @@ def dict_select_field(request):
                               ask_before_deleting=False,
                               anchor='80%',
                               #width=200
-                              )
+    )
 
     #cont.disabled = True
     cont.ask_before_deleting = True
@@ -335,6 +333,7 @@ def grid_column_header_grouping(request):
 
     return http.HttpResponse(window.get_script())
 
+
 @url(r'^ui/base-tree')
 def base_tree(request):
     """Показывает работу простого колоночного дерева"""
@@ -395,10 +394,10 @@ def base_tree(request):
 
     window.buttons.append(ExtButton(text=u'Кто выбран, а?', handler=handler))
 
-
     window.form = tree
 
     return http.HttpResponse(window.get_script())
+
 
 @url(r'^data/base-tree-data')
 def base_tree_data(request):
@@ -448,7 +447,7 @@ def base_tree_data(request):
             '{"fname":"Конец2", "_id":500, "_lft":9, "_rgt":10, "_level": 3, "_is_leaf":true, "_is_loaded":true, "_parent":12}',
             '{"fname":"Конец", "_id":12, "_lft":7, "_rgt":30, "_level": 2, "_is_leaf":false, "_is_loaded":true, "_parent":1}',
             '{"fname":"Наверху", "_id":11, "_lft":3, "_rgt":4, "_level": 3, "_is_leaf":true, "_is_loaded":true, "_parent":2}',
-            ]
+        ]
         res = ','.join(l)
 
         res = '{success:true, total:%d, rows:[%s]}' % (3, res)
@@ -509,7 +508,8 @@ def combo_tabpanel(request):
                         trigger_action_all=True)
     combo2 = ExtComboBox(label=u'Combo_remote', display_field='lname', empty_text='choose')
     combo.set_store(ExtDataStore([[1, u'М'], [2, u'Ж']]))
-    combo2.set_store(ExtJsonStore(url='/data/grid-json-store-data', auto_load=True, total_property='total', root='rows'))
+    combo2.set_store(
+        ExtJsonStore(url='/data/grid-json-store-data', auto_load=True, total_property='total', root='rows'))
 
     panel1.items.append(combo)
     panel1.items.append(combo2)
@@ -617,7 +617,7 @@ def toolbar_panel(request):
     button_toolbar = ExtButton(text=u'Еще кнопка, которая не залезла на экран')
     toolbar.items.append(button_toolbar)
 
-    cont = ExtContainer() # Пример работы контейнера
+    cont = ExtContainer()  # Пример работы контейнера
     cont.items.append(toolbar)
 
     cont_with_html = ExtContainer(
@@ -675,7 +675,8 @@ def edit_grid(request):
                          editor=ExtCheckBox())
 
     combo2 = ExtComboBox(label=u'Combo_remote', display_field='lname', empty_text='choose')
-    combo2.set_store(ExtJsonStore(url='/data/grid-json-store-data', auto_load=False, total_property='total', root='rows'))
+    combo2.set_store(
+        ExtJsonStore(url='/data/grid-json-store-data', auto_load=False, total_property='total', root='rows'))
     grid.add_column(header=u'combo', data_index='co', editor=combo2)
     #grid.add_column(header=u'Выбор из справочника', data_index = 'from_dict', editor = field)
 
@@ -720,7 +721,6 @@ def dictionary_window(request):
 def layout_border(request):
     window = ExtEditWindow(title=u'Layout border', layout='border')
 
-
     panel_list_view = ExtPanel(region='south',
                                layout='fit',
                                min_height=100,
@@ -764,7 +764,8 @@ def find_by_name(request):
     combo2 = ExtComboBox(label=u'Combo_remote', display_field='lname', name='remote_id', value_field='id')
     combo.value = 2
     combo.set_store(ExtDataStore([[1, u'М'], [2, u'Ж']]))
-    combo2.set_store(ExtJsonStore(url='/data/grid-json-store-data', total_property='total', root='rows', auto_load=True))
+    combo2.set_store(
+        ExtJsonStore(url='/data/grid-json-store-data', total_property='total', root='rows', auto_load=True))
     combo.value = 1
     cont_c1.items.append(combo)
     cont_c1.items.append(combo2)
@@ -847,7 +848,7 @@ def tree_dictionary_window(request):
 def search_field(request):
     window = ExtWindow(title=u'Контрол поиска', layout='fit', resizable=False)
 
-    tree = ExtTree(url='/data/base-tree-data') # -- для дерева, подгружаемого с сервера
+    tree = ExtTree(url='/data/base-tree-data')  # -- для дерева, подгружаемого с сервера
     tree.add_column(header=u'Имя', data_index='fname', width=140)
     tree.add_column(header=u'Фамилия', data_index='lname', width=140)
     tree.add_column(header=u'Адрес', data_index='adress', width=140)
@@ -1182,6 +1183,7 @@ def column_filter_grid(request):
 @url(r'^data/grid-qtip-data')
 def grid_qtip_data(request):
     from m3 import M3JSONEncoder
+
     enc = M3JSONEncoder()
     str = enc.encode(request.POST)
     return http.HttpResponse(u'{server: "Данные подсказки, пришедшие с сервера!", record: %s}' % str)
@@ -1190,6 +1192,7 @@ def grid_qtip_data(request):
 @url(r'^data/grid-qtip-mega-data')
 def grid_qtip_mega_data(request):
     from m3 import M3JSONEncoder
+
     enc = M3JSONEncoder()
     vals = [{'score': u'Единица', 'value': 1, 'class': 'ext-color-1-ad'},
             {'score': u'Двойка', 'value': 2, 'class': 'ext-color-2-ad'},
@@ -1318,6 +1321,7 @@ def data_locking_grouping_grid(request):
 
     #return http.HttpResponse(json.dumps(data), mimetype='application/json')
 
+
 @url(r'^ui/locking-grouping-grid')
 def locking_grouping_grid(request):
     window = ExtWindow(layout='fit', width=1000, height=500)
@@ -1334,29 +1338,29 @@ def locking_grouping_grid(request):
     grid.set_store(store)
 
     rows = [
-            [
-                {'header': '1.1', 'colspan': 6, 'align': 'center'},
-                {'header': '1.2', 'colspan': 6, 'align': 'center'}
-            ],
-            [
-                {'header': '2.1', 'colspan': 3, 'align': 'center'},
-                {'header': '2.2', 'colspan': 3, 'align': 'center'},
-                {'header': '2.3', 'colspan': 3, 'align': 'center'},
-                {'header': '2.4', 'colspan': 3, 'align': 'center'}
-            ],
-            [
-                {'header': '3.1', 'colspan': 1, 'align': 'center'},
-                {'header': '3.2', 'colspan': 1, 'align': 'center'},
-                {'header': '3.3', 'colspan': 1, 'align': 'center'},
-                {'header': '3.4', 'colspan': 1, 'align': 'center'},
-                {'header': '3.5', 'colspan': 2, 'align': 'center'},
-                {'header': '3.6', 'colspan': 2, 'align': 'center'},
-                {'header': '3.7', 'colspan': 1, 'align': 'center'},
-                {'header': '3.8', 'colspan': 2, 'align': 'center'},
-                {'header': '3.9', 'colspan': 1, 'align': 'center'}
-            ]
+        [
+            {'header': '1.1', 'colspan': 6, 'align': 'center'},
+            {'header': '1.2', 'colspan': 6, 'align': 'center'}
+        ],
+        [
+            {'header': '2.1', 'colspan': 3, 'align': 'center'},
+            {'header': '2.2', 'colspan': 3, 'align': 'center'},
+            {'header': '2.3', 'colspan': 3, 'align': 'center'},
+            {'header': '2.4', 'colspan': 3, 'align': 'center'}
+        ],
+        [
+            {'header': '3.1', 'colspan': 1, 'align': 'center'},
+            {'header': '3.2', 'colspan': 1, 'align': 'center'},
+            {'header': '3.3', 'colspan': 1, 'align': 'center'},
+            {'header': '3.4', 'colspan': 1, 'align': 'center'},
+            {'header': '3.5', 'colspan': 2, 'align': 'center'},
+            {'header': '3.6', 'colspan': 2, 'align': 'center'},
+            {'header': '3.7', 'colspan': 1, 'align': 'center'},
+            {'header': '3.8', 'colspan': 2, 'align': 'center'},
+            {'header': '3.9', 'colspan': 1, 'align': 'center'}
         ]
-    config = {'columnModelCfg': {'rows': rows, 'lockedCount': 2}, 'viewCfg': {'hideGroupedColumn': True,}}
+    ]
+    config = {'columnModelCfg': {'rows': rows, 'lockedCount': 2}, 'viewCfg': {'hideGroupedColumn': True, }}
     grid.plugins.append(ExtGridLockingHeaderGroupPlugin(config))
 
     window.items.append(grid)
@@ -1366,7 +1370,6 @@ def locking_grouping_grid(request):
 
 @url(r'^data/object-grid')
 def object_grid_with_selection_data(request):
-
     start, limit = int(request.REQUEST.get('start', 0)), int(request.REQUEST.get('limit', 50))
 
     res = []
@@ -1378,7 +1381,6 @@ def object_grid_with_selection_data(request):
 
 @url(r'^ui/object-grid')
 def object_grid_with_selection(request):
-
     window = ExtWindow(layout="fit", width=600, height=400)
 
     grid = ExtObjectGrid(region='center')

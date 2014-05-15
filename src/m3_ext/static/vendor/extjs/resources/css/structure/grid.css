@@ -1,9 +1,20 @@
-/*!
- * Ext JS Library 3.4.0
- * Copyright(c) 2006-2011 Sencha Inc.
- * licensing@sencha.com
- * http://www.sencha.com/license
- */
+/*
+This file is part of Ext JS 3.4
+
+Copyright (c) 2011-2013 Sencha Inc
+
+Contact:  http://www.sencha.com/contact
+
+Commercial Usage
+Licensees holding valid commercial licenses may use this file in accordance with the Commercial
+Software License Agreement provided with the Software or, alternatively, in accordance with the
+terms contained in a written agreement between you and Sencha.
+
+If you are unsure which license is appropriate for your use, please contact the sales department
+at http://www.sencha.com/contact.
+
+Build date: 2013-11-19 14:40:42
+*/
 /* Grid3 styles */
 .x-grid3 {
 	position:relative;
@@ -546,6 +557,11 @@ a.x-grid3-hd-btn:hover {
     top:-1px;
 }
 
+.x-grid-editor .x-form-check-wrap {
+    text-align: center;
+    margin-top: -4px;
+}
+
 .ext-ie .x-props-grid .x-editor .x-form-text {
     position:static;
     top:0;
@@ -585,4 +601,12 @@ a.x-grid3-hd-btn:hover {
 .x-grid-with-col-lines .x-grid3-row td.x-grid3-cell {
     padding-right:0;
     border-right:1px solid;
+}
+
+/*
+ * We need to forcibly set it to border box for webkit,
+ * related: https://code.google.com/p/chromium/issues/detail?id=124816
+ */
+.x-webkit .x-grid3-cell, .x-grid3-gcell {
+    box-sizing: border-box;
 }
