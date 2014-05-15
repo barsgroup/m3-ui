@@ -29,8 +29,9 @@ Ext.define('Ext.m3.EditWindow', {
     initComponent: function () {
         this.callParent();
 
-        if (this.form) {
-            this.insert(0, Ext.create(this.form));
+        if (!(this.form instanceof Ext.Component)) {
+            this.form = Ext.create(this.form);
+            this.insert(0, this.form);
         }
 
 
@@ -444,5 +445,9 @@ Ext.define('Ext.m3.EditWindow', {
         uiAjaxFailMessage.apply(this, arguments);
         mask.hide();
         this.disableToolbars(false);
+    },
+
+    bind: function(data){
+        this.form.getForm().setValues(data.model);
     }
 });
