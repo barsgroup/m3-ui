@@ -265,7 +265,7 @@ function uiFailureResponseOnFormSubmit(context){
  * респонс сервера(предназначено для отладки серверных ошибок)
 */
 function uiAjaxFailMessage (response, opt) {
-	
+
 	// response.status === 0 -- "communication failure"
 	if (Ext.isEmpty(response) || response.status === 0) {
 		Ext.Msg.alert(SOFTWARE_NAME, 'Извините, сервер временно не доступен.');
@@ -291,6 +291,7 @@ function uiAjaxFailMessage (response, opt) {
         if (!response.responseText && opt && opt.response){
             response = opt.response;
         }
+
     	var errorMsg = response.responseText;
 	
     	var win = new Ext.Window({ modal: true, width: width, height: height, 

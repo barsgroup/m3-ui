@@ -1,9 +1,20 @@
-/*!
- * Ext JS Library 3.4.0
- * Copyright(c) 2006-2011 Sencha Inc.
- * licensing@sencha.com
- * http://www.sencha.com/license
- */
+/*
+This file is part of Ext JS 3.4
+
+Copyright (c) 2011-2013 Sencha Inc
+
+Contact:  http://www.sencha.com/contact
+
+Commercial Usage
+Licensees holding valid commercial licenses may use this file in accordance with the Commercial
+Software License Agreement provided with the Software or, alternatively, in accordance with the
+terms contained in a written agreement between you and Sencha.
+
+If you are unsure which license is appropriate for your use, please contact the sales department
+at http://www.sencha.com/contact.
+
+Build date: 2013-11-19 14:40:42
+*/
 .x-tab-panel {
     overflow:hidden;
 }
@@ -172,27 +183,28 @@ ul.x-tab-strip li.x-tab-edge {
 }
 
 /*
- * Horrible hack for IE8 in quirks mode
+ * For IE8/9 in quirks mode
  */
 .ext-ie8 .x-tab-strip li {
     position: relative;
 }
-.ext-border-box .ext-ie8 .x-tab-strip-top .x-tab-right {
+.ext-border-box .ext-ie8 .x-tab-strip-top .x-tab-right, .ext-border-box .ext-ie9 .x-tab-strip-top .x-tab-right {
     top: 1px;
 }
-.ext-ie8 .x-tab-strip-top {
-    padding-top: 1;
+.ext-ie8 .x-tab-strip-top, .ext-ie9 .x-tab-strip-top {
+    padding-top: 1px;
 }
-.ext-border-box .ext-ie8 .x-tab-strip-top {
+.ext-border-box .ext-ie8 .x-tab-strip-top, .ext-border-box .ext-ie9 .x-tab-strip-top {
     padding-top: 0;
 }
-.ext-ie8 .x-tab-strip .x-tab-strip-closable a.x-tab-strip-close {
+.ext-ie8 .x-tab-strip .x-tab-strip-closable a.x-tab-strip-close, .ext-ie9 .x-tab-strip .x-tab-strip-closable a.x-tab-strip-close {
     top:3px;
 }
-.ext-border-box .ext-ie8 .x-tab-strip .x-tab-strip-closable a.x-tab-strip-close {
+.ext-border-box .ext-ie8 .x-tab-strip .x-tab-strip-closable a.x-tab-strip-close,
+.ext-border-box .ext-ie9 .x-tab-strip .x-tab-strip-closable a.x-tab-strip-close {
     top:4px;
 }
-.ext-ie8 .x-tab-strip-bottom .x-tab-right{
+.ext-ie8 .x-tab-strip-bottom .x-tab-right, .ext-ie9 .x-tab-strip-bottom .x-tab-right{
     top:0;
 }
 
