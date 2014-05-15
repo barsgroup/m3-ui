@@ -195,7 +195,7 @@ Ext.m3.ObjectTree = Ext.extend(Ext.m3.Tree, {
                 failure: uiAjaxFailMessage
             },
             mask: this.getMask()
-        });
+        }).done();
     },
 
     onNewRecordChild: function () {
@@ -224,7 +224,7 @@ Ext.m3.ObjectTree = Ext.extend(Ext.m3.Tree, {
                 failure: uiAjaxFailMessage
             },
             mask: this.getMask()
-        });
+        }).done();
     },
 
     onEditRecord: function () {
@@ -242,7 +242,7 @@ Ext.m3.ObjectTree = Ext.extend(Ext.m3.Tree, {
                     failure: uiAjaxFailMessage
                 },
                 mask: this.getMask()
-            });
+            }).done();
 
         }
     },
@@ -274,7 +274,7 @@ Ext.m3.ObjectTree = Ext.extend(Ext.m3.Tree, {
                                 failure: uiAjaxFailMessage
                             },
                             mask: this.getMask()
-                        });
+                        }).done();
                     }
                 }
             });

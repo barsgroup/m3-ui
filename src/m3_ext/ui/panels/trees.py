@@ -5,6 +5,7 @@
 
 from m3_ext.ui import containers
 
+
 class ExtObjectTree(containers.ExtTree):
     """
     Панель с деревом для управления списком объектов

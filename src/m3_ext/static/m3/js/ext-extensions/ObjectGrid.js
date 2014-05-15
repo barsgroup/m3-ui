@@ -155,7 +155,7 @@ Ext.m3.BaseObjectGrid = {
                 failure: uiAjaxFailMessage
             },
             mask: this.loadMask
-        });
+        }).done();
 
     },
     /**
@@ -189,7 +189,7 @@ Ext.m3.BaseObjectGrid = {
                         failure: uiAjaxFailMessage
                     },
                     mask: this.loadMask
-                });
+                }).done();
 
             }
         } else {
@@ -230,7 +230,7 @@ Ext.m3.BaseObjectGrid = {
                                 failure: uiAjaxFailMessage
                             },
                             mask: this.loadMask
-                        });
+                        }).done();
                     }
                 }
             });
