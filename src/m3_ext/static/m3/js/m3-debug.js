@@ -3600,7 +3600,10 @@ Ext.override(Ext.form.Field, {
  * Создаётся новый компонент: Панель с возможностью включения в заголовок
  * визуальных компонентов.
  */
-Ext.app.TitlePanel = Ext.extend(Ext.Panel, {
+Ext.define('Ext.m3.TitlePanel', {
+    extend: 'Ext.Panel',
+    xtype: 'm3-title-panel',
+
     titleItems: null,
     addTitleItem: function (itemConfig) {
         var item = Ext.ComponentMgr.create(itemConfig);
@@ -3608,7 +3611,7 @@ Ext.app.TitlePanel = Ext.extend(Ext.Panel, {
         item.render(itemsDiv);
     },
     onRender: function (ct, position) {
-        Ext.app.TitlePanel.superclass.onRender.apply(this, arguments);
+        Ext.m3.TitlePanel.superclass.onRender.apply(this, arguments);
         if (this.titleItems != null) {
             if (Ext.isArray(this.titleItems)) {
                 for (var i = this.titleItems.length - 1; i >= 0; i--) {
@@ -3636,7 +3639,6 @@ Ext.app.TitlePanel = Ext.extend(Ext.Panel, {
         return null;
     }
 });
-Ext.reg('m3-title-panel', Ext.app.TitlePanel);
 
 /*
  * выполняет обработку failure response при submit пользовательских форм
@@ -3925,11 +3927,10 @@ function showMessage(msg, title, icon) {
 function showWarning(msg, title) {
     showMessage(msg, title, Ext.MessageBox.WARNING);
 }
-/**
- * Расширенный функционал комбобокса
- */
+Ext.define('Ext.m3.ComboBox', {
+    extend: 'Ext.form.ComboBox',
+    xtype: 'm3-combobox',
 
-Ext.m3.ComboBox =  Ext.extend(Ext.form.ComboBox,{
 	/**
 	 * Возвращает текстовое представление комбобокса
 	 */
@@ -3938,7 +3939,6 @@ Ext.m3.ComboBox =  Ext.extend(Ext.form.ComboBox,{
 	}
 });
 
-Ext.reg('m3-combobox', Ext.m3.ComboBox);
 /**
  * Расширенный грид на базе Ext.grid.GridPanel
  * @param {Object} config
@@ -6143,61 +6143,56 @@ Ext.reg('Ext.ux.maximgb.tg.EditorGridPanel', Ext.ux.maximgb.tg.EditorGridPanel);
 Ext.reg('Ext.ux.maximgb.tg.PagingToolbar', Ext.ux.maximgb.tg.PagingToolbar);
 
 
-/**
- *
- * @type {*|void}
- */
-
 // FIXME: Если дерево небольшое по размерам, узлы могут не отображаться,
 // но ресайз окна/контрола возвращает их обратно
 // FIXME: Здесь также должен быть проброс action context'a
-Ext.m3.Tree = Ext.extend(Ext.ux.tree.TreeGrid, {
 
-        useArrows: true,
-        autoScroll: false,
-        animate: true,
-        containerScroll: true,
-        border: false,
-        split: true,
-        customLoad: false,
+Ext.define('Ext.m3.Tree', {
+    extend: 'Ext.ux.tree.TreeGrid',
+    xtype: 'm3-tree',
 
-        initComponent: function () {
+    useArrows: true,
+    autoScroll: false,
+    animate: true,
+    containerScroll: true,
+    border: false,
+    split: true,
+    customLoad: false,
 
-            // если выставлен флаг read_only, выключаем drag&drop
-            if (this.readOnly) {
-                this.enableDD = false;
-                this.enableDrag = false;
-                this.enableDrop = false;
-            }
+    initComponent: function () {
 
-            // создание корневого элемента из конфига
-            this.root = new Ext.tree.AsyncTreeNode(this.root);
-
-            // Контекстное меню на узлы
-            if (this.contextMenu) {
-                this.contextMenu = Ext.create(this.contextMenu);
-                this.addListener('contextmenu', function (node, e) {
-                    node.select();
-                    this.contextMenu.contextNode = node;
-                    this.contextMenu.showAt(e.getXY());
-                }, this);
-            }
-
-            // Контекстное меню на контейнер
-            if (this.containerContextMenu) {
-                this.containerContextMenu = Ext.create(this.containerContextMenu);
-                this.addListener('containercontextmenu', function (node, e) {
-                    e.stopEvent();
-                    this.containerContextMenu.showAt(e.getXY());
-                }, this);
-            }
-
-            Ext.m3.Tree.superclass.initComponent.call(this);
+        // если выставлен флаг read_only, выключаем drag&drop
+        if (this.readOnly) {
+            this.enableDD = false;
+            this.enableDrag = false;
+            this.enableDrop = false;
         }
-    }
-);
 
-Ext.reg('m3-tree', Ext.m3.Tree);
+        // создание корневого элемента из конфига
+        this.root = new Ext.tree.AsyncTreeNode(this.root);
+
+        // Контекстное меню на узлы
+        if (this.contextMenu) {
+            this.contextMenu = Ext.create(this.contextMenu);
+            this.addListener('contextmenu', function (node, e) {
+                node.select();
+                this.contextMenu.contextNode = node;
+                this.contextMenu.showAt(e.getXY());
+            }, this);
+        }
+
+        // Контекстное меню на контейнер
+        if (this.containerContextMenu) {
+            this.containerContextMenu = Ext.create(this.containerContextMenu);
+            this.addListener('containercontextmenu', function (node, e) {
+                e.stopEvent();
+                this.containerContextMenu.showAt(e.getXY());
+            }, this);
+        }
+
+        Ext.m3.Tree.superclass.initComponent.call(this);
+    }
+});
 
 // hack, позволяющий в TreeGrid использовать колонки с родным xtype=gridcolumn
 Ext.reg('tggridcolumn', Ext.tree.Column);
@@ -6205,7 +6200,10 @@ Ext.reg('tggridcolumn', Ext.tree.Column);
  * Окно на базе Ext.Window
  */
 
-Ext.m3.Window = Ext.extend(Ext.Window, {
+Ext.define('Ext.m3.Window', {
+    extend: 'Ext.Window',
+    xtype: 'm3-window',
+
 	constructor: function(baseConfig, params){
         params = baseConfig.params || params;
 
@@ -6241,12 +6239,13 @@ Ext.m3.Window = Ext.extend(Ext.Window, {
     }
 });
 
-Ext.reg('m3-window', Ext.m3.Window);
-
 /**
  * Панель редактирования адреса
  */
-Ext.m3.AddrField = Ext.extend(Ext.Container, {
+Ext.define('Ext.m3.AddrField', {
+    extend: 'Ext.Container',
+    xtype: 'm3-kladr',
+
 	constructor: function(baseConfig, params){
         params = baseConfig.params || params;
 
@@ -6831,15 +6830,15 @@ Ext.m3.AddrField = Ext.extend(Ext.Container, {
 
 });
 
-Ext.reg('m3-kladr', Ext.m3.AddrField);
 'use strict';
 /**
  * Расширенный комбобокс, включает несколько кнопок
  * @param {Object} baseConfig
  * @param {Object} params
  */
-
-Ext.m3.AdvancedComboBox = Ext.extend(Ext.m3.ComboBox, {
+Ext.define('Ext.m3.AdvancedComboBox', {
+    extend: 'Ext.m3.ComboBox',
+    xtype: 'm3-select',
 
     askBeforeDeleting: true,
 
@@ -7427,29 +7426,25 @@ Ext.m3.AdvancedComboBox = Ext.extend(Ext.m3.ComboBox, {
         }
     }
 });
-
-Ext.reg('m3-select', Ext.m3.AdvancedComboBox);
-
 /**
  * Компонент поля даты.
  * Добавлена кнопа установки текущий даты
  */
-Ext.m3.AdvancedDataField = Ext.extend(Ext.form.DateField, {
-    constructor: function (baseConfig) {
+Ext.define('Ext.m3.AdvancedDataField', {
+    extend: 'Ext.form.DateField',
+    xtype: 'm3-date',
 
-        // Базовый конфиг для тригеров
-        this.baseTriggers = [
-            {
-                iconCls: 'x-form-date-trigger', handler: null, hide: null
-            },
-            {
-                iconCls: 'x-form-current-date-trigger', handler: null, hide: null
-            }
-        ];
+    baseTriggers: [
+        {
+            iconCls: 'x-form-date-trigger', handler: null, hide: null
+        },
+        {
+            iconCls: 'x-form-current-date-trigger', handler: null, hide: null
+        }
+    ],
 
-        Ext.m3.AdvancedDataField.superclass.constructor.call(this, baseConfig);
-    }, initComponent: function () {
-        Ext.m3.AdvancedDataField.superclass.initComponent.call(this);
+    initComponent: function () {
+        this.callParent();
 
         this.triggerConfig = {
             tag: 'span', cls: 'x-form-twin-triggers', cn: []};
@@ -7492,7 +7487,8 @@ Ext.m3.AdvancedDataField = Ext.extend(Ext.form.DateField, {
         }, this);
 
         this.triggers = ts.elements;
-    }, initBaseTrigger: function () {
+    },
+    initBaseTrigger: function () {
         this.baseTriggers[0].handler = this.onTriggerClick;
         this.baseTriggers[1].handler = function () {
             if (!this.readOnly && !this.disabled) {
@@ -7528,19 +7524,6 @@ Ext.m3.AdvancedDataField = Ext.extend(Ext.form.DateField, {
     }
 
 });
-
-Ext.reg('m3-date', Ext.m3.AdvancedDataField);
-
-/**
- * Created by prefer on 16/04/14.
- */
-
-Ext.m3.DictionaryWindow = Ext.extend(Ext.m3.Window , {
-
-
-});
-
-Ext.reg('m3-dictionary-window', Ext.m3.DictionaryWindow);
 /**
  * Окно на базе Ext.m3.Window, которое включает такие вещи, как:
  * 1) Submit формы, если она есть;
@@ -7550,7 +7533,9 @@ Ext.reg('m3-dictionary-window', Ext.m3.DictionaryWindow);
  * действительно хотите отказаться от внесенных измений";
  */
 
-Ext.m3.EditWindow = Ext.extend(Ext.m3.Window, {
+Ext.define('Ext.m3.EditWindow', {
+    extend: 'Ext.m3.Window',
+    xtype: 'm3-edit-window',
 
     // Форма в окне, для сабмита
     form: null,
@@ -7568,7 +7553,7 @@ Ext.m3.EditWindow = Ext.extend(Ext.m3.Window, {
      * Инициализация дополнительного функционала
      */
     initComponent: function () {
-        Ext.m3.EditWindow.superclass.initComponent.call(this);
+        this.callParent();
 
         if (this.form) {
             this.insert(0, Ext.create(this.form));
@@ -7988,8 +7973,6 @@ Ext.m3.EditWindow = Ext.extend(Ext.m3.Window, {
     }
 });
 
-Ext.reg('m3-edit-window', Ext.m3.EditWindow);
-
 Ext.ns('Ext.ux.grid');
 
 Ext.ux.grid.Exporter = Ext.extend(Ext.util.Observable,{
@@ -8025,7 +8008,7 @@ Ext.ux.grid.Exporter = Ext.extend(Ext.util.Observable,{
         }));
     },
     exportData:function(){
-        columns = []
+        var columns = [];
         Ext.each(this.grid.colModel.config,function(column,index){
             columns.push({
                 data_index:column.dataIndex,
@@ -8036,16 +8019,16 @@ Ext.ux.grid.Exporter = Ext.extend(Ext.util.Observable,{
                 width:column.width
             })
         });
-        data = []
+        var data = [];
 
         if (this.sendDatFromStore){
             Ext.each(this.grid.store.data.items,function(item,index){ data.push(item.data) });
         }
-        params = {
+        var params = {
             columns: Ext.encode(columns),
             title: this.title || this.grid.title || this.grid.id,
             data: Ext.encode(data)
-        }
+        };
         Ext.Ajax.request({
             url : '/ui/exportgrid-export',
             success : function(res,opt){                
@@ -9049,13 +9032,13 @@ Ext.ux.grid.MultiSorting = Ext.extend(Ext.util.Observable,{
         headers.item(col).addClass(sortClass);
     }
 });
-Ext.ns('Ext.m3');
-
 /**
  * GroupingJson на базе JsonReader'a, который принимает параметры Stor'a
- * @type {*|void}
  */
-Ext.m3.GroupingJsonStore = Ext.extend(Ext.data.GroupingStore, {
+
+Ext.define('Ext.m3.GroupingJsonStore', {
+    extend: 'Ext.data.GroupingStore',
+    xtype: 'm3-grouping-json-store',
 
     constructor: function (config) {
         Ext.m3.GroupingJsonStore.superclass.constructor.call(this, Ext.apply(config, {
@@ -9063,15 +9046,14 @@ Ext.m3.GroupingJsonStore = Ext.extend(Ext.data.GroupingStore, {
         }));
     }
 });
-
-Ext.reg('m3-grouping-json-store', Ext.m3.GroupingJsonStore);
 /**
  * Окно показа контекстной помощи
  *
  * deprecated! - Непонятно где используется
  */
+Ext.define('Ext.m3.HelpWindow', {
+    extend: 'Ext.Window',
 
-Ext.m3.HelpWindow = Ext.extend(Ext.Window, {
     constructor: function(baseConfig){
         this.title = 'Справочная информация';
         this.maximized = true;
@@ -9089,9 +9071,9 @@ function showHelpWindow(url){
     window.open(url);
 }
 
-﻿Ext.ns('Ext.ux.grid');
-
-Ext.ux.grid.LockingGridColumnWithHeaderGroup = Ext.extend(Ext.util.Observable, {
+﻿
+Ext.define('Ext.ux.grid.LockingGridColumnWithHeaderGroup', {
+    extend: 'Ext.util.Observable',
 
     constructor: function (config) {
         this.config = config;
@@ -11990,8 +11972,6 @@ Ext.ux.MonthPickerPlugin = Ext.extend(Ext.util.Observable,{
         this.picker.hiddenField.dom.value = this.formatHiddenDate(this.picker.getValue());
     }
 });
-Ext.ns('Ext.m3');
-
 /**
  * @class Ext.ux.form.MultiSelectField
  * @extends Ext.m3.AdvancedComboBox
@@ -12001,7 +11981,9 @@ Ext.ns('Ext.m3');
  * Отличается от выбора из спровочника переопределенным шаблоном для отображения выпадающего списка
  * с галочками. Реальные значения храняться как массив рекордов в свойстве checkedItems
  */
-Ext.m3.MultiSelectField = Ext.extend(Ext.m3.AdvancedComboBox, {
+Ext.define('Ext.m3.MultiSelectField', {
+    extend: 'Ext.m3.AdvancedComboBox',
+    xtype: 'm3-multiselect',
 
     /**
      * @cfg {String} delimeter Разделитель для отображение текста в поле
@@ -12243,9 +12225,6 @@ Ext.m3.MultiSelectField = Ext.extend(Ext.m3.AdvancedComboBox, {
     }
 
 });
-
-Ext.reg('m3-multiselect', Ext.m3.MultiSelectField );
-
 Ext.namespace('Ext.ux');
 
 /**
@@ -12790,9 +12769,9 @@ Ext.reg('m3-edit-object-grid', Ext.m3.EditorObjectGrid);
  * а справа выделенные в нем элементы
  */
 
-Ext.ns('Ext.m3');
-
-Ext.m3.ObjectSelectionPanel = Ext.extend(Ext.Container, {
+Ext.define('Ext.m3.ObjectSelectionPanel', {
+    extend: 'Ext.Container',
+    xtype: 'm3-object-selection-panel',
 
     selectionColumns: [],
 
@@ -12884,15 +12863,14 @@ Ext.m3.ObjectSelectionPanel = Ext.extend(Ext.Container, {
         }
     }
 });
-
-Ext.reg('m3-object-selection-panel', Ext.m3.ObjectSelectionPanel);
 /**
  * Объектное дерево, включает в себя тулбар с кнопками добавить (в корень и дочерний элемент), редактировать и удалить
  * @param {Object} config
  */
-Ext.ns('Ext.m3');
 
-Ext.m3.ObjectTree = Ext.extend(Ext.m3.Tree, {
+Ext.define('Ext.m3.ObjectTree', {
+    extend: 'Ext.m3.Tree',
+    xtype: 'm3-object-tree',
 
     allowPaging: false,
     rowIdName: 'id',
@@ -13281,8 +13259,6 @@ Ext.m3.ObjectTree = Ext.extend(Ext.m3.Tree, {
         return baseConf;
     }
 });
-
-Ext.reg('m3-object-tree', Ext.m3.ObjectTree);
 Ext.namespace('Ext.ux');
 
 Ext.ux.OnDemandLoad = function(){
@@ -13638,16 +13614,14 @@ Ext.ux.PagingTreeNodeUI = Ext.extend(Ext.ux.tree.TreeGridNodeUI, {
 
 Ext.reg('paging-tree-node-ui', Ext.ux.PagingTreeNodeUI);
 /**
- * Created by prefer on 10/04/14.
- */
-
-Ext.ns('Ext.m3');
-/**
  * Модифицированный контрол поиска, за основу был взят контрол от ui.form.SearchField
  * @class {Ext.m3.SearchField} Контрол поиска
  * @extends {Ext.form.TwinTriggerField} Абстрактный класс как раз для разного рода таких вещей, типа контрола поиска
  */
-Ext.m3.SearchField = Ext.extend(Ext.form.TwinTriggerField, {
+Ext.define('Ext.m3.SearchField', {
+    extend: 'Ext.form.TwinTriggerField',
+    xtype: 'm3-search-field',
+
     initComponent: function () {
         Ext.m3.SearchField.superclass.initComponent.call(this);
         this.on('specialkey', function (f, e) {
@@ -13741,7 +13715,6 @@ Ext.m3.SearchField = Ext.extend(Ext.form.TwinTriggerField, {
         this.onTrigger2Click();
     }
 });
-Ext.reg('m3-search-field', Ext.m3.SearchField);
 /**
  * Ext.ux.DateTimePicker & Ext.ux.form.DateTimeField
  * http://www.sencha.com/forum/showthread.php?98292-DateTime-field-again-and-again-)
@@ -13930,7 +13903,9 @@ Ext.namespace('Ext.ux');
 
     var CLS = 'ux-date-time-picker';
 
-    UX.DateTimePicker = Ext.extend(Ext.BoxComponent, {
+    Ext.define('Ext.ux.DateTimePicker', {
+        extend: 'Ext.BoxComponent',
+        xtype: 'datetimepicker',
 
         timeLabel: 'Time',
 
@@ -14209,8 +14184,6 @@ Ext.namespace('Ext.ux');
 
     });
 
-    Ext.reg('datetimepicker', UX.DateTimePicker);
-
     //
 
     var Menu = UX.DateTimePicker.Menu = Ext.extend(Ext.menu.Menu, {
@@ -14260,7 +14233,9 @@ Ext.namespace('Ext.ux');
 
     });
 
-})();Ext.namespace('Ext.ux.form');
+})();
+
+Ext.namespace('Ext.ux.form');
 
 (function () {
 
@@ -14340,8 +14315,9 @@ Ext.namespace('Ext.ux');
     //
 
     //kirov
-    F.DateTimeField = Ext.extend(Ext.m3.AdvancedDataField, {
-    //F.DateTimeField = Ext.extend(Ext.form.DateField, {
+    Ext.define('Ext.ux.form.DateTimeField', {
+        extend: 'Ext.m3.AdvancedDataField',
+        xtype: 'datetimefield',
 
         timeFormat: 'H:i:s',
 
@@ -14390,7 +14366,6 @@ Ext.namespace('Ext.ux');
 
     });
 
-    Ext.reg('datetimefield', F.DateTimeField);
 })();
 
 // <kirov
@@ -14465,7 +14440,9 @@ if(Ext.ux.BaseTimePicker){
     });
 
     //kirov
-    F.AdvTimeField = Ext.extend(Ext.m3.AdvancedDataField, {
+    Ext.define('Ext.ux.form.AdvTimeField', {
+        extend: 'Ext.m3.AdvancedDataField',
+        xtype: 'advtimefield',
 
         timeFormat: 'H:i:s',
 
@@ -14531,12 +14508,12 @@ if(Ext.ux.BaseTimePicker){
 
     });
 
-    Ext.reg('advtimefield', F.AdvTimeField);
 })();
 //kirov >
-Ext.ns('Ext.ux.form');
 
-Ext.ux.form.FileUploadField = Ext.extend(Ext.form.TextField, {
+Ext.define('Ext.ux.form.FileUploadField', {
+    extend: 'Ext.form.TextField',
+    xtype: 'fileuploadfield',
 
     /**
      * @cfg {Object} buttonCfg A standard {@link Ext.Button} config object.
@@ -14837,14 +14814,12 @@ Ext.ux.form.FileUploadField = Ext.extend(Ext.form.TextField, {
     }
 });
 
-Ext.reg('fileuploadfield', Ext.ux.form.FileUploadField);
-
 // backwards compat
 Ext.form.FileUploadField = Ext.ux.form.FileUploadField;
 
-Ext.ns('Ext.ux.form');
-
-Ext.ux.form.ImageUploadField = Ext.extend(Ext.form.FileUploadField, {
+Ext.define('Ext.ux.form.ImageUploadField', {
+    extend: 'Ext.form.FileUploadField',
+    xtype: 'imageuploadfield',
 
     /**
      * Класс иконки для выбора файла
@@ -14936,65 +14911,6 @@ Ext.ux.form.ImageUploadField = Ext.extend(Ext.form.FileUploadField, {
 });
 // Регистрация lightbox
 Ext.ux.Lightbox.register('a[rel^=lightbox]');
-Ext.reg('imageuploadfield', Ext.ux.form.ImageUploadField);
-
-/**
- * Функции рендера компонентов-контейнеров
- */
-
-/**
- * Создание грида
- * @param {Object} baseConfig
- * @param {Object} params
- */
-function createGridPanel(baseConfig, params){
-  if (baseConfig.editor) {
-    return new Ext.m3.EditorGridPanel(baseConfig, params);
-  }
-  else {
-	  return new Ext.m3.GridPanel(baseConfig, params);
-	}
-}
-
-/**
- * Создание объектного грида
- * @param {Object} baseConfig
- * @param {Object} params
- */
-function createObjectGrid(baseConfig, params){
-  if (baseConfig.editor) {
-    return new Ext.m3.EditorObjectGrid(baseConfig, params);
-  }
-  else {
-	  return new Ext.m3.ObjectGrid(baseConfig, params);
-	}
-}
-
-/**
- * Создание объектного дерева
- * @param {Object} baseConfig
- * @param {Object} params
- */
-function createObjectTree(baseConfig, params){
-	return new Ext.m3.ObjectTree(baseConfig, params);
-}
-
-/**
- * Создание расширенного комбобокса
- * @param {Object} baseConfig
- * @param {Object} params
- */
-function createAdvancedComboBox(baseConfig, params){
-	return new Ext.m3.AdvancedComboBox(baseConfig, params);
-}
-
-/**
- * Создание своего переопределенного компонента DateField
- * @param {Object} baseConfig
- */
-function createAdvancedDataField(baseConfig, params){
-	return new Ext.m3.AdvancedDataField(baseConfig, params);
-}
 /**
  * Здесь нужно перегружать объекты и дополнять функционал.
  * Этот файл подключается последним.
@@ -15003,132 +14919,133 @@ function createAdvancedDataField(baseConfig, params){
 /**
  * Нужно для правильной работы окна
  */
-Ext.onReady(function(){
-	Ext.override(Ext.Window, {
+Ext.onReady(function () {
+    Ext.override(Ext.Window, {
 
-	  /*
-	   *  Если установлена модальность и есть родительское окно, то
-	   *  флаг модальности помещается во временную переменную tmpModal, и
-	   *  this.modal = false;
-	   */
-	  tmpModal: false
-	  ,manager: new Ext.WindowGroup()
-	  // 2011.01.14 kirov
-	  // убрал, т.к. совместно с desktop.js это представляет собой гремучую смесь
-	  // кому нужно - пусть прописывает Ext.getBody() в своем "десктопе" на onReady или когда хочет
-	  //,renderTo: Ext.getBody().id
-	  ,constrain: true
-	  /**
-	   * Выводит окно на передний план
-	   * Вызывается в контексте дочернего
-	   * по отношению к parentWindow окну
-	   */
-	  ,activateChildWindow: function(){
-	    this.toFront();
-	  }
-	  ,listeners: {
+        /*
+         *  Если установлена модальность и есть родительское окно, то
+         *  флаг модальности помещается во временную переменную tmpModal, и
+         *  this.modal = false;
+         */
+        tmpModal: false,
+        manager: new Ext.WindowGroup(),
+        // 2011.01.14 kirov
+        // убрал, т.к. совместно с desktop.js это представляет собой гремучую смесь
+        // кому нужно - пусть прописывает Ext.getBody() в своем "десктопе" на onReady или когда хочет
+        //,renderTo: Ext.getBody().id
+        constrain: true,
+        /**
+         * Выводит окно на передний план
+         * Вызывается в контексте дочернего
+         * по отношению к parentWindow окну
+         */
+        activateChildWindow: function () {
+            this.toFront();
+        },
+        listeners: {
 
-	    'beforeshow': function (){
+            'beforeshow': function () {
                 var renderTo = Ext.get(this.renderTo);
-                if ( renderTo ) {
-                    if (renderTo.getHeight() < this.getHeight() )
-                        this.setHeight( renderTo.getHeight() );
+                if (renderTo) {
+                    if (renderTo.getHeight() < this.getHeight())
+                        this.setHeight(renderTo.getHeight());
                 }
 
-				if (this.parentWindow) {
+                if (this.parentWindow) {
 
-					this.parentWindow.setDisabled(true);
+                    this.parentWindow.setDisabled(true);
 
-					/*
-					 * В Extjs 3.3 Добавили общую проверку в функцию mask, см:
-					 *  if (!(/^body/i.test(dom.tagName) && me.getStyle('position') == 'static')) {
-	                    	me.addClass(XMASKEDRELATIVE);
-	               		 }
-					 *
-					 * было до версии 3.3:
-					 *  if(!/^body/i.test(dom.tagName) && me.getStyle('position') == 'static'){
-		            		me.addClass(XMASKEDRELATIVE);
-		        		}
-					 * Теперь же расположение замаскированых окон должно быть относительным
-					 * (relative) друг друга
-					 *
-					 * Такое поведение нам не подходит и другого решения найдено не было.
-					 * Кроме как удалять данный класс
-					 * */
-					this.parentWindow.el.removeClass('x-masked-relative');
+                    /*
+                     * В Extjs 3.3 Добавили общую проверку в функцию mask, см:
+                     *  if (!(/^body/i.test(dom.tagName) && me.getStyle('position') == 'static')) {
+                     me.addClass(XMASKEDRELATIVE);
+                     }
+                     *
+                     * было до версии 3.3:
+                     *  if(!/^body/i.test(dom.tagName) && me.getStyle('position') == 'static'){
+                     me.addClass(XMASKEDRELATIVE);
+                     }
+                     * Теперь же расположение замаскированых окон должно быть относительным
+                     * (relative) друг друга
+                     *
+                     * Такое поведение нам не подходит и другого решения найдено не было.
+                     * Кроме как удалять данный класс
+                     * */
+                    this.parentWindow.el.removeClass('x-masked-relative');
 
-					this.parentWindow.on('activate', this.activateChildWindow, this);
+                    this.parentWindow.on('activate', this.activateChildWindow, this);
 
-					this.modal = false;
-					this.tmpModal = true;
+                    this.modal = false;
+                    this.tmpModal = true;
 
-					if (window.AppDesktop) {
-						var el = AppDesktop.getDesktop().taskbar.tbPanel.getTabWin(this.parentWindow);
-						if (el) {
-							el.mask();
-						}
-					}
-				}
-				if (this.modal){
-					var taskbar = Ext.get('ux-taskbar');
-					if (taskbar) {
-	 					taskbar.mask();
-					}
-						var toptoolbar = Ext.get('ux-toptoolbar');
-					if (toptoolbar) {
-		 				toptoolbar.mask();
-					}
-				}
-			}
-			,'close': function (){
-				if (this.tmpModal && this.parentWindow) {
-					this.parentWindow.un('activate', this.activateChildWindow, this);
-					this.parentWindow.setDisabled(false);
-					this.parentWindow.toFront();
+                    if (window.AppDesktop) {
+                        var el = AppDesktop.getDesktop().taskbar.tbPanel.getTabWin(this.parentWindow);
+                        if (el) {
+                            el.mask();
+                        }
+                    }
+                }
+                if (this.modal) {
+                    var taskbar = Ext.get('ux-taskbar');
+                    if (taskbar) {
+                        taskbar.mask();
+                    }
+                    var toptoolbar = Ext.get('ux-toptoolbar');
+                    if (toptoolbar) {
+                        toptoolbar.mask();
+                    }
+                }
+            },
+            close: function () {
+                if (this.tmpModal && this.parentWindow) {
+                    this.parentWindow.un('activate', this.activateChildWindow, this);
+                    this.parentWindow.setDisabled(false);
+                    this.parentWindow.toFront();
 
-					if (window.AppDesktop) {
-						var el = AppDesktop.getDesktop().taskbar.tbPanel.getTabWin(this.parentWindow);
-						if (el) {
-							el.unmask();
-						}
-					}
-				}
+                    if (window.AppDesktop) {
+                        var el = AppDesktop.getDesktop().taskbar.tbPanel.getTabWin(this.parentWindow);
+                        if (el) {
+                            el.unmask();
+                        }
+                    }
+                }
 
-				if (this.modal){
-	 				var taskbar = Ext.get('ux-taskbar');
-					if (taskbar) {
-	 					taskbar.unmask();
-					}
-						var toptoolbar = Ext.get('ux-toptoolbar');
-					if (toptoolbar) {
-		 				toptoolbar.unmask();
-					}
-				}
-			}
-			,'hide': function (){
-				if (this.modal){
-					if (!this.parentWindow) {
-		 				var taskbar = Ext.get('ux-taskbar');
-						if (taskbar) {
-		 					taskbar.unmask();
-						}
-	 					var toptoolbar = Ext.get('ux-toptoolbar');
-						if (toptoolbar) {
-			 				toptoolbar.unmask();
-						}
-					}
-				}
-			}
-		}
-	});
-})
+                if (this.modal) {
+                    var taskbar = Ext.get('ux-taskbar');
+                    if (taskbar) {
+                        taskbar.unmask();
+                    }
+                    var toptoolbar = Ext.get('ux-toptoolbar');
+                    if (toptoolbar) {
+                        toptoolbar.unmask();
+                    }
+                }
+            },
+            hide: function () {
+                if (this.modal) {
+                    if (!this.parentWindow) {
+                        var taskbar = Ext.get('ux-taskbar');
+                        if (taskbar) {
+                            taskbar.unmask();
+                        }
+                        var toptoolbar = Ext.get('ux-toptoolbar');
+                        if (toptoolbar) {
+                            toptoolbar.unmask();
+                        }
+                    }
+                }
+            }
+        }
+    });
+});
+
 /**
  * Обновим TreeGrid чтобы колонки занимали всю ширину дерева
  */
 Ext.override(Ext.ux.tree.TreeGrid, {
 
-	// добавлено
-	fitColumns: function() {
+    // добавлено
+    fitColumns: function () {
         var nNewTotalWidth = this.getInnerWidth() - Ext.num(this.scrollOffset, Ext.getScrollBarWidth());
         var nOldTotalWidth = this.getTotalColumnWidth();
         var cs = this.getVisibleColumns();
@@ -15145,39 +15062,38 @@ Ext.override(Ext.ux.tree.TreeGrid, {
 
         this.updateColumnWidths();
     },
-	// <--
-	onResize : function(w, h) {
+    // <--
+    onResize: function (w, h) {
         Ext.ux.tree.TreeGrid.superclass.onResize.apply(this, arguments);
 
         var bd = this.innerBody.dom;
         var hd = this.innerHd.dom;
 
-        if(!bd){
+        if (!bd) {
             return;
         }
 
-        if(Ext.isNumber(h)){
+        if (Ext.isNumber(h)) {
             bd.style.height = this.body.getHeight(true) - hd.offsetHeight + 'px';
         }
 
-        if(Ext.isNumber(w)){
+        if (Ext.isNumber(w)) {
             var sw = Ext.num(this.scrollOffset, Ext.getScrollBarWidth());
-            if(this.reserveScrollOffset || ((bd.offsetWidth - bd.clientWidth) > 10)){
+            if (this.reserveScrollOffset || ((bd.offsetWidth - bd.clientWidth) > 10)) {
                 this.setScrollOffset(sw);
-            }else{
+            } else {
                 var me = this;
-                setTimeout(function(){
+                setTimeout(function () {
                     me.setScrollOffset(bd.offsetWidth - bd.clientWidth > 10 ? sw : 0);
                 }, 10);
             }
         }
-		this.fitColumns(); // добавилась/заменила
+        this.fitColumns(); // добавилась/заменила
     }
 });
 
 Ext.override(Ext.tree.ColumnResizer, {
-
-    onEnd : function(e){
+    onEnd: function () {
         var nw = this.proxy.getWidth(),
             tree = this.tree;
 
@@ -15186,9 +15102,9 @@ Ext.override(Ext.tree.ColumnResizer, {
 
         tree.columns[this.hdIndex].width = nw;
         //tree.updateColumnWidths(); // закомментировано
-		tree.fitColumns();			// добавлено
+        tree.fitColumns();			// добавлено
 
-        setTimeout(function(){
+        setTimeout(function () {
             tree.headersDisabled = false;
         }, 100);
     }
@@ -15198,16 +15114,16 @@ Ext.override(Ext.tree.ColumnResizer, {
  * Обновим ячейку дерева чтобы при двойном клике не открывались/сворачивались дочерние узлы
  */
 Ext.override(Ext.tree.TreeNodeUI, {
-	onDblClick : function(e){
+    onDblClick: function (e) {
         e.preventDefault();
-        if(this.disabled){
+        if (this.disabled) {
             return;
         }
-        if(this.fireEvent("beforedblclick", this.node, e) !== false){
-            if(this.checkbox){
+        if (this.fireEvent("beforedblclick", this.node, e) !== false) {
+            if (this.checkbox) {
                 this.toggleCheck();
             }
-			// закомментировано.
+            // закомментировано.
             //if(!this.animating && this.node.isExpandable()){
             //    this.node.toggle();
             //}
@@ -15216,35 +15132,33 @@ Ext.override(Ext.tree.TreeNodeUI, {
     }
 });
 /**
- * Исправим ошибку, когда значения emptyText в композитном поле передаются на сервер, даже если установлен признак "не передавать"
+ * Исправим ошибку, когда значения emptyText в композитном поле передаются на сервер,
+ * даже если установлен признак "не передавать"
  */
 Ext.override(Ext.form.Action.Submit, {
-	run : function(){
+    run : function(){
         var o = this.options,
             method = this.getMethod(),
             isGet = method == 'GET';
         if(o.clientValidation === false || this.form.isValid()){
             if (o.submitEmptyText === false) {
                 var fields = this.form.items,
-                    emptyFields = [];
-                fields.each(function(f) {
-                    assert(f.el, "Возможно у вас непроинициализировались некоторые поля для отправки. Обратите внимание на TabPanel'и.");
-                    if (f.el.getValue() == f.emptyText) {
-                        emptyFields.push(f);
-                        f.el.dom.value = "";
-                    }
-					// Добавилось
-                    // вот тут сделаем добавку
-                    if (f instanceof Ext.form.CompositeField) {
-                        f.items.each(function(cf) {
-                            if (cf.el.getValue() == cf.emptyText) {
-                                emptyFields.push(cf);
-                                cf.el.dom.value = "";
-                            }
-                        });
-                    }
-					// <--
-                });
+                    emptyFields = [],
+                    setupEmptyFields = function(f){
+                        // M prefer: field (например, combobox) может быть неотрендеренный
+                        if (f.rendered && f.el.getValue() == f.emptyText) {
+                        // if (f.el.getValue() == f.emptyText) {
+                            emptyFields.push(f);
+                            f.el.dom.value = "";
+                        }
+                        // M prefer: rendered проверяется выше
+                        if(f.isComposite){
+                        // if(f.isComposite && f.rendered){
+                            f.items.each(setupEmptyFields);
+                        }
+                    };
+
+                fields.each(setupEmptyFields);
             }
             Ext.Ajax.request(Ext.apply(this.createCallback(o), {
                 form:this.form.el.dom,
@@ -15274,13 +15188,13 @@ Ext.override(Ext.form.Action.Submit, {
  * у текстоввых полей
  */
 Ext.override(Ext.form.Checkbox, {
-    onClick : function(e){
+    onClick: function (e) {
         if (this.readOnly) {
             e.stopEvent();
             return false;
         }
 
-        if(this.el.dom.checked != this.checked){
+        if (this.el.dom.checked != this.checked) {
             this.setValue(this.el.dom.checked);
         }
     }
@@ -15300,17 +15214,17 @@ Ext.override(Ext.PagingToolbar, {
  * (Скролятся только хидеры)
  */
 
-if  (Ext.isIE7 || Ext.isIE6) {
+if (Ext.isIE7 || Ext.isIE6) {
     Ext.Panel.override({
-        setAutoScroll: function() {
-        if (this.rendered && this.autoScroll) {
-            var el = this.body || this.el;
-        if (el) {
-            el.setOverflow('auto');
-            // Following line required to fix autoScroll
-            el.dom.style.position = 'relative';
+        setAutoScroll: function () {
+            if (this.rendered && this.autoScroll) {
+                var el = this.body || this.el;
+                if (el) {
+                    el.setOverflow('auto');
+                    // Following line required to fix autoScroll
+                    el.dom.style.position = 'relative';
+                }
             }
-        }
         }
     });
 }
@@ -15320,9 +15234,8 @@ if  (Ext.isIE7 || Ext.isIE6) {
  * чек боксы включаются просто передачей checked в сторе
  */
 Ext.override(Ext.ux.tree.TreeGridNodeUI, {
-    renderElements : function(n, a, targetNode, bulkRender){
+    renderElements: function (n, a, targetNode, bulkRender) {
         var t = n.getOwnerTree(),
-            cb = Ext.isBoolean(a.checked),
             cb = Ext.isBoolean(a.checked),
             cols = t.columns,
             c = cols[0],
@@ -15331,42 +15244,42 @@ Ext.override(Ext.ux.tree.TreeGridNodeUI, {
         this.indentMarkup = n.parentNode ? n.parentNode.ui.getChildIndent() : '';
 
         buf = [
-             '<tbody class="x-tree-node">',
-                '<tr ext:tree-node-id="', n.id ,'" class="x-tree-node-el x-tree-node-leaf x-unselectable ', a.cls, '">',
-                    '<td class="x-treegrid-col">',
-                        '<span class="x-tree-node-indent">', this.indentMarkup, "</span>",
-                        '<img src="', this.emptyIcon, '" class="x-tree-ec-icon x-tree-elbow" />',
-                        '<img src="', a.icon || this.emptyIcon, '" class="x-tree-node-icon', (a.icon ? " x-tree-node-inline-icon" : ""), (a.iconCls ? " "+a.iconCls : ""), '" unselectable="on" />',
-                        cb ? ('<input class="x-tree-node-cb" type="checkbox" ' + (a.checked ? 'checked="checked" />' : '/>')) : '',
-                        '<a hidefocus="on" class="x-tree-node-anchor" href="', a.href ? a.href : '#', '" tabIndex="1" ',
-                            a.hrefTarget ? ' target="'+a.hrefTarget+'"' : '', '>',
-                        '<span unselectable="on">', (c.tpl ? c.tpl.apply(a) : a[c.dataIndex] || c.text), '</span></a>',
-                    '</td>'
+            '<tbody class="x-tree-node">',
+            '<tr ext:tree-node-id="', n.id , '" class="x-tree-node-el x-tree-node-leaf x-unselectable ', a.cls, '">',
+            '<td class="x-treegrid-col">',
+            '<span class="x-tree-node-indent">', this.indentMarkup, "</span>",
+            '<img src="', this.emptyIcon, '" class="x-tree-ec-icon x-tree-elbow" />',
+            '<img src="', a.icon || this.emptyIcon, '" class="x-tree-node-icon', (a.icon ? " x-tree-node-inline-icon" : ""), (a.iconCls ? " " + a.iconCls : ""), '" unselectable="on" />',
+            cb ? ('<input class="x-tree-node-cb" type="checkbox" ' + (a.checked ? 'checked="checked" />' : '/>')) : '',
+            '<a hidefocus="on" class="x-tree-node-anchor" href="', a.href ? a.href : '#', '" tabIndex="1" ',
+            a.hrefTarget ? ' target="' + a.hrefTarget + '"' : '', '>',
+            '<span unselectable="on">', (c.tpl ? c.tpl.apply(a) : a[c.dataIndex] || c.text), '</span></a>',
+            '</td>'
         ];
 
-        for(i = 1, len = cols.length; i < len; i++){
+        for (i = 1, len = cols.length; i < len; i++) {
             c = cols[i];
             buf.push(
-                    '<td class="x-treegrid-col ', (c.cls ? c.cls : ''), '">',
-                        '<div unselectable="on" class="x-treegrid-text"', (c.align ? ' style="text-align: ' + c.align + ';"' : ''), '>',
-                            (c.tpl ? c.tpl.apply(a) : a[c.dataIndex]),
-                        '</div>',
-                    '</td>'
+                '<td class="x-treegrid-col ', (c.cls ? c.cls : ''), '">',
+                '<div unselectable="on" class="x-treegrid-text"', (c.align ? ' style="text-align: ' + c.align + ';"' : ''), '>',
+                (c.tpl ? c.tpl.apply(a) : a[c.dataIndex]),
+                '</div>',
+                '</td>'
             );
         }
 
         buf.push(
             '</tr><tr class="x-tree-node-ct"><td colspan="', cols.length, '">',
-            '<table class="x-treegrid-node-ct-table" cellpadding="0" cellspacing="0" style="table-layout: fixed; display: none; width: ', t.innerCt.getWidth() ,'px;"><colgroup>'
+            '<table class="x-treegrid-node-ct-table" cellpadding="0" cellspacing="0" style="table-layout: fixed; display: none; width: ', t.innerCt.getWidth(), 'px;"><colgroup>'
         );
-        for(i = 0, len = cols.length; i<len; i++) {
-            buf.push('<col style="width: ', (cols[i].hidden ? 0 : cols[i].width) ,'px;" />');
+        for (i = 0, len = cols.length; i < len; i++) {
+            buf.push('<col style="width: ', (cols[i].hidden ? 0 : cols[i].width), 'px;" />');
         }
         buf.push('</colgroup></table></td></tr></tbody>');
 
-        if(bulkRender !== true && n.nextSibling && n.nextSibling.ui.getEl()){
+        if (bulkRender !== true && n.nextSibling && n.nextSibling.ui.getEl()) {
             this.wrap = Ext.DomHelper.insertHtml("beforeBegin", n.nextSibling.ui.getEl(), buf.join(''));
-        }else{
+        } else {
             this.wrap = Ext.DomHelper.insertHtml("beforeEnd", targetNode, buf.join(''));
         }
 
@@ -15376,8 +15289,8 @@ Ext.override(Ext.ux.tree.TreeGridNodeUI, {
         this.indentNode = cs[0];
         this.ecNode = cs[1];
         this.iconNode = cs[2];
-        index = 3;
-        if(cb){
+        var index = 3;
+        if (cb) {
             this.checkbox = cs[3];
             // fix for IE6
             this.checkbox.defaultChecked = this.checkbox.checked;
@@ -15396,15 +15309,15 @@ Ext.override(Ext.ux.tree.TreeGrid, {
 
     /**
      * Retrieve an array of checked nodes, or an array of a specific attribute of checked nodes (e.g. 'id')
-     * @param {String} attribute (optional) Defaults to null (return the actual nodes)
+     * @param {String} a (optional) Defaults to null (return the actual nodes)
      * @param {TreeNode} startNode (optional) The node to start from, defaults to the root
      * @return {Array}
      */
-    getChecked : function(a, startNode){
+    getChecked: function (a, startNode) {
         startNode = startNode || this.root;
         var r = [];
-        var f = function(){
-            if(this.attributes.checked){
+        var f = function () {
+            if (this.attributes.checked) {
                 r.push(!a ? this : (a == 'id' ? this.id : this.attributes[a]));
             }
         };
@@ -15417,9 +15330,9 @@ Ext.override(Ext.ux.tree.TreeGrid, {
  * По-умолчанию ExtJS отправляет за картинкой на 'http://www.extjs.com/s.gif'
  * Тут укажем что они не правы
  */
-Ext.apply(Ext, function(){
+Ext.apply(Ext, function () {
     return {
-        BLANK_IMAGE_URL : Ext.isIE6 || Ext.isIE7 || Ext.isAir ?
+        BLANK_IMAGE_URL: Ext.isIE6 || Ext.isIE7 || Ext.isAir ?
             '/m3static/vendor/extjs/resources/images/default/s.gif' :
             'data:image/gif;base64,R0lGODlhAQABAID/AMDAwAAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw=='
     };
@@ -15432,11 +15345,11 @@ Ext.apply(Ext, function(){
  * Описание ошибки и патч отсюда: http://www.sencha.com/forum/showthread.php?79285
  */
 Ext.override(Ext.form.ComboBox, {
-    findRecord : function(prop, value){
+    findRecord: function (prop, value) {
         var record;
-        if(this.store.getCount() > 0){
-            this.store.each(function(r){
-                if(String(r.data[prop]) == String(value)){
+        if (this.store.getCount() > 0) {
+            this.store.each(function (r) {
+                if (String(r.data[prop]) == String(value)) {
                     record = r;
                     return false;
                 }
@@ -15452,8 +15365,8 @@ Ext.override(Ext.form.ComboBox, {
  * см m3.css - стр. 137 .m3-grey-field
  */
 var setReadOnlyField = Ext.form.Field.prototype.setReadOnly.bind({});
-var restoreClass = function(readOnly){
-    if(readOnly) {
+var restoreClass = function (readOnly) {
+    if (readOnly) {
         this.addClass('m3-grey-field');
         this.el.dom.setAttribute('readonly', '');
     } else {
@@ -15463,7 +15376,7 @@ var restoreClass = function(readOnly){
 };
 
 Ext.override(Ext.form.Field, {
-    setReadOnly : function(readOnly){
+    setReadOnly: function (readOnly) {
         setReadOnlyField.call(this, readOnly);
         restoreClass.call(this, readOnly);
     }
@@ -15471,7 +15384,7 @@ Ext.override(Ext.form.Field, {
 
 var setReadOnlyTriggerField = Ext.form.TriggerField.prototype.setReadOnly;
 Ext.override(Ext.form.TriggerField, {
-    setReadOnly : function(readOnly){
+    setReadOnly: function (readOnly) {
         setReadOnlyTriggerField.call(this, readOnly);
         restoreClass.call(this, readOnly);
     }
@@ -15485,15 +15398,15 @@ Ext.override(Ext.form.TriggerField, {
  *     colModel.setColumnWidth(i, Math.floor(colWidth + colWidth * fraction), true);
  */
 Ext.override(Ext.grid.GridView, {
-    fitColumns : function(preventRefresh, onlyExpand, omitColumn) {
-        var grid          = this.grid,
-            colModel      = this.cm,
+    fitColumns: function (preventRefresh, onlyExpand, omitColumn) {
+        var grid = this.grid,
+            colModel = this.cm,
             totalColWidth = colModel.getTotalWidth(false),
-            gridWidth     = this.getGridInnerWidth(),
-            extraWidth    = gridWidth - totalColWidth,
-            columns       = [],
-            extraCol      = 0,
-            width         = 0,
+            gridWidth = this.getGridInnerWidth(),
+            extraWidth = gridWidth - totalColWidth,
+            columns = [],
+            extraCol = 0,
+            width = 0,
             colWidth, fraction, i;
 
 
@@ -15502,8 +15415,8 @@ Ext.override(Ext.grid.GridView, {
         }
 
         var visibleColCount = colModel.getColumnCount(true),
-            totalColCount   = colModel.getColumnCount(false),
-            adjCount        = visibleColCount - (Ext.isNumber(omitColumn) ? 1 : 0);
+            totalColCount = colModel.getColumnCount(false),
+            adjCount = visibleColCount - (Ext.isNumber(omitColumn) ? 1 : 0);
 
         if (adjCount === 0) {
             adjCount = 1;
@@ -15527,7 +15440,7 @@ Ext.override(Ext.grid.GridView, {
 
         while (columns.length) {
             colWidth = columns.pop();
-            i        = columns.pop();
+            i = columns.pop();
 
             colModel.setColumnWidth(i, Math.floor(colWidth + colWidth * fraction), true);
         }
@@ -15537,7 +15450,7 @@ Ext.override(Ext.grid.GridView, {
 
         if (totalColWidth > gridWidth) {
             var adjustCol = (adjCount == visibleColCount) ? extraCol : omitColumn,
-                newWidth  = Math.max(1, colModel.getColumnWidth(adjustCol) - (totalColWidth - gridWidth));
+                newWidth = Math.max(1, colModel.getColumnWidth(adjustCol) - (totalColWidth - gridWidth));
 
             colModel.setColumnWidth(adjustCol, newWidth, true);
         }

@@ -186,7 +186,9 @@ Ext.namespace('Ext.ux');
 
     var CLS = 'ux-date-time-picker';
 
-    UX.DateTimePicker = Ext.extend(Ext.BoxComponent, {
+    Ext.define('Ext.ux.DateTimePicker', {
+        extend: 'Ext.BoxComponent',
+        xtype: 'datetimepicker',
 
         timeLabel: 'Time',
 
@@ -465,8 +467,6 @@ Ext.namespace('Ext.ux');
 
     });
 
-    Ext.reg('datetimepicker', UX.DateTimePicker);
-
     //
 
     var Menu = UX.DateTimePicker.Menu = Ext.extend(Ext.menu.Menu, {
@@ -516,7 +516,9 @@ Ext.namespace('Ext.ux');
 
     });
 
-})();Ext.namespace('Ext.ux.form');
+})();
+
+Ext.namespace('Ext.ux.form');
 
 (function () {
 
@@ -596,8 +598,9 @@ Ext.namespace('Ext.ux');
     //
 
     //kirov
-    F.DateTimeField = Ext.extend(Ext.m3.AdvancedDataField, {
-    //F.DateTimeField = Ext.extend(Ext.form.DateField, {
+    Ext.define('Ext.ux.form.DateTimeField', {
+        extend: 'Ext.m3.AdvancedDataField',
+        xtype: 'datetimefield',
 
         timeFormat: 'H:i:s',
 
@@ -646,7 +649,6 @@ Ext.namespace('Ext.ux');
 
     });
 
-    Ext.reg('datetimefield', F.DateTimeField);
 })();
 
 // <kirov
@@ -721,7 +723,9 @@ if(Ext.ux.BaseTimePicker){
     });
 
     //kirov
-    F.AdvTimeField = Ext.extend(Ext.m3.AdvancedDataField, {
+    Ext.define('Ext.ux.form.AdvTimeField', {
+        extend: 'Ext.m3.AdvancedDataField',
+        xtype: 'advtimefield',
 
         timeFormat: 'H:i:s',
 
@@ -787,6 +791,5 @@ if(Ext.ux.BaseTimePicker){
 
     });
 
-    Ext.reg('advtimefield', F.AdvTimeField);
 })();
 //kirov >

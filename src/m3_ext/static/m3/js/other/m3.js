@@ -118,7 +118,10 @@ Ext.override(Ext.form.Field, {
  * Создаётся новый компонент: Панель с возможностью включения в заголовок
  * визуальных компонентов.
  */
-Ext.app.TitlePanel = Ext.extend(Ext.Panel, {
+Ext.define('Ext.m3.TitlePanel', {
+    extend: 'Ext.Panel',
+    xtype: 'm3-title-panel',
+
     titleItems: null,
     addTitleItem: function (itemConfig) {
         var item = Ext.ComponentMgr.create(itemConfig);
@@ -126,7 +129,7 @@ Ext.app.TitlePanel = Ext.extend(Ext.Panel, {
         item.render(itemsDiv);
     },
     onRender: function (ct, position) {
-        Ext.app.TitlePanel.superclass.onRender.apply(this, arguments);
+        Ext.m3.TitlePanel.superclass.onRender.apply(this, arguments);
         if (this.titleItems != null) {
             if (Ext.isArray(this.titleItems)) {
                 for (var i = this.titleItems.length - 1; i >= 0; i--) {
@@ -154,7 +157,6 @@ Ext.app.TitlePanel = Ext.extend(Ext.Panel, {
         return null;
     }
 });
-Ext.reg('m3-title-panel', Ext.app.TitlePanel);
 
 /*
  * выполняет обработку failure response при submit пользовательских форм

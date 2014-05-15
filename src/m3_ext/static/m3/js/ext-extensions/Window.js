@@ -2,7 +2,10 @@
  * Окно на базе Ext.Window
  */
 
-Ext.m3.Window = Ext.extend(Ext.Window, {
+Ext.define('Ext.m3.Window', {
+    extend: 'Ext.Window',
+    xtype: 'm3-window',
+
 	constructor: function(baseConfig, params){
         params = baseConfig.params || params;
 
@@ -37,5 +40,3 @@ Ext.m3.Window = Ext.extend(Ext.Window, {
         Ext.m3.Window.superclass.initTools.call(this);
     }
 });
-
-Ext.reg('m3-window', Ext.m3.Window);

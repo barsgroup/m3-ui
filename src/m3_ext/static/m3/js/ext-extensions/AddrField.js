@@ -2,7 +2,10 @@
 /**
  * Панель редактирования адреса
  */
-Ext.m3.AddrField = Ext.extend(Ext.Container, {
+Ext.define('Ext.m3.AddrField', {
+    extend: 'Ext.Container',
+    xtype: 'm3-kladr',
+
 	constructor: function(baseConfig, params){
         params = baseConfig.params || params;
 
@@ -586,5 +589,3 @@ Ext.m3.AddrField = Ext.extend(Ext.Container, {
     }
 
 });
-
-Ext.reg('m3-kladr', Ext.m3.AddrField);

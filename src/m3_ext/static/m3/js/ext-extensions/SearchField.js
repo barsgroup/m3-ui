@@ -1,14 +1,12 @@
 /**
- * Created by prefer on 10/04/14.
- */
-
-Ext.ns('Ext.m3');
-/**
  * Модифицированный контрол поиска, за основу был взят контрол от ui.form.SearchField
  * @class {Ext.m3.SearchField} Контрол поиска
  * @extends {Ext.form.TwinTriggerField} Абстрактный класс как раз для разного рода таких вещей, типа контрола поиска
  */
-Ext.m3.SearchField = Ext.extend(Ext.form.TwinTriggerField, {
+Ext.define('Ext.m3.SearchField', {
+    extend: 'Ext.form.TwinTriggerField',
+    xtype: 'm3-search-field',
+
     initComponent: function () {
         Ext.m3.SearchField.superclass.initComponent.call(this);
         this.on('specialkey', function (f, e) {
@@ -102,4 +100,3 @@ Ext.m3.SearchField = Ext.extend(Ext.form.TwinTriggerField, {
         this.onTrigger2Click();
     }
 });
-Ext.reg('m3-search-field', Ext.m3.SearchField);

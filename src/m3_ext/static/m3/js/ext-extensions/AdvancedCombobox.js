@@ -4,8 +4,9 @@
  * @param {Object} baseConfig
  * @param {Object} params
  */
-
-Ext.m3.AdvancedComboBox = Ext.extend(Ext.m3.ComboBox, {
+Ext.define('Ext.m3.AdvancedComboBox', {
+    extend: 'Ext.m3.ComboBox',
+    xtype: 'm3-select',
 
     askBeforeDeleting: true,
 
@@ -593,5 +594,3 @@ Ext.m3.AdvancedComboBox = Ext.extend(Ext.m3.ComboBox, {
         }
     }
 });
-
-Ext.reg('m3-select', Ext.m3.AdvancedComboBox);

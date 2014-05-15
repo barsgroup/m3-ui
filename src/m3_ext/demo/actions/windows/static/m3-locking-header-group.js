@@ -1,6 +1,7 @@
-Ext.ns('Ext.m3');
 
-Ext.m3.LockingHeaderGroupWindow = Ext.extend(Ext.Window, {
+Ext.define('Ext.m3.LockingHeaderGroupWindow', {
+    extend: 'Ext.Window',
+    xtype: 'm3-locking-header-group',
 
     initComponent: function () {
         var grid = this.items[0];
@@ -36,9 +37,7 @@ Ext.m3.LockingHeaderGroupWindow = Ext.extend(Ext.Window, {
             'viewCfg': {'hideGroupedColumn': true}
         }];
 
-        Ext.m3.LockingHeaderGroupWindow.superclass.initComponent.call(this);
+        this.callParent();
     }
 
 });
-
-Ext.reg('m3-locking-header-group', Ext.m3.LockingHeaderGroupWindow);

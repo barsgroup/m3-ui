@@ -1,10 +1,10 @@
-Ext.ns('Ext.m3');
-
 /**
  * GroupingJson на базе JsonReader'a, который принимает параметры Stor'a
- * @type {*|void}
  */
-Ext.m3.GroupingJsonStore = Ext.extend(Ext.data.GroupingStore, {
+
+Ext.define('Ext.m3.GroupingJsonStore', {
+    extend: 'Ext.data.GroupingStore',
+    xtype: 'm3-grouping-json-store',
 
     constructor: function (config) {
         Ext.m3.GroupingJsonStore.superclass.constructor.call(this, Ext.apply(config, {
@@ -12,5 +12,3 @@ Ext.m3.GroupingJsonStore = Ext.extend(Ext.data.GroupingStore, {
         }));
     }
 });
-
-Ext.reg('m3-grouping-json-store', Ext.m3.GroupingJsonStore);

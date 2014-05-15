@@ -33,7 +33,7 @@ Ext.ux.grid.Exporter = Ext.extend(Ext.util.Observable,{
         }));
     },
     exportData:function(){
-        columns = []
+        var columns = [];
         Ext.each(this.grid.colModel.config,function(column,index){
             columns.push({
                 data_index:column.dataIndex,
@@ -44,16 +44,16 @@ Ext.ux.grid.Exporter = Ext.extend(Ext.util.Observable,{
                 width:column.width
             })
         });
-        data = []
+        var data = [];
 
         if (this.sendDatFromStore){
             Ext.each(this.grid.store.data.items,function(item,index){ data.push(item.data) });
         }
-        params = {
+        var params = {
             columns: Ext.encode(columns),
             title: this.title || this.grid.title || this.grid.id,
             data: Ext.encode(data)
-        }
+        };
         Ext.Ajax.request({
             url : '/ui/exportgrid-export',
             success : function(res,opt){                

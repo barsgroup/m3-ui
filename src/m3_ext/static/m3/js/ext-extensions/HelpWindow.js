@@ -3,8 +3,9 @@
  *
  * deprecated! - Непонятно где используется
  */
+Ext.define('Ext.m3.HelpWindow', {
+    extend: 'Ext.Window',
 
-Ext.m3.HelpWindow = Ext.extend(Ext.Window, {
     constructor: function(baseConfig){
         this.title = 'Справочная информация';
         this.maximized = true;

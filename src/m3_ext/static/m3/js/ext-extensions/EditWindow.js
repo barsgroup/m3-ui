@@ -7,7 +7,9 @@
  * действительно хотите отказаться от внесенных измений";
  */
 
-Ext.m3.EditWindow = Ext.extend(Ext.m3.Window, {
+Ext.define('Ext.m3.EditWindow', {
+    extend: 'Ext.m3.Window',
+    xtype: 'm3-edit-window',
 
     // Форма в окне, для сабмита
     form: null,
@@ -25,7 +27,7 @@ Ext.m3.EditWindow = Ext.extend(Ext.m3.Window, {
      * Инициализация дополнительного функционала
      */
     initComponent: function () {
-        Ext.m3.EditWindow.superclass.initComponent.call(this);
+        this.callParent();
 
         if (this.form) {
             this.insert(0, Ext.create(this.form));
@@ -444,5 +446,3 @@ Ext.m3.EditWindow = Ext.extend(Ext.m3.Window, {
         this.disableToolbars(false);
     }
 });
-
-Ext.reg('m3-edit-window', Ext.m3.EditWindow);

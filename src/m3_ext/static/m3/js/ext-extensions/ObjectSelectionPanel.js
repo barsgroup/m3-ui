@@ -5,9 +5,9 @@
  * а справа выделенные в нем элементы
  */
 
-Ext.ns('Ext.m3');
-
-Ext.m3.ObjectSelectionPanel = Ext.extend(Ext.Container, {
+Ext.define('Ext.m3.ObjectSelectionPanel', {
+    extend: 'Ext.Container',
+    xtype: 'm3-object-selection-panel',
 
     selectionColumns: [],
 
@@ -99,5 +99,3 @@ Ext.m3.ObjectSelectionPanel = Ext.extend(Ext.Container, {
         }
     }
 });
-
-Ext.reg('m3-object-selection-panel', Ext.m3.ObjectSelectionPanel);

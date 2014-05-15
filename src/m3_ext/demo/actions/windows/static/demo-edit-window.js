@@ -1,8 +1,10 @@
-Ext.ns('Ext.demo');
 
-Ext.demo.EditWindow = Ext.extend(Ext.m3.EditWindow, {
+Ext.define('Ext.demo.EditWindow', {
+    extend: 'Ext.m3.EditWindow',
+    xtype: 'demo-edit-window',
+
     initComponent: function () {
-        Ext.demo.EditWindow.superclass.initComponent.call(this);
+        this.callParent();
 
         var form = this.find('itemId', 'form')[0],
             field = this.find('itemId', 'edit-field-id')[0];
@@ -19,7 +21,5 @@ Ext.demo.EditWindow = Ext.extend(Ext.m3.EditWindow, {
     },
     bind: function(data) {
         this.form.getForm().loadRecord({data: data.model});
-    },
+    }
 });
-
-Ext.reg('demo-edit-window', Ext.demo.EditWindow);

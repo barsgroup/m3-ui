@@ -59,6 +59,7 @@ class UIJsonEncoder(_M3JSONEncoder):
         elif hasattr(obj, 'store') and hasattr(obj, 'fields'):
 
             if not getattr(obj.store, 'fields', None):
+                fields = obj.fields
                 if obj.display_field not in obj.fields:
                     fields = [obj.store.id_property, obj.display_field] + obj.fields
                 obj.store.fields = fields

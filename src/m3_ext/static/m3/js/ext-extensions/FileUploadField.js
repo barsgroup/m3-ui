@@ -1,6 +1,7 @@
-Ext.ns('Ext.ux.form');
 
-Ext.ux.form.FileUploadField = Ext.extend(Ext.form.TextField, {
+Ext.define('Ext.ux.form.FileUploadField', {
+    extend: 'Ext.form.TextField',
+    xtype: 'fileuploadfield',
 
     /**
      * @cfg {Object} buttonCfg A standard {@link Ext.Button} config object.
@@ -300,8 +301,6 @@ Ext.ux.form.FileUploadField = Ext.extend(Ext.form.TextField, {
         Ext.ux.form.FileUploadField.superclass.setReadOnly.call(this, readOnly);
     }
 });
-
-Ext.reg('fileuploadfield', Ext.ux.form.FileUploadField);
 
 // backwards compat
 Ext.form.FileUploadField = Ext.ux.form.FileUploadField;

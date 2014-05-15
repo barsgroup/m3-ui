@@ -1,8 +1,7 @@
-/**
- * Расширенный функционал комбобокса
- */
+Ext.define('Ext.m3.ComboBox', {
+    extend: 'Ext.form.ComboBox',
+    xtype: 'm3-combobox',
 
-Ext.m3.ComboBox =  Ext.extend(Ext.form.ComboBox,{
 	/**
 	 * Возвращает текстовое представление комбобокса
 	 */
@@ -10,5 +9,3 @@ Ext.m3.ComboBox =  Ext.extend(Ext.form.ComboBox,{
 		return this.lastSelectionText;
 	}
 });
-
-Ext.reg('m3-combobox', Ext.m3.ComboBox);

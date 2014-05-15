@@ -2,22 +2,21 @@
  * Компонент поля даты.
  * Добавлена кнопа установки текущий даты
  */
-Ext.m3.AdvancedDataField = Ext.extend(Ext.form.DateField, {
-    constructor: function (baseConfig) {
+Ext.define('Ext.m3.AdvancedDataField', {
+    extend: 'Ext.form.DateField',
+    xtype: 'm3-date',
 
-        // Базовый конфиг для тригеров
-        this.baseTriggers = [
-            {
-                iconCls: 'x-form-date-trigger', handler: null, hide: null
-            },
-            {
-                iconCls: 'x-form-current-date-trigger', handler: null, hide: null
-            }
-        ];
+    baseTriggers: [
+        {
+            iconCls: 'x-form-date-trigger', handler: null, hide: null
+        },
+        {
+            iconCls: 'x-form-current-date-trigger', handler: null, hide: null
+        }
+    ],
 
-        Ext.m3.AdvancedDataField.superclass.constructor.call(this, baseConfig);
-    }, initComponent: function () {
-        Ext.m3.AdvancedDataField.superclass.initComponent.call(this);
+    initComponent: function () {
+        this.callParent();
 
         this.triggerConfig = {
             tag: 'span', cls: 'x-form-twin-triggers', cn: []};
@@ -60,7 +59,8 @@ Ext.m3.AdvancedDataField = Ext.extend(Ext.form.DateField, {
         }, this);
 
         this.triggers = ts.elements;
-    }, initBaseTrigger: function () {
+    },
+    initBaseTrigger: function () {
         this.baseTriggers[0].handler = this.onTriggerClick;
         this.baseTriggers[1].handler = function () {
             if (!this.readOnly && !this.disabled) {
@@ -96,5 +96,3 @@ Ext.m3.AdvancedDataField = Ext.extend(Ext.form.DateField, {
     }
 
 });
-
-Ext.reg('m3-date', Ext.m3.AdvancedDataField);

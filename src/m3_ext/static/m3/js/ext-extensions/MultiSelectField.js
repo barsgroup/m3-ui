@@ -1,5 +1,3 @@
-Ext.ns('Ext.m3');
-
 /**
  * @class Ext.ux.form.MultiSelectField
  * @extends Ext.m3.AdvancedComboBox
@@ -9,7 +7,9 @@ Ext.ns('Ext.m3');
  * Отличается от выбора из спровочника переопределенным шаблоном для отображения выпадающего списка
  * с галочками. Реальные значения храняться как массив рекордов в свойстве checkedItems
  */
-Ext.m3.MultiSelectField = Ext.extend(Ext.m3.AdvancedComboBox, {
+Ext.define('Ext.m3.MultiSelectField', {
+    extend: 'Ext.m3.AdvancedComboBox',
+    xtype: 'm3-multiselect',
 
     /**
      * @cfg {String} delimeter Разделитель для отображение текста в поле
@@ -251,5 +251,3 @@ Ext.m3.MultiSelectField = Ext.extend(Ext.m3.AdvancedComboBox, {
     }
 
 });
-
-Ext.reg('m3-multiselect', Ext.m3.MultiSelectField );

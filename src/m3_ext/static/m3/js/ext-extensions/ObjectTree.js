@@ -2,9 +2,10 @@
  * Объектное дерево, включает в себя тулбар с кнопками добавить (в корень и дочерний элемент), редактировать и удалить
  * @param {Object} config
  */
-Ext.ns('Ext.m3');
 
-Ext.m3.ObjectTree = Ext.extend(Ext.m3.Tree, {
+Ext.define('Ext.m3.ObjectTree', {
+    extend: 'Ext.m3.Tree',
+    xtype: 'm3-object-tree',
 
     allowPaging: false,
     rowIdName: 'id',
@@ -393,5 +394,3 @@ Ext.m3.ObjectTree = Ext.extend(Ext.m3.Tree, {
         return baseConf;
     }
 });
-
-Ext.reg('m3-object-tree', Ext.m3.ObjectTree);

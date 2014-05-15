@@ -1,6 +1,6 @@
-﻿Ext.ns('Ext.ux.grid');
-
-Ext.ux.grid.LockingGridColumnWithHeaderGroup = Ext.extend(Ext.util.Observable, {
+﻿
+Ext.define('Ext.ux.grid.LockingGridColumnWithHeaderGroup', {
+    extend: 'Ext.util.Observable',
 
     constructor: function (config) {
         this.config = config;

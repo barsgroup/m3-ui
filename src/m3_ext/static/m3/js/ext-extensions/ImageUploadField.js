@@ -1,6 +1,6 @@
-Ext.ns('Ext.ux.form');
-
-Ext.ux.form.ImageUploadField = Ext.extend(Ext.form.FileUploadField, {
+Ext.define('Ext.ux.form.ImageUploadField', {
+    extend: 'Ext.form.FileUploadField',
+    xtype: 'imageuploadfield',
 
     /**
      * Класс иконки для выбора файла
@@ -92,4 +92,3 @@ Ext.ux.form.ImageUploadField = Ext.extend(Ext.form.FileUploadField, {
 });
 // Регистрация lightbox
 Ext.ux.Lightbox.register('a[rel^=lightbox]');
-Ext.reg('imageuploadfield', Ext.ux.form.ImageUploadField);
