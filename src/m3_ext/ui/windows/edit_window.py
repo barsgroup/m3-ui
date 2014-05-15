@@ -24,4 +24,5 @@ class ExtEditWindow(ExtWindow):
 
     def __init__(self, *args, **kwargs):
         super(ExtEditWindow, self).__init__(*args, **kwargs)
-        self.setdefault('form', None)
+        if not hasattr(self, 'form'):
+            self.setdefault('form', None)
