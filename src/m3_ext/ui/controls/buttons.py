@@ -1,18 +1,24 @@
 #coding:utf-8
-"""
-"""
-
-from base import BaseExtControl
 
 
-class ExtButton(BaseExtControl):
+from m3_ext.ui.base import ExtUIComponent
+
+
+class ExtButton(ExtUIComponent):
     """
     Кнопка
     """
-    _xtype = 'button'
+    _xtype = 'm3-button'
 
-    js_attrs = BaseExtControl.js_attrs.extend(
-        'text', 'icon', 'flex', 'region', 'menu', 'margins', 'disabled',
+    js_attrs = ExtUIComponent.js_attrs.extend(
+        'text',
+        'icon',
+        'flex',
+        'region',
+        'menu',
+        'margins',
+        'disabled',
+        'handler',
         icon_cls='iconCls',
         tooltip_text='tooltip',
         enable_toggle='enableToggle',

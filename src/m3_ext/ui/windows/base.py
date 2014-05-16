@@ -4,7 +4,7 @@ Created on 25.02.2010
 """
 
 from m3_ext.ui.containers.base import BaseExtContainer, BaseExtPanel
-from m3_ext.ui.controls.base import BaseExtControl
+from m3_ext.ui.controls import ExtButton
 
 
 class ExtWindow(BaseExtPanel):
@@ -70,7 +70,7 @@ class ExtWindow(BaseExtPanel):
 
         # Перебираем кнопки.
         for button in self.buttons:
-            assert isinstance(button, BaseExtControl)
+            assert isinstance(button, ExtButton)
             button.make_read_only(
                 self.read_only, exclude_list, *args, **kwargs)
 

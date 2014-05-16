@@ -22,7 +22,8 @@ class DictFieldAction(UIAction):
             maximizable=True,
             minimizable=True,
             buttons=[
-                ext.ExtButton(text=u'Закрыть'),
+                ext.ExtButton(text=u'Закрыть',
+                              handler='close'),
             ],
             items=[
                 ext.ExtForm(

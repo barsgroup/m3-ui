@@ -32,7 +32,7 @@ class ObjectGridAction(UIAction):
         grid.action_delete = ObjectGridDeleteAction
 
         window.items.append(grid)
-        button = ext.ExtButton(text=u'Закрыть')
+        button = ext.ExtButton(text=u'Закрыть', handler='close')
         window.buttons.append(button)
         return window
 
@@ -78,7 +78,7 @@ class ObjectGridNewAction(UIAction):
         window.width = 200
         window.height = 200
         window.layout = 'fit'
-        button = ext.ExtButton(text=u'Закрыть')
+        button = ext.ExtButton(text=u'Закрыть', handler='close')
         window.buttons.append(button)
         return window
 
@@ -96,7 +96,7 @@ class ObjectGridEditAction(UIAction):
         window.width = 200
         window.height = 200
         window.layout = 'fit'
-        button = ext.ExtButton(text=u'Закрыть')
+        button = ext.ExtButton(text=u'Закрыть', handler='close')
         window.buttons.append(button)
         return window
 

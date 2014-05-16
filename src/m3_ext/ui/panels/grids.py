@@ -58,23 +58,19 @@ class ExtObjectGrid(containers.ExtGrid):
             super(ExtObjectGrid.GridTopBar, self).__init__(*args, **kwargs)
             self.button_new = controls.ExtButton(
                 text=u'Добавить',
-                icon_cls='add_item',
-                handler='topBarNew'
+                icon_cls='add_item'
             )
             self.button_edit = controls.ExtButton(
                 text=u'Изменить',
-                icon_cls='edit_item',
-                handler='topBarEdit'
+                icon_cls='edit_item'
             )
             self.button_delete = controls.ExtButton(
                 text=u'Удалить',
-                icon_cls='delete_item',
-                handler='topBarDelete'
+                icon_cls='delete_item'
             )
             self.button_refresh = controls.ExtButton(
                 text=u'Обновить',
-                icon_cls='x-tbar-loading',
-                handler='topBarRefresh'
+                icon_cls='x-tbar-loading'
             )
 
             self.items.extend([

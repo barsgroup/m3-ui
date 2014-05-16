@@ -18,12 +18,12 @@ class SimpleGridAction(UIAction):
 
     def get_ui(self, request, context):
         win = super(SimpleGridAction, self).get_ui(request, context)
-        win.layout = 'fit'
+        win.layout = win.FIT
         win.width = 400
         win.height = 400
         win.maximizable = True
         win.minimizable = True
-        win.btn = ext.ExtButton(text=u'Закрыть')
+        win.btn = ext.ExtButton(text=u'Закрыть', handler='close')
         win.buttons.append(win.btn)
         grid = ext.ExtGrid(item_id='grid')
         grid.add_column(header=u'Имя', data_index='fname')
@@ -98,7 +98,7 @@ class EditGridAction(UIAction):
         ))
 
         window.items.append(grid)
-        button = ext.ExtButton(text=u'Закрыть')
+        button = ext.ExtButton(text=u'Закрыть', handler='close')
         window.buttons.append(button)
         return window
 
@@ -170,7 +170,7 @@ class GridRemoteStoreAction(UIAction):
                                       root='rows')
 
         window.items.append(grid)
-        button = ext.ExtButton(text=u'Закрыть')
+        button = ext.ExtButton(text=u'Закрыть', handler='close')
         window.buttons.append(button)
         return window
 
@@ -213,7 +213,7 @@ class BandedColumnAction(UIAction):
         grid.add_banded_column(ext.ExtGridColumn(header=u'Под-подколонка 2', align='center'), 2, 3)
 
         window.items.append(grid)
-        button = ext.ExtButton(text=u'Закрыть')
+        button = ext.ExtButton(text=u'Закрыть', handler='close')
         window.buttons.append(button)
         return window
 
@@ -233,7 +233,7 @@ class GridAction(UIAction):
             maximizable=True,
             minimizable=True,
             buttons=[
-                ext.ExtButton(text=u'Закрыть'),
+                ext.ExtButton(text=u'Закрыть', handler='close'),
             ]
         )
         win.items.append(
@@ -307,7 +307,7 @@ class GridAjaxAction(UIAction):
             maximizable=True,
             minimizable=True,
             buttons=[
-                ext.ExtButton(text=u'Закрыть'),
+                ext.ExtButton(text=u'Закрыть', handler='close'),
             ]
         )
         win.items.append(
@@ -398,7 +398,7 @@ class GridCheckSelectionAction(UIAction):
                                       root='rows')
 
         window.items.append(grid)
-        button = ext.ExtButton(text=u'Закрыть')
+        button = ext.ExtButton(text=u'Закрыть', handler='close')
         window.buttons.append(button)
         return window
 

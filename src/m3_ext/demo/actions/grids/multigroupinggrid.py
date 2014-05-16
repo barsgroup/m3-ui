@@ -27,7 +27,7 @@ class MultiGroupingGridAction(UIAction):
         grid.groupable = True
 
         window.items.append(grid)
-        button = ext.ExtButton(text=u'Закрыть')
+        button = ext.ExtButton(text=u'Закрыть', handler='close')
         window.buttons.append(button)
         return window
 

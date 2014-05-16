@@ -73,7 +73,7 @@ class ContainerTableAction(UIAction):
         button.menu = menu
         window.buttons.append(button)
 
-        button = ext.ExtButton(text=u'Закрыть')
+        button = ext.ExtButton(text=u'Закрыть', handler='close')
         window.buttons.append(button)
 
         return window

@@ -30,7 +30,7 @@ Ext.define('Ext.m3.Window', {
         // на F1 что-то нормально не вешается обработчик..
         //this.keys = {key: 112, fn: function(k,e){e.stopEvent();console.log('f1 pressed');}}
     
-		Ext.m3.Window.superclass.constructor.call(this, baseConfig);
+		this.callParent(arguments);
 	},
     initTools: function(){
         if (this.m3HelpTopic){
