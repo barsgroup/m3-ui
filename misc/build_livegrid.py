@@ -7,7 +7,7 @@ import subprocess
 
 PROJECT_PATH = os.path.abspath(__file__)
 M3_PROJECT_PATH = os.path.dirname(os.path.dirname(PROJECT_PATH))
-LIVEGRID_PATH = os.path.join(M3_PROJECT_PATH, 'src', 'm3', 'static', 'vendor', 'livegrid')
+LIVEGRID_PATH = os.path.join(M3_PROJECT_PATH, 'src', 'm3_ext', 'static', 'vendor', 'livegrid')
 
 LIVEGRID_DEBUG_FILE = 'livegrid-all-debug.js'
 LIVEGRID_OUT_FILE = 'livegrid-all.js'

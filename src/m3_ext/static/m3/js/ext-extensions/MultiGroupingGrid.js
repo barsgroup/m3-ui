@@ -2,15 +2,12 @@ String.prototype.repeat = function (num) {
     return new Array(num + 1).join(this);
 };
 
-Ext.ns('Ext.ux.grid');
-Ext.ux.grid.MultiGrouping = function(config) {
-    if (config) Ext.apply(this, config);
-};
-
 /**
  * Плагин для LiveGrid, работающий с группировкой столбцов
  */
-Ext.extend(Ext.ux.grid.MultiGrouping, Ext.util.Observable, {
+Ext.define('Ext.ux.grid.MultiGrouping', {
+    extend: 'Ext.util.Observable',
+
 	/**
 	 * Заголовок в панели с полями, по которым установлена группировка
 	 */
@@ -737,13 +734,15 @@ Ext.extend(Ext.ux.grid.MultiGrouping, Ext.util.Observable, {
     }
 });
 
-Ext.ns('Ext.m3');
 /**
  * Грид с множественной серверной группировкой на базе Ext.ux.grid.livegrid.GridPanel
  * 
  * @param {Object} config
  */
-Ext.m3.MultiGroupingGridPanel = Ext.extend(Ext.ux.grid.livegrid.GridPanel, {
+Ext.define('Ext.m3.MultiGroupingGridPanel', {
+    extend: 'Ext.ux.grid.livegrid.GridPanel',
+    xtype: 'm3-multigrouping-grid',
+
     /**
      * Внутренняя функция для поиска и настройки элементов тулбара и контекстного меню
      */
@@ -1385,15 +1384,15 @@ Ext.m3.MultiGroupingGridPanel = Ext.extend(Ext.ux.grid.livegrid.GridPanel, {
     }
 });
 
-Ext.reg('m3-multigrouping-grid', Ext.m3.MultiGroupingGridPanel);
-
 /*******************
  * Плагин для экпорта в xls - отправляет на сервер запрос с нужными параметрами
  *******************/
 
-Ext.ns('Ext.ux.grid');
+
 // Оставлен для совместимости. Вообще, надо не через плагин делать, а через тулбар и параметры делать
-Ext.ux.grid.MultiGroupingExporter = Ext.extend(Ext.util.Observable,{
+Ext.define('Ext.ux.grid.MultiGroupingExporter', {
+    extend: 'Ext.util.Observable',
+
     constructor: function(config){
     	if (config) Ext.apply(this, config);
         Ext.ux.grid.MultiGroupingExporter.superclass.constructor.call(this);
@@ -1407,13 +1406,10 @@ Ext.ux.grid.MultiGroupingExporter = Ext.extend(Ext.util.Observable,{
  * Плагин для показа итогов в гриде
  *******************/
 
-Ext.ns('Ext.ux.grid');
+Ext.define('Ext.ux.grid.MultiGroupingSummary', {
+    extend: 'Ext.util.Observable',
+    xtype: 'multigroupingsummary',
 
-Ext.ux.grid.MultiGroupingSummary = function(config) {
-    Ext.apply(this, config);
-};
-
-Ext.extend(Ext.ux.grid.MultiGroupingSummary, Ext.util.Observable, {
     // configurable scrollbar width (used only in the event the Ext.getScrollBarWidth() method is not available)
     scrollBarWidth : 17,
 
@@ -1504,32 +1500,8 @@ Ext.extend(Ext.ux.grid.MultiGroupingSummary, Ext.util.Observable, {
         }
         this.cellTpl.compile();
     },
-    /* kirov
-    // private
-    calculate : function(rs, cm) {
-        var data = {},
-            cfg = cm.config,
-            i, len, cf, cname, j, jlen, r;
 
-        for (i = 0, len = cfg.length; i < len; i++) { // loop through all columns in ColumnModel
-            cf = cfg[i]; // get column's configuration
-            cname = cf.dataIndex; // get column dataIndex
 
-            // initialise grid summary row data for
-            // the current column being worked on
-            data[cname] = 0;
-
-            if (cf.summaryType) {
-            	for (j = 0, jlen = rs.length; j < jlen; j++) {
-                    r = rs[j]; // get a single Record
-                    data[cname] = Ext.ux.grid.MultiGroupingSummary.Calculations[cf.summaryType](r.get(cname), r, cname, data, j);
-                }
-            }
-        }
-
-        return data;
-    },
-	*/
     // private
     onLayout : function(vw, vh) { // note: this method is scoped to the GridView
         if (typeof(vh) != 'number') { // handles grid's height:'auto' config
@@ -1787,19 +1759,23 @@ Ext.extend(Ext.ux.grid.MultiGroupingSummary, Ext.util.Observable, {
         delete this.oldY;
     }
 });
-Ext.reg('multigroupingsummary', Ext.ux.grid.MultiGroupingSummary);
 
-Ext.m3.LiveStore = function(config) {
-    config.reader = new Ext.m3.LiveStoreReader({
-        fields: config.fields,
-        id: config.idProperty,
-        root: config.root,
-        totalProperty: config.totalProperty
-    });
-    Ext.m3.LiveStore.superclass.constructor.call(this, config);
-};
+Ext.define('Ext.m3.LiveStore', {
+    extend: 'Ext.ux.grid.livegrid.Store',
+    xtype: 'm3-live-store',
 
-Ext.extend(Ext.m3.LiveStore, Ext.ux.grid.livegrid.Store, {
+    constructor: function(config){
+
+        config.reader = new Ext.m3.LiveStoreReader({
+            fields: config.fields,
+            id: config.idProperty,
+            root: config.root,
+            totalProperty: config.totalProperty
+        });
+
+        this.callParent(arguments);
+    },
+
 	loadRecords : function(o, options, success){
 		// сохраним итоговую строку для дальнейшей обработки
         if (o) {
@@ -1809,11 +1785,9 @@ Ext.extend(Ext.m3.LiveStore, Ext.ux.grid.livegrid.Store, {
 	}
 });
 
-Ext.m3.LiveStoreReader = function(meta, recordType){
-    Ext.m3.LiveStoreReader.superclass.constructor.call(this, meta, recordType);
-};
+Ext.define('Ext.m3.LiveStoreReader', {
+    extend: 'Ext.ux.grid.livegrid.JsonReader',
 
-Ext.extend(Ext.m3.LiveStoreReader, Ext.ux.grid.livegrid.JsonReader, {
 	readRecords : function(o) {
 		var intercept = Ext.m3.LiveStoreReader.superclass.readRecords.call(this, o);
 		// сохраним итоговую строку для дальнейшей обработки
@@ -1823,8 +1797,6 @@ Ext.extend(Ext.m3.LiveStoreReader, Ext.ux.grid.livegrid.JsonReader, {
 		return intercept;
 	}
 });
-
-Ext.reg('m3-live-store', Ext.m3.LiveStore);
 
 Ext.reg('livegrid-toolbar', Ext.ux.grid.livegrid.Toolbar);
 
