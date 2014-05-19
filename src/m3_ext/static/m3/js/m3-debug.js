@@ -3945,9 +3945,13 @@ Ext.define('Ext.m3.ComboBox', {
  */
 
 (function () {
-    function initComponent() {
+
+    var initComponent;
+    // Костыль, чтобы копипаста в livegrid работала
+    Ext.m3.configureGrid = initComponent = function () {
 
         var params = this.params || {};
+
         // Создание ColumnModel если надо
         // раньше был экземпляр ColModel, теперь приходи конфиг
         if (this.cm && !(this.cm instanceof Ext.grid.ColumnModel)) {
@@ -4067,13 +4071,13 @@ Ext.define('Ext.m3.ComboBox', {
         });
 
         this.callParent();
-    }
+    };
 
     /**
      * Обработчик исключений хранилица
      */
     function storeException(proxy, type, action, options, response, arg) {
-        //console.log(proxy, type, action, options, response, arg);
+
         if (type == 'remote' && action != Ext.data.Api.actions.read) {
             if (response.raw.message) {
                 Ext.Msg.show({
@@ -4093,7 +4097,9 @@ Ext.define('Ext.m3.ComboBox', {
             extend: 'Ext.grid.GridPanel',
             xtype: 'm3-grid',
 
-            initComponent: initComponent
+            initComponent: function () {
+                initComponent.apply(this);
+            }
         }
     );
 
@@ -4101,7 +4107,9 @@ Ext.define('Ext.m3.ComboBox', {
             extend: 'Ext.grid.EditorGridPanel',
             xtype: 'm3-edit-grid',
 
-            initComponent: initComponent
+            initComponent: function () {
+                initComponent.apply(this);
+            }
         }
     );
 })();
@@ -6224,7 +6232,7 @@ Ext.define('Ext.m3.Window', {
         // на F1 что-то нормально не вешается обработчик..
         //this.keys = {key: 112, fn: function(k,e){e.stopEvent();console.log('f1 pressed');}}
     
-		Ext.m3.Window.superclass.constructor.call(this, baseConfig);
+		this.callParent(arguments);
 	},
     initTools: function(){
         if (this.m3HelpTopic){
@@ -7042,11 +7050,12 @@ Ext.define('Ext.m3.AdvancedComboBox', {
             this.baseTriggers[2].hide = disabled;
             this.baseTriggers[3].hide = disabled;
         }
-    }
+    },
 
     /**
      * Инициализация первоначальной настройки триггеров
-     */, initBaseTrigger: function () {
+     */
+    initBaseTrigger: function () {
         this.baseTriggers[0].handler = this.onTriggerClearClick;
         this.baseTriggers[1].handler = this.onTriggerDropDownClick;
         this.baseTriggers[2].handler = this.onTriggerDictSelectClick;
@@ -7520,6 +7529,34 @@ Ext.define('Ext.m3.AdvancedDataField', {
     }
 
 });
+Ext.define('Ext.m3.Button', {
+    extend: 'Ext.Button',
+    xtype: 'm3-button',
+
+    /*
+     *
+     */
+    getParentHandler: function(parent, name){
+
+        if (parent.ownerCt){
+            return this.getParentHandler(parent.ownerCt, name);
+        }if (parent[name]){
+            return parent[name].createDelegate(parent);
+        } else {
+            return Ext.emptyFn;
+        }
+    },
+
+    initComponent: function(){
+        this.callParent();
+
+        if (typeof this.handler === 'string'){
+            // Поиск хендлера во вложенных родительских контейнерах
+            this.handler = this.getParentHandler(this.ownerCt, this.handler);
+        }
+    }
+});
+
 /**
  * Окно на базе Ext.m3.Window, которое включает такие вещи, как:
  * 1) Submit формы, если она есть;
@@ -7555,7 +7592,6 @@ Ext.define('Ext.m3.EditWindow', {
             this.form = Ext.create(this.form);
             this.insert(0, this.form);
         }
-
 
         // Устанавливает функции на изменение значения
         this.items.each(function (item) {
@@ -7612,13 +7648,7 @@ Ext.define('Ext.m3.EditWindow', {
         )
 
     },
-    /**
-     * Получает форму как первый элемент items
-     */
-    getForm: function () {
-        assert(this.form, 'Не задана форма');
-        return this.items[0];
-    },
+
     /**
      * Проверяет форму на наличие некорректных полей, отдает список label'ов этих полей
      */
@@ -7651,9 +7681,9 @@ Ext.define('Ext.m3.EditWindow', {
      * @param {Object} baseParams
      */
     submitForm: function (btn, e, baseParams) {
-        assert(this.formUrl, 'Не задан url для формы');
+        assert(this.form.url, 'Не задан url для формы');
 
-        var form = this.getForm();
+        var form = this.form;
         if (form) {
             var invalidNames = this.getInvalidNames(form);
             if (invalidNames.length) {
@@ -7662,9 +7692,10 @@ Ext.define('Ext.m3.EditWindow', {
             }
         }
 
-        var scope = this;
-        var mask = new Ext.LoadMask(this.body, {msg: 'Сохранение...'});
-        var params = Ext.applyIf(baseParams || {}, this.actionContextJson || {});
+        debugger;
+        var scope = this,
+            mask = new Ext.LoadMask(this.body, {msg: 'Сохранение...'}),
+            params = Ext.applyIf(baseParams || {}, this.getContext() );
 
         //->TODO - deprecated
         // На форме могут находиться компоненты, которые не являются полями, но их можно сабмитить
@@ -7737,7 +7768,7 @@ Ext.define('Ext.m3.EditWindow', {
         if (scope.fireEvent('beforesubmit', submit)) {
             this.disableToolbars(true);
             mask.show();
-            form.submit(submit);
+            form.getForm().submit(submit);
         }
     },
 
@@ -7901,7 +7932,7 @@ Ext.define('Ext.m3.EditWindow', {
         if (this.fireEvent('beforeloaddata', this)) {
 
             assert(this.dataUrl, 'Не задан dataUrl для формы');
-            this.getForm().doAction('load', {
+            this.form.doAction('load', {
                 url: this.dataUrl,
                 params: Ext.applyIf({
                         isGetData: true},
@@ -7969,7 +8000,7 @@ Ext.define('Ext.m3.EditWindow', {
         this.disableToolbars(false);
     },
 
-    bind: function(data){
+    bind: function (data) {
         this.form.getForm().setValues(data.model);
     }
 });
@@ -12337,124 +12368,128 @@ Ext.ux.Notification = Ext.extend(Ext.Window, {
 
 (function () {
 
+    // Чтобы можно было делать initComponent.apply и использовать разные scope в grid'e и editgrid'e
+    var initComponent = function () {
+
+        var params = this.params || {};
+        assert(params.allowPaging !== undefined, 'allowPaging is undefined');
+        assert(params.rowIdName !== undefined, 'rowIdName is undefined');
+        assert(params.actions !== undefined, 'actions is undefined');
+
+        this.allowPaging = params.allowPaging;
+        this.rowIdName = params.rowIdName;
+        // используется при режиме выбора ячеек.
+        // через этот параметр передается имя выбранной колонки
+        this.columnParamName = params.columnParamName;
+        this.actionNewUrl = params.actions.newUrl;
+        this.actionEditUrl = params.actions.editUrl;
+        this.actionDeleteUrl = params.actions.deleteUrl;
+        this.actionDataUrl = params.actions.dataUrl;
+        this.actionContextJson = params.actions.contextJson;
+        // признак клиентского редактирования
+        this.localEdit = params.localEdit;
+        // имя для сабмита в режиме клиентского редактирования
+        this.name = params.name;
+
+        // проставление адреса запроса за данными
+        if (this.store && !this.store.url) {
+            this.store.url = this.actionDataUrl;
+        }
+
+        this.callParent();
+
+        // настроим кнопки тулбара
+        this.configureItem(this.getTopToolbar(), "button_new", this.actionNewUrl, this.onNewRecord);
+        var edit_item = this.configureItem(this.getTopToolbar(), "button_edit", this.actionEditUrl, this.onEditRecord);
+        if (edit_item) {
+            this.on('dblclick', edit_item.handler);
+        }
+        this.configureItem(this.getTopToolbar(), "button_delete", this.actionDeleteUrl, this.onDeleteRecord);
+        this.configureItem(this.getTopToolbar(), "button_refresh", this.actionDataUrl, this.refreshStore);
+
+        // настроим меню в зависимости от переданных адресов
+        var params = this.params || {};
+        if (params.contextMenu) {
+            this.configureItem(params.contextMenu, "menuitem_new", this.actionNewUrl, this.onNewRecord);
+            this.configureItem(params.contextMenu, "menuitem_edit", this.actionEditUrl, this.onEditRecord);
+            this.configureItem(params.contextMenu, "menuitem_delete", this.actionDeleteUrl, this.onDeleteRecord);
+        }
+        if (params.rowContextMenu) {
+            this.configureItem(params.rowContextMenu, "menuitem_new", this.actionNewUrl, this.onNewRecord);
+            this.configureItem(params.rowContextMenu, "menuitem_edit", this.actionEditUrl, this.onEditRecord);
+            this.configureItem(params.rowContextMenu, "menuitem_delete", this.actionDeleteUrl, this.onDeleteRecord);
+        }
+
+        var store = this.getStore();
+        store.baseParams = Ext.applyIf(store.baseParams || {}, this.actionContextJson || {});
+
+        this.addEvents(
+            /**
+             * Событие до запроса добавления записи - запрос отменится при возврате false
+             * @param ObjectGrid this
+             * @param JSON request - AJAX-запрос для отправки на сервер
+             */
+            'beforenewrequest',
+            /**
+             * Событие после запроса добавления записи - обработка отменится при возврате false
+             * @param ObjectGrid this
+             * @param res - результат запроса
+             * @param opt - параметры запроса
+             */
+            'afternewrequest',
+            /**
+             * Событие до запроса редактирования записи - запрос отменится при возврате false
+             * @param ObjectGrid this
+             * @param JSON request - AJAX-запрос для отправки на сервер
+             */
+            'beforeeditrequest',
+            /**
+             * Событие после запроса редактирования записи - обработка отменится при возврате false
+             * @param ObjectGrid this
+             * @param res - результат запроса
+             * @param opt - параметры запроса
+             */
+            'aftereditrequest',
+            /**
+             * Событие до запроса удаления записи - запрос отменится при возврате false
+             * @param ObjectGrid this
+             * @param JSON request - AJAX-запрос для отправки на сервер
+             */
+            'beforedeleterequest',
+            /**
+             * Событие после запроса удаления записи - обработка отменится при возврате false
+             * @param ObjectGrid this
+             * @param res - результат запроса
+             * @param opt - параметры запроса
+             */
+            'afterdeleterequest',
+            /**
+             * Событие после успешного диалога добавления записи - встроенная обработка отменится при возврате false
+             * @param ObjectGrid this
+             * @param res - результат добавления (ответ сервера)
+             */
+            'rowadded',
+            /**
+             * Событие после успешного диалога редактирования записи - встроенная обработка отменится при возврате false
+             * @param ObjectGrid this
+             * @param res - результат редактирования  (ответ сервера)
+             */
+            'rowedited',
+            /**
+             * Событие после успешного диалога удаления записи - встроенная обработка отменится при возврате false
+             * @param ObjectGrid this
+             * @param res - результат удаления (ответ сервера)
+             */
+            'rowdeleted'
+        );
+    };
+
     var baseObjectGrid = {
 
         /**
          * Настройка объектного грида по расширенному конфигу из параметров
          */
-        initComponent: function () {
-            var params = this.params || {};
-            assert(params.allowPaging !== undefined, 'allowPaging is undefined');
-            assert(params.rowIdName !== undefined, 'rowIdName is undefined');
-            assert(params.actions !== undefined, 'actions is undefined');
 
-            this.allowPaging = params.allowPaging;
-            this.rowIdName = params.rowIdName;
-            // используется при режиме выбора ячеек.
-            // через этот параметр передается имя выбранной колонки
-            this.columnParamName = params.columnParamName;
-            this.actionNewUrl = params.actions.newUrl;
-            this.actionEditUrl = params.actions.editUrl;
-            this.actionDeleteUrl = params.actions.deleteUrl;
-            this.actionDataUrl = params.actions.dataUrl;
-            this.actionContextJson = params.actions.contextJson;
-            // признак клиентского редактирования
-            this.localEdit = params.localEdit;
-            // имя для сабмита в режиме клиентского редактирования
-            this.name = params.name;
-
-            // проставление адреса запроса за данными
-            if (this.store && !this.store.url) {
-                this.store.url = this.actionDataUrl;
-            }
-
-            this.callParent();
-
-            // настроим кнопки тулбара
-            this.configureItem(this.getTopToolbar(), "button_new", this.actionNewUrl, this.onNewRecord);
-            var edit_item = this.configureItem(this.getTopToolbar(), "button_edit", this.actionEditUrl, this.onEditRecord);
-            if (edit_item) {
-                this.on('dblclick', edit_item.handler);
-            }
-            this.configureItem(this.getTopToolbar(), "button_delete", this.actionDeleteUrl, this.onDeleteRecord);
-            this.configureItem(this.getTopToolbar(), "button_refresh", this.actionDataUrl, this.refreshStore);
-
-            // настроим меню в зависимости от переданных адресов
-            var params = this.params || {};
-            if (params.contextMenu) {
-                this.configureItem(params.contextMenu, "menuitem_new", this.actionNewUrl, this.onNewRecord);
-                this.configureItem(params.contextMenu, "menuitem_edit", this.actionEditUrl, this.onEditRecord);
-                this.configureItem(params.contextMenu, "menuitem_delete", this.actionDeleteUrl, this.onDeleteRecord);
-            }
-            if (params.rowContextMenu) {
-                this.configureItem(params.rowContextMenu, "menuitem_new", this.actionNewUrl, this.onNewRecord);
-                this.configureItem(params.rowContextMenu, "menuitem_edit", this.actionEditUrl, this.onEditRecord);
-                this.configureItem(params.rowContextMenu, "menuitem_delete", this.actionDeleteUrl, this.onDeleteRecord);
-            }
-
-            var store = this.getStore();
-            store.baseParams = Ext.applyIf(store.baseParams || {}, this.actionContextJson || {});
-
-            this.addEvents(
-                /**
-                 * Событие до запроса добавления записи - запрос отменится при возврате false
-                 * @param ObjectGrid this
-                 * @param JSON request - AJAX-запрос для отправки на сервер
-                 */
-                'beforenewrequest',
-                /**
-                 * Событие после запроса добавления записи - обработка отменится при возврате false
-                 * @param ObjectGrid this
-                 * @param res - результат запроса
-                 * @param opt - параметры запроса
-                 */
-                'afternewrequest',
-                /**
-                 * Событие до запроса редактирования записи - запрос отменится при возврате false
-                 * @param ObjectGrid this
-                 * @param JSON request - AJAX-запрос для отправки на сервер
-                 */
-                'beforeeditrequest',
-                /**
-                 * Событие после запроса редактирования записи - обработка отменится при возврате false
-                 * @param ObjectGrid this
-                 * @param res - результат запроса
-                 * @param opt - параметры запроса
-                 */
-                'aftereditrequest',
-                /**
-                 * Событие до запроса удаления записи - запрос отменится при возврате false
-                 * @param ObjectGrid this
-                 * @param JSON request - AJAX-запрос для отправки на сервер
-                 */
-                'beforedeleterequest',
-                /**
-                 * Событие после запроса удаления записи - обработка отменится при возврате false
-                 * @param ObjectGrid this
-                 * @param res - результат запроса
-                 * @param opt - параметры запроса
-                 */
-                'afterdeleterequest',
-                /**
-                 * Событие после успешного диалога добавления записи - встроенная обработка отменится при возврате false
-                 * @param ObjectGrid this
-                 * @param res - результат добавления (ответ сервера)
-                 */
-                'rowadded',
-                /**
-                 * Событие после успешного диалога редактирования записи - встроенная обработка отменится при возврате false
-                 * @param ObjectGrid this
-                 * @param res - результат редактирования  (ответ сервера)
-                 */
-                'rowedited',
-                /**
-                 * Событие после успешного диалога удаления записи - встроенная обработка отменится при возврате false
-                 * @param ObjectGrid this
-                 * @param res - результат удаления (ответ сервера)
-                 */
-                'rowdeleted'
-            );
-        },
 
         /**
          * Внутренняя функция для поиска и настройки элементов тулбара и контекстного меню
@@ -12492,7 +12527,10 @@ Ext.ux.Notification = Ext.extend(Ext.Window, {
                     failure: uiAjaxFailMessage
                 },
                 mask: this.loadMask
-            }).done();
+            }).done(function (win) {
+                    this.loadMask.show();
+                    win.on('close', this.loadMask.hide.createDelegate(this.loadMask));
+                }.bind(this));
 
         },
         /**
@@ -12526,7 +12564,10 @@ Ext.ux.Notification = Ext.extend(Ext.Window, {
                             failure: uiAjaxFailMessage
                         },
                         mask: this.loadMask
-                    }).done();
+                    }).done(function (win) {
+                            this.loadMask.show();
+                            win.on('close', this.loadMask.hide.createDelegate(this.loadMask));
+                        }.bind(this));
 
                 }
             } else {
@@ -12607,6 +12648,7 @@ Ext.ux.Notification = Ext.extend(Ext.Window, {
                     }
                 }, this);
             }
+            return win;
         },
         onEditRecordWindowOpenHandler: function (win) {
             if (win) {
@@ -12641,6 +12683,7 @@ Ext.ux.Notification = Ext.extend(Ext.Window, {
                     }
                 }, this);
             }
+            return win;
         },
         /**
          * Хендлер на удаление записи
@@ -12746,22 +12789,28 @@ Ext.ux.Notification = Ext.extend(Ext.Window, {
 
     Ext.define('Ext.m3.ObjectGrid',
 
-        Ext.applyIf(baseObjectGrid, {
+        Ext.apply({
 
             extend: 'Ext.m3.GridPanel',
-            xtype: 'm3-object-grid'
+            xtype: 'm3-object-grid',
+            initComponent: function () {
+                initComponent.apply(this);
+            }
 
-        })
+        }, baseObjectGrid)
     );
 
     Ext.define('Ext.m3.EditorObjectGrid',
 
-        Ext.applyIf(baseObjectGrid, {
+        Ext.apply({
 
             extend: 'Ext.m3.EditorGridPanel',
-            xtype: 'm3-edit-object-grid'
+            xtype: 'm3-edit-object-grid',
+            initComponent: function () {
+                initComponent.apply(this);
+            }
 
-        })
+        }, baseObjectGrid)
     );
 
 })();
@@ -15471,16 +15520,16 @@ Ext.override(Ext.grid.GridView, {
 ****/
 Ext.override(Ext.Component, {
     getContext: function() {
-        var owner = this.ownerCt;
+        var owner = this;
         while (owner) {
             var context = (owner.initialData || {}).context;
             if (context) {
                 return context
             } else {
                 owner = owner.ownerCt;
-            };
-        };
-        throw new Exception("not context found!");
+            }
+        }
+        throw new Error("not context found!");
     }
 });
 

@@ -555,15 +555,15 @@ Ext.override(Ext.grid.GridView, {
 ****/
 Ext.override(Ext.Component, {
     getContext: function() {
-        var owner = this.ownerCt;
+        var owner = this;
         while (owner) {
             var context = (owner.initialData || {}).context;
             if (context) {
                 return context
             } else {
                 owner = owner.ownerCt;
-            };
-        };
-        throw new Exception("not context found!");
+            }
+        }
+        throw new Error("not context found!");
     }
 });

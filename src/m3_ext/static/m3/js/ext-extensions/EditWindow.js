@@ -34,7 +34,6 @@ Ext.define('Ext.m3.EditWindow', {
             this.insert(0, this.form);
         }
 
-
         // Устанавливает функции на изменение значения
         this.items.each(function (item) {
             this.setFieldOnChange(item, this);
@@ -134,9 +133,9 @@ Ext.define('Ext.m3.EditWindow', {
             }
         }
 
-        var scope = this;
-        var mask = new Ext.LoadMask(this.body, {msg: 'Сохранение...'});
-        var params = Ext.applyIf(baseParams || {}, this.actionContextJson || {});
+        var scope = this,
+            mask = new Ext.LoadMask(this.body, {msg: 'Сохранение...'}),
+            params = Ext.applyIf(baseParams || {}, this.getContext() );
 
         //->TODO - deprecated
         // На форме могут находиться компоненты, которые не являются полями, но их можно сабмитить
@@ -441,7 +440,7 @@ Ext.define('Ext.m3.EditWindow', {
         this.disableToolbars(false);
     },
 
-    bind: function(data){
+    bind: function (data) {
         this.form.getForm().setValues(data.model);
     }
 });
