@@ -90,13 +90,7 @@ Ext.define('Ext.m3.EditWindow', {
         )
 
     },
-    /**
-     * Получает форму как первый элемент items
-     */
-    getForm: function () {
-        assert(this.form, 'Не задана форма');
-        return this.items[0];
-    },
+
     /**
      * Проверяет форму на наличие некорректных полей, отдает список label'ов этих полей
      */
@@ -129,9 +123,9 @@ Ext.define('Ext.m3.EditWindow', {
      * @param {Object} baseParams
      */
     submitForm: function (btn, e, baseParams) {
-        assert(this.formUrl, 'Не задан url для формы');
+        assert(this.form.url, 'Не задан url для формы');
 
-        var form = this.getForm();
+        var form = this.form;
         if (form) {
             var invalidNames = this.getInvalidNames(form);
             if (invalidNames.length) {
@@ -215,7 +209,7 @@ Ext.define('Ext.m3.EditWindow', {
         if (scope.fireEvent('beforesubmit', submit)) {
             this.disableToolbars(true);
             mask.show();
-            form.submit(submit);
+            form.getForm().submit(submit);
         }
     },
 
@@ -379,7 +373,7 @@ Ext.define('Ext.m3.EditWindow', {
         if (this.fireEvent('beforeloaddata', this)) {
 
             assert(this.dataUrl, 'Не задан dataUrl для формы');
-            this.getForm().doAction('load', {
+            this.form.doAction('load', {
                 url: this.dataUrl,
                 params: Ext.applyIf({
                         isGetData: true},
