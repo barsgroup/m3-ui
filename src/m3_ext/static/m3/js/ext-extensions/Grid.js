@@ -4,10 +4,13 @@
  */
 
 (function () {
+
+    var initComponent;
     // Костыль, чтобы копипаста в livegrid работала
     Ext.m3.configureGrid = initComponent = function () {
 
         var params = this.params || {};
+
         // Создание ColumnModel если надо
         // раньше был экземпляр ColModel, теперь приходи конфиг
         if (this.cm && !(this.cm instanceof Ext.grid.ColumnModel)) {
@@ -127,13 +130,13 @@
         });
 
         this.callParent();
-    }
+    };
 
     /**
      * Обработчик исключений хранилица
      */
     function storeException(proxy, type, action, options, response, arg) {
-        //console.log(proxy, type, action, options, response, arg);
+
         if (type == 'remote' && action != Ext.data.Api.actions.read) {
             if (response.raw.message) {
                 Ext.Msg.show({
@@ -153,7 +156,9 @@
             extend: 'Ext.grid.GridPanel',
             xtype: 'm3-grid',
 
-            initComponent: initComponent
+            initComponent: function () {
+                initComponent.apply(this);
+            }
         }
     );
 
@@ -161,7 +166,9 @@
             extend: 'Ext.grid.EditorGridPanel',
             xtype: 'm3-edit-grid',
 
-            initComponent: initComponent
+            initComponent: function () {
+                initComponent.apply(this);
+            }
         }
     );
 })();

@@ -214,11 +214,12 @@ Ext.define('Ext.m3.AdvancedComboBox', {
             this.baseTriggers[2].hide = disabled;
             this.baseTriggers[3].hide = disabled;
         }
-    }
+    },
 
     /**
      * Инициализация первоначальной настройки триггеров
-     */, initBaseTrigger: function () {
+     */
+    initBaseTrigger: function () {
         this.baseTriggers[0].handler = this.onTriggerClearClick;
         this.baseTriggers[1].handler = this.onTriggerDropDownClick;
         this.baseTriggers[2].handler = this.onTriggerDictSelectClick;

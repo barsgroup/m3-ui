@@ -10,6 +10,7 @@
          * Настройка объектного грида по расширенному конфигу из параметров
          */
         initComponent: function () {
+            debugger;
             var params = this.params || {};
             assert(params.allowPaging !== undefined, 'allowPaging is undefined');
             assert(params.rowIdName !== undefined, 'rowIdName is undefined');
@@ -159,7 +160,10 @@
                     failure: uiAjaxFailMessage
                 },
                 mask: this.loadMask
-            }).done();
+            }).done(function (win) {
+                    this.loadMask.show();
+                    win.on('close', this.loadMask.hide.createDelegate(this.loadMask));
+                }.bind(this));
 
         },
         /**
@@ -193,7 +197,10 @@
                             failure: uiAjaxFailMessage
                         },
                         mask: this.loadMask
-                    }).done();
+                    }).done(function (win) {
+                            this.loadMask.show();
+                            win.on('close', this.loadMask.hide.createDelegate(this.loadMask));
+                        }.bind(this));
 
                 }
             } else {
@@ -274,6 +281,7 @@
                     }
                 }, this);
             }
+            return win;
         },
         onEditRecordWindowOpenHandler: function (win) {
             if (win) {
@@ -308,6 +316,7 @@
                     }
                 }, this);
             }
+            return win;
         },
         /**
          * Хендлер на удаление записи
@@ -413,22 +422,22 @@
 
     Ext.define('Ext.m3.ObjectGrid',
 
-        Ext.applyIf(baseObjectGrid, {
+        Ext.apply({
 
             extend: 'Ext.m3.GridPanel',
             xtype: 'm3-object-grid'
 
-        })
+        }, baseObjectGrid)
     );
 
     Ext.define('Ext.m3.EditorObjectGrid',
 
-        Ext.applyIf(baseObjectGrid, {
+        Ext.apply({
 
             extend: 'Ext.m3.EditorGridPanel',
             xtype: 'm3-edit-object-grid'
 
-        })
+        }, baseObjectGrid)
     );
 
 })();
