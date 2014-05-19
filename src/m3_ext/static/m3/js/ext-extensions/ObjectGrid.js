@@ -4,125 +4,128 @@
 
 (function () {
 
+    // Чтобы можно было делать initComponent.apply и использовать разные scope в grid'e и editgrid'e
+    var initComponent = function () {
+
+        var params = this.params || {};
+        assert(params.allowPaging !== undefined, 'allowPaging is undefined');
+        assert(params.rowIdName !== undefined, 'rowIdName is undefined');
+        assert(params.actions !== undefined, 'actions is undefined');
+
+        this.allowPaging = params.allowPaging;
+        this.rowIdName = params.rowIdName;
+        // используется при режиме выбора ячеек.
+        // через этот параметр передается имя выбранной колонки
+        this.columnParamName = params.columnParamName;
+        this.actionNewUrl = params.actions.newUrl;
+        this.actionEditUrl = params.actions.editUrl;
+        this.actionDeleteUrl = params.actions.deleteUrl;
+        this.actionDataUrl = params.actions.dataUrl;
+        this.actionContextJson = params.actions.contextJson;
+        // признак клиентского редактирования
+        this.localEdit = params.localEdit;
+        // имя для сабмита в режиме клиентского редактирования
+        this.name = params.name;
+
+        // проставление адреса запроса за данными
+        if (this.store && !this.store.url) {
+            this.store.url = this.actionDataUrl;
+        }
+
+        this.callParent();
+
+        // настроим кнопки тулбара
+        this.configureItem(this.getTopToolbar(), "button_new", this.actionNewUrl, this.onNewRecord);
+        var edit_item = this.configureItem(this.getTopToolbar(), "button_edit", this.actionEditUrl, this.onEditRecord);
+        if (edit_item) {
+            this.on('dblclick', edit_item.handler);
+        }
+        this.configureItem(this.getTopToolbar(), "button_delete", this.actionDeleteUrl, this.onDeleteRecord);
+        this.configureItem(this.getTopToolbar(), "button_refresh", this.actionDataUrl, this.refreshStore);
+
+        // настроим меню в зависимости от переданных адресов
+        var params = this.params || {};
+        if (params.contextMenu) {
+            this.configureItem(params.contextMenu, "menuitem_new", this.actionNewUrl, this.onNewRecord);
+            this.configureItem(params.contextMenu, "menuitem_edit", this.actionEditUrl, this.onEditRecord);
+            this.configureItem(params.contextMenu, "menuitem_delete", this.actionDeleteUrl, this.onDeleteRecord);
+        }
+        if (params.rowContextMenu) {
+            this.configureItem(params.rowContextMenu, "menuitem_new", this.actionNewUrl, this.onNewRecord);
+            this.configureItem(params.rowContextMenu, "menuitem_edit", this.actionEditUrl, this.onEditRecord);
+            this.configureItem(params.rowContextMenu, "menuitem_delete", this.actionDeleteUrl, this.onDeleteRecord);
+        }
+
+        var store = this.getStore();
+        store.baseParams = Ext.applyIf(store.baseParams || {}, this.actionContextJson || {});
+
+        this.addEvents(
+            /**
+             * Событие до запроса добавления записи - запрос отменится при возврате false
+             * @param ObjectGrid this
+             * @param JSON request - AJAX-запрос для отправки на сервер
+             */
+            'beforenewrequest',
+            /**
+             * Событие после запроса добавления записи - обработка отменится при возврате false
+             * @param ObjectGrid this
+             * @param res - результат запроса
+             * @param opt - параметры запроса
+             */
+            'afternewrequest',
+            /**
+             * Событие до запроса редактирования записи - запрос отменится при возврате false
+             * @param ObjectGrid this
+             * @param JSON request - AJAX-запрос для отправки на сервер
+             */
+            'beforeeditrequest',
+            /**
+             * Событие после запроса редактирования записи - обработка отменится при возврате false
+             * @param ObjectGrid this
+             * @param res - результат запроса
+             * @param opt - параметры запроса
+             */
+            'aftereditrequest',
+            /**
+             * Событие до запроса удаления записи - запрос отменится при возврате false
+             * @param ObjectGrid this
+             * @param JSON request - AJAX-запрос для отправки на сервер
+             */
+            'beforedeleterequest',
+            /**
+             * Событие после запроса удаления записи - обработка отменится при возврате false
+             * @param ObjectGrid this
+             * @param res - результат запроса
+             * @param opt - параметры запроса
+             */
+            'afterdeleterequest',
+            /**
+             * Событие после успешного диалога добавления записи - встроенная обработка отменится при возврате false
+             * @param ObjectGrid this
+             * @param res - результат добавления (ответ сервера)
+             */
+            'rowadded',
+            /**
+             * Событие после успешного диалога редактирования записи - встроенная обработка отменится при возврате false
+             * @param ObjectGrid this
+             * @param res - результат редактирования  (ответ сервера)
+             */
+            'rowedited',
+            /**
+             * Событие после успешного диалога удаления записи - встроенная обработка отменится при возврате false
+             * @param ObjectGrid this
+             * @param res - результат удаления (ответ сервера)
+             */
+            'rowdeleted'
+        );
+    };
+
     var baseObjectGrid = {
 
         /**
          * Настройка объектного грида по расширенному конфигу из параметров
          */
-        initComponent: function () {
-            debugger;
-            var params = this.params || {};
-            assert(params.allowPaging !== undefined, 'allowPaging is undefined');
-            assert(params.rowIdName !== undefined, 'rowIdName is undefined');
-            assert(params.actions !== undefined, 'actions is undefined');
 
-            this.allowPaging = params.allowPaging;
-            this.rowIdName = params.rowIdName;
-            // используется при режиме выбора ячеек.
-            // через этот параметр передается имя выбранной колонки
-            this.columnParamName = params.columnParamName;
-            this.actionNewUrl = params.actions.newUrl;
-            this.actionEditUrl = params.actions.editUrl;
-            this.actionDeleteUrl = params.actions.deleteUrl;
-            this.actionDataUrl = params.actions.dataUrl;
-            this.actionContextJson = params.actions.contextJson;
-            // признак клиентского редактирования
-            this.localEdit = params.localEdit;
-            // имя для сабмита в режиме клиентского редактирования
-            this.name = params.name;
-
-            // проставление адреса запроса за данными
-            if (this.store && !this.store.url) {
-                this.store.url = this.actionDataUrl;
-            }
-
-            this.callParent();
-
-            // настроим кнопки тулбара
-            this.configureItem(this.getTopToolbar(), "button_new", this.actionNewUrl, this.onNewRecord);
-            var edit_item = this.configureItem(this.getTopToolbar(), "button_edit", this.actionEditUrl, this.onEditRecord);
-            if (edit_item) {
-                this.on('dblclick', edit_item.handler);
-            }
-            this.configureItem(this.getTopToolbar(), "button_delete", this.actionDeleteUrl, this.onDeleteRecord);
-            this.configureItem(this.getTopToolbar(), "button_refresh", this.actionDataUrl, this.refreshStore);
-
-            // настроим меню в зависимости от переданных адресов
-            var params = this.params || {};
-            if (params.contextMenu) {
-                this.configureItem(params.contextMenu, "menuitem_new", this.actionNewUrl, this.onNewRecord);
-                this.configureItem(params.contextMenu, "menuitem_edit", this.actionEditUrl, this.onEditRecord);
-                this.configureItem(params.contextMenu, "menuitem_delete", this.actionDeleteUrl, this.onDeleteRecord);
-            }
-            if (params.rowContextMenu) {
-                this.configureItem(params.rowContextMenu, "menuitem_new", this.actionNewUrl, this.onNewRecord);
-                this.configureItem(params.rowContextMenu, "menuitem_edit", this.actionEditUrl, this.onEditRecord);
-                this.configureItem(params.rowContextMenu, "menuitem_delete", this.actionDeleteUrl, this.onDeleteRecord);
-            }
-
-            var store = this.getStore();
-            store.baseParams = Ext.applyIf(store.baseParams || {}, this.actionContextJson || {});
-
-            this.addEvents(
-                /**
-                 * Событие до запроса добавления записи - запрос отменится при возврате false
-                 * @param ObjectGrid this
-                 * @param JSON request - AJAX-запрос для отправки на сервер
-                 */
-                'beforenewrequest',
-                /**
-                 * Событие после запроса добавления записи - обработка отменится при возврате false
-                 * @param ObjectGrid this
-                 * @param res - результат запроса
-                 * @param opt - параметры запроса
-                 */
-                'afternewrequest',
-                /**
-                 * Событие до запроса редактирования записи - запрос отменится при возврате false
-                 * @param ObjectGrid this
-                 * @param JSON request - AJAX-запрос для отправки на сервер
-                 */
-                'beforeeditrequest',
-                /**
-                 * Событие после запроса редактирования записи - обработка отменится при возврате false
-                 * @param ObjectGrid this
-                 * @param res - результат запроса
-                 * @param opt - параметры запроса
-                 */
-                'aftereditrequest',
-                /**
-                 * Событие до запроса удаления записи - запрос отменится при возврате false
-                 * @param ObjectGrid this
-                 * @param JSON request - AJAX-запрос для отправки на сервер
-                 */
-                'beforedeleterequest',
-                /**
-                 * Событие после запроса удаления записи - обработка отменится при возврате false
-                 * @param ObjectGrid this
-                 * @param res - результат запроса
-                 * @param opt - параметры запроса
-                 */
-                'afterdeleterequest',
-                /**
-                 * Событие после успешного диалога добавления записи - встроенная обработка отменится при возврате false
-                 * @param ObjectGrid this
-                 * @param res - результат добавления (ответ сервера)
-                 */
-                'rowadded',
-                /**
-                 * Событие после успешного диалога редактирования записи - встроенная обработка отменится при возврате false
-                 * @param ObjectGrid this
-                 * @param res - результат редактирования  (ответ сервера)
-                 */
-                'rowedited',
-                /**
-                 * Событие после успешного диалога удаления записи - встроенная обработка отменится при возврате false
-                 * @param ObjectGrid this
-                 * @param res - результат удаления (ответ сервера)
-                 */
-                'rowdeleted'
-            );
-        },
 
         /**
          * Внутренняя функция для поиска и настройки элементов тулбара и контекстного меню
@@ -425,7 +428,10 @@
         Ext.apply({
 
             extend: 'Ext.m3.GridPanel',
-            xtype: 'm3-object-grid'
+            xtype: 'm3-object-grid',
+            initComponent: function () {
+                initComponent.apply(this);
+            }
 
         }, baseObjectGrid)
     );
@@ -435,7 +441,10 @@
         Ext.apply({
 
             extend: 'Ext.m3.EditorGridPanel',
-            xtype: 'm3-edit-object-grid'
+            xtype: 'm3-edit-object-grid',
+            initComponent: function () {
+                initComponent.apply(this);
+            }
 
         }, baseObjectGrid)
     );
