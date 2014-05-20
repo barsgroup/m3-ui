@@ -153,10 +153,10 @@
 
             params[this.rowIdName] = '';
 
-            // bubbleEvents работает только  наследованных не! от Container
+
             var mask = {
-                show: button.fireEvent.createDelegate(button, ['mask', button], 0),
-                hide: button.fireEvent.createDelegate(button, ['unmask', button])
+                show: this.fireEvent.createDelegate(this.ownerCt, ['mask', this], 0),
+                hide: this.fireEvent.createDelegate(this.ownerCt, ['unmask', this])
             };
 
             UI.callAction({
@@ -171,7 +171,7 @@
                 },
                 mask: mask
             }).done(function (win) {
-                mask.show("Режим редактирования...");
+                mask.show("Режим создания...");
                 win.on('close', mask.hide.createDelegate(mask));
             });
 
@@ -196,10 +196,9 @@
                     });
                 } else {
 
-                    // bubbleEvents работает только  наследованных не! от Container
                     var mask = {
-                        show: button.fireEvent.createDelegate(button, ['mask', button], 0),
-                        hide: button.fireEvent.createDelegate(button, ['unmask', button])
+                        show: this.fireEvent.createDelegate(this.ownerCt, ['mask', this], 0),
+                        hide: this.fireEvent.createDelegate(this.ownerCt, ['unmask', this])
                     };
 
                     UI.callAction({
@@ -245,10 +244,9 @@
                     fn: function (btn) {
                         if (btn == 'yes') {
 
-                            // bubbleEvents работает только  наследованных не! от Container
                             var mask = {
-                                show: button.fireEvent.createDelegate(button, ['mask', button], 0),
-                                hide: button.fireEvent.createDelegate(button, ['unmask', button])
+                                show: this.fireEvent.createDelegate(this.ownerCt, ['mask', this], 0),
+                                hide: this.fireEvent.createDelegate(this.ownerCt, ['unmask', this])
                             };
 
                             UI.callAction({
