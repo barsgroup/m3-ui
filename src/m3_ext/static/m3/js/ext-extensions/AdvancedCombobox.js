@@ -388,19 +388,18 @@ Ext.define('Ext.m3.AdvancedComboBox', {
     },
     /**
      * Генерирует ajax-запрос за формой выбора из справочника и
-     * вешает обработку на предопределенное событие closed_ok
+     * вешает обработку на предопределенное событие select
      */
     onSelectInDictionary: function () {
         assert(this.actionSelectUrl, 'actionSelectUrl is undefined');
 
         if (this.fireEvent('beforerequest', this)) {
 
-            var parentWin=this, mask;
-            if (parentWin) {
-                mask = new Ext.LoadMask(parentWin.getEl(),
-                    {msg: "Пожалуйста выберите элемент...", msgCls: 'x-mask'});
-                mask.show();
-            }
+            var mask = {
+                show: this.fireEvent.createDelegate(this, ['mask', this], 0),
+                hide: this.fireEvent.createDelegate(this, ['unmask', this])
+            };
+
             UI.callAction({
                 scope: this,
                 request: {
@@ -410,41 +409,19 @@ Ext.define('Ext.m3.AdvancedComboBox', {
                 },
                 mask: mask
             }).done(function (win) {
-                win.on('close', mask.hide.createDelegate(mask));
-                win.on('closed_ok', function (id, displayText) {
-                    if (this.fireEvent('afterselect', this, id, displayText)) {
-                        this.addRecordToStore(id, displayText);
-                    }
-                }, this);
-            }.bind(this));
+                    assert(win);
 
-            // Ext.Ajax.request({
-            //     url: this.actionSelectUrl,
-            //     method: 'POST',
-            //     params: this.getContext(),
-            //     success: function (response, opts) {
-            //         var win = smart_eval(response.responseText);
-            //         if (win) {
-            //             win.on('closed_ok', function (id, displayText) {
-            //                 if (this.fireEvent('afterselect', this, id, displayText)) {
-            //                     this.addRecordToStore(id, displayText);
-            //                 }
-            //             }, this);
-            //             if (mask) {
-            //                 win.on('close', function () {
-            //                     mask.hide();
-            //                 });
-            //             }
-            //         }
-            //     },
-            //     failure: function (response, opts) {
-            //         if (mask) {
-            //             mask.hide();
-            //         }
-            //         uiAjaxFailMessage.apply(this, arguments);
-            //     },
-            //     scope: this
-            // });
+                    mask.show("Пожалуйста выберите элемент...");
+                    win.on('close', mask.hide.createDelegate(mask));
+
+                    win.on('select', function (cmp, id, displayText) {
+                        if (this.fireEvent('afterselect', this, id, displayText)) {
+                            this.addRecordToStore(id, displayText);
+                        }
+                    }, this);
+
+                    return win;
+                }.bind(this));
         }
     },
     /**

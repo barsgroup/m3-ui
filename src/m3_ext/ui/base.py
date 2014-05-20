@@ -260,7 +260,12 @@ class ExtUIComponent(BaseExtComponent):
         label='fieldLabel',
         label_style='labelStyle',
         hide_label='hideLabel',
+        bubble_events='bubbleEvents',
     )
+
+    def __init__(self, *args, **kwargs):
+        super(ExtUIComponent, self).__init__(*args, **kwargs)
+        self.setdefault('bubble_events', ['mask', 'unmask'])
 
     def make_read_only(
             self, access_off=True, exclude_list=(), *args, **kwargs):

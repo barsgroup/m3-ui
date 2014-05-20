@@ -34,6 +34,8 @@ UI = function (config) {
                             require.undef(config['staticPrefix'] + module + '.js');
                         }
                         result.resolve(cfg);
+                    }, function(err){
+                        result.reject(err);
                     });
                 }
                 return result.promise;
@@ -44,7 +46,7 @@ UI = function (config) {
                 if (win.bind) {
                     win.initialData = data;
                     win.bind(data);
-                };
+                }
                 return win;
             }.bind(this));
     }.bind(this);
@@ -195,7 +197,7 @@ UI.callAction = function (cfg) {
         // Если событие после запроса не обработано
         if (!e['eventProcessed'] && failure) {
             failure(e);
-            e.eventProcessed = true;
+//            e.eventProcessed = true;
             throw e;
         }
     });

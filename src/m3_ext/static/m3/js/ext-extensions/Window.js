@@ -6,36 +6,70 @@ Ext.define('Ext.m3.Window', {
     extend: 'Ext.Window',
     xtype: 'm3-window',
 
-	constructor: function(baseConfig, params){
+    constructor: function (baseConfig, params) {
         params = baseConfig.params || params;
 
-		// Ссылка на родительское окно
-		this.parentWindow = null;
-		
-		// Контекст
-		this.actionContextJson = null;
-		
-		if (params && params.parentWindowID) {
-			this.parentWindow = Ext.getCmp(params.parentWindowID);
-		}
-		
+        // Ссылка на родительское окно
+        this.parentWindow = null;
+
+        // Контекст
+        this.actionContextJson = null;
+
+        if (params && params.parentWindowID) {
+            this.parentWindow = Ext.getCmp(params.parentWindowID);
+        }
+
         if (params && params.helpTopic) {
             this.m3HelpTopic = params.helpTopic;
         }
-    
-		if (params && params.contextJson){
-			this.actionContextJson = params.contextJson;
-		}
-    
+
+        if (params && params.contextJson) {
+            this.actionContextJson = params.contextJson;
+        }
+
         // на F1 что-то нормально не вешается обработчик..
         //this.keys = {key: 112, fn: function(k,e){e.stopEvent();console.log('f1 pressed');}}
-    
-		this.callParent(arguments);
-	},
-    initTools: function(){
-        if (this.m3HelpTopic){
+
+        this.callParent(arguments);
+
+        this.addEvents(
+            /**
+             * Событие назначения маски на окно, всплывает из дочерних компонент
+             * Параметры:
+             *  this - ссылка на окно
+             *  cmp - ссылка на компонент, который послал событие
+             *  maskText - текст, который должен отобразиться при маскировании
+             */
+            'mask',
+
+            /**
+             * Событие снятия маски с окна, всплывает из дочерних компонент
+             * Параметры:
+             *  this - ссылка на окно
+             *  cmp - ссылка на компонент, который послал событие
+             */
+            'unmask'
+        );
+
+        var loadMask = new Ext.LoadMask(this.getEl(), {msg: 'Загрузка...', msgCls: 'x-mask'});
+        this.on('mask', function (cmp, maskText) {
+            loadMask.msgOrig = loadMask.msg;
+            loadMask.msg = maskText || loadMask.msg;
+            loadMask.show();
+        }, this);
+
+        this.on('unmask', function () {
+            loadMask.hide();
+            loadMask.msg = loadMask.msgOrig;
+        }, this);
+
+    },
+    initTools: function () {
+        if (this.m3HelpTopic) {
             var m3HelpTopic = this.m3HelpTopic;
-            this.addTool({id: 'help', handler: function(){ showHelpWindow(m3HelpTopic);}});
+            this.addTool({id: 'help', handler: function () {
+                showHelpWindow(m3HelpTopic);
+            }});
         }
         Ext.m3.Window.superclass.initTools.call(this);
     }
