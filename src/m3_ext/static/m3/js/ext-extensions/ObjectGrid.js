@@ -146,11 +146,18 @@
         /**
          * Нажатие на кнопку "Новый"
          */
-        onNewRecord: function () {
+        onNewRecord: function (button) {
+
             assert(this.actionNewUrl, 'actionNewUrl is not define');
             var params = this.getMainContext();
 
             params[this.rowIdName] = '';
+
+            // bubbleEvents работает только  наследованных не! от Container
+            var mask = {
+                show: button.fireEvent.createDelegate(button, ['mask', button], 0),
+                hide: button.fireEvent.createDelegate(button, ['unmask', button])
+            };
 
             UI.callAction({
                 scope: this,
@@ -162,17 +169,17 @@
                     success: this.onNewRecordWindowOpenHandler.createDelegate(this),
                     failure: uiAjaxFailMessage
                 },
-                mask: this.loadMask
+                mask: mask
             }).done(function (win) {
-                    this.loadMask.show();
-                    win.on('close', this.loadMask.hide.createDelegate(this.loadMask));
-                }.bind(this));
+                mask.show("Режим редактирования...");
+                win.on('close', mask.hide.createDelegate(mask));
+            });
 
         },
         /**
          * Нажатие на кнопку "Редактировать"
          */
-        onEditRecord: function () {
+        onEditRecord: function (button) {
             assert(this.actionEditUrl, 'actionEditUrl is not define');
             assert(this.rowIdName, 'rowIdName is not define');
 
@@ -189,6 +196,12 @@
                     });
                 } else {
 
+                    // bubbleEvents работает только  наследованных не! от Container
+                    var mask = {
+                        show: button.fireEvent.createDelegate(button, ['mask', button], 0),
+                        hide: button.fireEvent.createDelegate(button, ['unmask', button])
+                    };
+
                     UI.callAction({
                         scope: this,
                         beforeRequest: 'beforeeditrequest',
@@ -199,11 +212,11 @@
                             success: this.onEditRecordWindowOpenHandler.createDelegate(this),
                             failure: uiAjaxFailMessage
                         },
-                        mask: this.loadMask
+                        mask: mask
                     }).done(function (win) {
-                            this.loadMask.show();
-                            win.on('close', this.loadMask.hide.createDelegate(this.loadMask));
-                        }.bind(this));
+                        mask.show("Режим редактирования...");
+                        win.on('close', mask.hide.createDelegate(mask));
+                    });
 
                 }
             } else {
@@ -232,6 +245,12 @@
                     fn: function (btn) {
                         if (btn == 'yes') {
 
+                            // bubbleEvents работает только  наследованных не! от Container
+                            var mask = {
+                                show: button.fireEvent.createDelegate(button, ['mask', button], 0),
+                                hide: button.fireEvent.createDelegate(button, ['unmask', button])
+                            };
+
                             UI.callAction({
                                 scope: this,
                                 beforeRequest: 'beforedeleterequest',
@@ -243,7 +262,7 @@
                                     success: this.deleteOkHandler.createDelegate(this),
                                     failure: uiAjaxFailMessage
                                 },
-                                mask: this.loadMask
+                                mask: mask
                             }).done();
                         }
                     }

@@ -550,10 +550,12 @@ Ext.override(Ext.grid.GridView, {
     }
 });
 
-/*********************************************
+/**
 * Инжектирование getContext и добавление всплывающих событий
-****/
-Ext.override(Ext.Component, {
+*/
+Ext.define('Ext.Component', {
+    override: 'Ext.Component',
+
     bubbleEvents: ['mask', 'unmask', 'getcontext'],
 
     getContext: function(){

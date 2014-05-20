@@ -3950,6 +3950,7 @@ Ext.define('Ext.m3.ComboBox', {
     // Костыль, чтобы копипаста в livegrid работала
     Ext.m3.configureGrid = initComponent = function () {
 
+
         var params = this.params || {};
 
         // Создание ColumnModel если надо
@@ -12535,11 +12536,18 @@ Ext.ux.Notification = Ext.extend(Ext.Window, {
         /**
          * Нажатие на кнопку "Новый"
          */
-        onNewRecord: function () {
+        onNewRecord: function (button) {
+
             assert(this.actionNewUrl, 'actionNewUrl is not define');
             var params = this.getMainContext();
 
             params[this.rowIdName] = '';
+
+            // bubbleEvents работает только  наследованных не! от Container
+            var mask = {
+                show: button.fireEvent.createDelegate(button, ['mask', button], 0),
+                hide: button.fireEvent.createDelegate(button, ['unmask', button])
+            };
 
             UI.callAction({
                 scope: this,
@@ -12551,17 +12559,17 @@ Ext.ux.Notification = Ext.extend(Ext.Window, {
                     success: this.onNewRecordWindowOpenHandler.createDelegate(this),
                     failure: uiAjaxFailMessage
                 },
-                mask: this.loadMask
+                mask: mask
             }).done(function (win) {
-                    this.loadMask.show();
-                    win.on('close', this.loadMask.hide.createDelegate(this.loadMask));
-                }.bind(this));
+                mask.show("Режим редактирования...");
+                win.on('close', mask.hide.createDelegate(mask));
+            });
 
         },
         /**
          * Нажатие на кнопку "Редактировать"
          */
-        onEditRecord: function () {
+        onEditRecord: function (button) {
             assert(this.actionEditUrl, 'actionEditUrl is not define');
             assert(this.rowIdName, 'rowIdName is not define');
 
@@ -12578,6 +12586,12 @@ Ext.ux.Notification = Ext.extend(Ext.Window, {
                     });
                 } else {
 
+                    // bubbleEvents работает только  наследованных не! от Container
+                    var mask = {
+                        show: button.fireEvent.createDelegate(button, ['mask', button], 0),
+                        hide: button.fireEvent.createDelegate(button, ['unmask', button])
+                    };
+
                     UI.callAction({
                         scope: this,
                         beforeRequest: 'beforeeditrequest',
@@ -12588,11 +12602,11 @@ Ext.ux.Notification = Ext.extend(Ext.Window, {
                             success: this.onEditRecordWindowOpenHandler.createDelegate(this),
                             failure: uiAjaxFailMessage
                         },
-                        mask: this.loadMask
+                        mask: mask
                     }).done(function (win) {
-                            this.loadMask.show();
-                            win.on('close', this.loadMask.hide.createDelegate(this.loadMask));
-                        }.bind(this));
+                        mask.show("Режим редактирования...");
+                        win.on('close', mask.hide.createDelegate(mask));
+                    });
 
                 }
             } else {
@@ -12621,6 +12635,12 @@ Ext.ux.Notification = Ext.extend(Ext.Window, {
                     fn: function (btn) {
                         if (btn == 'yes') {
 
+                            // bubbleEvents работает только  наследованных не! от Container
+                            var mask = {
+                                show: button.fireEvent.createDelegate(button, ['mask', button], 0),
+                                hide: button.fireEvent.createDelegate(button, ['unmask', button])
+                            };
+
                             UI.callAction({
                                 scope: this,
                                 beforeRequest: 'beforedeleterequest',
@@ -12632,7 +12652,7 @@ Ext.ux.Notification = Ext.extend(Ext.Window, {
                                     success: this.deleteOkHandler.createDelegate(this),
                                     failure: uiAjaxFailMessage
                                 },
-                                mask: this.loadMask
+                                mask: mask
                             }).done();
                         }
                     }
@@ -15540,10 +15560,12 @@ Ext.override(Ext.grid.GridView, {
     }
 });
 
-/*********************************************
+/**
 * Инжектирование getContext и добавление всплывающих событий
-****/
-Ext.override(Ext.Component, {
+*/
+Ext.define('Ext.Component', {
+    override: 'Ext.Component',
+
     bubbleEvents: ['mask', 'unmask', 'getcontext'],
 
     getContext: function(){

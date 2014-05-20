@@ -9,6 +9,7 @@
     // Костыль, чтобы копипаста в livegrid работала
     Ext.m3.configureGrid = initComponent = function () {
 
+
         var params = this.params || {};
 
         // Создание ColumnModel если надо
