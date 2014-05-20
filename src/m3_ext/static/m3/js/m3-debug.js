@@ -3935,7 +3935,7 @@ Ext.define('Ext.m3.ComboBox', {
 	 * Возвращает текстовое представление комбобокса
 	 */
 	getText: function(){
-		return this.lastSelectionText;
+		return this.lastSelectionText || '';
 	}
 });
 
@@ -6208,36 +6208,70 @@ Ext.define('Ext.m3.Window', {
     extend: 'Ext.Window',
     xtype: 'm3-window',
 
-	constructor: function(baseConfig, params){
+    constructor: function (baseConfig, params) {
         params = baseConfig.params || params;
 
-		// Ссылка на родительское окно
-		this.parentWindow = null;
-		
-		// Контекст
-		this.actionContextJson = null;
-		
-		if (params && params.parentWindowID) {
-			this.parentWindow = Ext.getCmp(params.parentWindowID);
-		}
-		
+        // Ссылка на родительское окно
+        this.parentWindow = null;
+
+        // Контекст
+        this.actionContextJson = null;
+
+        if (params && params.parentWindowID) {
+            this.parentWindow = Ext.getCmp(params.parentWindowID);
+        }
+
         if (params && params.helpTopic) {
             this.m3HelpTopic = params.helpTopic;
         }
-    
-		if (params && params.contextJson){
-			this.actionContextJson = params.contextJson;
-		}
-    
+
+        if (params && params.contextJson) {
+            this.actionContextJson = params.contextJson;
+        }
+
         // на F1 что-то нормально не вешается обработчик..
         //this.keys = {key: 112, fn: function(k,e){e.stopEvent();console.log('f1 pressed');}}
-    
-		this.callParent(arguments);
-	},
-    initTools: function(){
-        if (this.m3HelpTopic){
+
+        this.callParent(arguments);
+
+        this.addEvents(
+            /**
+             * Событие назначения маски на окно, всплывает из дочерних компонент
+             * Параметры:
+             *  this - ссылка на окно
+             *  cmp - ссылка на компонент, который послал событие
+             *  maskText - текст, который должен отобразиться при маскировании
+             */
+            'mask',
+
+            /**
+             * Событие снятия маски с окна, всплывает из дочерних компонент
+             * Параметры:
+             *  this - ссылка на окно
+             *  cmp - ссылка на компонент, который послал событие
+             */
+            'unmask'
+        );
+
+        var loadMask = new Ext.LoadMask(this.getEl(), {msg: 'Загрузка...', msgCls: 'x-mask'});
+        this.on('mask', function (cmp, maskText) {
+            loadMask.msgOrig = loadMask.msg;
+            loadMask.msg = maskText || loadMask.msg;
+            loadMask.show();
+        }, this);
+
+        this.on('unmask', function () {
+            loadMask.hide();
+            loadMask.msg = loadMask.msgOrig;
+        }, this);
+
+    },
+    initTools: function () {
+        if (this.m3HelpTopic) {
             var m3HelpTopic = this.m3HelpTopic;
-            this.addTool({id: 'help', handler: function(){ showHelpWindow(m3HelpTopic);}});
+            this.addTool({id: 'help', handler: function () {
+                showHelpWindow(m3HelpTopic);
+            }});
         }
         Ext.m3.Window.superclass.initTools.call(this);
     }
@@ -7224,49 +7258,40 @@ Ext.define('Ext.m3.AdvancedComboBox', {
     },
     /**
      * Генерирует ajax-запрос за формой выбора из справочника и
-     * вешает обработку на предопределенное событие closed_ok
+     * вешает обработку на предопределенное событие select
      */
     onSelectInDictionary: function () {
         assert(this.actionSelectUrl, 'actionSelectUrl is undefined');
 
         if (this.fireEvent('beforerequest', this)) {
 
-            var parentWin = Ext.getCmp(this.actionContextJson['m3_window_id']),
-                mask;
-            if (parentWin) {
-                mask = new Ext.LoadMask(parentWin.getEl(),
-                    {msg: "Пожалуйста выберите элемент...", msgCls: 'x-mask'});
-                mask.show();
-            }
+            var mask = {
+                show: this.fireEvent.createDelegate(this, ['mask', this], 0),
+                hide: this.fireEvent.createDelegate(this, ['unmask', this])
+            };
 
-            Ext.Ajax.request({
-                url: this.actionSelectUrl,
-                method: 'POST',
-                params: this.actionContextJson,
-                success: function (response, opts) {
-                    var win = smart_eval(response.responseText);
-                    if (win) {
+            UI.callAction({
+                scope: this,
+                request: {
+                    url: this.actionSelectUrl,
+                    params: this.getContext(),
+                    failure: uiAjaxFailMessage
+                },
+                mask: mask
+            }).done(function (win) {
+                    assert(win);
 
-                        win.on('closed_ok', function (id, displayText) {
-                            if (this.fireEvent('afterselect', this, id, displayText)) {
-                                this.addRecordToStore(id, displayText);
-                            }
-                        }, this);
-                        if (mask) {
-                            win.on('close', function () {
-                                mask.hide();
-                            });
+                    mask.show("Пожалуйста выберите элемент...");
+                    win.on('close', mask.hide.createDelegate(mask));
+
+                    win.on('select', function (cmp, id, displayText) {
+                        if (this.fireEvent('afterselect', this, id, displayText)) {
+                            this.addRecordToStore(id, displayText);
                         }
-                    }
-                },
-                failure: function (response, opts) {
-                    if (mask) {
-                        mask.hide();
-                    }
-                    uiAjaxFailMessage.apply(this, arguments);
-                },
-                scope: this
-            });
+                    }, this);
+
+                    return win;
+                }.bind(this));
         }
     },
     /**
@@ -7431,6 +7456,7 @@ Ext.define('Ext.m3.AdvancedComboBox', {
         }
     }
 });
+
 /**
  * Компонент поля даты.
  * Добавлена кнопа установки текущий даты
@@ -7692,7 +7718,6 @@ Ext.define('Ext.m3.EditWindow', {
             }
         }
 
-        debugger;
         var scope = this,
             mask = new Ext.LoadMask(this.body, {msg: 'Сохранение...'}),
             params = Ext.applyIf(baseParams || {}, this.getContext() );
@@ -15516,20 +15541,15 @@ Ext.override(Ext.grid.GridView, {
 });
 
 /*********************************************
-* инжектирование getContext
+* Инжектирование getContext и добавление всплывающих событий
 ****/
 Ext.override(Ext.Component, {
-    getContext: function() {
-        var owner = this;
-        while (owner) {
-            var context = (owner.initialData || {}).context;
-            if (context) {
-                return context
-            } else {
-                owner = owner.ownerCt;
-            }
-        }
-        throw new Error("not context found!");
+    bubbleEvents: ['mask', 'unmask', 'getcontext'],
+
+    getContext: function(){
+        var result = {};
+        this.fireEvent('getcontext', this, result);
+        return result.context;
     }
 });
 

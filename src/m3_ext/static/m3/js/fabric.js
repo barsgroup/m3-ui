@@ -21,30 +21,28 @@ UI = function (config) {
                 // контекст должен браться только из изначальногго запроса
                 data.context = initialData.context || {};
                 return [result.config, data];
-            }).then(function (cfg) {
-                var module = cfg[0]['xtype'],
+            }).spread(function (cfg, data) {
+                var module = cfg['xtype'],
                     result = Q.defer();
 
-                // Не загружаем модули для списка исключений
-                if (config['requireExclude'].indexOf(module) >= 0) {
-                    result.resolve(cfg);
+                if (!Ext.ComponentMgr.types[module]) {
+                    require([config['staticPrefix'] + 'js/' + module + '.js'],
+                        // Параметры передаются в массиве, а дальше spread - тоже принимает массив, из-за этого [[...]]
+                        result.resolve.createDelegate(this, [[cfg, data]]),
+                        result.reject.createDelegate(this));
                 } else {
-                    require([config['staticPrefix'] + module + '.js'], function () {
-                        if (config['debug']) {
-                            require.undef(config['staticPrefix'] + module + '.js');
-                        }
-                        result.resolve(cfg);
-                    }, function(err){
-                        result.reject(err);
-                    });
+                    result.resolve([cfg, data]);
                 }
+
                 return result.promise;
-            }).then(function (cfgAndData) {
+            }).spread(function (cfg, data) {
                 // формируем UI widget
-                var win = this.uiFabric(cfgAndData[0]),
-                    data = cfgAndData[1];
+                var win = this.uiFabric(cfg);
+
                 if (win.bind) {
-                    win.initialData = data;
+                    win.on('getcontext', function (cmp, result) {
+                        result.context = data.context;
+                    });
                     win.bind(data);
                 }
                 return win;

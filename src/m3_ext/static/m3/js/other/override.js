@@ -551,19 +551,14 @@ Ext.override(Ext.grid.GridView, {
 });
 
 /*********************************************
-* инжектирование getContext
+* Инжектирование getContext и добавление всплывающих событий
 ****/
 Ext.override(Ext.Component, {
-    getContext: function() {
-        var owner = this;
-        while (owner) {
-            var context = (owner.initialData || {}).context;
-            if (context) {
-                return context
-            } else {
-                owner = owner.ownerCt;
-            }
-        }
-        throw new Error("not context found!");
+    bubbleEvents: ['mask', 'unmask', 'getcontext'],
+
+    getContext: function(){
+        var result = {};
+        this.fireEvent('getcontext', this, result);
+        return result.context;
     }
 });
