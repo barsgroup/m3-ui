@@ -395,42 +395,56 @@ Ext.define('Ext.m3.AdvancedComboBox', {
 
         if (this.fireEvent('beforerequest', this)) {
 
-            var parentWin = Ext.getCmp(this.actionContextJson['m3_window_id']),
-                mask;
+            var parentWin=this, mask;
             if (parentWin) {
                 mask = new Ext.LoadMask(parentWin.getEl(),
                     {msg: "Пожалуйста выберите элемент...", msgCls: 'x-mask'});
                 mask.show();
             }
-
-            Ext.Ajax.request({
-                url: this.actionSelectUrl,
-                method: 'POST',
-                params: this.actionContextJson,
-                success: function (response, opts) {
-                    var win = smart_eval(response.responseText);
-                    if (win) {
-
-                        win.on('closed_ok', function (id, displayText) {
-                            if (this.fireEvent('afterselect', this, id, displayText)) {
-                                this.addRecordToStore(id, displayText);
-                            }
-                        }, this);
-                        if (mask) {
-                            win.on('close', function () {
-                                mask.hide();
-                            });
-                        }
-                    }
+            UI.callAction({
+                scope: this,
+                request: {
+                    url: this.actionSelectUrl,
+                    params: this.getContext(),
+                    failure: uiAjaxFailMessage
                 },
-                failure: function (response, opts) {
-                    if (mask) {
-                        mask.hide();
+                mask: mask
+            }).done(function (win) {
+                win.on('close', mask.hide.createDelegate(mask));
+                win.on('closed_ok', function (id, displayText) {
+                    if (this.fireEvent('afterselect', this, id, displayText)) {
+                        this.addRecordToStore(id, displayText);
                     }
-                    uiAjaxFailMessage.apply(this, arguments);
-                },
-                scope: this
-            });
+                }, this);
+            }.bind(this));
+
+            // Ext.Ajax.request({
+            //     url: this.actionSelectUrl,
+            //     method: 'POST',
+            //     params: this.getContext(),
+            //     success: function (response, opts) {
+            //         var win = smart_eval(response.responseText);
+            //         if (win) {
+            //             win.on('closed_ok', function (id, displayText) {
+            //                 if (this.fireEvent('afterselect', this, id, displayText)) {
+            //                     this.addRecordToStore(id, displayText);
+            //                 }
+            //             }, this);
+            //             if (mask) {
+            //                 win.on('close', function () {
+            //                     mask.hide();
+            //                 });
+            //             }
+            //         }
+            //     },
+            //     failure: function (response, opts) {
+            //         if (mask) {
+            //             mask.hide();
+            //         }
+            //         uiAjaxFailMessage.apply(this, arguments);
+            //     },
+            //     scope: this
+            // });
         }
     },
     /**
