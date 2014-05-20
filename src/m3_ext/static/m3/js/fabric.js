@@ -18,6 +18,8 @@ UI = function (config) {
             .then(function (result) {
                 // ..., данные затем патчим инициализирующими данными,...
                 var data = Ext.apply(result.data || {}, initialData || {});
+                // контекст должен браться только из изначальногго запроса
+                data.context = initialData.context || {};
                 return [result.config, data];
             }).then(function (cfg) {
                 var module = cfg[0]['xtype'],
