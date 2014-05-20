@@ -67,7 +67,7 @@ Ext.define('Ext.m3.ObjectTree', {
             contextMenu.add(buttonNewInChild);
             containerContextMenu.add(buttonNewInRoot);
 
-            tbar.insert(0, {
+            tbar.add({
                 text: 'Добавить',
                 iconCls: 'add_item',
                 menu: {
@@ -79,24 +79,24 @@ Ext.define('Ext.m3.ObjectTree', {
         }
         if (this.actionEditUrl) {
             contextMenu.add(buttonEdit);
-            tbar.insert(0, buttonEdit);
+            tbar.add(buttonEdit);
 
             this.on('dblclick', this.onEditRecord, this);
         }
         if (this.actionDeleteUrl) {
             contextMenu.add(buttonRemove);
-            tbar.insert(0, buttonRemove);
+            tbar.add(buttonRemove);
         }
 
         // add separator
         if (this.actionNewUrl || this.actionEditUrl || this.actionDeleteUrl) {
-            tbar.insert(0, '-');
+            tbar.add('-');
             contextMenu.add('-');
             containerContextMenu.add('-');
         }
 
         if (this.dataUrl) {
-            tbar.insert(0, buttonRefresh);
+            tbar.add(buttonRefresh);
             contextMenu.add(buttonRefresh);
             containerContextMenu.add(buttonRefresh);
         }
@@ -115,16 +115,20 @@ Ext.define('Ext.m3.ObjectTree', {
 
         this.configure();
 
-        Ext.m3.ObjectTree.superclass.initComponent.call(this);
+        this.callParent();
 
         var loader = this.getLoader();
         loader.baseParams = this.getMainContext();
 
+        this.mask = {
+            show: this.fireEvent.createDelegate(this.ownerCt, ['mask', this], 0),
+            hide: this.fireEvent.createDelegate(this.ownerCt, ['unmask', this])
+        };
 
         // Повесим отображение маски при загрузке дерева
-        loader.on('beforeload', this.onBeforeLoad, this);
-        loader.on('load', this.onLoad, this);
-        loader.on('loadexception', this.onLoadException, this);
+        loader.on('beforeload', this.mask.show, this);
+        loader.on('load', this.mask.hide, this);
+        loader.on('loadexception', this.mask.hide, this);
 
         // еще настроим loader, чтобы правильно передавал узел через параметр
         loader.nodeParameter = this.rowIdName;
@@ -154,34 +158,6 @@ Ext.define('Ext.m3.ObjectTree', {
         );
     },
 
-    getMask: function () {
-        if (!this.loadMask) {
-            this.loadMask = new Ext.LoadMask(this.el,
-                {msg: "Загрузка..."});
-        }
-        return this.loadMask;
-    },
-
-    showMask: function (visible) {
-        var mask = this.getMask();
-        if (visible) {
-            mask.show();
-        } else {
-            mask.hide();
-        }
-    },
-
-    onBeforeLoad: function () {
-        this.showMask(true);
-    },
-
-    onLoad: function () {
-        this.showMask(false);
-    },
-
-    onLoadException: function () {
-        this.showMask(false);
-    },
 
     onNewRecord: function () {
         assert(this.actionNewUrl, 'actionNewUrl is not define');
@@ -195,8 +171,11 @@ Ext.define('Ext.m3.ObjectTree', {
                 success: this.childWindowOpenHandler.createDelegate('new'),
                 failure: uiAjaxFailMessage
             },
-            mask: this.getMask()
-        }).done();
+            mask: this.mask
+        }).done(function (win) {
+                this.mask.show("Режим создания...");
+                win.on('close', this.mask.hide);
+            }.bind(this));
     },
 
     onNewRecordChild: function () {
@@ -224,8 +203,11 @@ Ext.define('Ext.m3.ObjectTree', {
                 success: this.childWindowOpenHandler.createDelegate('newChild'),
                 failure: uiAjaxFailMessage
             },
-            mask: this.getMask()
-        }).done();
+            mask: this.mask
+        }).done(function (win) {
+                this.mask.show("Режим создания...");
+                win.on('close', this.mask.hide);
+            }.bind(this));
     },
 
     onEditRecord: function () {
@@ -233,6 +215,7 @@ Ext.define('Ext.m3.ObjectTree', {
         assert(this.rowIdName, 'rowIdName is not define');
 
         if (this.getSelectionModel().getSelectedNode()) {
+
             UI.callAction({
                 scope: this,
                 beforeRequest: 'beforeeditrequest',
@@ -242,8 +225,11 @@ Ext.define('Ext.m3.ObjectTree', {
                     success: this.childWindowOpenHandler.createDelegate('edit'),
                     failure: uiAjaxFailMessage
                 },
-                mask: this.getMask()
-            }).done();
+                mask: this.mask
+            }).done(function (win) {
+                this.mask.show("Режим редактирования...");
+                win.on('close', this.mask.hide);
+            }.bind(this));
 
         }
     },
@@ -265,6 +251,7 @@ Ext.define('Ext.m3.ObjectTree', {
                         return;
 
                     if (this.getSelectionModel().getSelectedNode()) {
+
                         UI.callAction({
                             scope: this,
                             beforeRequest: 'beforedeleterequest',
@@ -274,7 +261,7 @@ Ext.define('Ext.m3.ObjectTree', {
                                 success: this.deleteOkHandler.createDelegate(this),
                                 failure: uiAjaxFailMessage
                             },
-                            mask: this.getMask()
+                            mask: this.mask
                         }).done();
                     }
                 }
@@ -356,6 +343,7 @@ Ext.define('Ext.m3.ObjectTree', {
                 }
             }, this);
         }
+        return win;
     },
     deleteOkHandler: function (res) {
         if (this.incrementalUpdate) {

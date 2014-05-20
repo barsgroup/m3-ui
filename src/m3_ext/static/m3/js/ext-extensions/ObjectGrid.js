@@ -59,6 +59,11 @@
         var store = this.getStore();
         store.baseParams = Ext.applyIf(store.baseParams || {}, this.actionContextJson || {});
 
+        this.mask = {
+            show: this.fireEvent.createDelegate(this.ownerCt, ['mask', this], 0),
+            hide: this.fireEvent.createDelegate(this.ownerCt, ['unmask', this])
+        };
+
         this.addEvents(
             /**
              * Событие до запроса добавления записи - запрос отменится при возврате false
@@ -146,18 +151,12 @@
         /**
          * Нажатие на кнопку "Новый"
          */
-        onNewRecord: function (button) {
+        onNewRecord: function () {
 
             assert(this.actionNewUrl, 'actionNewUrl is not define');
             var params = this.getMainContext();
 
             params[this.rowIdName] = '';
-
-
-            var mask = {
-                show: this.fireEvent.createDelegate(this.ownerCt, ['mask', this], 0),
-                hide: this.fireEvent.createDelegate(this.ownerCt, ['unmask', this])
-            };
 
             UI.callAction({
                 scope: this,
@@ -169,17 +168,17 @@
                     success: this.onNewRecordWindowOpenHandler.createDelegate(this),
                     failure: uiAjaxFailMessage
                 },
-                mask: mask
+                mask: this.mask
             }).done(function (win) {
-                mask.show("Режим создания...");
-                win.on('close', mask.hide.createDelegate(mask));
-            });
+                    this.mask.show("Режим создания...");
+                    win.on('close', this.mask.hide);
+                }.bind(this));
 
         },
         /**
          * Нажатие на кнопку "Редактировать"
          */
-        onEditRecord: function (button) {
+        onEditRecord: function () {
             assert(this.actionEditUrl, 'actionEditUrl is not define');
             assert(this.rowIdName, 'rowIdName is not define');
 
@@ -196,11 +195,6 @@
                     });
                 } else {
 
-                    var mask = {
-                        show: this.fireEvent.createDelegate(this.ownerCt, ['mask', this], 0),
-                        hide: this.fireEvent.createDelegate(this.ownerCt, ['unmask', this])
-                    };
-
                     UI.callAction({
                         scope: this,
                         beforeRequest: 'beforeeditrequest',
@@ -211,11 +205,11 @@
                             success: this.onEditRecordWindowOpenHandler.createDelegate(this),
                             failure: uiAjaxFailMessage
                         },
-                        mask: mask
+                        mask: this.mask
                     }).done(function (win) {
-                        mask.show("Режим редактирования...");
-                        win.on('close', mask.hide.createDelegate(mask));
-                    });
+                            this.mask.show("Режим редактирования...");
+                            win.on('close', this.mask.hide);
+                        }.bind(this));
 
                 }
             } else {
@@ -244,11 +238,6 @@
                     fn: function (btn) {
                         if (btn == 'yes') {
 
-                            var mask = {
-                                show: this.fireEvent.createDelegate(this.ownerCt, ['mask', this], 0),
-                                hide: this.fireEvent.createDelegate(this.ownerCt, ['unmask', this])
-                            };
-
                             UI.callAction({
                                 scope: this,
                                 beforeRequest: 'beforedeleterequest',
@@ -260,7 +249,7 @@
                                     success: this.deleteOkHandler.createDelegate(this),
                                     failure: uiAjaxFailMessage
                                 },
-                                mask: mask
+                                mask: this.mask
                             }).done();
                         }
                     }
