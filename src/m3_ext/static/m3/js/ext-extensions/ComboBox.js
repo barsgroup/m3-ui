@@ -6,6 +6,6 @@ Ext.define('Ext.m3.ComboBox', {
 	 * Возвращает текстовое представление комбобокса
 	 */
 	getText: function(){
-		return this.lastSelectionText;
+		return this.lastSelectionText || '';
 	}
 });

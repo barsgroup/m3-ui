@@ -52,7 +52,10 @@
     <script type="text/javascript" src="{{ STATIC_URL }}ext/web-desktop/js/desktop.js"></script>
 
     <!-- m3 js-->
+{#    {% if STATIC_URL %}#}
     <script type='text/javascript' src='{{ STATIC_URL }}m3/js/m3-debug.js'></script>
+{#    {% else %}#}
+    <script type='text/javascript' src='{{ STATIC_URL }}m3/js/ext-extensions/ComboBox.js'></script>
     <script type='text/javascript' src='{{ STATIC_URL }}m3/js/ext-extensions/AdvancedCombobox.js'></script>
     <script type='text/javascript' src='{{ STATIC_URL }}m3/js/ext-extensions/ObjectTree.js'></script>
     <script type='text/javascript' src='{{ STATIC_URL }}m3/js/ext-extensions/Grid.js'></script>
@@ -63,17 +66,18 @@
     <script type='text/javascript' src='{{ STATIC_URL }}m3/js/ext-extensions/GroupingJsonStore.js'></script>
     <script type='text/javascript' src='{{ STATIC_URL }}m3/js/ext-extensions/Window.js'></script>
     <script type='text/javascript' src='{{ STATIC_URL }}m3/js/ext-extensions/EditWindow.js'></script>
-    <script type='text/javascript' src='{{ STATIC_URL }}m3/js/ext-extensions/LockingGridColumnWithHeaderGroup.js'></script>
+    <script type='text/javascript'
+            src='{{ STATIC_URL }}m3/js/ext-extensions/LockingGridColumnWithHeaderGroup.js'></script>
     <script type='text/javascript' src='{{ STATIC_URL }}m3/js/ext-extensions/ObjectSelectionPanel.js'></script>
     <script type='text/javascript' src='{{ STATIC_URL }}ext/js/ExtGridHeaderFilter.js'></script>
 
     <script type="text/javascript" src="{{ STATIC_URL }}vendor/q.js"></script>
     <script type="text/javascript" src="{{ STATIC_URL }}m3/js/fabric.js"></script>
     <script type="text/javascript" src="{{ STATIC_URL }}vendor/require.js"></script>
+    <script src="{{ STATIC_URL }}m3/js/ext-extensions/LockingGridColumnWithHeaderGroup.js"></script>
+{#    {% endif %}#}
 
     <link rel='stylesheet' type='text/css' href='{{ STATIC_URL }}m3/css/locking-grouping-grid.css'/>
-    <script src="{{ STATIC_URL }}m3/js/ext-extensions/LockingGridColumnWithHeaderGroup.js"></script>
-
     <link rel='stylesheet' type='text/css' href='{{ STATIC_URL }}vendor/livegrid/resources/css/ext-ux-livegrid.css'/>
     <script src="{{ STATIC_URL }}vendor/livegrid/livegrid-all-debug.js"></script>
     <script src="{{ STATIC_URL }}m3/js/ext-extensions/MultiGroupingGrid.js"></script>
