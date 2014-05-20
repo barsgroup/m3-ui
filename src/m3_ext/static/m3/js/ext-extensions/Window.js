@@ -39,6 +39,7 @@ Ext.define('Ext.m3.Window', {
              *  this - ссылка на окно
              *  cmp - ссылка на компонент, который послал событие
              *  maskText - текст, который должен отобразиться при маскировании
+             *  win - ссылка на дочернее окно
              */
             'mask',
 
@@ -47,17 +48,19 @@ Ext.define('Ext.m3.Window', {
              * Параметры:
              *  this - ссылка на окно
              *  cmp - ссылка на компонент, который послал событие
+             *  win - ссылка на дочернее окно
              */
             'unmask'
         );
 
-        var loadMask = new Ext.LoadMask(this.getEl(), {msg: 'Загрузка...', msgCls: 'x-mask'});
+        var loadMask = new Ext.LoadMask(this.getEl(),
+            {msg: 'Загрузка...', msgCls: 'x-mask'});
         this.on('mask', function (cmp, maskText, win) {
             loadMask.msgOrig = loadMask.msg;
             loadMask.msg = maskText || loadMask.msg;
             loadMask.show();
 
-            if (win) {
+            if (win instanceof Ext.m3.Window) {
                 this.on('activate', win.activate, win);
             }
 
@@ -66,7 +69,7 @@ Ext.define('Ext.m3.Window', {
         this.on('unmask', function (cmp, win) {
             loadMask.hide();
             loadMask.msg = loadMask.msgOrig;
-            if (win) {
+            if (win instanceof Ext.m3.Window) {
                 this.un('activate', win.activate, win);
             }
         }, this);
