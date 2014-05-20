@@ -52,18 +52,31 @@ Ext.define('Ext.m3.Window', {
         );
 
         var loadMask = new Ext.LoadMask(this.getEl(), {msg: 'Загрузка...', msgCls: 'x-mask'});
-        this.on('mask', function (cmp, maskText) {
+        this.on('mask', function (cmp, maskText, win) {
             loadMask.msgOrig = loadMask.msg;
             loadMask.msg = maskText || loadMask.msg;
             loadMask.show();
+
+            if (win) {
+                this.on('activate', win.activate, win);
+            }
+
         }, this);
 
-        this.on('unmask', function () {
+        this.on('unmask', function (cmp, win) {
             loadMask.hide();
             loadMask.msg = loadMask.msgOrig;
+            if (win) {
+                this.un('activate', win.activate, win);
+            }
         }, this);
 
     },
+
+    activate: function(){
+        this.toFront();
+    },
+
     initTools: function () {
         if (this.m3HelpTopic) {
             var m3HelpTopic = this.m3HelpTopic;

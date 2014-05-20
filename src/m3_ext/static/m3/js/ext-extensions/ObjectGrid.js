@@ -61,7 +61,7 @@
 
         this.mask = {
             show: this.fireEvent.createDelegate(this.ownerCt, ['mask', this], 0),
-            hide: this.fireEvent.createDelegate(this.ownerCt, ['unmask', this])
+            hide: this.fireEvent.createDelegate(this.ownerCt, ['unmask', this], 0)
         };
 
         this.addEvents(
@@ -170,8 +170,8 @@
                 },
                 mask: this.mask
             }).done(function (win) {
-                    this.mask.show("Режим создания...");
-                    win.on('close', this.mask.hide);
+                    this.mask.show("Режим создания...", win);
+                    win.on('close', this.mask.hide.createDelegate(this, [win]), this);
                 }.bind(this));
 
         },
@@ -207,8 +207,8 @@
                         },
                         mask: this.mask
                     }).done(function (win) {
-                            this.mask.show("Режим редактирования...");
-                            win.on('close', this.mask.hide);
+                            this.mask.show("Режим редактирования...", win);
+                            win.on('close', this.mask.hide.createDelegate(this, [win]), this);
                         }.bind(this));
 
                 }

@@ -397,7 +397,7 @@ Ext.define('Ext.m3.AdvancedComboBox', {
 
             var mask = {
                 show: this.fireEvent.createDelegate(this, ['mask', this], 0),
-                hide: this.fireEvent.createDelegate(this, ['unmask', this])
+                hide: this.fireEvent.createDelegate(this, ['unmask', this], 0)
             };
 
             UI.callAction({
@@ -411,8 +411,8 @@ Ext.define('Ext.m3.AdvancedComboBox', {
             }).done(function (win) {
                     assert(win);
 
-                    mask.show("Пожалуйста выберите элемент...");
-                    win.on('close', mask.hide.createDelegate(mask));
+                    mask.show("Пожалуйста выберите элемент...", win);
+                    win.on('close', mask.hide.createDelegate(mask, [win]), this);
 
                     win.on('select', function (cmp, id, displayText) {
                         if (this.fireEvent('afterselect', this, id, displayText)) {
