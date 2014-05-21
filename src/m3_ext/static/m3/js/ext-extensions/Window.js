@@ -30,6 +30,13 @@ Ext.define('Ext.m3.Window', {
         // на F1 что-то нормально не вешается обработчик..
         //this.keys = {key: 112, fn: function(k,e){e.stopEvent();console.log('f1 pressed');}}
 
+        // Поиск хендлера для кнопок и других компонент
+        this.listeners['gethandler'] = function (cmp, handler) {
+            if (Ext.isFunction(this[handler])){
+                cmp.handler = this[handler].createDelegate(this);
+            }
+        }.bind(this);
+
         this.callParent(arguments);
 
         this.addEvents(
@@ -73,10 +80,9 @@ Ext.define('Ext.m3.Window', {
                 this.un('activate', win.activate, win);
             }
         }, this);
-
     },
 
-    activate: function(){
+    activate: function () {
         this.toFront();
     },
 

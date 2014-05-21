@@ -532,7 +532,6 @@ Ext.override(Ext.grid.GridView, {
             colModel.setColumnWidth(i, Math.floor(colWidth + colWidth * fraction), true);
         }
 
-
         totalColWidth = colModel.getTotalWidth(false);
 
         if (totalColWidth > gridWidth) {
@@ -551,16 +550,16 @@ Ext.override(Ext.grid.GridView, {
 });
 
 /**
-* Инжектирование getContext и добавление всплывающих событий
+* Инжектирование getContext
 */
 Ext.define('Ext.Component', {
     override: 'Ext.Component',
 
-    bubbleEvents: ['mask', 'unmask', 'getcontext'],
-
     getContext: function(){
-        var result = {};
-        this.fireEvent('getcontext', this, result);
-        return result.context;
+        if (!Ext.isFunction(this['_getContext'])){
+            // Инжектирование _getContext
+            this.fireEvent('getcontext', this);
+        }
+        return this._getContext();
     }
 });

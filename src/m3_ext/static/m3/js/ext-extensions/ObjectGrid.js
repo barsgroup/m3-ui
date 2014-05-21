@@ -60,8 +60,8 @@
         store.baseParams = Ext.applyIf(store.baseParams || {}, this.actionContextJson || {});
 
         this.mask = {
-            show: this.fireEvent.createDelegate(this.ownerCt, ['mask', this], 0),
-            hide: this.fireEvent.createDelegate(this.ownerCt, ['unmask', this], 0)
+            show: this.fireEvent.createDelegate(this, ['mask', this], 0),
+            hide: this.fireEvent.createDelegate(this, ['unmask', this], 0)
         };
 
         this.addEvents(
@@ -127,10 +127,11 @@
 
     var baseObjectGrid = {
 
-        /**
-         * Настройка объектного грида по расширенному конфигу из параметров
-         */
-
+        bubbleEvents: [
+            'mask',
+            'unmask',
+            'getcontext'
+        ],
 
         /**
          * Внутренняя функция для поиска и настройки элементов тулбара и контекстного меню
@@ -435,6 +436,8 @@
 
             extend: 'Ext.m3.GridPanel',
             xtype: 'm3-object-grid',
+
+
             initComponent: function () {
                 initComponent.apply(this);
             }

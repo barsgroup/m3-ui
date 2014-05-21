@@ -28,7 +28,9 @@ UI = function (config) {
                 if (!Ext.ComponentMgr.types[module]) {
                     require([config['staticPrefix'] + 'js/' + module + '.js'],
                         // Параметры передаются в массиве, а дальше spread - тоже принимает массив, из-за этого [[...]]
-                        result.resolve.createDelegate(this, [[cfg, data]]),
+                        result.resolve.createDelegate(this, [
+                            [cfg, data]
+                        ]),
                         result.reject.createDelegate(this));
                 } else {
                     result.resolve([cfg, data]);
@@ -40,8 +42,10 @@ UI = function (config) {
                 var win = this.uiFabric(cfg);
 
                 if (win.bind) {
-                    win.on('getcontext', function (cmp, result) {
-                        result.context = data.context;
+                    win.on('getcontext', function (cmp) {
+                        cmp._getContext = function () {
+                            return data.context;
+                        }
                     });
                     win.bind(data);
                 }
@@ -96,8 +100,8 @@ UI.evalResult = function (response) {
         return null;
     }
 
-    return new Q(
-    ).then(function () {
+    return new Q()
+        .then(function () {
             if (obj.message) {
                 return msgBox({
                     title: 'Внимание',
@@ -112,16 +116,14 @@ UI.evalResult = function (response) {
         }).then(function () {
             if (obj.code) {
                 if (obj.code.ui) {
-
                     return UI.create(obj.code)
                         .then(function (win) {
-
                             AppDesktop.getDesktop()
                                 .createWindow(win)
                                 .show();
 
                             return win;
-                        })
+                        });
 
                 } else {
                     return obj.code;

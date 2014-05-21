@@ -6233,6 +6233,13 @@ Ext.define('Ext.m3.Window', {
         // на F1 что-то нормально не вешается обработчик..
         //this.keys = {key: 112, fn: function(k,e){e.stopEvent();console.log('f1 pressed');}}
 
+        // Поиск хендлера для кнопок и других компонент
+        this.listeners['gethandler'] = function (cmp, handler) {
+            if (Ext.isFunction(this[handler])){
+                cmp.handler = this[handler].createDelegate(this);
+            }
+        }.bind(this);
+
         this.callParent(arguments);
 
         this.addEvents(
@@ -6242,6 +6249,7 @@ Ext.define('Ext.m3.Window', {
              *  this - ссылка на окно
              *  cmp - ссылка на компонент, который послал событие
              *  maskText - текст, который должен отобразиться при маскировании
+             *  win - ссылка на дочернее окно
              */
             'mask',
 
@@ -6250,23 +6258,37 @@ Ext.define('Ext.m3.Window', {
              * Параметры:
              *  this - ссылка на окно
              *  cmp - ссылка на компонент, который послал событие
+             *  win - ссылка на дочернее окно
              */
             'unmask'
         );
 
-        var loadMask = new Ext.LoadMask(this.getEl(), {msg: 'Загрузка...', msgCls: 'x-mask'});
-        this.on('mask', function (cmp, maskText) {
+        var loadMask = new Ext.LoadMask(this.getEl(),
+            {msg: 'Загрузка...', msgCls: 'x-mask'});
+        this.on('mask', function (cmp, maskText, win) {
             loadMask.msgOrig = loadMask.msg;
             loadMask.msg = maskText || loadMask.msg;
             loadMask.show();
+
+            if (win instanceof Ext.m3.Window) {
+                this.on('activate', win.activate, win);
+            }
+
         }, this);
 
-        this.on('unmask', function () {
+        this.on('unmask', function (cmp, win) {
             loadMask.hide();
             loadMask.msg = loadMask.msgOrig;
+            if (win instanceof Ext.m3.Window) {
+                this.un('activate', win.activate, win);
+            }
         }, this);
-
     },
+
+    activate: function () {
+        this.toFront();
+    },
+
     initTools: function () {
         if (this.m3HelpTopic) {
             var m3HelpTopic = this.m3HelpTopic;
@@ -6879,6 +6901,12 @@ Ext.define('Ext.m3.AdvancedComboBox', {
     extend: 'Ext.m3.ComboBox',
     xtype: 'm3-select',
 
+    bubbleEvents: [
+        'mask',
+        'unmask',
+        'getcontext'
+    ],
+
     askBeforeDeleting: true,
 
     actionSelectUrl: null,
@@ -7268,7 +7296,7 @@ Ext.define('Ext.m3.AdvancedComboBox', {
 
             var mask = {
                 show: this.fireEvent.createDelegate(this, ['mask', this], 0),
-                hide: this.fireEvent.createDelegate(this, ['unmask', this])
+                hide: this.fireEvent.createDelegate(this, ['unmask', this], 0)
             };
 
             UI.callAction({
@@ -7282,8 +7310,8 @@ Ext.define('Ext.m3.AdvancedComboBox', {
             }).done(function (win) {
                     assert(win);
 
-                    mask.show("Пожалуйста выберите элемент...");
-                    win.on('close', mask.hide.createDelegate(mask));
+                    mask.show("Пожалуйста выберите элемент...", win);
+                    win.on('close', mask.hide.createDelegate(mask, [win]), this);
 
                     win.on('select', function (cmp, id, displayText) {
                         if (this.fireEvent('afterselect', this, id, displayText)) {
@@ -7560,26 +7588,15 @@ Ext.define('Ext.m3.Button', {
     extend: 'Ext.Button',
     xtype: 'm3-button',
 
-    /*
-     *
-     */
-    getParentHandler: function(parent, name){
+    bubbleEvents: [
+        'gethandler'
+    ],
 
-        if (parent.ownerCt){
-            return this.getParentHandler(parent.ownerCt, name);
-        }if (parent[name]){
-            return parent[name].createDelegate(parent);
-        } else {
-            return Ext.emptyFn;
-        }
-    },
-
-    initComponent: function(){
+    initComponent: function () {
         this.callParent();
 
-        if (typeof this.handler === 'string'){
-            // Поиск хендлера во вложенных родительских контейнерах
-            this.handler = this.getParentHandler(this.ownerCt, this.handler);
+        if (typeof this.handler === 'string') {
+            this.fireEvent('gethandler', this, this.handler);
         }
     }
 });
@@ -12449,6 +12466,11 @@ Ext.ux.Notification = Ext.extend(Ext.Window, {
         var store = this.getStore();
         store.baseParams = Ext.applyIf(store.baseParams || {}, this.actionContextJson || {});
 
+        this.mask = {
+            show: this.fireEvent.createDelegate(this, ['mask', this], 0),
+            hide: this.fireEvent.createDelegate(this, ['unmask', this], 0)
+        };
+
         this.addEvents(
             /**
              * Событие до запроса добавления записи - запрос отменится при возврате false
@@ -12512,10 +12534,11 @@ Ext.ux.Notification = Ext.extend(Ext.Window, {
 
     var baseObjectGrid = {
 
-        /**
-         * Настройка объектного грида по расширенному конфигу из параметров
-         */
-
+        bubbleEvents: [
+            'mask',
+            'unmask',
+            'getcontext'
+        ],
 
         /**
          * Внутренняя функция для поиска и настройки элементов тулбара и контекстного меню
@@ -12536,18 +12559,12 @@ Ext.ux.Notification = Ext.extend(Ext.Window, {
         /**
          * Нажатие на кнопку "Новый"
          */
-        onNewRecord: function (button) {
+        onNewRecord: function () {
 
             assert(this.actionNewUrl, 'actionNewUrl is not define');
             var params = this.getMainContext();
 
             params[this.rowIdName] = '';
-
-            // bubbleEvents работает только  наследованных не! от Container
-            var mask = {
-                show: button.fireEvent.createDelegate(button, ['mask', button], 0),
-                hide: button.fireEvent.createDelegate(button, ['unmask', button])
-            };
 
             UI.callAction({
                 scope: this,
@@ -12559,17 +12576,17 @@ Ext.ux.Notification = Ext.extend(Ext.Window, {
                     success: this.onNewRecordWindowOpenHandler.createDelegate(this),
                     failure: uiAjaxFailMessage
                 },
-                mask: mask
+                mask: this.mask
             }).done(function (win) {
-                mask.show("Режим редактирования...");
-                win.on('close', mask.hide.createDelegate(mask));
-            });
+                    this.mask.show("Режим создания...", win);
+                    win.on('close', this.mask.hide.createDelegate(this, [win]), this);
+                }.bind(this));
 
         },
         /**
          * Нажатие на кнопку "Редактировать"
          */
-        onEditRecord: function (button) {
+        onEditRecord: function () {
             assert(this.actionEditUrl, 'actionEditUrl is not define');
             assert(this.rowIdName, 'rowIdName is not define');
 
@@ -12586,12 +12603,6 @@ Ext.ux.Notification = Ext.extend(Ext.Window, {
                     });
                 } else {
 
-                    // bubbleEvents работает только  наследованных не! от Container
-                    var mask = {
-                        show: button.fireEvent.createDelegate(button, ['mask', button], 0),
-                        hide: button.fireEvent.createDelegate(button, ['unmask', button])
-                    };
-
                     UI.callAction({
                         scope: this,
                         beforeRequest: 'beforeeditrequest',
@@ -12602,11 +12613,11 @@ Ext.ux.Notification = Ext.extend(Ext.Window, {
                             success: this.onEditRecordWindowOpenHandler.createDelegate(this),
                             failure: uiAjaxFailMessage
                         },
-                        mask: mask
+                        mask: this.mask
                     }).done(function (win) {
-                        mask.show("Режим редактирования...");
-                        win.on('close', mask.hide.createDelegate(mask));
-                    });
+                            this.mask.show("Режим редактирования...", win);
+                            win.on('close', this.mask.hide.createDelegate(this, [win]), this);
+                        }.bind(this));
 
                 }
             } else {
@@ -12635,12 +12646,6 @@ Ext.ux.Notification = Ext.extend(Ext.Window, {
                     fn: function (btn) {
                         if (btn == 'yes') {
 
-                            // bubbleEvents работает только  наследованных не! от Container
-                            var mask = {
-                                show: button.fireEvent.createDelegate(button, ['mask', button], 0),
-                                hide: button.fireEvent.createDelegate(button, ['unmask', button])
-                            };
-
                             UI.callAction({
                                 scope: this,
                                 beforeRequest: 'beforedeleterequest',
@@ -12652,7 +12657,7 @@ Ext.ux.Notification = Ext.extend(Ext.Window, {
                                     success: this.deleteOkHandler.createDelegate(this),
                                     failure: uiAjaxFailMessage
                                 },
-                                mask: mask
+                                mask: this.mask
                             }).done();
                         }
                     }
@@ -12838,6 +12843,8 @@ Ext.ux.Notification = Ext.extend(Ext.Window, {
 
             extend: 'Ext.m3.GridPanel',
             xtype: 'm3-object-grid',
+
+
             initComponent: function () {
                 initComponent.apply(this);
             }
@@ -13029,7 +13036,7 @@ Ext.define('Ext.m3.ObjectTree', {
             contextMenu.add(buttonNewInChild);
             containerContextMenu.add(buttonNewInRoot);
 
-            tbar.insert(0, {
+            tbar.add({
                 text: 'Добавить',
                 iconCls: 'add_item',
                 menu: {
@@ -13041,24 +13048,24 @@ Ext.define('Ext.m3.ObjectTree', {
         }
         if (this.actionEditUrl) {
             contextMenu.add(buttonEdit);
-            tbar.insert(0, buttonEdit);
+            tbar.add(buttonEdit);
 
             this.on('dblclick', this.onEditRecord, this);
         }
         if (this.actionDeleteUrl) {
             contextMenu.add(buttonRemove);
-            tbar.insert(0, buttonRemove);
+            tbar.add(buttonRemove);
         }
 
         // add separator
         if (this.actionNewUrl || this.actionEditUrl || this.actionDeleteUrl) {
-            tbar.insert(0, '-');
+            tbar.add('-');
             contextMenu.add('-');
             containerContextMenu.add('-');
         }
 
         if (this.dataUrl) {
-            tbar.insert(0, buttonRefresh);
+            tbar.add(buttonRefresh);
             contextMenu.add(buttonRefresh);
             containerContextMenu.add(buttonRefresh);
         }
@@ -13077,16 +13084,20 @@ Ext.define('Ext.m3.ObjectTree', {
 
         this.configure();
 
-        Ext.m3.ObjectTree.superclass.initComponent.call(this);
+        this.callParent();
 
         var loader = this.getLoader();
         loader.baseParams = this.getMainContext();
 
+        this.mask = {
+            show: this.fireEvent.createDelegate(this.ownerCt, ['mask', this], 0),
+            hide: this.fireEvent.createDelegate(this.ownerCt, ['unmask', this], 0)
+        };
 
         // Повесим отображение маски при загрузке дерева
-        loader.on('beforeload', this.onBeforeLoad, this);
-        loader.on('load', this.onLoad, this);
-        loader.on('loadexception', this.onLoadException, this);
+        loader.on('beforeload', this.mask.show, this);
+        loader.on('load', this.mask.hide, this);
+        loader.on('loadexception', this.mask.hide, this);
 
         // еще настроим loader, чтобы правильно передавал узел через параметр
         loader.nodeParameter = this.rowIdName;
@@ -13116,34 +13127,6 @@ Ext.define('Ext.m3.ObjectTree', {
         );
     },
 
-    getMask: function () {
-        if (!this.loadMask) {
-            this.loadMask = new Ext.LoadMask(this.el,
-                {msg: "Загрузка..."});
-        }
-        return this.loadMask;
-    },
-
-    showMask: function (visible) {
-        var mask = this.getMask();
-        if (visible) {
-            mask.show();
-        } else {
-            mask.hide();
-        }
-    },
-
-    onBeforeLoad: function () {
-        this.showMask(true);
-    },
-
-    onLoad: function () {
-        this.showMask(false);
-    },
-
-    onLoadException: function () {
-        this.showMask(false);
-    },
 
     onNewRecord: function () {
         assert(this.actionNewUrl, 'actionNewUrl is not define');
@@ -13157,8 +13140,11 @@ Ext.define('Ext.m3.ObjectTree', {
                 success: this.childWindowOpenHandler.createDelegate('new'),
                 failure: uiAjaxFailMessage
             },
-            mask: this.getMask()
-        }).done();
+            mask: this.mask
+        }).done(function (win) {
+                this.mask.show("Режим создания...", win);
+                win.on('close', this.mask.hide.createDelegate(this, [win]), this);
+            }.bind(this));
     },
 
     onNewRecordChild: function () {
@@ -13186,8 +13172,11 @@ Ext.define('Ext.m3.ObjectTree', {
                 success: this.childWindowOpenHandler.createDelegate('newChild'),
                 failure: uiAjaxFailMessage
             },
-            mask: this.getMask()
-        }).done();
+            mask: this.mask
+        }).done(function (win) {
+                this.mask.show("Режим создания...", win);
+                win.on('close', this.mask.hide.createDelegate(this, [win]), this);
+            }.bind(this));
     },
 
     onEditRecord: function () {
@@ -13195,6 +13184,7 @@ Ext.define('Ext.m3.ObjectTree', {
         assert(this.rowIdName, 'rowIdName is not define');
 
         if (this.getSelectionModel().getSelectedNode()) {
+
             UI.callAction({
                 scope: this,
                 beforeRequest: 'beforeeditrequest',
@@ -13204,8 +13194,11 @@ Ext.define('Ext.m3.ObjectTree', {
                     success: this.childWindowOpenHandler.createDelegate('edit'),
                     failure: uiAjaxFailMessage
                 },
-                mask: this.getMask()
-            }).done();
+                mask: this.mask
+            }).done(function (win) {
+                this.mask.show("Режим редактирования...", win);
+                win.on('close', this.mask.hide.createDelegate(this, [win]), this);
+            }.bind(this));
 
         }
     },
@@ -13227,6 +13220,7 @@ Ext.define('Ext.m3.ObjectTree', {
                         return;
 
                     if (this.getSelectionModel().getSelectedNode()) {
+
                         UI.callAction({
                             scope: this,
                             beforeRequest: 'beforedeleterequest',
@@ -13236,7 +13230,7 @@ Ext.define('Ext.m3.ObjectTree', {
                                 success: this.deleteOkHandler.createDelegate(this),
                                 failure: uiAjaxFailMessage
                             },
-                            mask: this.getMask()
+                            mask: this.mask
                         }).done();
                     }
                 }
@@ -13318,6 +13312,7 @@ Ext.define('Ext.m3.ObjectTree', {
                 }
             }, this);
         }
+        return win;
     },
     deleteOkHandler: function (res) {
         if (this.incrementalUpdate) {
@@ -15542,7 +15537,6 @@ Ext.override(Ext.grid.GridView, {
             colModel.setColumnWidth(i, Math.floor(colWidth + colWidth * fraction), true);
         }
 
-
         totalColWidth = colModel.getTotalWidth(false);
 
         if (totalColWidth > gridWidth) {
@@ -15561,17 +15555,17 @@ Ext.override(Ext.grid.GridView, {
 });
 
 /**
-* Инжектирование getContext и добавление всплывающих событий
+* Инжектирование getContext
 */
 Ext.define('Ext.Component', {
     override: 'Ext.Component',
 
-    bubbleEvents: ['mask', 'unmask', 'getcontext'],
-
     getContext: function(){
-        var result = {};
-        this.fireEvent('getcontext', this, result);
-        return result.context;
+        if (!Ext.isFunction(this['_getContext'])){
+            // Инжектирование _getContext
+            this.fireEvent('getcontext', this);
+        }
+        return this._getContext();
     }
 });
 

@@ -8,6 +8,12 @@ Ext.define('Ext.m3.AdvancedComboBox', {
     extend: 'Ext.m3.ComboBox',
     xtype: 'm3-select',
 
+    bubbleEvents: [
+        'mask',
+        'unmask',
+        'getcontext'
+    ],
+
     askBeforeDeleting: true,
 
     actionSelectUrl: null,
