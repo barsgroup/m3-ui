@@ -27,12 +27,11 @@
                         }
                     } else {
                         res.handler = function () {
-                            UI.callAction({
-                                request: {
-                                    url: data.url,
-                                    params: data.context
-                                }
-                            }).done();
+                            UI.ajax({
+                                url: data.url,
+                                params: data.context
+
+                            }).then(UI.evalResult);
                         };
                     }
                 }

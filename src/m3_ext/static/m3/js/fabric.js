@@ -39,14 +39,16 @@ UI = function (config) {
                 return result.promise;
             }).spread(function (cfg, data) {
                 // формируем UI widget
-                var win = this.uiFabric(cfg);
 
-                if (win.bind) {
-                    win.on('getcontext', function (cmp) {
-                        cmp._getContext = function () {
-                            return data.context;
-                        }
-                    });
+                cfg.listeners = cfg.listeners || {};
+                cfg.listeners['getcontext'] = function (cmp) {
+                    cmp._getContext = function () {
+                        return data.context;
+                    }
+                };
+
+                var win = this.uiFabric(cfg);
+                if (Ext.isFunction(win.bind)) {
                     win.bind(data);
                 }
                 return win;
@@ -75,6 +77,27 @@ UI.ajax = function (cfg) {
         }
     }, cfg);
     Ext.Ajax.request(obj);
+    return result.promise;
+};
+
+/**
+ * Загружает JSON AJAX-запросом и кладёт в promise
+ * @param form
+ * @param cfg
+ * @returns {promise|Q.promise}
+ */
+UI.submit = function (form, cfg) {
+    var result = Q.defer();
+
+    var obj = Ext.applyIf({
+        success: function () {
+            result.resolve.apply(this, arguments);
+        },
+        failure: function (response) {
+            result.reject(response);
+        }
+    }, cfg);
+    form.getForm().submit(obj);
     return result.promise;
 };
 
@@ -134,78 +157,18 @@ UI.evalResult = function (response) {
         }.bind(this));
 };
 
-/**
- *
- * @param cfg Конфигурация для отправки запроса и получения ui-данных
- *
- * Например:
- *
- *         callAction({
- *            scope: this,
- *            beforeRequest: 'beforenewrequest',
- *            afterRequest: 'afternewrequest',
- *            request: {
- *                url: this.actionNewUrl,
- *                params: params,
- *                success: this.onNewRecordWindowOpenHandler.createDelegate(this),
- *                failure: uiAjaxFailMessage
- *            },
- *            mask: this.loadMask
- *         });
- *
- * @returns {*} q-object
- */
 UI.callAction = function (cfg) {
-
-    var scope = cfg['scope'],
-        success = cfg['success'] || cfg['request']['success'],
-        failure = cfg['failure'] || cfg['request']['failure'] || uiAjaxFailMessage,
-        beforeRequest = cfg['beforeRequest'],
-        afterRequest = cfg['afterRequest'],
-        request = cfg['request'],
-        mask = cfg['mask'];
-
-
-    if (beforeRequest && !scope.fireEvent(beforeRequest, scope, request)) {
-        // Событие до запроса обработано
-        return null;
-    }
-
-    if (mask) {
-        mask.show();
-    }
-
-    var ui = UI.ajax(request);
-
-    if (afterRequest) {
-        ui = ui.then(function (res, opt) {
-            if (!scope.fireEvent(afterRequest, scope, res, opt)) {
-                return Q.reject({'eventProcessed': true});
+    return Q()
+        .then(this.fireEvent.createDelegate(this, ['mask', this]))
+        .then(UI.ajax.createDelegate(this, [cfg]))
+        .then(UI.evalResult)
+        .then(cfg.success)
+        .catch(cfg.failure)
+        .finally(this.fireEvent.createDelegate(this, ['unmask', this]))
+        .then(function (win) {
+            if (win instanceof Ext.Component) {
+                this.fireEvent('mask', this, cfg.mode, win);
+                win.on('close', this.fireEvent.createDelegate(this, ['unmask', this]), this);
             }
-            return arguments;
-        });
-        ui = ui.spread(this.evalResult.bind(this));
-    } else {
-        ui = ui.then(this.evalResult.bind(this));
-    }
-
-    if (success) {
-        ui = ui.then(success)
-    }
-
-    ui = ui.catch(function (e) {
-        // Если событие после запроса не обработано
-        if (!e['eventProcessed'] && failure) {
-            failure(e);
-//            e.eventProcessed = true;
-            throw e;
-        }
-    });
-
-    if (mask) {
-        ui = ui.finally(function () {
-            mask.hide()
-        })
-    }
-    return ui;
+        }.bind(this));
 };

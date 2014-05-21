@@ -401,33 +401,20 @@ Ext.define('Ext.m3.AdvancedComboBox', {
 
         if (this.fireEvent('beforerequest', this)) {
 
-            var mask = {
-                show: this.fireEvent.createDelegate(this, ['mask', this], 0),
-                hide: this.fireEvent.createDelegate(this, ['unmask', this], 0)
-            };
-
-            UI.callAction({
-                scope: this,
-                request: {
-                    url: this.actionSelectUrl,
-                    params: this.getContext(),
-                    failure: uiAjaxFailMessage
-                },
-                mask: mask
-            }).done(function (win) {
-                    assert(win);
-
-                    mask.show("Пожалуйста выберите элемент...", win);
-                    win.on('close', mask.hide.createDelegate(mask, [win]), this);
-
+            UI.callAction.call(this, {
+                mode: "Пожалуйста выберите элемент...",
+                url: this.actionSelectUrl,
+                params: this.getContext(),
+                failure: uiAjaxFailMessage,
+                success: function (win) {
                     win.on('select', function (cmp, id, displayText) {
                         if (this.fireEvent('afterselect', this, id, displayText)) {
                             this.addRecordToStore(id, displayText);
                         }
                     }, this);
-
                     return win;
-                }.bind(this));
+                }.bind(this)
+            });
         }
     },
     /**

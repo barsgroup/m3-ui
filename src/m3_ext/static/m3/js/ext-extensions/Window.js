@@ -32,7 +32,7 @@ Ext.define('Ext.m3.Window', {
 
         // Поиск хендлера для кнопок и других компонент
         this.listeners['gethandler'] = function (cmp, handler) {
-            if (Ext.isFunction(this[handler])){
+            if (Ext.isFunction(this[handler])) {
                 cmp.handler = this[handler].createDelegate(this);
             }
         }.bind(this);

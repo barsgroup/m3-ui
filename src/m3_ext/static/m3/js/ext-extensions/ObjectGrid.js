@@ -59,10 +59,6 @@
         var store = this.getStore();
         store.baseParams = Ext.applyIf(store.baseParams || {}, this.actionContextJson || {});
 
-        this.mask = {
-            show: this.fireEvent.createDelegate(this, ['mask', this], 0),
-            hide: this.fireEvent.createDelegate(this, ['unmask', this], 0)
-        };
 
         this.addEvents(
             /**
@@ -153,28 +149,21 @@
          * Нажатие на кнопку "Новый"
          */
         onNewRecord: function () {
-
             assert(this.actionNewUrl, 'actionNewUrl is not define');
-            var params = this.getMainContext();
 
+            var params = this.getContext();
             params[this.rowIdName] = '';
 
-            UI.callAction({
-                scope: this,
-                beforeRequest: 'beforenewrequest',
-                afterRequest: 'afternewrequest',
-                request: {
-                    url: this.actionNewUrl,
-                    params: params,
-                    success: this.onNewRecordWindowOpenHandler.createDelegate(this),
-                    failure: uiAjaxFailMessage
-                },
-                mask: this.mask
-            }).done(function (win) {
-                    this.mask.show("Режим создания...", win);
-                    win.on('close', this.mask.hide.createDelegate(this, [win]), this);
-                }.bind(this));
-
+            var request = {
+                url: this.actionNewUrl,
+                params: params,
+                success: this.newRecord.createDelegate(this),
+                failure: uiAjaxFailMessage,
+                mode: "Режим создания..."
+            };
+            if (this.fireEvent('beforenewrequest', this, request)) {
+                UI.callAction.call(this, request);
+            }
         },
         /**
          * Нажатие на кнопку "Редактировать"
@@ -196,22 +185,16 @@
                     });
                 } else {
 
-                    UI.callAction({
-                        scope: this,
-                        beforeRequest: 'beforeeditrequest',
-                        afterRequest: 'aftereditrequest',
-                        request: {
-                            url: this.actionEditUrl,
-                            params: baseConf,
-                            success: this.onEditRecordWindowOpenHandler.createDelegate(this),
-                            failure: uiAjaxFailMessage
-                        },
-                        mask: this.mask
-                    }).done(function (win) {
-                            this.mask.show("Режим редактирования...", win);
-                            win.on('close', this.mask.hide.createDelegate(this, [win]), this);
-                        }.bind(this));
-
+                    var request = {
+                        url: this.actionEditUrl,
+                        params: baseConf,
+                        success: this.editRecord.createDelegate(this),
+                        failure: uiAjaxFailMessage,
+                        mode: "Режим редактирования..."
+                    };
+                    if (this.fireEvent('beforeeditrequest', this, request)) {
+                        UI.callAction.call(this, request);
+                    }
                 }
             } else {
                 Ext.Msg.show({
@@ -235,25 +218,22 @@
                     msg: 'Вы действительно хотите удалить выбранную запись?',
                     icon: Ext.Msg.QUESTION,
                     buttons: Ext.Msg.YESNO,
-                    scope: this,
                     fn: function (btn) {
                         if (btn == 'yes') {
 
-                            UI.callAction({
-                                scope: this,
-                                beforeRequest: 'beforedeleterequest',
-                                afterRequest: 'afterdeleterequest',
-                                request: {
-                                    url: this.actionDeleteUrl,
-                                    method: 'POST',
-                                    params: this.getSelectionContext(this.localEdit),
-                                    success: this.deleteOkHandler.createDelegate(this),
-                                    failure: uiAjaxFailMessage
-                                },
-                                mask: this.mask
-                            }).done();
+                            var request = {
+                                url: this.actionDeleteUrl,
+                                method: 'POST',
+                                params: this.getSelectionContext(this.localEdit),
+                                success: this.deleteRecord.createDelegate(this),
+                                failure: uiAjaxFailMessage
+                            };
+                            if (this.fireEvent('beforedeleterequest', this, request)) {
+                                UI.callAction.call(this, request);
+                            }
+
                         }
-                    }
+                    }.bind(this)
                 });
             } else {
                 Ext.Msg.show({
@@ -269,8 +249,8 @@
          * Показ и подписка на сообщения в дочерних окнах
          * @param {Object} win Окно
          */
-        onNewRecordWindowOpenHandler: function (win) {
-            if (win) {
+        newRecord: function (win) {
+            if (this.fireEvent('afternewrequest', this, win) && win instanceof Ext.Component) {
                 win.on('closed_ok', function (data) {
                     if (this.fireEvent('rowadded', this, data)) {
                         // если локальное редактирование
@@ -293,8 +273,8 @@
             }
             return win;
         },
-        onEditRecordWindowOpenHandler: function (win) {
-            if (win) {
+        editRecord: function (win) {
+            if (this.fireEvent('aftereditrequest', this, win) && win instanceof Ext.Component) {
                 win.on('closed_ok', function (data) {
                     if (this.fireEvent('rowedited', this, data)) {
                         // если локальное редактирование
@@ -332,7 +312,7 @@
          * Хендлер на удаление записи
          * @param {Object} res json-ответ
          */
-        deleteOkHandler: function (res) {
+        deleteRecord: function (res) {
             if (this.fireEvent('rowdeleted', this, res)) {
                 // если локальное редактирование
                 if (this.localEdit) {

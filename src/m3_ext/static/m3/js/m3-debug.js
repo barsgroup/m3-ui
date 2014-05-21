@@ -6235,7 +6235,7 @@ Ext.define('Ext.m3.Window', {
 
         // Поиск хендлера для кнопок и других компонент
         this.listeners['gethandler'] = function (cmp, handler) {
-            if (Ext.isFunction(this[handler])){
+            if (Ext.isFunction(this[handler])) {
                 cmp.handler = this[handler].createDelegate(this);
             }
         }.bind(this);
@@ -7294,33 +7294,20 @@ Ext.define('Ext.m3.AdvancedComboBox', {
 
         if (this.fireEvent('beforerequest', this)) {
 
-            var mask = {
-                show: this.fireEvent.createDelegate(this, ['mask', this], 0),
-                hide: this.fireEvent.createDelegate(this, ['unmask', this], 0)
-            };
-
-            UI.callAction({
-                scope: this,
-                request: {
-                    url: this.actionSelectUrl,
-                    params: this.getContext(),
-                    failure: uiAjaxFailMessage
-                },
-                mask: mask
-            }).done(function (win) {
-                    assert(win);
-
-                    mask.show("Пожалуйста выберите элемент...", win);
-                    win.on('close', mask.hide.createDelegate(mask, [win]), this);
-
+            UI.callAction.call(this, {
+                mode: "Пожалуйста выберите элемент...",
+                url: this.actionSelectUrl,
+                params: this.getContext(),
+                failure: uiAjaxFailMessage,
+                success: function (win) {
                     win.on('select', function (cmp, id, displayText) {
                         if (this.fireEvent('afterselect', this, id, displayText)) {
                             this.addRecordToStore(id, displayText);
                         }
                     }, this);
-
                     return win;
-                }.bind(this));
+                }.bind(this)
+            });
         }
     },
     /**
@@ -12466,10 +12453,6 @@ Ext.ux.Notification = Ext.extend(Ext.Window, {
         var store = this.getStore();
         store.baseParams = Ext.applyIf(store.baseParams || {}, this.actionContextJson || {});
 
-        this.mask = {
-            show: this.fireEvent.createDelegate(this, ['mask', this], 0),
-            hide: this.fireEvent.createDelegate(this, ['unmask', this], 0)
-        };
 
         this.addEvents(
             /**
@@ -12560,28 +12543,21 @@ Ext.ux.Notification = Ext.extend(Ext.Window, {
          * Нажатие на кнопку "Новый"
          */
         onNewRecord: function () {
-
             assert(this.actionNewUrl, 'actionNewUrl is not define');
-            var params = this.getMainContext();
 
+            var params = this.getContext();
             params[this.rowIdName] = '';
 
-            UI.callAction({
-                scope: this,
-                beforeRequest: 'beforenewrequest',
-                afterRequest: 'afternewrequest',
-                request: {
-                    url: this.actionNewUrl,
-                    params: params,
-                    success: this.onNewRecordWindowOpenHandler.createDelegate(this),
-                    failure: uiAjaxFailMessage
-                },
-                mask: this.mask
-            }).done(function (win) {
-                    this.mask.show("Режим создания...", win);
-                    win.on('close', this.mask.hide.createDelegate(this, [win]), this);
-                }.bind(this));
-
+            var request = {
+                url: this.actionNewUrl,
+                params: params,
+                success: this.newRecord.createDelegate(this),
+                failure: uiAjaxFailMessage,
+                mode: "Режим создания..."
+            };
+            if (this.fireEvent('beforenewrequest', this, request)) {
+                UI.callAction.call(this, request);
+            }
         },
         /**
          * Нажатие на кнопку "Редактировать"
@@ -12603,22 +12579,16 @@ Ext.ux.Notification = Ext.extend(Ext.Window, {
                     });
                 } else {
 
-                    UI.callAction({
-                        scope: this,
-                        beforeRequest: 'beforeeditrequest',
-                        afterRequest: 'aftereditrequest',
-                        request: {
-                            url: this.actionEditUrl,
-                            params: baseConf,
-                            success: this.onEditRecordWindowOpenHandler.createDelegate(this),
-                            failure: uiAjaxFailMessage
-                        },
-                        mask: this.mask
-                    }).done(function (win) {
-                            this.mask.show("Режим редактирования...", win);
-                            win.on('close', this.mask.hide.createDelegate(this, [win]), this);
-                        }.bind(this));
-
+                    var request = {
+                        url: this.actionEditUrl,
+                        params: baseConf,
+                        success: this.editRecord.createDelegate(this),
+                        failure: uiAjaxFailMessage,
+                        mode: "Режим редактирования..."
+                    };
+                    if (this.fireEvent('beforeeditrequest', this, request)) {
+                        UI.callAction.call(this, request);
+                    }
                 }
             } else {
                 Ext.Msg.show({
@@ -12642,25 +12612,22 @@ Ext.ux.Notification = Ext.extend(Ext.Window, {
                     msg: 'Вы действительно хотите удалить выбранную запись?',
                     icon: Ext.Msg.QUESTION,
                     buttons: Ext.Msg.YESNO,
-                    scope: this,
                     fn: function (btn) {
                         if (btn == 'yes') {
 
-                            UI.callAction({
-                                scope: this,
-                                beforeRequest: 'beforedeleterequest',
-                                afterRequest: 'afterdeleterequest',
-                                request: {
-                                    url: this.actionDeleteUrl,
-                                    method: 'POST',
-                                    params: this.getSelectionContext(this.localEdit),
-                                    success: this.deleteOkHandler.createDelegate(this),
-                                    failure: uiAjaxFailMessage
-                                },
-                                mask: this.mask
-                            }).done();
+                            var request = {
+                                url: this.actionDeleteUrl,
+                                method: 'POST',
+                                params: this.getSelectionContext(this.localEdit),
+                                success: this.deleteRecord.createDelegate(this),
+                                failure: uiAjaxFailMessage
+                            };
+                            if (this.fireEvent('beforedeleterequest', this, request)) {
+                                UI.callAction.call(this, request);
+                            }
+
                         }
-                    }
+                    }.bind(this)
                 });
             } else {
                 Ext.Msg.show({
@@ -12676,8 +12643,8 @@ Ext.ux.Notification = Ext.extend(Ext.Window, {
          * Показ и подписка на сообщения в дочерних окнах
          * @param {Object} win Окно
          */
-        onNewRecordWindowOpenHandler: function (win) {
-            if (win) {
+        newRecord: function (win) {
+            if (this.fireEvent('afternewrequest', this, win) && win instanceof Ext.Component) {
                 win.on('closed_ok', function (data) {
                     if (this.fireEvent('rowadded', this, data)) {
                         // если локальное редактирование
@@ -12700,8 +12667,8 @@ Ext.ux.Notification = Ext.extend(Ext.Window, {
             }
             return win;
         },
-        onEditRecordWindowOpenHandler: function (win) {
-            if (win) {
+        editRecord: function (win) {
+            if (this.fireEvent('aftereditrequest', this, win) && win instanceof Ext.Component) {
                 win.on('closed_ok', function (data) {
                     if (this.fireEvent('rowedited', this, data)) {
                         // если локальное редактирование
@@ -12739,7 +12706,7 @@ Ext.ux.Notification = Ext.extend(Ext.Window, {
          * Хендлер на удаление записи
          * @param {Object} res json-ответ
          */
-        deleteOkHandler: function (res) {
+        deleteRecord: function (res) {
             if (this.fireEvent('rowdeleted', this, res)) {
                 // если локальное редактирование
                 if (this.localEdit) {
@@ -12976,6 +12943,12 @@ Ext.define('Ext.m3.ObjectTree', {
     extend: 'Ext.m3.Tree',
     xtype: 'm3-object-tree',
 
+    bubbleEvents: [
+        'mask',
+        'unmask',
+        'getcontext'
+    ],
+
     allowPaging: false,
     rowIdName: 'id',
     parentIdName: 'parent_id',
@@ -12990,9 +12963,6 @@ Ext.define('Ext.m3.ObjectTree', {
 
     folderSort: true,
     enableSort: false,
-
-    loadMask: null,
-//    loadMask: new Ext.LoadMask(this.el, {msg: "Загрузка..."}),
 
     configure: function () {
 
@@ -13087,17 +13057,12 @@ Ext.define('Ext.m3.ObjectTree', {
         this.callParent();
 
         var loader = this.getLoader();
-        loader.baseParams = this.getMainContext();
-
-        this.mask = {
-            show: this.fireEvent.createDelegate(this.ownerCt, ['mask', this], 0),
-            hide: this.fireEvent.createDelegate(this.ownerCt, ['unmask', this], 0)
-        };
+        loader.baseParams = this.getContext();
 
         // Повесим отображение маски при загрузке дерева
-        loader.on('beforeload', this.mask.show, this);
-        loader.on('load', this.mask.hide, this);
-        loader.on('loadexception', this.mask.hide, this);
+        loader.on('beforeload', this.fireEvent.createDelegate(this, ['mask', this]), this);
+        loader.on('load', this.fireEvent.createDelegate(this, ['unmask', this]), this);
+        loader.on('loadexception', this.fireEvent.createDelegate(this, ['unmask', this]), this);
 
         // еще настроим loader, чтобы правильно передавал узел через параметр
         loader.nodeParameter = this.rowIdName;
@@ -13131,20 +13096,16 @@ Ext.define('Ext.m3.ObjectTree', {
     onNewRecord: function () {
         assert(this.actionNewUrl, 'actionNewUrl is not define');
 
-        UI.callAction({
-            scope: this,
-            beforeRequest: 'beforenewrequest',
-            request: {
-                url: this.actionNewUrl,
-                params: this.getMainContext(),
-                success: this.childWindowOpenHandler.createDelegate('new'),
-                failure: uiAjaxFailMessage
-            },
-            mask: this.mask
-        }).done(function (win) {
-                this.mask.show("Режим создания...", win);
-                win.on('close', this.mask.hide.createDelegate(this, [win]), this);
-            }.bind(this));
+        var request = {
+            url: this.actionNewUrl,
+            params: this.getContext(),
+            success: this.childWindowOpenHandler.createDelegate('new'),
+            failure: uiAjaxFailMessage,
+            mode: "Режим создания..."
+        };
+        if (this.fireEvent('beforenewrequest', this, request)) {
+            UI.callAction.call(this, request);
+        }
     },
 
     onNewRecordChild: function () {
@@ -13163,20 +13124,18 @@ Ext.define('Ext.m3.ObjectTree', {
         baseConf[this.parentIdName] = baseConf[this.rowIdName];
         delete baseConf[this.rowIdName];
 
-        UI.callAction({
-            scope: this,
-            beforeRequest: 'beforenewrequest',
-            request: {
-                url: this.actionNewUrl,
-                params: baseConf,
-                success: this.childWindowOpenHandler.createDelegate('newChild'),
-                failure: uiAjaxFailMessage
-            },
-            mask: this.mask
-        }).done(function (win) {
-                this.mask.show("Режим создания...", win);
-                win.on('close', this.mask.hide.createDelegate(this, [win]), this);
-            }.bind(this));
+
+        var request = {
+            url: this.actionNewUrl,
+            params: baseConf,
+            success: this.childWindowOpenHandler.createDelegate('newChild'),
+            failure: uiAjaxFailMessage,
+            mode: "Режим создания..."
+        };
+        if (this.fireEvent('beforenewrequest', this, request)) {
+            UI.callAction.call(this, request);
+        }
+
     },
 
     onEditRecord: function () {
@@ -13185,20 +13144,16 @@ Ext.define('Ext.m3.ObjectTree', {
 
         if (this.getSelectionModel().getSelectedNode()) {
 
-            UI.callAction({
-                scope: this,
-                beforeRequest: 'beforeeditrequest',
-                request: {
-                    url: this.actionEditUrl,
-                    params: this.getSelectionContext(),
-                    success: this.childWindowOpenHandler.createDelegate('edit'),
-                    failure: uiAjaxFailMessage
-                },
-                mask: this.mask
-            }).done(function (win) {
-                this.mask.show("Режим редактирования...", win);
-                win.on('close', this.mask.hide.createDelegate(this, [win]), this);
-            }.bind(this));
+            var request = {
+                url: this.actionEditUrl,
+                params: this.getSelectionContext(),
+                success: this.childWindowOpenHandler.createDelegate('edit'),
+                failure: uiAjaxFailMessage,
+                mode: "Режим редактирования..."
+            };
+            if (this.fireEvent('beforeeditrequest', this, request)) {
+                UI.callAction.call(this, request);
+            }
 
         }
     },
@@ -13211,7 +13166,6 @@ Ext.define('Ext.m3.ObjectTree', {
 
             Ext.Msg.show({
                 title: 'Удаление записи',
-                scope: this,
                 msg: 'Вы действительно хотите удалить выбранную запись?',
                 icon: Ext.Msg.QUESTION,
                 buttons: Ext.Msg.YESNO,
@@ -13221,19 +13175,18 @@ Ext.define('Ext.m3.ObjectTree', {
 
                     if (this.getSelectionModel().getSelectedNode()) {
 
-                        UI.callAction({
-                            scope: this,
-                            beforeRequest: 'beforedeleterequest',
-                            request: {
-                                url: this.actionDeleteUrl,
-                                params: this.getSelectionContext(),
-                                success: this.deleteOkHandler.createDelegate(this),
-                                failure: uiAjaxFailMessage
-                            },
-                            mask: this.mask
-                        }).done();
+                        var request = {
+                            url: this.actionDeleteUrl,
+                            method: 'POST',
+                            params: this.getSelectionContext(),
+                            success: this.deleteOkHandler.createDelegate(this),
+                            failure: uiAjaxFailMessage
+                        };
+                        if (this.fireEvent('beforedeleterequest', this, request)) {
+                            UI.callAction.call(this, request);
+                        }
                     }
-                }
+                }.bind(this)
             });
         } else {
             Ext.Msg.show({
@@ -13329,22 +13282,15 @@ Ext.define('Ext.m3.ObjectTree', {
         }
     },
     refreshStore: function () {
-        this.getLoader().baseParams = this.getMainContext();
+        this.getLoader().baseParams = this.getContext();
         this.getLoader().load(this.getRootNode());
-    },
-    /**
-     * Получение основного контекста дерева
-     * Используется при ajax запросах
-     */
-    getMainContext: function () {
-        return Ext.applyIf({}, this.actionContextJson);
     },
     /**
      * Получение контекста выделения строк/ячеек
      * Используется при ajax запросах
      */
     getSelectionContext: function () {
-        var baseConf = this.getMainContext();
+        var baseConf = this.getContext();
         if (this.getSelectionModel().getSelectedNode()) {
             baseConf[this.rowIdName] = this.getSelectionModel().getSelectedNode().id;
         }

@@ -52,9 +52,9 @@
     <script type="text/javascript" src="{{ STATIC_URL }}ext/web-desktop/js/desktop.js"></script>
 
     <!-- m3 js-->
-{#    {% if STATIC_URL %}#}
+    {#    {% if STATIC_URL %}#}
     <script type='text/javascript' src='{{ STATIC_URL }}m3/js/m3-debug.js'></script>
-{#    {% else %}#}
+    {#    {% else %}#}
     <script type='text/javascript' src='{{ STATIC_URL }}m3/js/ext-extensions/ComboBox.js'></script>
     <script type='text/javascript' src='{{ STATIC_URL }}m3/js/ext-extensions/AdvancedCombobox.js'></script>
     <script type='text/javascript' src='{{ STATIC_URL }}m3/js/ext-extensions/ObjectTree.js'></script>
@@ -75,7 +75,7 @@
     <script type="text/javascript" src="{{ STATIC_URL }}m3/js/fabric.js"></script>
     <script type="text/javascript" src="{{ STATIC_URL }}vendor/require.js"></script>
     <script src="{{ STATIC_URL }}m3/js/ext-extensions/LockingGridColumnWithHeaderGroup.js"></script>
-{#    {% endif %}#}
+    {#    {% endif %}#}
 
     <link rel='stylesheet' type='text/css' href='{{ STATIC_URL }}m3/css/locking-grouping-grid.css'/>
     <link rel='stylesheet' type='text/css' href='{{ STATIC_URL }}vendor/livegrid/resources/css/ext-ux-livegrid.css'/>
@@ -122,12 +122,10 @@
 
             confStorage: function (key) {
                 // конфиги всегда будут грузиться с сервера
-                return UI.callAction({
-                    request: {
-                        url: key,
-                        params: {'ui': true}
-                    }
-                });
+                return UI.ajax({
+                    url: key,
+                    params: {'ui': true}
+                }).then(UI.evalResult);
             },
             uiFabric: Ext.create
         });

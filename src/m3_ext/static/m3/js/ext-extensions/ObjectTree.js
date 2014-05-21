@@ -7,6 +7,12 @@ Ext.define('Ext.m3.ObjectTree', {
     extend: 'Ext.m3.Tree',
     xtype: 'm3-object-tree',
 
+    bubbleEvents: [
+        'mask',
+        'unmask',
+        'getcontext'
+    ],
+
     allowPaging: false,
     rowIdName: 'id',
     parentIdName: 'parent_id',
@@ -21,9 +27,6 @@ Ext.define('Ext.m3.ObjectTree', {
 
     folderSort: true,
     enableSort: false,
-
-    loadMask: null,
-//    loadMask: new Ext.LoadMask(this.el, {msg: "Загрузка..."}),
 
     configure: function () {
 
@@ -118,17 +121,12 @@ Ext.define('Ext.m3.ObjectTree', {
         this.callParent();
 
         var loader = this.getLoader();
-        loader.baseParams = this.getMainContext();
-
-        this.mask = {
-            show: this.fireEvent.createDelegate(this.ownerCt, ['mask', this], 0),
-            hide: this.fireEvent.createDelegate(this.ownerCt, ['unmask', this], 0)
-        };
+        loader.baseParams = this.getContext();
 
         // Повесим отображение маски при загрузке дерева
-        loader.on('beforeload', this.mask.show, this);
-        loader.on('load', this.mask.hide, this);
-        loader.on('loadexception', this.mask.hide, this);
+        loader.on('beforeload', this.fireEvent.createDelegate(this, ['mask', this]), this);
+        loader.on('load', this.fireEvent.createDelegate(this, ['unmask', this]), this);
+        loader.on('loadexception', this.fireEvent.createDelegate(this, ['unmask', this]), this);
 
         // еще настроим loader, чтобы правильно передавал узел через параметр
         loader.nodeParameter = this.rowIdName;
@@ -162,20 +160,16 @@ Ext.define('Ext.m3.ObjectTree', {
     onNewRecord: function () {
         assert(this.actionNewUrl, 'actionNewUrl is not define');
 
-        UI.callAction({
-            scope: this,
-            beforeRequest: 'beforenewrequest',
-            request: {
-                url: this.actionNewUrl,
-                params: this.getMainContext(),
-                success: this.childWindowOpenHandler.createDelegate('new'),
-                failure: uiAjaxFailMessage
-            },
-            mask: this.mask
-        }).done(function (win) {
-                this.mask.show("Режим создания...", win);
-                win.on('close', this.mask.hide.createDelegate(this, [win]), this);
-            }.bind(this));
+        var request = {
+            url: this.actionNewUrl,
+            params: this.getContext(),
+            success: this.childWindowOpenHandler.createDelegate('new'),
+            failure: uiAjaxFailMessage,
+            mode: "Режим создания..."
+        };
+        if (this.fireEvent('beforenewrequest', this, request)) {
+            UI.callAction.call(this, request);
+        }
     },
 
     onNewRecordChild: function () {
@@ -194,20 +188,18 @@ Ext.define('Ext.m3.ObjectTree', {
         baseConf[this.parentIdName] = baseConf[this.rowIdName];
         delete baseConf[this.rowIdName];
 
-        UI.callAction({
-            scope: this,
-            beforeRequest: 'beforenewrequest',
-            request: {
-                url: this.actionNewUrl,
-                params: baseConf,
-                success: this.childWindowOpenHandler.createDelegate('newChild'),
-                failure: uiAjaxFailMessage
-            },
-            mask: this.mask
-        }).done(function (win) {
-                this.mask.show("Режим создания...", win);
-                win.on('close', this.mask.hide.createDelegate(this, [win]), this);
-            }.bind(this));
+
+        var request = {
+            url: this.actionNewUrl,
+            params: baseConf,
+            success: this.childWindowOpenHandler.createDelegate('newChild'),
+            failure: uiAjaxFailMessage,
+            mode: "Режим создания..."
+        };
+        if (this.fireEvent('beforenewrequest', this, request)) {
+            UI.callAction.call(this, request);
+        }
+
     },
 
     onEditRecord: function () {
@@ -216,20 +208,16 @@ Ext.define('Ext.m3.ObjectTree', {
 
         if (this.getSelectionModel().getSelectedNode()) {
 
-            UI.callAction({
-                scope: this,
-                beforeRequest: 'beforeeditrequest',
-                request: {
-                    url: this.actionEditUrl,
-                    params: this.getSelectionContext(),
-                    success: this.childWindowOpenHandler.createDelegate('edit'),
-                    failure: uiAjaxFailMessage
-                },
-                mask: this.mask
-            }).done(function (win) {
-                this.mask.show("Режим редактирования...", win);
-                win.on('close', this.mask.hide.createDelegate(this, [win]), this);
-            }.bind(this));
+            var request = {
+                url: this.actionEditUrl,
+                params: this.getSelectionContext(),
+                success: this.childWindowOpenHandler.createDelegate('edit'),
+                failure: uiAjaxFailMessage,
+                mode: "Режим редактирования..."
+            };
+            if (this.fireEvent('beforeeditrequest', this, request)) {
+                UI.callAction.call(this, request);
+            }
 
         }
     },
@@ -242,7 +230,6 @@ Ext.define('Ext.m3.ObjectTree', {
 
             Ext.Msg.show({
                 title: 'Удаление записи',
-                scope: this,
                 msg: 'Вы действительно хотите удалить выбранную запись?',
                 icon: Ext.Msg.QUESTION,
                 buttons: Ext.Msg.YESNO,
@@ -252,19 +239,18 @@ Ext.define('Ext.m3.ObjectTree', {
 
                     if (this.getSelectionModel().getSelectedNode()) {
 
-                        UI.callAction({
-                            scope: this,
-                            beforeRequest: 'beforedeleterequest',
-                            request: {
-                                url: this.actionDeleteUrl,
-                                params: this.getSelectionContext(),
-                                success: this.deleteOkHandler.createDelegate(this),
-                                failure: uiAjaxFailMessage
-                            },
-                            mask: this.mask
-                        }).done();
+                        var request = {
+                            url: this.actionDeleteUrl,
+                            method: 'POST',
+                            params: this.getSelectionContext(),
+                            success: this.deleteOkHandler.createDelegate(this),
+                            failure: uiAjaxFailMessage
+                        };
+                        if (this.fireEvent('beforedeleterequest', this, request)) {
+                            UI.callAction.call(this, request);
+                        }
                     }
-                }
+                }.bind(this)
             });
         } else {
             Ext.Msg.show({
@@ -360,22 +346,15 @@ Ext.define('Ext.m3.ObjectTree', {
         }
     },
     refreshStore: function () {
-        this.getLoader().baseParams = this.getMainContext();
+        this.getLoader().baseParams = this.getContext();
         this.getLoader().load(this.getRootNode());
-    },
-    /**
-     * Получение основного контекста дерева
-     * Используется при ajax запросах
-     */
-    getMainContext: function () {
-        return Ext.applyIf({}, this.actionContextJson);
     },
     /**
      * Получение контекста выделения строк/ячеек
      * Используется при ajax запросах
      */
     getSelectionContext: function () {
-        var baseConf = this.getMainContext();
+        var baseConf = this.getContext();
         if (this.getSelectionModel().getSelectedNode()) {
             baseConf[this.rowIdName] = this.getSelectionModel().getSelectedNode().id;
         }
