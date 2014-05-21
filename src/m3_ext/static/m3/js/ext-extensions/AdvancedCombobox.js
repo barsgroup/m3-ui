@@ -18,7 +18,6 @@ Ext.define('Ext.m3.AdvancedComboBox', {
 
     actionSelectUrl: null,
     actionEditUrl: null,
-    actionContextJson: null,
 
     hideBaseTrigger: false,
 
@@ -490,7 +489,7 @@ Ext.define('Ext.m3.AdvancedComboBox', {
         Ext.Ajax.request({
             url: this.actionEditUrl,
             method: 'POST',
-            params: Ext.applyIf({id: value_id}, this.actionContextJson),
+            params: Ext.applyIf({id: value_id}, this.getContext()),
             success: function (response, opts) {
                 smart_eval(response.responseText);
             },

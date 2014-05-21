@@ -12,19 +12,12 @@ Ext.define('Ext.m3.Window', {
         // Ссылка на родительское окно
         this.parentWindow = null;
 
-        // Контекст
-        this.actionContextJson = null;
-
         if (params && params.parentWindowID) {
             this.parentWindow = Ext.getCmp(params.parentWindowID);
         }
 
         if (params && params.helpTopic) {
             this.m3HelpTopic = params.helpTopic;
-        }
-
-        if (params && params.contextJson) {
-            this.actionContextJson = params.contextJson;
         }
 
         // на F1 что-то нормально не вешается обработчик..

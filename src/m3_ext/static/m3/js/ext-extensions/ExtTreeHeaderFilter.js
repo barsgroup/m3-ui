@@ -777,12 +777,13 @@ Ext.ux.tree.TreeHeaderFilters = Ext.extend(Ext.util.Observable, {
 		for(var fn in this.filterFields)
 		{
 			// только для Ext.m3.ObjectTree
-			if (this.tree.actionContextJson) {
-				delete this.tree.actionContextJson[fn];
+			if (this.getContext()) {
+				delete this.getContext()[fn];
 			}
 		}
 		// проставим заново
 		// только для Ext.m3.ObjectTree
+        // TODO: Протестировать контекст
 		this.tree.actionContextJson = Ext.applyIf(this.tree.actionContextJson || {}, this.filters);
 		this.tree.refreshStore();
 		//this.tree.getLoader().baseParams = Ext.applyIf(this.tree.getLoader().baseParams, this.filters);

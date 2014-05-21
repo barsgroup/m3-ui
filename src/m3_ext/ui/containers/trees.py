@@ -15,12 +15,6 @@ class ExtTree(BaseExtPanel):
     Дерево с колонками
     """
 
-
-    # FIXME: Не забывать передавать контекст
-    # def pre_render(self):
-    #     self.tree_loader.action_context = self.action_context
-    #     super(ExtTree, self).pre_render()
-
     _xtype = "m3-tree"
 
     js_attrs = BaseExtPanel.js_attrs.extend(

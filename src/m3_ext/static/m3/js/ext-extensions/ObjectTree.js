@@ -21,8 +21,6 @@ Ext.define('Ext.m3.ObjectTree', {
     actionEditUrl: null,
     actionDeleteUrl: null,
 
-    actionContextJson: {},
-
     incrementalUpdate: false,
 
     folderSort: true,

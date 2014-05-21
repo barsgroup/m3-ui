@@ -376,7 +376,7 @@ Ext.define('Ext.m3.EditWindow', {
                 url: this.dataUrl,
                 params: Ext.applyIf({
                         isGetData: true},
-                    this.actionContextJson || {}),
+                    this.getContext()),
                 success: this.onSuccessLoadForm.createDelegate(this, [mask], true),
                 failure: this.onFailureLoadForm.createDelegate(this, [mask], true),
                 scope: this

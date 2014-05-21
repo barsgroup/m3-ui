@@ -25,12 +25,6 @@ class ExtGrid(BaseExtPanel):
     но не действовать в другом гриде.
     """
 
-    #FIXME: придумать как передавать action_context
-    # def pre_render(self):
-    #     super(ExtGrid, self).pre_render()
-    #     if self.store:
-    #         self.store.action_context = self.action_context
-
     _xtype = 'm3-grid'
 
     js_attrs = BaseExtPanel.js_attrs.extend(

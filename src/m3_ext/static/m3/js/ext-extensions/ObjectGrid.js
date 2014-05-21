@@ -21,7 +21,7 @@
         this.actionEditUrl = params.actions.editUrl;
         this.actionDeleteUrl = params.actions.deleteUrl;
         this.actionDataUrl = params.actions.dataUrl;
-        this.actionContextJson = params.actions.contextJson;
+
         // признак клиентского редактирования
         this.localEdit = params.localEdit;
         // имя для сабмита в режиме клиентского редактирования
@@ -57,8 +57,7 @@
         }
 
         var store = this.getStore();
-        store.baseParams = Ext.applyIf(store.baseParams || {}, this.actionContextJson || {});
-
+        store.baseParams = Ext.applyIf(store.baseParams || {}, this.getContext());
 
         this.addEvents(
             /**
@@ -352,19 +351,12 @@
 
         },
         /**
-         * Получение основного контекста грида
-         * Используется при ajax запросах
-         */
-        getMainContext: function () {
-            return Ext.applyIf({}, this.actionContextJson);
-        },
-        /**
          * Получение контекста выделения строк/ячеек
          * Используется при ajax запросах
          * @param {boolean} withRow Признак добавление в контекст текущей выбранной записи
          */
         getSelectionContext: function (withRow) {
-            var baseConf = this.getMainContext(),
+            var baseConf = this.getContext(),
                 sm = this.getSelectionModel(),
                 record, sels, ids, i, len;
             // для режима выделения строк

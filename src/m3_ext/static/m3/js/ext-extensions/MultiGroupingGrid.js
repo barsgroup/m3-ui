@@ -8,13 +8,13 @@ String.prototype.repeat = function (num) {
 Ext.define('Ext.ux.grid.MultiGrouping', {
     extend: 'Ext.util.Observable',
 
-	/**
-	 * Заголовок в панели с полями, по которым установлена группировка
-	 */
+    /**
+     * Заголовок в панели с полями, по которым установлена группировка
+     */
     title: "Порядок группировки:",
     /**
-	 * Заголовок и идентификатор поля в котором отображается группировка
-	 */
+     * Заголовок и идентификатор поля в котором отображается группировка
+     */
     groupFieldTitle: "Группировка",
     groupFieldId: "grouping",
     /**
@@ -26,21 +26,21 @@ Ext.define('Ext.ux.grid.MultiGrouping', {
      * Например, вместо id учреждения будет отображаться его название, или вместо true будет писаться Да
      */
     dataDisplayField: "id",
-	/**
+    /**
      * Развернутые элементы верхнего уровня.
      * Элемент представляет собой объект вида:
      * {index: 0, id: 0, count: 0, expandedItems:[]}
-     * где	index - порядковый номер развернутого элемента во всем раскрытом дереве/гриде
-     * 		id - идентификатор развернутого элемента
-     * 		count - количество дочерних элементов, включая все развернутые элементы нижних уровней
-     * 		expandedItems - развернутые элементы аналогичной структуры внутри текущего элемента
+     * где    index - порядковый номер развернутого элемента во всем раскрытом дереве/гриде
+     *        id - идентификатор развернутого элемента
+     *        count - количество дочерних элементов, включая все развернутые элементы нижних уровней
+     *        expandedItems - развернутые элементы аналогичной структуры внутри текущего элемента
      */
-	expandedItems: [],
-	/**
-	 * Перечень колонок, по которым производится группировка.
-	 * Если пусто, то нет группировки.
-	 */
-	groupedColumns: [],
+    expandedItems: [],
+    /**
+     * Перечень колонок, по которым производится группировка.
+     * Если пусто, то нет группировки.
+     */
+    groupedColumns: [],
     /**
      * Формат вывода группировочной колонки
      * {0} - Заголовок колонки
@@ -48,23 +48,24 @@ Ext.define('Ext.ux.grid.MultiGrouping', {
      * {2} - Количество дочерних элементов
      */
     groupTextFormat: '{0}: {1} ({2})',
-	/**
+
+    /**
      * Инициализация плагина
      *
      * @param {Ext.grid.GridPanel} grid Собственно грид
      */
-	init: function(grid) {
-        if(grid instanceof Ext.grid.GridPanel){
-        	this.grid = grid;
-        	grid.groupPlugin = this;
-        	this.grid.loadMask = false; // не будем показывать стандартную маску - у нас есть своя
+    init: function (grid) {
+        if (grid instanceof Ext.grid.GridPanel) {
+            this.grid = grid;
+            grid.groupPlugin = this;
+            this.grid.loadMask = false; // не будем показывать стандартную маску - у нас есть своя
             this.cm = this.grid.getColumnModel();
             // добавим новый столбец, в котором будет отображаться группировка (если она будет)
-            this.grouppingColumn = new Ext.grid.Column({header: this.groupFieldTitle, dataIndex: this.groupFieldId, id: this.groupFieldId, width: 160, renderer: {fn:this.groupRenderer, scope: this}});
+            this.grouppingColumn = new Ext.grid.Column({header: this.groupFieldTitle, dataIndex: this.groupFieldId, id: this.groupFieldId, width: 160, renderer: {fn: this.groupRenderer, scope: this}});
             this.cm.config.unshift(this.grouppingColumn);
             this.cm.lookup[this.groupFieldId] = this.grouppingColumn;
             this.cm.fireEvent('configchange', this.cm);
-            this.grouppingColumn.hidden = !(this.groupedColumns.length>0);
+            this.grouppingColumn.hidden = !(this.groupedColumns.length > 0);
 
             // повесимся на клик, чтобы раскрывать/скрывать уровни группировки
             this.grid.on('click', this.onNodeClick, this);
@@ -79,11 +80,11 @@ Ext.define('Ext.ux.grid.MultiGrouping', {
             // обработка клавиш PgUp и PgDown
             this.grid.on('keydown', this.onKeyPress, this);
 
-            grid.on('afterrender',this.onRender,this);
-            
-       		// Добавим плугин подсказок
-			var tipConf = [];
-			Ext.each(this.cm.columns, function(column,index){
+            grid.on('afterrender', this.onRender, this);
+
+            // Добавим плугин подсказок
+            var tipConf = [];
+            Ext.each(this.cm.columns, function (column, index) {
                 if (column.tooltip != undefined) {
                     // если задана настройка подсказок, то укажем ее
                     tipConf.push(column.tooltip);
@@ -94,69 +95,69 @@ Ext.define('Ext.ux.grid.MultiGrouping', {
                         tpl: '{' + column.dataIndex + '}'
                     });
                 }
-	        });
-	        tipConf.push({
-	                field:this.groupFieldId,
-	                tpl:'{'+this.groupFieldId+'}',
-	                fn: function(params){
-				       	var rec = grid.getStore().getById(params[grid.getStore().idProperty]);
-				       	params[grid.groupPlugin.groupFieldId] = grid.groupPlugin.getGroupText(rec);
-				       	return params;
-					}
-	           });
-	        this.grid.tipPlugin = new Ext.ux.plugins.grid.CellToolTips(tipConf);
-	        this.grid.plugins.push(this.grid.tipPlugin);
-	        this.grid.tipPlugin.init(this.grid);
+            });
+            tipConf.push({
+                field: this.groupFieldId,
+                tpl: '{' + this.groupFieldId + '}',
+                fn: function (params) {
+                    var rec = grid.getStore().getById(params[grid.getStore().idProperty]);
+                    params[grid.groupPlugin.groupFieldId] = grid.groupPlugin.getGroupText(rec);
+                    return params;
+                }
+            });
+            this.grid.tipPlugin = new Ext.ux.plugins.grid.CellToolTips(tipConf);
+            this.grid.plugins.push(this.grid.tipPlugin);
+            this.grid.tipPlugin.init(this.grid);
 
             this.reorderer = new Ext.ux.ToolbarReorderer({
-                owner:this,
-                createItemDD: function(button) {
+                owner: this,
+                createItemDD: function (button) {
                     if (button.dd != undefined) {
                         return;
                     }
-                    
-                    var el   = button.getEl(),
-                        id   = el.id,
+
+                    var el = button.getEl(),
+                        id = el.id,
                         tbar = this.target,
-                        me   = this;
-                    
+                        me = this;
+
                     button.dd = new Ext.dd.DD(el, undefined, {
                         isTarget: true
                     });
-                    
+
                     //if a button has a menu, it is disabled while dragging with this function
-                    var menuDisabler = function() {
+                    var menuDisabler = function () {
                         return false;
                     };
-                    
+
                     Ext.apply(button.dd, {
-                        owner:this,
-                        b4StartDrag: function() {       
+                        owner: this,
+                        b4StartDrag: function () {
                             this.startPosition = el.getXY();
-                            
+
                             //bump up the z index of the button being dragged but keep a reference to the original
                             this.startZIndex = el.getStyle('zIndex');
                             el.setStyle('zIndex', 1000000);
-                            
+
                             button.suspendEvents();
                             if (button.menu) {
                                 button.menu.on('beforeshow', menuDisabler, me);
                             }
 
                         },
-                        
-                        startDrag: function() {
+
+                        startDrag: function () {
                             this.constrainTo(tbar.getEl());
                             tbar_height = tbar.getHeight();
-                            this.setYConstraint(tbar_height,tbar_height,tbar_height);
+                            this.setYConstraint(tbar_height, tbar_height, tbar_height);
 
                         },
-                        
-                        onDrag: function(e) {
+
+                        onDrag: function (e) {
                             //calculate the button's index within the toolbar and its current midpoint
-                            var buttonX  = el.getXY()[0],
-                                deltaX   = buttonX - this.startPosition[0],
-                                items    = tbar.items.items,
+                            var buttonX = el.getXY()[0],
+                                deltaX = buttonX - this.startPosition[0],
+                                items = tbar.items.items,
                                 oldIndex = items.indexOf(button),
                                 newIndex;
 
@@ -164,84 +165,84 @@ Ext.define('Ext.ux.grid.MultiGrouping', {
                             //find which item in the toolbar the midpoint is currently over
                             for (var index = 0; index < items.length; index++) {
                                 var item = items[index];
-                                
+
                                 if (item.reorderable && item.id != button.id) {
                                     //find the midpoint of the button
-                                    var box        = item.getEl().getBox(),
-                                        midpoint   = (me.buttonXCache[item.id] || box.x) + (box.width / 2),
-                                        movedLeft  = oldIndex > index && deltaX < 0 && buttonX < midpoint,
+                                    var box = item.getEl().getBox(),
+                                        midpoint = (me.buttonXCache[item.id] || box.x) + (box.width / 2),
+                                        movedLeft = oldIndex > index && deltaX < 0 && buttonX < midpoint,
                                         movedRight = oldIndex < index && deltaX > 0 && (buttonX + el.getWidth()) > midpoint;
-                                    
+
                                     if (movedLeft || movedRight) {
                                         me[movedLeft ? 'onMovedLeft' : 'onMovedRight'](button, index, oldIndex);
                                         break;
-                                    }                        
+                                    }
                                 }
                             }
                         },
-                        
+
                         /**
                          * After the drag has been completed, make sure the button being dragged makes it back to
                          * the correct location and resets its z index
                          */
-                        endDrag: function() {
+                        endDrag: function () {
                             //we need to update the cache here for cases where the button was dragged but its
                             //position in the toolbar did not change
                             me.updateButtonXCache();
 
                             tbar_box = tbar.getEl().getBox();
                             el_y = el.getY();
-                            if (el_y<tbar_box.y | el_y>tbar_box.y + tbar_box.height){
+                            if (el_y < tbar_box.y | el_y > tbar_box.y + tbar_box.height) {
                                 this.owner.owner.deleteGroupingButton(button);
                             }
-                            else{
-                            
-                            el.moveTo(me.buttonXCache[button.id], el.getY(), {
-                                duration: me.animationDuration,
-                                scope   : this,
-                                callback: function() {
-                                    button.resumeEvents();
-                                    if (button.menu) {
-                                        button.menu.un('beforeshow', menuDisabler, me);
+                            else {
+
+                                el.moveTo(me.buttonXCache[button.id], el.getY(), {
+                                    duration: me.animationDuration,
+                                    scope: this,
+                                    callback: function () {
+                                        button.resumeEvents();
+                                        if (button.menu) {
+                                            button.menu.un('beforeshow', menuDisabler, me);
+                                        }
+
+                                        tbar.fireEvent('reordered', button, tbar);
                                     }
-                                    
-                                    tbar.fireEvent('reordered', button, tbar);
-                                }
-                            });
-                            
-                            el.setStyle('zIndex', this.startZIndex);
-                        }
+                                });
+
+                                el.setStyle('zIndex', this.startZIndex);
+                            }
                         }
                     });
                 },
-                
-                onMovedLeft: function(item, newIndex, oldIndex) {
-                    var tbar  = this.target,
+
+                onMovedLeft: function (item, newIndex, oldIndex) {
+                    var tbar = this.target,
                         items = tbar.items.items;
-                    
+
                     if (newIndex != undefined && newIndex != oldIndex) {
                         //move the button currently under drag to its new location
                         tbar.remove(item, false);
                         tbar.insert(newIndex, item);
-                        
+
                         //set the correct x location of each item in the toolbar
                         this.updateButtonXCache();
                         for (var index = 0; index < items.length; index++) {
-                            var obj  = items[index],
+                            var obj = items[index],
                                 newX = this.buttonXCache[obj.id];
-                            
+
                             if (item == obj) {
                                 item.dd.startPosition[0] = newX;
                             } else {
                                 var el = obj.getEl();
-                                
+
                                 el.moveTo(newX, el.getY(), {duration: this.animationDuration});
                             }
                         }
                     }
                 },
-                
-                onMovedRight: function(item, newIndex, oldIndex) {
+
+                onMovedRight: function (item, newIndex, oldIndex) {
                     this.onMovedLeft.apply(this, arguments);
                 }
 
@@ -250,19 +251,19 @@ Ext.define('Ext.ux.grid.MultiGrouping', {
                 /**
                  * Создание нового элемента по событию дропа на панель
                  */
-                owner:this,
+                owner: this,
                 /**
                  * переопределил функцию просчета позиции для новый элементов
                  * иначе неправльно добавлялись кирилические столбцы
                  */
-                calculateEntryIndex: function(e) {
+                calculateEntryIndex: function (e) {
                     return -1;
                 },
-                createItem: function(data) {
+                createItem: function (data) {
                     var column = this.getColumnFromDragDrop(data);
-                    
+
                     return this.owner.createGroupingButton({
-                        text    : column.header,
+                        text: column.header,
                         groupingData: {
                             field: column.dataIndex
                         }
@@ -274,21 +275,21 @@ Ext.define('Ext.ux.grid.MultiGrouping', {
                  * @param {Object} data Данные объекта который дропают
                  * @return {Boolean} True если можно дропнуть
                  */
-                canDrop: function(dragSource, ev, data) {
+                canDrop: function (dragSource, ev, data) {
                     var group_columns = this.owner.getGroupColumns(),
-                        column  = this.getColumnFromDragDrop(data);
-                    
+                        column = this.getColumnFromDragDrop(data);
+
                     if (!column.groupable) return false
 
 
-                    for (var i=0; i < group_columns.length; i++) {
+                    for (var i = 0; i < group_columns.length; i++) {
                         if (group_columns[i] == column.dataIndex) return false;
                     }
 
                     return true;
                 },
-                
-                afterLayout: function(){
+
+                afterLayout: function () {
                     this.owner.doGroup(this.owner.getGroupColumns())
                     //скрываем дефолтные курсоры перемещения столбцов
                     this.owner.grid.view.columnDrop.proxyTop.hide();
@@ -299,119 +300,119 @@ Ext.define('Ext.ux.grid.MultiGrouping', {
                  * Вспомогательная функция для поиска колонки которую дропнули
                  * @param {Object} data Данные
                  */
-                getColumnFromDragDrop: function(data) {
-                    var index    = data.header.cellIndex,
+                getColumnFromDragDrop: function (data) {
+                    var index = data.header.cellIndex,
                         colModel = grid.colModel,
-                        column   = colModel.getColumnById(colModel.getColumnId(index));
+                        column = colModel.getColumnById(colModel.getColumnId(index));
                     return column;
                 }
             });
             // настроим первоначальную группировку
             var toolItems = [new Ext.Toolbar.TextItem(this.title)];
             if (this.groupedColumns.length > 0) {
-            	for (var colInd = 0; colInd < this.groupedColumns.length; colInd++) {
-            		var colName = this.groupedColumns[colInd];
-            		var colText = this.grid.colModel.getColumnHeader(this.grid.colModel.findColumnIndex(colName));
-            		var butt = this.createGroupingButton({
-                        text    : colText,
+                for (var colInd = 0; colInd < this.groupedColumns.length; colInd++) {
+                    var colName = this.groupedColumns[colInd];
+                    var colText = this.grid.colModel.getColumnHeader(this.grid.colModel.findColumnIndex(colName));
+                    var butt = this.createGroupingButton({
+                        text: colText,
                         groupingData: {
                             field: colName
                         }
                     });
                     toolItems.push(butt);
-            	}
+                }
             }
             toolItems.push(new Ext.Toolbar.Separator());
-            
-            if (this.grid.getTopToolbar()){
-            	// тулбар уже есть, значит добавим в него при рендере
-            	this.tbar = this.grid.getTopToolbar();
-            	//this.tbar.items = toolItems;
-            	this.toolItems = toolItems;
-		    	if (this.tbar.plugins){
-	        		this.tbar.plugins.push(this.reorderer);
-	        		this.tbar.plugins.push(this.droppable);
-	        	} else {
-	        		this.tbar.plugins = [this.reorderer, this.droppable];
-	        	}
+
+            if (this.grid.getTopToolbar()) {
+                // тулбар уже есть, значит добавим в него при рендере
+                this.tbar = this.grid.getTopToolbar();
+                //this.tbar.items = toolItems;
+                this.toolItems = toolItems;
+                if (this.tbar.plugins) {
+                    this.tbar.plugins.push(this.reorderer);
+                    this.tbar.plugins.push(this.droppable);
+                } else {
+                    this.tbar.plugins = [this.reorderer, this.droppable];
+                }
             } else {
-	            this.tbar = new Ext.Toolbar({
-	                items  : toolItems,
-	                plugins: [this.reorderer, this.droppable],
-	                listeners: {
-	                    scope    : this,
-	                    reordered: this.changeGroupingOrder
-	                }
-	            });	
+                this.tbar = new Ext.Toolbar({
+                    items: toolItems,
+                    plugins: [this.reorderer, this.droppable],
+                    listeners: {
+                        scope: this,
+                        reordered: this.changeGroupingOrder
+                    }
+                });
             }
             this.expandedItems = [];
         }
-	},
-	/**
+    },
+    /**
      * Щелчок по гриду. Будем ловить раскрытие/закрытие групп
      *
      * @param {Ext.EventObject} e Параметры события
      */
-	onNodeClick: function (e) {
-		// будем обрабатывать только если включена группировка
-		if (this.groupedColumns.length > 0) {
-			var target = e.getTarget();
-			// найдем объект по которому щелкнули
-			var obj = Ext.fly(target);
-			var colInd = this.grid.view.findCellIndex(target);
-			var rowInd = this.grid.view.findRowIndex(target);
-			if (rowInd >= 0 && colInd !== false) {
-				var col = this.grid.colModel.getColumnAt(colInd);
-				if (this.grouppingColumn.id == col.id) {
-					var row = this.grid.store.getAt(rowInd);
-					if (!row.json.is_leaf) {
-						// если это кнопки группировки, то переключим их
-						if (row._expanded) {
-							obj.removeClass('x-tree-elbow-minus');
-					        obj.addClass('x-tree-elbow-plus');
-					        this.collapseItem(rowInd);
-						} else {
-							obj.removeClass('x-tree-elbow-plus');
-					        obj.addClass('x-tree-elbow-minus');
-					        this.expandItem(rowInd);
-						}
-					}
-				}
-			}
-		}
-	},
-	/**
-	 * Получение списка сгруппированных полей на панели 
-	 */
-    getGroupColumns:function() {
+    onNodeClick: function (e) {
+        // будем обрабатывать только если включена группировка
+        if (this.groupedColumns.length > 0) {
+            var target = e.getTarget();
+            // найдем объект по которому щелкнули
+            var obj = Ext.fly(target);
+            var colInd = this.grid.view.findCellIndex(target);
+            var rowInd = this.grid.view.findRowIndex(target);
+            if (rowInd >= 0 && colInd !== false) {
+                var col = this.grid.colModel.getColumnAt(colInd);
+                if (this.grouppingColumn.id == col.id) {
+                    var row = this.grid.store.getAt(rowInd);
+                    if (!row.json.is_leaf) {
+                        // если это кнопки группировки, то переключим их
+                        if (row._expanded) {
+                            obj.removeClass('x-tree-elbow-minus');
+                            obj.addClass('x-tree-elbow-plus');
+                            this.collapseItem(rowInd);
+                        } else {
+                            obj.removeClass('x-tree-elbow-plus');
+                            obj.addClass('x-tree-elbow-minus');
+                            this.expandItem(rowInd);
+                        }
+                    }
+                }
+            }
+        }
+    },
+    /**
+     * Получение списка сгруппированных полей на панели
+     */
+    getGroupColumns: function () {
         var columns = [];
 
         if (this.tbar)
-            Ext.each(this.tbar.findByType('button'), function(button) {
+            Ext.each(this.tbar.findByType('button'), function (button) {
                 if (button.groupingData)
                     columns.push(button.groupingData.field);
             }, this);
-        
+
         return columns;
     },
     /**
      * Событие изменения порядка группировки
      */
-    changeGroupingOrder: function() {
-    	this.doGroup(this.getGroupColumns());
+    changeGroupingOrder: function () {
+        this.doGroup(this.getGroupColumns());
     },
     /**
      * Создание кнопки поля группировки
-     * 
+     *
      * @param {Object} config Параметры кнопки
      */
-    createGroupingButton:function(config) {
+    createGroupingButton: function (config) {
         config = config || {};
         Ext.applyIf(config, {
             owner: this,
             listeners: {
                 scope: this,
-                click: function(button, e) {
+                click: function (button, e) {
                     //пустышка для обработки нажатия на кнопку
                 }
             },
@@ -421,41 +422,41 @@ Ext.define('Ext.ux.grid.MultiGrouping', {
     },
     /**
      * Событие удаления кнопки поля группировки
-     * 
+     *
      * @param {Ext.Button} button Кнопка, которую удаляют
      */
-    deleteGroupingButton:function(button){
+    deleteGroupingButton: function (button) {
         button.destroy();
-        this.doGroup(this.getGroupColumns()) 
+        this.doGroup(this.getGroupColumns())
     },
     /**
      * Событие отрисовки панели группировки
      */
-    onRender: function(){
-    	var item;
-    	if (!this.grid.getTopToolbar()) { 
-	        this.grid.elements +=',tbar';
-	        this.grid.tbar = this.tbar
-	        this.grid.add(this.tbar);
-	    } else {
+    onRender: function () {
+        var item;
+        if (!this.grid.getTopToolbar()) {
+            this.grid.elements += ',tbar';
+            this.grid.tbar = this.tbar
+            this.grid.add(this.tbar);
+        } else {
             this.reorderer.init(this.tbar);
             this.droppable.init(this.tbar);
             this.droppable.createDropTarget();
-            this.tbar.on('reordered',this.changeGroupingOrder,this);
+            this.tbar.on('reordered', this.changeGroupingOrder, this);
             var startItemCount = this.tbar.items.length;
             for (var ind = 0; ind < this.toolItems.length; ind++) {
-            	item = this.toolItems[ind];
-                this.tbar.insert(startItemCount+ind, item);
+                item = this.toolItems[ind];
+                this.tbar.insert(startItemCount + ind, item);
             }
-	    }
-	    this.grid.enableDragDrop = true;
-	    this.grid.doLayout();
+        }
+        this.grid.enableDragDrop = true;
+        this.grid.doLayout();
 
         var dragProxy = this.grid.getView().columnDrag,
-            ddGroup   = dragProxy.ddGroup;
+            ddGroup = dragProxy.ddGroup;
         this.droppable.addDDGroup(ddGroup);
     },
-	/**
+    /**
      * Отрисовщик колонки группировки.
      *
      * @param {Object} v Отображаемое значение
@@ -465,284 +466,289 @@ Ext.define('Ext.ux.grid.MultiGrouping', {
      * @param {Number} colIndex Индекс колонки
      * @param {Ext.data.Store} st Набор данных
      */
-	groupRenderer: function (v, p, record, rowIndex, colIndex, st) {
-		var res = '';
-		p.css += 'x-tree-no-lines';
-		var is_leaf = record.json.is_leaf;
-		if (!is_leaf) {
-			var expanded = record._expanded;
-			var indent = record.json.indent;
-			if (indent) {
-				var indent_str = "&#160;".repeat(indent*6);
-			} else {
-				var indent_str = "&#160;";
-			}
-			v = this.getGroupText(record);
-			// Различия для браузеров в отрисовке иконок разворачивания узла. Быть может можно привести к более общему формату, но разбираться пока времени нет
-			if (Ext.isIE6 || Ext.isIE7) {
-				res = String.format('<b style="cursor:pointer"><div class="x-tree-elbow-{0}" style="position:absolute;left:{3}px;margin-top:-3px"></div>{2}{1}</b>',expanded ? 'minus':'plus', v, indent_str, indent*18);
-			} else {
-				res = String.format('<b style="cursor:pointer"><span>{2}</span><span class="x-tree-elbow-{0}" style="margin-left:-18px;padding-left:18px;left:{3}px;padding-top:3px"></span>{1}</b>',expanded ? 'minus':'plus', v, indent_str, indent*18);
-			}
-		}
-		return res;
-	},
-	/**
-	 * Получение текста группировки
-	 */
-	getGroupText: function(record){
+    groupRenderer: function (v, p, record, rowIndex, colIndex, st) {
+        var res = '';
+        p.css += 'x-tree-no-lines';
+        var is_leaf = record.json.is_leaf;
+        if (!is_leaf) {
+            var expanded = record._expanded;
+            var indent = record.json.indent;
+            if (indent) {
+                var indent_str = "&#160;".repeat(indent * 6);
+            } else {
+                var indent_str = "&#160;";
+            }
+            v = this.getGroupText(record);
+            // Различия для браузеров в отрисовке иконок разворачивания узла. Быть может можно привести к более общему формату, но разбираться пока времени нет
+            if (Ext.isIE6 || Ext.isIE7) {
+                res = String.format('<b style="cursor:pointer"><div class="x-tree-elbow-{0}" style="position:absolute;left:{3}px;margin-top:-3px"></div>{2}{1}</b>', expanded ? 'minus' : 'plus', v, indent_str, indent * 18);
+            } else {
+                res = String.format('<b style="cursor:pointer"><span>{2}</span><span class="x-tree-elbow-{0}" style="margin-left:-18px;padding-left:18px;left:{3}px;padding-top:3px"></span>{1}</b>', expanded ? 'minus' : 'plus', v, indent_str, indent * 18);
+            }
+        }
+        return res;
+    },
+    /**
+     * Получение текста группировки
+     */
+    getGroupText: function (record) {
         if (!record) {
             return null
         }
-		var res = '';
-		if (!record.json.is_leaf) {
-			var v = record.json[this.dataDisplayField];
-			if (v == null) {
-				v = "";//"<пусто>";
-			}
-			var column = this.groupedColumns[record.json.indent];
-			if (column) {
-				var col_name = this.grid.colModel.getColumnHeader(this.grid.colModel.findColumnIndex(column));
-				var count = record.json.count;
-				res = String.format(this.groupTextFormat,col_name, v, count);
-			} else {
-				res = v;
-			}
-		}
-		return res;
-	},
-	/**
-	 * Успешная загрузка данных в буфер. Отправим ее на общую обработку
-	 * 
-	 * @param {Ext.ux.BufferedGridView} view
-	 * @param {Ext.data.Store} store Набор данных
-	 * @param {Number} rowIndex Индекс строки
-	 * @param {Number} min
-	 * @param {Number} totalLen Общий объем данных доступных для загрузки
-	 * @param {Object} opts Параменты запроса данных
-	 */
-	onLoadData: function (view, st, rowIndex, min, totalLen, opts) {
-		this.onLoad(st);
-	},
-	/**
-	 * Первоначальная загрузка набора записей. Сделаем первичную обработку.
-	 * 
-	 * @param {Ext.data.Store} st Набор данных
-	 */
-	onLoad: function (st) {
-		this.expanding = null;
-		if (this.groupedColumns.length > 0) {
-			for (var i = st.bufferRange[0]; i <= st.bufferRange[1]; i++) {
-				//var record = st.data.itemAt(i);
-				var record = st.getAt(i);
-				if (record != null) {
-					//record._expanded = this.isExpanded(i);
-					record._expanded = record.json.expanded;
-				}
-	        }
-		}
-	},
-	/**
-	 * Перед загрузкой выставим параметры загрузки
-	 * 
-	 * @param {Ext.ux.BufferedGridView} view
-	 * @param {Ext.data.Store} store Набор данных
-	 * @param {Number} rowIndex Индекс строки
-	 * @param {Number} min
-	 * @param {Number} totalLen Общий объем данных доступных для загрузки
-	 * @param {Object} opts Параменты запроса данных
-	 */
-	onBeforeBuffer: function (view, st, rowIndex, min, totalLen, opts) {
-		this.onBeforeLoad(st, opts);
-	},
-	onBeforeLoad: function (st, opts) {
-		this.grid.view.showLoadMask(true);
-		
-		// Преобразование в json объектов		
-		for (var p in st.baseParams) {			
-			if (st.baseParams[p] instanceof Object){
-				st.baseParams[p] = Ext.encode(st.baseParams[p]);
-			}					
-		}
-		
-		opts.params.exp = Ext.encode(this.expandedItems);
-		opts.params.grouped = Ext.encode(this.groupedColumns);
-		opts.params.expanding = this.expanding;
+        var res = '';
+        if (!record.json.is_leaf) {
+            var v = record.json[this.dataDisplayField];
+            if (v == null) {
+                v = "";//"<пусто>";
+            }
+            var column = this.groupedColumns[record.json.indent];
+            if (column) {
+                var col_name = this.grid.colModel.getColumnHeader(this.grid.colModel.findColumnIndex(column));
+                var count = record.json.count;
+                res = String.format(this.groupTextFormat, col_name, v, count);
+            } else {
+                res = v;
+            }
+        }
+        return res;
+    },
+    /**
+     * Успешная загрузка данных в буфер. Отправим ее на общую обработку
+     *
+     * @param {Ext.ux.BufferedGridView} view
+     * @param {Ext.data.Store} store Набор данных
+     * @param {Number} rowIndex Индекс строки
+     * @param {Number} min
+     * @param {Number} totalLen Общий объем данных доступных для загрузки
+     * @param {Object} opts Параменты запроса данных
+     */
+    onLoadData: function (view, st, rowIndex, min, totalLen, opts) {
+        this.onLoad(st);
+    },
+    /**
+     * Первоначальная загрузка набора записей. Сделаем первичную обработку.
+     *
+     * @param {Ext.data.Store} st Набор данных
+     */
+    onLoad: function (st) {
+        this.expanding = null;
+        if (this.groupedColumns.length > 0) {
+            for (var i = st.bufferRange[0]; i <= st.bufferRange[1]; i++) {
+                //var record = st.data.itemAt(i);
+                var record = st.getAt(i);
+                if (record != null) {
+                    //record._expanded = this.isExpanded(i);
+                    record._expanded = record.json.expanded;
+                }
+            }
+        }
+    },
+    /**
+     * Перед загрузкой выставим параметры загрузки
+     *
+     * @param {Ext.ux.BufferedGridView} view
+     * @param {Ext.data.Store} store Набор данных
+     * @param {Number} rowIndex Индекс строки
+     * @param {Number} min
+     * @param {Number} totalLen Общий объем данных доступных для загрузки
+     * @param {Object} opts Параменты запроса данных
+     */
+    onBeforeBuffer: function (view, st, rowIndex, min, totalLen, opts) {
+        this.onBeforeLoad(st, opts);
+    },
+    onBeforeLoad: function (st, opts) {
+        this.grid.view.showLoadMask(true);
 
-	},
-	/**
-	 * Поиск набора раскрытых элементов по ключевым значениям
-	 * 
-	 * @param {Array} keys массив ключевых значений в порядке сгруппированных полей
-	 */
-	findExpandedItem: function(keys) {
-		var expItems = this.expandedItems;
-		for (var i = 0, len = keys.length; i < len; i++) {
-			var key = keys[i];
-			for (var j = 0, explen = expItems.length; j < explen; j++) {
-				var item = expItems[j];
-				if (item.id == key){
-					expItems = item.expandedItems;
-					break;
-				}
-			}
-		}
-		return expItems;
-	},
-	/**
-	 * Раскрытие элемента с перечитыванием данных
-	 * 
-	 * @param {Number} rowIndex номер записи
-	 */
-	expandItem: function (rowIndex) {
-		if (this.groupedColumns.length > 0) {
-			var row = this.grid.store.getAt(rowIndex);
-			if (!row._expanded) {
-		        row._expanded = true;
-		        var obj = {index: row.json.lindex, id: row.json[this.dataIdField], count: -1, expandedItems:[]};
-		        // нужно также учесть уровень, на котором располагается элемент
-		        var level = row.json.indent;
-		        // сформируем набор ключевых значений, чтобы узнать родительский раскрытый узел
-		        var keys = [];
-		        for (var i = 0; i < level; i++){
-		        	var col = this.groupedColumns[i];
-		        	var key = row.get(col);
-		        	keys.push(key);
-		        }
-		        // теперь найдем развернутый элемент уровеня на котором нужно вставить раскрытый элемент
-		        var expItems = this.findExpandedItem(keys);
-		        var added = false;
-		        // необходимо найти место для вставки новой записи о раскрытии
-		        for (var i = 0, len = expItems.length; i < len; i++) {
-		        	var ei = expItems[i];
-		        	if (ei.index > row.json.lindex) {
-		        		// вставить перед ei и прекратить
-		        		if (i > 0) {
-		        			var new_gc = expItems.splice(i);
-		        			expItems.push(obj);
-		        			for (var k = 0, klen = new_gc.length;k < klen;k++){
-		        				expItems.push(new_gc[k]);
-		        			}
-		        		} else {
-		        			expItems.unshift(obj);
-		        		}
-		        		added = true;
-		        		break;
-		        	}
-		        }
-		        if (!added) {
-		        	expItems.push(obj);
-		        }
-		        this.expanding = rowIndex;
-				// перезагрузка грида
-		        this.grid.view.showLoadMask(true);
-				this.grid.view.updateLiveRows(rowIndex,true,true);
-			}
-		}
-	},
-	/**
-	 * Сворачивание элемента с перечитыванием данных
-	 * 
-	 * @param {Number} rowIndex номер записи
-	 */
-	collapseItem: function (rowIndex) {
-		if (this.groupedColumns.length > 0) {
-			var row = this.grid.store.getAt(rowIndex);
-			if (row._expanded) {
-		        row._expanded = false;
-		        // нужно также учесть уровень, на котором располагается элемент
-		        var level = row.json.indent;
-		        // сформируем набор ключевых значений, чтобы узнать родительский раскрытый узел
-		        var keys = [];
-		        for (var i = 0; i < level; i++){
-		        	var col = this.groupedColumns[i];
-		        	var key = row.get(col);
-		        	keys.push(key);
-		        }
-		        // теперь найдем развернутый элемент уровеня на котором нужно ужалить раскрытый элемент
-		        var expItems = this.findExpandedItem(keys);
-		        for (var i = 0, len = expItems.length; i < len; i++) {
-		        	var exp = expItems[i];
-		        	if (exp.index == row.json.lindex){
-		        		expItems.splice(i,1);
-		        		// перезагрузим грид
-		        		this.grid.view.showLoadMask(true);
-		        		this.grid.view.updateLiveRows(rowIndex,true,true);
-		        		break;
-		        	}
-		        }
-			}
-		}
-	},
-	/**
-	 * Установка группировочных колонок
-	 * 
-	 * @param {Array} columns Список колонок для группировки
-	 */
+        // Преобразование в json объектов
+        for (var p in st.baseParams) {
+            if (st.baseParams[p] instanceof Object) {
+                st.baseParams[p] = Ext.encode(st.baseParams[p]);
+            }
+        }
+
+        opts.params.exp = Ext.encode(this.expandedItems);
+        opts.params.grouped = Ext.encode(this.groupedColumns);
+        opts.params.expanding = this.expanding;
+
+    },
+    /**
+     * Поиск набора раскрытых элементов по ключевым значениям
+     *
+     * @param {Array} keys массив ключевых значений в порядке сгруппированных полей
+     */
+    findExpandedItem: function (keys) {
+        var expItems = this.expandedItems;
+        for (var i = 0, len = keys.length; i < len; i++) {
+            var key = keys[i];
+            for (var j = 0, explen = expItems.length; j < explen; j++) {
+                var item = expItems[j];
+                if (item.id == key) {
+                    expItems = item.expandedItems;
+                    break;
+                }
+            }
+        }
+        return expItems;
+    },
+    /**
+     * Раскрытие элемента с перечитыванием данных
+     *
+     * @param {Number} rowIndex номер записи
+     */
+    expandItem: function (rowIndex) {
+        if (this.groupedColumns.length > 0) {
+            var row = this.grid.store.getAt(rowIndex);
+            if (!row._expanded) {
+                row._expanded = true;
+                var obj = {index: row.json.lindex, id: row.json[this.dataIdField], count: -1, expandedItems: []};
+                // нужно также учесть уровень, на котором располагается элемент
+                var level = row.json.indent;
+                // сформируем набор ключевых значений, чтобы узнать родительский раскрытый узел
+                var keys = [];
+                for (var i = 0; i < level; i++) {
+                    var col = this.groupedColumns[i];
+                    var key = row.get(col);
+                    keys.push(key);
+                }
+                // теперь найдем развернутый элемент уровеня на котором нужно вставить раскрытый элемент
+                var expItems = this.findExpandedItem(keys);
+                var added = false;
+                // необходимо найти место для вставки новой записи о раскрытии
+                for (var i = 0, len = expItems.length; i < len; i++) {
+                    var ei = expItems[i];
+                    if (ei.index > row.json.lindex) {
+                        // вставить перед ei и прекратить
+                        if (i > 0) {
+                            var new_gc = expItems.splice(i);
+                            expItems.push(obj);
+                            for (var k = 0, klen = new_gc.length; k < klen; k++) {
+                                expItems.push(new_gc[k]);
+                            }
+                        } else {
+                            expItems.unshift(obj);
+                        }
+                        added = true;
+                        break;
+                    }
+                }
+                if (!added) {
+                    expItems.push(obj);
+                }
+                this.expanding = rowIndex;
+                // перезагрузка грида
+                this.grid.view.showLoadMask(true);
+                this.grid.view.updateLiveRows(rowIndex, true, true);
+            }
+        }
+    },
+    /**
+     * Сворачивание элемента с перечитыванием данных
+     *
+     * @param {Number} rowIndex номер записи
+     */
+    collapseItem: function (rowIndex) {
+        if (this.groupedColumns.length > 0) {
+            var row = this.grid.store.getAt(rowIndex);
+            if (row._expanded) {
+                row._expanded = false;
+                // нужно также учесть уровень, на котором располагается элемент
+                var level = row.json.indent;
+                // сформируем набор ключевых значений, чтобы узнать родительский раскрытый узел
+                var keys = [];
+                for (var i = 0; i < level; i++) {
+                    var col = this.groupedColumns[i];
+                    var key = row.get(col);
+                    keys.push(key);
+                }
+                // теперь найдем развернутый элемент уровеня на котором нужно ужалить раскрытый элемент
+                var expItems = this.findExpandedItem(keys);
+                for (var i = 0, len = expItems.length; i < len; i++) {
+                    var exp = expItems[i];
+                    if (exp.index == row.json.lindex) {
+                        expItems.splice(i, 1);
+                        // перезагрузим грид
+                        this.grid.view.showLoadMask(true);
+                        this.grid.view.updateLiveRows(rowIndex, true, true);
+                        break;
+                    }
+                }
+            }
+        }
+    },
+    /**
+     * Установка группировочных колонок
+     *
+     * @param {Array} columns Список колонок для группировки
+     */
     doGroup: function (columns) {
-    	this.grid.colModel.setHidden(0, !(columns.length > 0));
+        this.grid.colModel.setHidden(0, !(columns.length > 0));
         this.expandedItems = [];
         this.groupedColumns = columns;
         this.grid.view.reset(true);
     },
-	/**
-	 * 
-	 * @param {Ext.EventObject} e Параметры события нажатия клавиши
-	 */
+    /**
+     *
+     * @param {Ext.EventObject} e Параметры события нажатия клавиши
+     */
     onKeyPress: function (e) {
-    	if (e.keyCode == e.PAGEUP) {
-    		if (this.rowHeight == -1) {
+        if (e.keyCode == e.PAGEUP) {
+            if (this.rowHeight == -1) {
                 e.stopEvent();
                 return;
             }
-    		var d = this.grid.view.visibleRows-1;
-    		if (this.grid.view.rowIndex-d < 0) {
-            	d = this.grid.view.rowIndex;
+            var d = this.grid.view.visibleRows - 1;
+            if (this.grid.view.rowIndex - d < 0) {
+                d = this.grid.view.rowIndex;
             }
-            this.grid.view.adjustScrollerPos(-(d*this.grid.view.rowHeight),true);
+            this.grid.view.adjustScrollerPos(-(d * this.grid.view.rowHeight), true);
             this.grid.view.focusEl.focus();
-            this.grid.getSelectionModel().selectRow(this.grid.view.rowIndex-d);
-    		e.stopEvent();
-    		}
-    	if (e.keyCode == e.PAGEDOWN) { 
-    		if (this.rowHeight == -1) {
+            this.grid.getSelectionModel().selectRow(this.grid.view.rowIndex - d);
+            e.stopEvent();
+        }
+        if (e.keyCode == e.PAGEDOWN) {
+            if (this.rowHeight == -1) {
                 e.stopEvent();
                 return;
             }
-    		var d = this.grid.view.visibleRows-1;
-    		if (this.grid.view.rowIndex+d > this.grid.store.totalLength) {
-    			d = this.grid.store.totalLength-this.grid.view.rowIndex-1;
-    		}
-            this.grid.view.adjustScrollerPos((d*this.grid.view.rowHeight),true);
+            var d = this.grid.view.visibleRows - 1;
+            if (this.grid.view.rowIndex + d > this.grid.store.totalLength) {
+                d = this.grid.store.totalLength - this.grid.view.rowIndex - 1;
+            }
+            this.grid.view.adjustScrollerPos((d * this.grid.view.rowHeight), true);
             this.grid.view.focusEl.focus();
-            this.grid.getSelectionModel().selectRow(this.grid.view.rowIndex+d);
-    		e.stopEvent();
-    		}
-    	if (e.keyCode == e.HOME) {
-    		this.grid.view.adjustScrollerPos(-(this.grid.view.rowIndex*this.grid.view.rowHeight),true);
+            this.grid.getSelectionModel().selectRow(this.grid.view.rowIndex + d);
+            e.stopEvent();
+        }
+        if (e.keyCode == e.HOME) {
+            this.grid.view.adjustScrollerPos(-(this.grid.view.rowIndex * this.grid.view.rowHeight), true);
             this.grid.view.focusEl.focus();
             this.grid.getSelectionModel().selectRow(0);
-    		e.stopEvent();
-    		}
-    	if (e.keyCode == e.END) {
-    		var d = this.grid.store.totalLength-this.grid.view.rowIndex;
-    		this.grid.view.adjustScrollerPos((d*this.grid.view.rowHeight),true);
+            e.stopEvent();
+        }
+        if (e.keyCode == e.END) {
+            var d = this.grid.store.totalLength - this.grid.view.rowIndex;
+            this.grid.view.adjustScrollerPos((d * this.grid.view.rowHeight), true);
             this.grid.view.focusEl.focus();
-            this.grid.getSelectionModel().selectRow(this.grid.store.totalLength-1);
-    		e.stopEvent();
-    		}
+            this.grid.getSelectionModel().selectRow(this.grid.store.totalLength - 1);
+            e.stopEvent();
+        }
     }
 });
 
 /**
  * Грид с множественной серверной группировкой на базе Ext.ux.grid.livegrid.GridPanel
- * 
+ *
  * @param {Object} config
  */
 Ext.define('Ext.m3.MultiGroupingGridPanel', {
     extend: 'Ext.ux.grid.livegrid.GridPanel',
     xtype: 'm3-multigrouping-grid',
 
+    bubbleEvents: [
+        'mask',
+        'unmask',
+        'getcontext'
+    ],
     /**
      * Внутренняя функция для поиска и настройки элементов тулбара и контекстного меню
      */
@@ -759,8 +765,7 @@ Ext.define('Ext.m3.MultiGroupingGridPanel', {
         return item;
     },
 
-    initComponent: function() {
-
+    initComponent: function () {
         var params = this.params || {};
 
         this.actionNewUrl = params.actions.newUrl;
@@ -768,7 +773,7 @@ Ext.define('Ext.m3.MultiGroupingGridPanel', {
         this.actionDeleteUrl = params.actions.deleteUrl;
         this.actionDataUrl = params.actions.dataUrl;
         this.actionExportUrl = params.actions.exportUrl;
-        this.actionContextJson = params.actions.contextJson;
+
         // признак клиентского редактирования
         this.localEdit = params.localEdit;
         // имя для сабмита в режиме клиентского редактирования
@@ -779,33 +784,33 @@ Ext.define('Ext.m3.MultiGroupingGridPanel', {
         }
 
         // Добавление selection model если нужно
-		if (!this.sm) {
-		    this.sm = new Ext.ux.grid.livegrid.RowSelectionModel({singleSelect: true});
+        if (!this.sm) {
+            this.sm = new Ext.ux.grid.livegrid.RowSelectionModel({singleSelect: true});
         }
         // Подменяем вью
         this.view = new Ext.ux.grid.livegrid.GridView(this.viewConfig);
         // и подменяем тулбар
         if (!(this.tbar instanceof Ext.ux.grid.livegrid.Toolbar)) {
             this.tbar = new Ext.ux.grid.livegrid.Toolbar({
-    	        displayInfo: this.params.displayInfo,
-    	        view: this.view,
-    	        items: this.tbar.items,
-    	        displayMsg: this.params.displayMsg,
-    	        emptyMsg: 'Нет данных',
-    	        refreshText: "Обновить"
-	       	})
+                displayInfo: this.params.displayInfo,
+                view: this.view,
+                items: this.tbar.items,
+                displayMsg: this.params.displayMsg,
+                emptyMsg: 'Нет данных',
+                refreshText: "Обновить"
+            })
         }
 
         // плагин для группировки колонок
-		if (this.params.groupable){
-			var group_param = {
-				groupedColumns: this.params.groupedColumns || [],
-				dataIdField: this.params.dataIdField,
-				dataDisplayField: this.params.dataDisplayField
-			};
+        if (this.params.groupable) {
+            var group_param = {
+                groupedColumns: this.params.groupedColumns || [],
+                dataIdField: this.params.dataIdField,
+                dataDisplayField: this.params.dataDisplayField
+            };
             this.plugins = this.plugins || [];
-			this.plugins.push(new Ext.ux.grid.MultiGrouping(group_param));
-		}
+            this.plugins.push(new Ext.ux.grid.MultiGrouping(group_param));
+        }
 
         Ext.m3.configureGrid.apply(this);
         Ext.m3.MultiGroupingGridPanel.superclass.initComponent.call(this);
@@ -833,49 +838,49 @@ Ext.define('Ext.m3.MultiGroupingGridPanel', {
         }
 
         var store = this.getStore();
-		store.on('load', this.onLoad, this);
-        store.baseParams = Ext.applyIf(store.baseParams || {}, this.actionContextJson || {});
+        store.on('load', this.onLoad, this);
+        store.baseParams = Ext.applyIf(store.baseParams || {}, this.getContext());
 
         this.addEvents(
-			/**
-			 * Событие до запроса добавления записи - запрос отменится при возврате false
-			 * @param ObjectGrid this
-			 * @param JSON request - AJAX-запрос для отправки на сервер
-			 */
-			'beforenewrequest',
-			/**
-			 * Событие после запроса добавления записи - обработка отменится при возврате false
-			 * @param ObjectGrid this
-			 * @param res - результат запроса
-			 * @param opt - параметры запроса
-			 */
-			'afternewrequest',
-			/**
-			 * Событие до запроса редактирования записи - запрос отменится при возврате false
-			 * @param ObjectGrid this
-			 * @param JSON request - AJAX-запрос для отправки на сервер
-			 */
-			'beforeeditrequest',
-			/**
-			 * Событие после запроса редактирования записи - обработка отменится при возврате false
-			 * @param ObjectGrid this
-			 * @param res - результат запроса
-			 * @param opt - параметры запроса
-			 */
-			'aftereditrequest',
-			/**
-			 * Событие до запроса удаления записи - запрос отменится при возврате false
-			 * @param ObjectGrid this
-			 * @param JSON request - AJAX-запрос для отправки на сервер
-			 */
-			'beforedeleterequest',
-			/**
-			 * Событие после запроса удаления записи - обработка отменится при возврате false
-			 * @param ObjectGrid this
-			 * @param res - результат запроса
-			 * @param opt - параметры запроса
-			 */
-			'afterdeleterequest',
+            /**
+             * Событие до запроса добавления записи - запрос отменится при возврате false
+             * @param ObjectGrid this
+             * @param JSON request - AJAX-запрос для отправки на сервер
+             */
+            'beforenewrequest',
+            /**
+             * Событие после запроса добавления записи - обработка отменится при возврате false
+             * @param ObjectGrid this
+             * @param res - результат запроса
+             * @param opt - параметры запроса
+             */
+            'afternewrequest',
+            /**
+             * Событие до запроса редактирования записи - запрос отменится при возврате false
+             * @param ObjectGrid this
+             * @param JSON request - AJAX-запрос для отправки на сервер
+             */
+            'beforeeditrequest',
+            /**
+             * Событие после запроса редактирования записи - обработка отменится при возврате false
+             * @param ObjectGrid this
+             * @param res - результат запроса
+             * @param opt - параметры запроса
+             */
+            'aftereditrequest',
+            /**
+             * Событие до запроса удаления записи - запрос отменится при возврате false
+             * @param ObjectGrid this
+             * @param JSON request - AJAX-запрос для отправки на сервер
+             */
+            'beforedeleterequest',
+            /**
+             * Событие после запроса удаления записи - обработка отменится при возврате false
+             * @param ObjectGrid this
+             * @param res - результат запроса
+             * @param opt - параметры запроса
+             */
+            'afterdeleterequest',
             /**
              * Событие после успешного диалога добавления записи - встроенная обработка отменится при возврате false
              * @param ObjectGrid this
@@ -894,7 +899,7 @@ Ext.define('Ext.m3.MultiGroupingGridPanel', {
              * @param res - результат удаления (ответ сервера)
              */
             'rowdeleted'
-		);
+        );
     },
 
     /**
@@ -914,26 +919,26 @@ Ext.define('Ext.m3.MultiGroupingGridPanel', {
             }
         }
     },
-	/**
-	 * Экспортер данных грида
-	 */
-	exportData: function(exportType){
-		var groupPlugin;
-		// найдем плагин группировки
+    /**
+     * Экспортер данных грида
+     */
+    exportData: function (exportType) {
+        var groupPlugin;
+        // найдем плагин группировки
         for (var i = 0; i <= this.plugins.length; i++) {
-        	if (this.plugins[i] instanceof Ext.ux.grid.MultiGrouping) {
-        		groupPlugin = this.plugins[i];
-        		break;
-        	}
+            if (this.plugins[i] instanceof Ext.ux.grid.MultiGrouping) {
+                groupPlugin = this.plugins[i];
+                break;
+            }
         }
-    	// соберем расположение колонок
+        // соберем расположение колонок
         var columns = [];
-        Ext.each(this.colModel.config,function(column,index){
+        Ext.each(this.colModel.config, function (column, index) {
             columns.push({
-                data_index:column.dataIndex,
-                header:column.header,
-                width:column.width,
-                hidden:column.hidden
+                data_index: column.dataIndex,
+                header: column.header,
+                width: column.width,
+                hidden: column.hidden
             })
         });
         // передадим параметры колонок, заголовка и общего размера
@@ -943,14 +948,14 @@ Ext.define('Ext.m3.MultiGroupingGridPanel', {
             totalLength: this.view.ds.totalLength
         };
         // передадим параметры сортировки
-        if (this.getStore().sortInfo !== undefined){
-        	params.sort = this.getStore().sortInfo.field;
-        	params.dir = this.getStore().sortInfo.direction;
+        if (this.getStore().sortInfo !== undefined) {
+            params.sort = this.getStore().sortInfo.field;
+            params.dir = this.getStore().sortInfo.direction;
         }
         // передадим параметры группировки и раскрытых элементов
         if (groupPlugin !== undefined) {
-        	params.grouped = Ext.util.JSON.encode(groupPlugin.groupedColumns);
-        	params.exp = Ext.util.JSON.encode(groupPlugin.expandedItems);
+            params.grouped = Ext.util.JSON.encode(groupPlugin.groupedColumns);
+            params.exp = Ext.util.JSON.encode(groupPlugin.expandedItems);
         }
         // передадим параметры фильтров
         params = Ext.applyIf(params, this.getStore().baseParams);
@@ -959,30 +964,27 @@ Ext.define('Ext.m3.MultiGroupingGridPanel', {
 
         this.view.showLoadMask(true);
         Ext.Ajax.request({
-            url : this.exportUrl,
+            url: this.exportUrl,
             timeout: 9999999,
-            success : function(res, opt){
+            success: function (res, opt) {
 
-            	this.view.showLoadMask(false);
+                this.view.showLoadMask(false);
 
-                try{
+                try {
 
                     // Если выполнилось, то пришел обьект - сообщение об ошибке.
                     Ext.util.JSON.decode(res.responseText);
 
                     // Выводим пользователю сообщение об отсутствие прав на выполнение действия
                     Ext.Msg.show({
-                        title: 'Внимание'
-                        ,msg: 'У вас нет прав на выполнение этого действия!'
-                        ,buttons: Ext.Msg.OK
+                        title: 'Внимание', msg: 'У вас нет прав на выполнение этого действия!', buttons: Ext.Msg.OK
                     })
 
-                }catch(e){
+                } catch (e) {
                     // Если пришел не JSON, то открываем окно для скачивания
                     var iframe;
                     iframe = document.getElementById("hiddenDownloader");
-                    if (iframe === null)
-                    {
+                    if (iframe === null) {
                         iframe = document.createElement('iframe');
                         iframe.id = "hiddenDownloader";
                         iframe.style.visibility = 'hidden';
@@ -991,8 +993,8 @@ Ext.define('Ext.m3.MultiGroupingGridPanel', {
                     iframe.src = res.responseText;
                 }
             },
-            failure : function(){
-            	this.view.showLoadMask(false);
+            failure: function () {
+                this.view.showLoadMask(false);
                 uiAjaxFailMessage.apply(this, arguments);
             },
             params: params,
@@ -1000,92 +1002,90 @@ Ext.define('Ext.m3.MultiGroupingGridPanel', {
         });
     },
     /**
-	 * Нажатие на кнопку "Новый"
-	 */
-	onNewRecord: function (){
-		assert(this.actionNewUrl, 'actionNewUrl is not define');
-		var mask = new Ext.LoadMask(this.body);
-        var baseConf = this.getMainContext();
-        var disableState = this.getToolbarsState();
+     * Нажатие на кнопку "Новый"
+     */
+    onNewRecord: function () {
+        assert(this.actionNewUrl, 'actionNewUrl is not define');
+        var mask = new Ext.LoadMask(this.body),
+            baseConf = this.getContext(),
+            disableState = this.getToolbarsState();
 
         // Если контекст замусорен и уже содержит чей-то id, то вместо создания элемента
         // может открыться редактирование, поэтому удаляем его от греха подальше.
         delete baseConf[this.rowIdName];
-        
-		var req = {
-			url: this.actionNewUrl,
-			params: baseConf,
-			success: function(res, opt){
-				if (scope.fireEvent('afternewrequest', scope, res, opt)) {
-				    try { 
-				        var child_win = scope.onNewRecordWindowOpenHandler(res, opt);
-				    } finally { 
-    				    mask.hide();
-    				    scope.setToolbarsState(disableState);
-				    }
-					return child_win;
-				}
-				mask.hide();
-				scope.setToolbarsState(disableState);
-			}
-           ,failure: function(){ 
-               uiAjaxFailMessage.apply(this, arguments);
-               mask.hide();
-               scope.setToolbarsState(disableState);
-               
-           }
-		};
-		
-		if (this.fireEvent('beforenewrequest', this, req)) {
-			var scope = this;
 
-			this.disableToolbars(true);
-			mask.show();
-			Ext.Ajax.request(req);
-		}
-		
-	},
-	/**
-	 * Нажатие на кнопку "Редактировать"
-	 */
-	onEditRecord: function (){
-		assert(this.actionEditUrl, 'actionEditUrl is not define');
-		assert(this.rowIdName, 'rowIdName is not define');
-		
-	    if (this.getSelectionModel().hasSelection()) {
-			var baseConf = this.getSelectionContext(this.localEdit);
-			var mask = new Ext.LoadMask(this.body);
-                        var disableState = this.getToolbarsState();
-			var req = {
-				url: this.actionEditUrl,
-				params: baseConf,
-				success: function(res, opt){
-					if (scope.fireEvent('aftereditrequest', scope, res, opt)) {
-					    try { 
-						    var child_win = scope.onEditRecordWindowOpenHandler(res, opt);
-						} finally { 
-    						mask.hide();
-    						scope.setToolbarsState(disableState);
-						}
-						return child_win;
-					}
-					mask.hide();
+        var req = {
+            url: this.actionNewUrl,
+            params: baseConf,
+            success: function (res, opt) {
+                if (scope.fireEvent('afternewrequest', scope, res, opt)) {
+                    try {
+                        var child_win = scope.onNewRecordWindowOpenHandler(res, opt);
+                    } finally {
+                        mask.hide();
+                        scope.setToolbarsState(disableState);
+                    }
+                    return child_win;
+                }
+                mask.hide();
+                scope.setToolbarsState(disableState);
+            }, failure: function () {
+                uiAjaxFailMessage.apply(this, arguments);
+                mask.hide();
+                scope.setToolbarsState(disableState);
+
+            }
+        };
+
+        if (this.fireEvent('beforenewrequest', this, req)) {
+            var scope = this;
+
+            this.disableToolbars(true);
+            mask.show();
+            Ext.Ajax.request(req);
+        }
+
+    },
+    /**
+     * Нажатие на кнопку "Редактировать"
+     */
+    onEditRecord: function () {
+        assert(this.actionEditUrl, 'actionEditUrl is not define');
+        assert(this.rowIdName, 'rowIdName is not define');
+
+        if (this.getSelectionModel().hasSelection()) {
+            var baseConf = this.getSelectionContext(this.localEdit);
+            var mask = new Ext.LoadMask(this.body);
+            var disableState = this.getToolbarsState();
+            var req = {
+                url: this.actionEditUrl,
+                params: baseConf,
+                success: function (res, opt) {
+                    if (scope.fireEvent('aftereditrequest', scope, res, opt)) {
+                        try {
+                            var child_win = scope.onEditRecordWindowOpenHandler(res, opt);
+                        } finally {
+                            mask.hide();
+                            scope.setToolbarsState(disableState);
+                        }
+                        return child_win;
+                    }
+                    mask.hide();
                     scope.setToolbarsState(disableState);
-				}
-               ,failure: function(){ 
-                   uiAjaxFailMessage.apply(this, arguments);
-                   mask.hide();
-                   scope.setToolbarsState(disableState);
-               }
-			};
-			
-			if (this.fireEvent('beforeeditrequest', this, req)) {
-				var scope = this;
-				this.disableToolbars(true);
-				mask.show();
-				Ext.Ajax.request(req);
-			}
-    	} else {
+                }, failure: function () {
+                    uiAjaxFailMessage.apply(this, arguments);
+                    mask.hide();
+                    scope.setToolbarsState(disableState);
+                }
+            };
+
+            if (this.fireEvent('beforeeditrequest', this, req)) {
+                var scope = this;
+                this.disableToolbars(true);
+                mask.show();
+                Ext.Ajax.request(req);
+            }
+        } else {
             Ext.Msg.show({
                 title: 'Редактирование',
                 msg: 'Элемент не выбран',
@@ -1093,14 +1093,14 @@ Ext.define('Ext.m3.MultiGroupingGridPanel', {
                 icon: Ext.MessageBox.INFO
             });
         }
-	},
-	/**
+    },
+    /**
      * Нажатие на кнопку "Удалить"
      */
-    onDeleteRecord: function (){
+    onDeleteRecord: function () {
         assert(this.actionDeleteUrl, 'actionDeleteUrl is not define');
         assert(this.rowIdName, 'rowIdName is not define');
-        
+
         var scope = this;
         var disableState = this.getToolbarsState();
         if (scope.getSelectionModel().hasSelection()) {
@@ -1109,31 +1109,30 @@ Ext.define('Ext.m3.MultiGroupingGridPanel', {
                 msg: 'Вы действительно хотите удалить выбранную запись?',
                 icon: Ext.Msg.QUESTION,
                 buttons: Ext.Msg.YESNO,
-                fn:function(btn, text, opt){ 
+                fn: function (btn, text, opt) {
                     if (btn == 'yes') {
                         var baseConf = scope.getSelectionContext(scope.localEdit);
                         var mask = new Ext.LoadMask(scope.body);
                         var req = {
-                           url: scope.actionDeleteUrl,
-                           params: baseConf,
-                           success: function(res, opt){
-                               if (scope.fireEvent('afterdeleterequest', scope, res, opt)) {
-                                   try { 
-                                       var child_win =  scope.deleteOkHandler(res, opt);
-                                   } finally { 
-                                       mask.hide();
-                                       scope.setToolbarsState(disableState);
-                                   }
-                                   return child_win;
-                               }
-                               mask.hide();
-                               scope.setToolbarsState(disableState);
-                           }
-                           ,failure: function(){ 
-                               uiAjaxFailMessage.apply(this, arguments);
-                               mask.hide();
-                               scope.setToolbarsState(disableState);
-                           }
+                            url: scope.actionDeleteUrl,
+                            params: baseConf,
+                            success: function (res, opt) {
+                                if (scope.fireEvent('afterdeleterequest', scope, res, opt)) {
+                                    try {
+                                        var child_win = scope.deleteOkHandler(res, opt);
+                                    } finally {
+                                        mask.hide();
+                                        scope.setToolbarsState(disableState);
+                                    }
+                                    return child_win;
+                                }
+                                mask.hide();
+                                scope.setToolbarsState(disableState);
+                            }, failure: function () {
+                                uiAjaxFailMessage.apply(this, arguments);
+                                mask.hide();
+                                scope.setToolbarsState(disableState);
+                            }
                         };
                         if (scope.fireEvent('beforedeleterequest', scope, req)) {
                             scope.disableToolbars(true);
@@ -1158,20 +1157,20 @@ Ext.define('Ext.m3.MultiGroupingGridPanel', {
      * @param {Object} response Ответ
      * @param {Object} opts Доп. параметры
      */
-    onNewRecordWindowOpenHandler: function (response, opts){
+    onNewRecordWindowOpenHandler: function (response, opts) {
         var window = smart_eval(response.responseText);
-        if(window){
-            window.on('closed_ok', function(data){
+        if (window) {
+            window.on('closed_ok', function (data) {
                 if (this.fireEvent('rowadded', this, data)) {
                     this.createOrReplaceRecord(data, true);
                 }
             }, this);
         }
     },
-    onEditRecordWindowOpenHandler: function (response, opts){
+    onEditRecordWindowOpenHandler: function (response, opts) {
         var window = smart_eval(response.responseText);
-        if(window){
-            window.on('closed_ok', function(data){
+        if (window) {
+            window.on('closed_ok', function (data) {
                 if (this.fireEvent('rowedited', this, data)) {
                     this.createOrReplaceRecord(data, false);
                 }
@@ -1184,9 +1183,9 @@ Ext.define('Ext.m3.MultiGroupingGridPanel', {
      * @param {Object} data json-данные, полученные с сервера при локальном редактировании
      * @param {boolean} isCreate признак создания или редактирования записи
      */
-    createOrReplaceRecord: function(data, isCreate){
+    createOrReplaceRecord: function (data, isCreate) {
         // если локальное редактирование
-        if (this.localEdit){
+        if (this.localEdit) {
             // на самом деле нам пришла строка грида
             var obj = Ext.util.JSON.decode(data);
             var record = new Ext.data.Record(obj.data, obj.data.id);
@@ -1235,18 +1234,18 @@ Ext.define('Ext.m3.MultiGroupingGridPanel', {
             return this.refreshStore();
         }
     },
-	/**
-	 * Хендлер на удаление окна
-	 * @param {Object} response Ответ
-	 * @param {Object} opts Доп. параметры
-	 */
-	deleteOkHandler: function (response, opts){
+    /**
+     * Хендлер на удаление окна
+     * @param {Object} response Ответ
+     * @param {Object} opts Доп. параметры
+     */
+    deleteOkHandler: function (response, opts) {
         if (this.fireEvent('rowdeleted', this, response)) {
             // если локальное редактирование
-            if (this.localEdit){
+            if (this.localEdit) {
                 // проверка на ошибки уровня приложения
                 var res = Ext.util.JSON.decode(response.responseText);
-                if(!res.success){
+                if (!res.success) {
                     smart_eval(response.responseText);
                     return;
                 }
@@ -1278,15 +1277,15 @@ Ext.define('Ext.m3.MultiGroupingGridPanel', {
                 }
             }
         }
-	},
-	refreshStore: function (){
-		this.view.reset(true);
-	},
-	disableToolbars: function(disabled){
-        var toolbars = [this.getTopToolbar(), this.getFooterToolbar(), 
-                       this.getBottomToolbar()]
-        for (var i=0; i<toolbars.length; i++){
-            if (toolbars[i]){
+    },
+    refreshStore: function () {
+        this.view.reset(true);
+    },
+    disableToolbars: function (disabled) {
+        var toolbars = [this.getTopToolbar(), this.getFooterToolbar(),
+            this.getBottomToolbar()]
+        for (var i = 0; i < toolbars.length; i++) {
+            if (toolbars[i]) {
                 toolbars[i].setDisabled(disabled);
             }
         }
@@ -1294,14 +1293,14 @@ Ext.define('Ext.m3.MultiGroupingGridPanel', {
     /**
      * Получение текущего состояния тулбаров
      */
-    getToolbarsState: function(){
+    getToolbarsState: function () {
         var toolbars = [this.getTopToolbar(), this.getFooterToolbar(),
-            this.getBottomToolbar()],
+                this.getBottomToolbar()],
             state = [];
-        for (var i=0; i<toolbars.length; i++){
-            if (toolbars[i]){
+        for (var i = 0; i < toolbars.length; i++) {
+            if (toolbars[i]) {
                 var itemState = [];
-                for (var j=0; j<toolbars[i].items.length; j++){
+                for (var j = 0; j < toolbars[i].items.length; j++) {
                     itemState.push(toolbars[i].items.items[j].disabled);
                 }
                 state.push(itemState);
@@ -1312,75 +1311,69 @@ Ext.define('Ext.m3.MultiGroupingGridPanel', {
     /**
      * Установка состояния тулбаров
      */
-    setToolbarsState: function(state){
+    setToolbarsState: function (state) {
         var toolbars = [this.getTopToolbar(), this.getFooterToolbar(),
-                    this.getBottomToolbar()];
-        for (var i=0; i<toolbars.length; i++){
-            if (toolbars[i]){
+            this.getBottomToolbar()];
+        for (var i = 0; i < toolbars.length; i++) {
+            if (toolbars[i]) {
                 var itemState = state.shift();
-                for (var j=0; j<toolbars[i].items.length; j++){
+                for (var j = 0; j < toolbars[i].items.length; j++) {
                     var disabled = itemState.shift();
                     toolbars[i].items.items[j].setDisabled(disabled);
                 }
             }
         }
     },
-    /**
-     * Получение основного контекста грида
-     * Используется при ajax запросах
-     */
-    getMainContext: function(){
-    	return Ext.applyIf({}, this.actionContextJson);
-    },
+
     /**
      * Получение контекста выделения строк/ячеек
      * Используется при ajax запросах
      * @param {boolean} withRow Признак добавление в контекст текущей выбранной записи
      */
-    getSelectionContext: function(withRow){
-    	var baseConf = this.getMainContext();
-		var sm = this.getSelectionModel();
-		var idField = this.getStore().idProperty;
-		var record;
-		// для режима выделения строк
-		if (sm instanceof Ext.grid.RowSelectionModel) {
-			if (sm.singleSelect) {
-				record = sm.getSelected();
-				baseConf[this.rowIdName] = record.json[idField];
-			} else {
-				// для множественного выделения
-				var sels = sm.getSelections();
-				var ids = [];
-				record = [];
-				for(var i = 0, len = sels.length; i < len; i++){
-					record.push(sels[i]);
-					ids.push(sels[i].json[idField]);
-				}
-				baseConf[this.rowIdName] = ids.join();
-			}
-		}
-		// для режима выделения ячейки
-		else if (sm instanceof Ext.grid.CellSelectionModel) {
-			assert(this.columnParamName, 'columnParamName is not define');
-			
-			var cell = sm.getSelectedCell();
-			if (cell) {
-				record = this.getStore().getAt(cell[0]);
-				baseConf[this.rowIdName] = record.json[idField];
-				baseConf[this.columnParamName] = this.getColumnModel().getDataIndex(cell[1]);
-			}
-		}
-		// если просят выделенную строку
-        if (withRow){
-        	// то нужно добавить в параметры текущую строку грида
-        	if (Ext.isArray(record)){
-        		// пока х.з. что делать - возьмем первую
-        		baseConf = Ext.applyIf(baseConf, record[0].json);
-        	} else {
-        		baseConf = Ext.applyIf(baseConf, record.json);
-        	}
+    getSelectionContext: function (withRow) {
+        var baseConf = this.getContext(),
+            sm = this.getSelectionModel(),
+            idField = this.getStore().idProperty,
+            record;
+        // для режима выделения строк
+        if (sm instanceof Ext.grid.RowSelectionModel) {
+            if (sm.singleSelect) {
+                record = sm.getSelected();
+                baseConf[this.rowIdName] = record.json[idField];
+            } else {
+                // для множественного выделения
+                var sels = sm.getSelections();
+                var ids = [];
+                record = [];
+                for (var i = 0, len = sels.length; i < len; i++) {
+                    record.push(sels[i]);
+                    ids.push(sels[i].json[idField]);
+                }
+                baseConf[this.rowIdName] = ids.join();
+            }
         }
-		return baseConf;
+        // для режима выделения ячейки
+        else if (sm instanceof Ext.grid.CellSelectionModel) {
+            assert(this.columnParamName, 'columnParamName is not define');
+
+            var cell = sm.getSelectedCell();
+            if (cell) {
+                record = this.getStore().getAt(cell[0]);
+                baseConf[this.rowIdName] = record.json[idField];
+                baseConf[this.columnParamName] = this.getColumnModel().getDataIndex(cell[1]);
+            }
+        }
+        // если просят выделенную строку
+        if (withRow) {
+            // то нужно добавить в параметры текущую строку грида
+            if (Ext.isArray(record)) {
+                // пока х.з. что делать - возьмем первую
+                baseConf = Ext.applyIf(baseConf, record[0].json);
+            } else {
+                baseConf = Ext.applyIf(baseConf, record.json);
+            }
+        }
+        return baseConf;
     }
 });
 
@@ -1393,12 +1386,12 @@ Ext.define('Ext.m3.MultiGroupingGridPanel', {
 Ext.define('Ext.ux.grid.MultiGroupingExporter', {
     extend: 'Ext.util.Observable',
 
-    constructor: function(config){
-    	if (config) Ext.apply(this, config);
+    constructor: function (config) {
+        if (config) Ext.apply(this, config);
         Ext.ux.grid.MultiGroupingExporter.superclass.constructor.call(this);
     },
-    init: function(grid){
-    	grid.exportUrl = this.exportUrl;
+    init: function (grid) {
+        grid.exportUrl = this.exportUrl;
     }
 });
 
@@ -1411,15 +1404,15 @@ Ext.define('Ext.ux.grid.MultiGroupingSummary', {
     xtype: 'multigroupingsummary',
 
     // configurable scrollbar width (used only in the event the Ext.getScrollBarWidth() method is not available)
-    scrollBarWidth : 17,
+    scrollBarWidth: 17,
 
     // private
-    init : function(grid) {
+    init: function (grid) {
         var v = grid.getView();
 
         Ext.apply(this, {
-            grid    : grid,
-            view    : v
+            grid: grid,
+            view: v
         });
 
         // override GridView's onLayout() method
@@ -1430,14 +1423,14 @@ Ext.define('Ext.ux.grid.MultiGroupingSummary', {
             if (!grid.events['viewready']) {
                 // check for "viewready" event on GridPanel -- this event is only available in Ext 3.x,
                 // so the plugin hotwires it in if it doesn't exist
-                v.afterMethod('afterRender', function() {
+                v.afterMethod('afterRender', function () {
                     this.grid.fireEvent('viewready', this.grid);
                 }, this);
             }
 
             // a small (hacky) delay of ~10ms is required to prevent
             // the vertical scrollbar from disappearing in IE6/7
-            grid.on('viewready', function() {
+            grid.on('viewready', function () {
                 this.toggleGridHScroll(false);
             }, this, { delay: 10 });
         } else {
@@ -1453,7 +1446,7 @@ Ext.define('Ext.ux.grid.MultiGroupingSummary', {
         grid.on('columnmove', this.refreshSummary, this);//kirov
         grid.getColumnModel().on('hiddenchange', this.refreshSummary, this);//kirov
         grid.on('resize', this.refreshSummary, this);//kirov
-        
+
 
         if (Ext.isGecko || Ext.isOpera) {
             // restore gridview's horizontal scroll position when store data is changed
@@ -1464,26 +1457,26 @@ Ext.define('Ext.ux.grid.MultiGroupingSummary', {
         }
 
         grid.on({
-            bodyscroll      : this.syncSummaryScroll,
-            beforedestroy   : this.beforeDestroy,
-            scope           : this
+            bodyscroll: this.syncSummaryScroll,
+            beforedestroy: this.beforeDestroy,
+            scope: this
         });
 
         // update summary row on store's add/remove/clear/update events
         grid.store.on({
-            add     : this.refreshSummary,
-            remove  : this.refreshSummary,
-            clear   : this.refreshSummary,
-            update  : this.refreshSummary,
-            scope   : this
+            add: this.refreshSummary,
+            remove: this.refreshSummary,
+            clear: this.refreshSummary,
+            update: this.refreshSummary,
+            scope: this
         });
 
         if (!this.rowTpl) {
             this.rowTpl = new Ext.Template(
                 '<div class="x-grid3-summary-row x-grid3-gridsummary-row-offset">',
-                    '<table class="x-grid3-summary-table" border="0" cellspacing="0" cellpadding="0" style="{tstyle}">',
-                        '<tbody><tr>{cells}</tr></tbody>',
-                    '</table>',
+                '<table class="x-grid3-summary-table" border="0" cellspacing="0" cellpadding="0" style="{tstyle}">',
+                '<tbody><tr>{cells}</tr></tbody>',
+                '</table>',
                 '</div>'
             );
             this.rowTpl.disableFormats = true;
@@ -1493,7 +1486,7 @@ Ext.define('Ext.ux.grid.MultiGroupingSummary', {
         if (!this.cellTpl) {
             this.cellTpl = new Ext.Template(
                 '<td class="x-grid3-col x-grid3-cell x-grid3-td-{id} {css}" style="{style}">',
-                    '<div class="x-grid3-cell-inner x-grid3-col-{id}" unselectable="on" {attr}>{value}</div>',
+                '<div class="x-grid3-cell-inner x-grid3-col-{id}" unselectable="on" {attr}>{value}</div>',
                 "</td>"
             );
             this.cellTpl.disableFormats = true;
@@ -1503,7 +1496,7 @@ Ext.define('Ext.ux.grid.MultiGroupingSummary', {
 
 
     // private
-    onLayout : function(vw, vh) { // note: this method is scoped to the GridView
+    onLayout: function (vw, vh) { // note: this method is scoped to the GridView
         if (typeof(vh) != 'number') { // handles grid's height:'auto' config
             return;
         }
@@ -1515,7 +1508,7 @@ Ext.define('Ext.ux.grid.MultiGroupingSummary', {
     },
 
     // private
-    syncScroll : function(refEl, scrollEl, currX, currY) {
+    syncScroll: function (refEl, scrollEl, currX, currY) {
         currX = currX || refEl.scrollLeft;
         currY = currY || refEl.scrollTop;
 
@@ -1530,19 +1523,19 @@ Ext.define('Ext.ux.grid.MultiGroupingSummary', {
     },
 
     // private
-    syncSummaryScroll : function(currX, currY) {
+    syncSummaryScroll: function (currX, currY) {
         var v = this.view,
             y = this.oldY;
 
         if (
-            // workaround for Gecko's horizontal-scroll reset bug
-            // (see unresolved mozilla bug: https://bugzilla.mozilla.org/show_bug.cgi?id=386444
-            // "using vertical scrollbar changes horizontal scroll position with overflow-x:hidden and overflow-y:scroll")
-            Ext.isGecko     &&          // 1) <div>s with overflow-x:hidden have their DOM.scrollLeft property set to 0 when scrolling vertically
-            currX === 0     &&          // 2) current x-ordinate is now zero
-            this.oldX > 0   &&          // 3) gridview is not at x=0 ordinate
-            (y !== currY || y === 0)    // 4) vertical scroll detected / vertical scrollbar is moved rapidly all the way to the top
-        ) {
+        // workaround for Gecko's horizontal-scroll reset bug
+        // (see unresolved mozilla bug: https://bugzilla.mozilla.org/show_bug.cgi?id=386444
+        // "using vertical scrollbar changes horizontal scroll position with overflow-x:hidden and overflow-y:scroll")
+            Ext.isGecko &&          // 1) <div>s with overflow-x:hidden have their DOM.scrollLeft property set to 0 when scrolling vertically
+                currX === 0 &&          // 2) current x-ordinate is now zero
+                this.oldX > 0 &&          // 3) gridview is not at x=0 ordinate
+                (y !== currY || y === 0)    // 4) vertical scroll detected / vertical scrollbar is moved rapidly all the way to the top
+            ) {
             this.restoreGridHScroll();
         } else {
             this.syncScroll(v.scroller.dom, v.summaryWrap.dom, currX, currY);
@@ -1550,21 +1543,21 @@ Ext.define('Ext.ux.grid.MultiGroupingSummary', {
     },
 
     // private
-    restoreGridHScroll : function() {
+    restoreGridHScroll: function () {
         // restore gridview's original x-ordinate
         // (note: this causes an unvoidable flicker in the gridview)
         this.view.scroller.dom.scrollLeft = this.oldX || 0;
     },
 
     // private
-    syncGridHScroll : function() {
+    syncGridHScroll: function () {
         var v = this.view;
 
         this.syncScroll(v.summaryWrap.dom, v.scroller.dom);
     },
 
     // private
-    doWidth : function(col, w, tw) {
+    doWidth: function (col, w, tw) {
         var s = this.getSummaryNode(),
             fc = s.dom.firstChild;
 
@@ -1575,7 +1568,7 @@ Ext.define('Ext.ux.grid.MultiGroupingSummary', {
     },
 
     // private
-    doAllWidths : function(ws, tw) {
+    doAllWidths: function (ws, tw) {
         var s = this.getSummaryNode(),
             fc = s.dom.firstChild,
             cells = fc.rows[0].childNodes,
@@ -1592,7 +1585,7 @@ Ext.define('Ext.ux.grid.MultiGroupingSummary', {
     },
 
     // private
-    doHidden : function(col, hidden, tw) {
+    doHidden: function (col, hidden, tw) {
         var s = this.getSummaryNode(),
             fc = s.dom.firstChild,
             display = hidden ? 'none' : '';
@@ -1604,7 +1597,7 @@ Ext.define('Ext.ux.grid.MultiGroupingSummary', {
     },
 
     // private
-    getGridHeader : function() {
+    getGridHeader: function () {
         if (!this.gridHeader) {
             this.gridHeader = this.view.mainHd.child('.x-grid3-header-offset');
         }
@@ -1613,33 +1606,33 @@ Ext.define('Ext.ux.grid.MultiGroupingSummary', {
     },
 
     // private
-    updateSummaryWidth : function() {
+    updateSummaryWidth: function () {
         // all browsers add a 1 pixel space between the edges of the vert. and hori. scrollbars,
         // so subtract one from the grid header width before setting the summary row's width
         //kirov this.getSummaryNode().setWidth(this.getGridHeader().getWidth() - 1);
-    	if (this.getSummaryNode()) {
-    		this.getSummaryNode().setWidth(this.view.getTotalWidth()); //kirov
-    	}
-    	// kirov
-    	if (Ext.isIE) {
-	    	var elWidth = this.grid.getGridEl().getSize().width;
-	    	if (this.grid.getColumnModel().getTotalWidth()+this.view.getScrollOffset() > elWidth){
-	    		this.view.summaryWrap.dom.style['overflow-y'] = 'hidden';
-	    		this.view.summaryWrap.setHeight(((Ext.getScrollBarWidth ? Ext.getScrollBarWidth() : this.scrollBarWidth) + 18 /* 18 = row-expander height */));
-	    	} else {
-	    		this.view.summaryWrap.dom.style['overflow-y'] = 'visible';
-	    		this.view.summaryWrap.setHeight((Ext.getScrollBarWidth ? Ext.getScrollBarWidth() : this.scrollBarWidth));
-	    	}
-    	}
+        if (this.getSummaryNode()) {
+            this.getSummaryNode().setWidth(this.view.getTotalWidth()); //kirov
+        }
+        // kirov
+        if (Ext.isIE) {
+            var elWidth = this.grid.getGridEl().getSize().width;
+            if (this.grid.getColumnModel().getTotalWidth() + this.view.getScrollOffset() > elWidth) {
+                this.view.summaryWrap.dom.style['overflow-y'] = 'hidden';
+                this.view.summaryWrap.setHeight(((Ext.getScrollBarWidth ? Ext.getScrollBarWidth() : this.scrollBarWidth) + 18 /* 18 = row-expander height */));
+            } else {
+                this.view.summaryWrap.dom.style['overflow-y'] = 'visible';
+                this.view.summaryWrap.setHeight((Ext.getScrollBarWidth ? Ext.getScrollBarWidth() : this.scrollBarWidth));
+            }
+        }
     },
 
     // private
-    renderSummary : function(o, cs, cm) {
-    	if (!o.data) {
-    		return;
-    	}
-    	
-    	cs = cs || this.view.getColumnData();
+    renderSummary: function (o, cs, cm) {
+        if (!o.data) {
+            return;
+        }
+
+        cs = cs || this.view.getColumnData();
 
         var cfg = cm.config,
             buf = [],
@@ -1671,33 +1664,33 @@ Ext.define('Ext.ux.grid.MultiGroupingSummary', {
             cells: buf.join('')
         });
     },
-    
+
     // private
-    refreshSummary : function() {
-    	var g       = this.grid,
-            ds      = g.store,
-            cs      = this.view.getColumnData(),
-            cm      = g.getColumnModel(),
-            rs      = ds.getRange();
+    refreshSummary: function () {
+        var g = this.grid,
+            ds = g.store,
+            cs = this.view.getColumnData(),
+            cm = g.getColumnModel(),
+            rs = ds.getRange();
 
-		var data = (ds.reader.jsonData) ? ds.reader.jsonData.totalRow : {};
-		var buf = this.renderSummary({data: data}, cs, cm);
+        var data = (ds.reader.jsonData) ? ds.reader.jsonData.totalRow : {};
+        var buf = this.renderSummary({data: data}, cs, cm);
 
-    	if (!this.view.summaryWrap) {
+        if (!this.view.summaryWrap) {
             this.view.summaryWrap = Ext.DomHelper.insertAfter(this.view.scroller, {
                 // IE6/7/8 style hacks:
                 // - width:100% required for horizontal scroll to appear (all the time for IE6/7, only in GroupingView for IE8)
                 // - explicit height required for summary row to appear (only for IE6/7, no effect in IE8)
                 // - overflow-y:hidden required to hide vertical scrollbar in summary row (only for IE6/7, no effect in IE8)
-                style   : 'overflow:auto;' + (Ext.isIE ? 'width:100%;overflow-y:hidden;height:' + ((Ext.getScrollBarWidth ? Ext.getScrollBarWidth() : this.scrollBarWidth)/* 18 = row-expander height */) + 'px;' : ''),
-                tag     : 'div',
-                cls     : 'x-grid3-gridsummary-row-inner'
+                style: 'overflow:auto;' + (Ext.isIE ? 'width:100%;overflow-y:hidden;height:' + ((Ext.getScrollBarWidth ? Ext.getScrollBarWidth() : this.scrollBarWidth)/* 18 = row-expander height */) + 'px;' : ''),
+                tag: 'div',
+                cls: 'x-grid3-gridsummary-row-inner'
             }, true);
 
             // synchronise GridView's and GridSummary's horizontal scroll
             this.view.summaryWrap.on('scroll', this.syncGridHScroll, this);
         }
-    	
+
         // update summary row data
         this.setSummaryNode(this.view.summaryWrap.update(buf).first());
 
@@ -1705,19 +1698,19 @@ Ext.define('Ext.ux.grid.MultiGroupingSummary', {
     },
 
     // private
-    toggleGridHScroll : function(allowHScroll) {
+    toggleGridHScroll: function (allowHScroll) {
         // toggle GridView's horizontal scrollbar
-    	//kirov
-    	if (allowHScroll){
-    		this.view.scroller.dom.style.overflow = 'auto';
-    	} else {
-    		this.view.scroller.dom.style.overflow = 'hidden';
-    	}
+        //kirov
+        if (allowHScroll) {
+            this.view.scroller.dom.style.overflow = 'auto';
+        } else {
+            this.view.scroller.dom.style.overflow = 'hidden';
+        }
         this.view.scroller[allowHScroll === undefined ? 'toggleClass' : allowHScroll ? 'removeClass' : 'addClass']('x-grid3-gridsummary-hide-hscroll');
     },
 
     // show/hide summary row
-    toggleSummary : function(visible) { // true to display summary row
+    toggleSummary: function (visible) { // true to display summary row
         var el = this.grid.getGridEl(),
             v = this.view;
 
@@ -1736,17 +1729,17 @@ Ext.define('Ext.ux.grid.MultiGroupingSummary', {
     },
 
     // get summary row Element
-    getSummaryNode : function() {
+    getSummaryNode: function () {
         return this.view.summary;
     },
 
     // private
-    setSummaryNode : function(sn) {
+    setSummaryNode: function (sn) {
         this.view.summary = sn;
     },
 
     // private
-    beforeDestroy : function() {
+    beforeDestroy: function () {
         Ext.destroy(
             this.view.summary,
             this.view.summaryWrap
@@ -1764,7 +1757,7 @@ Ext.define('Ext.m3.LiveStore', {
     extend: 'Ext.ux.grid.livegrid.Store',
     xtype: 'm3-live-store',
 
-    constructor: function(config){
+    constructor: function (config) {
 
         config.reader = new Ext.m3.LiveStoreReader({
             fields: config.fields,
@@ -1776,26 +1769,26 @@ Ext.define('Ext.m3.LiveStore', {
         this.callParent(arguments);
     },
 
-	loadRecords : function(o, options, success){
-		// сохраним итоговую строку для дальнейшей обработки
+    loadRecords: function (o, options, success) {
+        // сохраним итоговую строку для дальнейшей обработки
         if (o) {
-    	    this.totalRow = o.totalRow;
+            this.totalRow = o.totalRow;
         }
-		return Ext.m3.LiveStore.superclass.loadRecords.call(this, o, options, success);
-	}
+        return Ext.m3.LiveStore.superclass.loadRecords.call(this, o, options, success);
+    }
 });
 
 Ext.define('Ext.m3.LiveStoreReader', {
     extend: 'Ext.ux.grid.livegrid.JsonReader',
 
-	readRecords : function(o) {
-		var intercept = Ext.m3.LiveStoreReader.superclass.readRecords.call(this, o);
-		// сохраним итоговую строку для дальнейшей обработки
+    readRecords: function (o) {
+        var intercept = Ext.m3.LiveStoreReader.superclass.readRecords.call(this, o);
+        // сохраним итоговую строку для дальнейшей обработки
         if (o) {
-		    intercept.totalRow = o.totalRow;
+            intercept.totalRow = o.totalRow;
         }
-		return intercept;
-	}
+        return intercept;
+    }
 });
 
 Ext.reg('livegrid-toolbar', Ext.ux.grid.livegrid.Toolbar);

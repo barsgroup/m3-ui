@@ -72,13 +72,6 @@ class BaseExtTriggerField(BaseExtField):
     Базовый класс для комбобокса, поля выбора справочника
     """
 
-    # FIXME: Разобраться с action_context
-    # Был такой метод:
-    # def pre_render(self):
-    #     if self.get_store():
-    #         self.get_store().action_context = self.action_context
-    #     super(BaseExtTriggerField, self).pre_render()
-
     ALL = 'all'  # Признак, что отображаться при выборе будут все записи
     QUERY = 'query'  # Признак того, что отображаются только те записи, которые подходят по тексту
 

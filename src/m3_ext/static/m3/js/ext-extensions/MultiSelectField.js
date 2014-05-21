@@ -187,7 +187,7 @@ Ext.define('Ext.m3.MultiSelectField', {
 			Ext.Ajax.request({
 				url: this.actionSelectUrl
 				,method: 'POST'
-				,params: this.actionContextJson
+				,params: this.getContext()
 				,success: function(response){
 				    var win = smart_eval(response.responseText);
 				    if (win){

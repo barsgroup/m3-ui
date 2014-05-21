@@ -14,8 +14,6 @@ class ExtWindow(BaseExtPanel):
 
     _xtype = 'm3-window'
 
-    # FIXME: перенести parentWindowID и action_context
-    # FIXME: перенести close_action
     # FIXME: перенести t_render_keys, сейчас будет неправильно работать
     # FIXME: вернуть функцию find_by_name
 

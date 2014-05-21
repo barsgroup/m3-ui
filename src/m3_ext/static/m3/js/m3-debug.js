@@ -6215,19 +6215,12 @@ Ext.define('Ext.m3.Window', {
         // Ссылка на родительское окно
         this.parentWindow = null;
 
-        // Контекст
-        this.actionContextJson = null;
-
         if (params && params.parentWindowID) {
             this.parentWindow = Ext.getCmp(params.parentWindowID);
         }
 
         if (params && params.helpTopic) {
             this.m3HelpTopic = params.helpTopic;
-        }
-
-        if (params && params.contextJson) {
-            this.actionContextJson = params.contextJson;
         }
 
         // на F1 что-то нормально не вешается обработчик..
@@ -6911,7 +6904,6 @@ Ext.define('Ext.m3.AdvancedComboBox', {
 
     actionSelectUrl: null,
     actionEditUrl: null,
-    actionContextJson: null,
 
     hideBaseTrigger: false,
 
@@ -7383,7 +7375,7 @@ Ext.define('Ext.m3.AdvancedComboBox', {
         Ext.Ajax.request({
             url: this.actionEditUrl,
             method: 'POST',
-            params: Ext.applyIf({id: value_id}, this.actionContextJson),
+            params: Ext.applyIf({id: value_id}, this.getContext()),
             success: function (response, opts) {
                 smart_eval(response.responseText);
             },
@@ -7966,7 +7958,7 @@ Ext.define('Ext.m3.EditWindow', {
                 url: this.dataUrl,
                 params: Ext.applyIf({
                         isGetData: true},
-                    this.actionContextJson || {}),
+                    this.getContext()),
                 success: this.onSuccessLoadForm.createDelegate(this, [mask], true),
                 failure: this.onFailureLoadForm.createDelegate(this, [mask], true),
                 scope: this
@@ -8881,12 +8873,13 @@ Ext.ux.tree.TreeHeaderFilters = Ext.extend(Ext.util.Observable, {
 		for(var fn in this.filterFields)
 		{
 			// только для Ext.m3.ObjectTree
-			if (this.tree.actionContextJson) {
-				delete this.tree.actionContextJson[fn];
+			if (this.getContext()) {
+				delete this.getContext()[fn];
 			}
 		}
 		// проставим заново
 		// только для Ext.m3.ObjectTree
+        // TODO: Протестировать контекст
 		this.tree.actionContextJson = Ext.applyIf(this.tree.actionContextJson || {}, this.filters);
 		this.tree.refreshStore();
 		//this.tree.getLoader().baseParams = Ext.applyIf(this.tree.getLoader().baseParams, this.filters);
@@ -12223,7 +12216,7 @@ Ext.define('Ext.m3.MultiSelectField', {
 			Ext.Ajax.request({
 				url: this.actionSelectUrl
 				,method: 'POST'
-				,params: this.actionContextJson
+				,params: this.getContext()
 				,success: function(response){
 				    var win = smart_eval(response.responseText);
 				    if (win){
@@ -12415,7 +12408,7 @@ Ext.ux.Notification = Ext.extend(Ext.Window, {
         this.actionEditUrl = params.actions.editUrl;
         this.actionDeleteUrl = params.actions.deleteUrl;
         this.actionDataUrl = params.actions.dataUrl;
-        this.actionContextJson = params.actions.contextJson;
+
         // признак клиентского редактирования
         this.localEdit = params.localEdit;
         // имя для сабмита в режиме клиентского редактирования
@@ -12451,8 +12444,7 @@ Ext.ux.Notification = Ext.extend(Ext.Window, {
         }
 
         var store = this.getStore();
-        store.baseParams = Ext.applyIf(store.baseParams || {}, this.actionContextJson || {});
-
+        store.baseParams = Ext.applyIf(store.baseParams || {}, this.getContext());
 
         this.addEvents(
             /**
@@ -12746,19 +12738,12 @@ Ext.ux.Notification = Ext.extend(Ext.Window, {
 
         },
         /**
-         * Получение основного контекста грида
-         * Используется при ajax запросах
-         */
-        getMainContext: function () {
-            return Ext.applyIf({}, this.actionContextJson);
-        },
-        /**
          * Получение контекста выделения строк/ячеек
          * Используется при ajax запросах
          * @param {boolean} withRow Признак добавление в контекст текущей выбранной записи
          */
         getSelectionContext: function (withRow) {
-            var baseConf = this.getMainContext(),
+            var baseConf = this.getContext(),
                 sm = this.getSelectionModel(),
                 record, sels, ids, i, len;
             // для режима выделения строк
@@ -12956,8 +12941,6 @@ Ext.define('Ext.m3.ObjectTree', {
     actionNewUrl: null,
     actionEditUrl: null,
     actionDeleteUrl: null,
-
-    actionContextJson: {},
 
     incrementalUpdate: false,
 
