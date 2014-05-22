@@ -126,7 +126,7 @@ UI.evalResult = function (response) {
     return new Q()
         .then(function () {
             if (obj.message) {
-                return msgBox({
+                return UI.msgBox({
                     title: 'Внимание',
                     msg: obj.message,
                     buttons: Ext.Msg.OK,
