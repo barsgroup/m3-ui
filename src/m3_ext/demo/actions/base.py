@@ -59,9 +59,10 @@ class UIAction(Action):
         return '/' + self.__class__.__name__.lower()
 
     def context_declaration(self):
-        return {
-            'ui': {'type': 'boolean', 'default': False},
-        }
+        return ('mode', {
+            'ui': {},
+            None: {}
+        })
 
     def get_ui(self, request, context):
         """
@@ -87,7 +88,7 @@ class UIAction(Action):
         }
 
     def run(self, request, context):
-        if context.ui:
+        if context._mode == 'ui':
             result = UIResult(self.get_ui(request, context))
         else:
             kwargs = self.get_result(request, context)
