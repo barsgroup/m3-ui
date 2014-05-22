@@ -6908,6 +6908,7 @@ Ext.define('Ext.m3.AdvancedComboBox', {
 
     actionSelectUrl: null,
     actionEditUrl: null,
+    autocompleteUrl: null,
 
     hideBaseTrigger: false,
 
@@ -6927,28 +6928,6 @@ Ext.define('Ext.m3.AdvancedComboBox', {
     triggerSelectClass: 'x-form-select-trigger',
     triggerEditClass: 'x-form-edit-trigger',
 
-    baseTriggers: [
-        {
-            iconCls: 'x-form-clear-trigger',
-            handler: null,
-            hide: null
-        },
-        {
-            iconCls: '',
-            handler: null,
-            hide: null
-        },
-        {
-            iconCls: 'x-form-select-trigger',
-            handler: null,
-            hide: null
-        },
-        {
-            iconCls: 'x-form-edit-trigger',
-            handler: null,
-            hide: true
-        }
-    ],
 
     /**
      * Конфигурация компонента
@@ -6958,14 +6937,35 @@ Ext.define('Ext.m3.AdvancedComboBox', {
             this.store.url = this.autocompleteUrl;
         }
 
+        this.allTriggers = [
+            {
+                iconCls: 'x-form-clear-trigger',
+                handler: null,
+                hide: null
+            },
+            {
+                iconCls: '',
+                handler: null,
+                hide: null
+            },
+            {
+                iconCls: 'x-form-select-trigger',
+                handler: null,
+                hide: null
+            },
+            {
+                iconCls: 'x-form-edit-trigger',
+                handler: null,
+                hide: true
+            }
+        ];
+
+        Ext.m3.AdvancedComboBox.superclass.initComponent.call(this);
+
         if (this.hideTrigger) {
             delete this.hideTrigger;
             this.hideBaseTrigger = true;
         }
-
-        this.allTriggers = [].concat(this.baseTriggers);
-
-        Ext.m3.AdvancedComboBox.superclass.initComponent.call(this);
 
         // см. TwinTriggerField
         this.triggerConfig = {
@@ -6973,7 +6973,8 @@ Ext.define('Ext.m3.AdvancedComboBox', {
 
         Ext.each(this.allTriggers, function (item, index, all) {
             this.triggerConfig.cn.push(
-                {tag: "img", src: Ext.BLANK_IMAGE_URL, cls: "x-form-trigger " + item.iconCls}
+                {tag: "img", src: Ext.BLANK_IMAGE_URL,
+                    cls: "x-form-trigger " + item.iconCls}
             );
         }, this);
 
@@ -7039,8 +7040,11 @@ Ext.define('Ext.m3.AdvancedComboBox', {
             'changed'
         );
 
-        this.getStore().baseParams = Ext.applyIf({start: 0, limit: this.defaultLimit }, this.getStore().baseParams);
+        this.getStore().baseParams = Ext.applyIf({start: 0,
+                limit: this.defaultLimit },
+            this.getStore().baseParams);
         this.triggerAction = 'all';
+
     },
     // см. TwinTriggerField
     getTrigger: function (index) {
@@ -7104,10 +7108,10 @@ Ext.define('Ext.m3.AdvancedComboBox', {
                 }
             }, this);
         } else {
-            this.baseTriggers[0].hide = disabled;
-            this.baseTriggers[1].hide = disabled;
-            this.baseTriggers[2].hide = disabled;
-            this.baseTriggers[3].hide = disabled;
+            this.allTriggers[0].hide = disabled;
+            this.allTriggers[1].hide = disabled;
+            this.allTriggers[2].hide = disabled;
+            this.allTriggers[3].hide = disabled;
         }
     },
 
@@ -7115,19 +7119,19 @@ Ext.define('Ext.m3.AdvancedComboBox', {
      * Инициализация первоначальной настройки триггеров
      */
     initBaseTrigger: function () {
-        this.baseTriggers[0].handler = this.onTriggerClearClick;
-        this.baseTriggers[1].handler = this.onTriggerDropDownClick;
-        this.baseTriggers[2].handler = this.onTriggerDictSelectClick;
-        this.baseTriggers[3].handler = this.onTriggerDictEditClick;
+        this.allTriggers[0].handler = this.onTriggerClearClick;
+        this.allTriggers[1].handler = this.onTriggerDropDownClick;
+        this.allTriggers[2].handler = this.onTriggerDictSelectClick;
+        this.allTriggers[3].handler = this.onTriggerDictEditClick;
 
-        this.baseTriggers[0].hide = this.hideTriggerClear || this.readOnly || this.disabled;
-        this.baseTriggers[1].hide = this.hideTriggerDropDown || this.readOnly || this.disabled;
-        this.baseTriggers[2].hide = this.hideTriggerDictSelect || this.readOnly || this.disabled;
-        this.baseTriggers[3].hide = this.hideTriggerDictEdit || this.readOnly || this.disabled;
+        this.allTriggers[0].hide = this.hideTriggerClear || this.readOnly || this.disabled;
+        this.allTriggers[1].hide = this.hideTriggerDropDown || this.readOnly || this.disabled;
+        this.allTriggers[2].hide = this.hideTriggerDictSelect || this.readOnly || this.disabled;
+        this.allTriggers[3].hide = this.hideTriggerDictEdit || this.readOnly || this.disabled;
 
         if (!this.getValue()) {
-            this.baseTriggers[0].hide = true;
-            this.baseTriggers[3].hide = true;
+            this.allTriggers[0].hide = true;
+            this.allTriggers[3].hide = true;
         }
     },
 
@@ -7151,7 +7155,6 @@ Ext.define('Ext.m3.AdvancedComboBox', {
     onDestroy: function () {
         Ext.destroy(this.triggers);
         Ext.destroy(this.allTriggers);
-        Ext.destroy(this.baseTriggers);
         Ext.m3.AdvancedComboBox.superclass.onDestroy.call(this);
     },
 
@@ -7275,6 +7278,11 @@ Ext.define('Ext.m3.AdvancedComboBox', {
      * кнопку очистки
      */
     setValue: function (value) {
+        if (Ext.isObject(value)) {
+            // binding - добавим запись в store
+            this.getStore().add(new Ext.data.Record(value));
+            value = value['id'];
+        }
         Ext.m3.AdvancedComboBox.superclass.setValue.call(this, value);
         if (value) {
             this.showClearBtn();
@@ -7418,7 +7426,6 @@ Ext.define('Ext.m3.AdvancedComboBox', {
      * Поведение зависит от выбранного флага show
      */
     showTriggers: function (show) {
-
         if (show) {
             if (this.getValue()) {
                 this.showClearBtn();
