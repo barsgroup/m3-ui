@@ -21,7 +21,6 @@
         this.actionEditUrl = params.actions.editUrl;
         this.actionDeleteUrl = params.actions.deleteUrl;
         this.actionDataUrl = params.actions.dataUrl;
-        this.actionContextJson = params.actions.contextJson;
         // признак клиентского редактирования
         this.localEdit = params.localEdit;
         // имя для сабмита в режиме клиентского редактирования
@@ -376,7 +375,7 @@
          * Используется при ajax запросах
          */
         getMainContext: function () {
-            return Ext.applyIf({}, this.actionContextJson);
+            return Ext.applyIf({}, this.getContext());
         },
         /**
          * Получение контекста выделения строк/ячеек
