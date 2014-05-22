@@ -385,6 +385,11 @@ Ext.define('Ext.m3.AdvancedComboBox', {
      * кнопку очистки
      */
     setValue: function (value) {
+        if (Ext.isObject(value)) {
+            // binding - добавим запись в store
+            this.getStore().add(new Ext.data.Record(value));
+            value = value['id'];
+        }
         Ext.m3.AdvancedComboBox.superclass.setValue.call(this, value);
         if (value) {
             this.showClearBtn();
