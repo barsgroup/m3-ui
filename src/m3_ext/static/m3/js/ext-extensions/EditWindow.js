@@ -26,13 +26,16 @@ Ext.define('Ext.m3.EditWindow', {
     /**
      * Инициализация дополнительного функционала
      */
+    constructor: function (cfg) {
+        if (!(cfg.form instanceof Ext.Component)) {
+            cfg.items = cfg.items || [];
+            cfg.items.unshift(cfg.form);
+        }
+        Ext.m3.EditWindow.superclass.constructor.call(this, cfg);
+    },
     initComponent: function () {
         this.callParent();
-
-        if (!(this.form instanceof Ext.Component)) {
-            this.form = Ext.create(this.form);
-            this.insert(0, this.form);
-        }
+        this.form = this.items.first();
 
         // Устанавливает функции на изменение значения
         this.items.each(function (item) {
@@ -96,7 +99,7 @@ Ext.define('Ext.m3.EditWindow', {
     getInvalidNames: function (submittedForm) {
         var invalidNames = [];
         submittedForm.items.each(function (f) {
-            if (!f.validate()) {
+            if (Ext.isFunction(f.validate) && !f.validate()) {
                 invalidNames.push('<br>- ' + f.fieldLabel)
             }
         });
@@ -135,7 +138,7 @@ Ext.define('Ext.m3.EditWindow', {
 
         var scope = this,
             mask = new Ext.LoadMask(this.body, {msg: 'Сохранение...'}),
-            params = Ext.applyIf(baseParams || {}, this.getContext() );
+            params = Ext.applyIf(baseParams || {}, this.getContext());
 
         //->TODO - deprecated
         // На форме могут находиться компоненты, которые не являются полями, но их можно сабмитить

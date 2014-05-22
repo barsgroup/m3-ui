@@ -6,19 +6,7 @@ Ext.define('Ext.m3.Window', {
     extend: 'Ext.Window',
     xtype: 'm3-window',
 
-    constructor: function (baseConfig, params) {
-        params = baseConfig.params || params;
-
-        // Ссылка на родительское окно
-        this.parentWindow = null;
-
-        if (params && params.parentWindowID) {
-            this.parentWindow = Ext.getCmp(params.parentWindowID);
-        }
-
-        if (params && params.helpTopic) {
-            this.m3HelpTopic = params.helpTopic;
-        }
+    constructor: function (baseConfig) {
 
         // на F1 что-то нормально не вешается обработчик..
         //this.keys = {key: 112, fn: function(k,e){e.stopEvent();console.log('f1 pressed');}}
@@ -50,11 +38,17 @@ Ext.define('Ext.m3.Window', {
              *  cmp - ссылка на компонент, который послал событие
              *  win - ссылка на дочернее окно
              */
-            'unmask'
+            'unmask',
+
+            /**
+             *
+             */
+            'gethandler'
         );
 
         var loadMask = new Ext.LoadMask(this.getEl(),
             {msg: 'Загрузка...', msgCls: 'x-mask'});
+
         this.on('mask', function (cmp, maskText, win) {
             loadMask.msgOrig = loadMask.msg;
             loadMask.msg = maskText || loadMask.msg;
@@ -75,16 +69,18 @@ Ext.define('Ext.m3.Window', {
         }, this);
     },
 
+    /**
+     * Выводит окно на передний план
+     */
     activate: function () {
         this.toFront();
     },
 
     initTools: function () {
-        if (this.m3HelpTopic) {
-            var m3HelpTopic = this.m3HelpTopic;
+        if (this.helpTopic) {
             this.addTool({id: 'help', handler: function () {
-                showHelpWindow(m3HelpTopic);
-            }});
+                showHelpWindow(this.helpTopic);
+            }.bind(this)});
         }
         Ext.m3.Window.superclass.initTools.call(this);
     }

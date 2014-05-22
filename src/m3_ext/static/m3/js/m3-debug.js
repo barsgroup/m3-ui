@@ -3589,8 +3589,7 @@ Ext.override(Ext.form.Field, {
                 this.onBlur();
                 // проставим значение, как будто мы ушли с поля и вернулись обратно
                 this.startValue = this.getValue();
-            }
-            ;
+            };
             this.fireEvent('specialkey', this, e);
         }
     }
@@ -3700,21 +3699,21 @@ function uiAjaxFailMessage(response, opt) {
         }
 
         win = new Ext.Window({
-            modal: true,
-            width: width,
-            height: height,
+//            modal: true,
+//            width: width,
+//            height: height,
             title: "Request Failure",
             layout: "fit",
             maximizable: true,
             maximized: true,
             listeners: {
-                "maximize": {
-                    fn: function (el) {
-                        var v = Ext.getBody().getViewSize();
-                        el.setSize(v.width, v.height);
-                    },
-                    scope: this
-                },
+//                "maximize": {
+//                    fn: function (el) {
+//                        var v = Ext.getBody().getViewSize();
+//                        el.setSize(v.width, v.height);
+//                    },
+//                    scope: this
+//                },
 
                 "resize": {
                     fn: function (wnd) {
@@ -3722,7 +3721,16 @@ function uiAjaxFailMessage(response, opt) {
                         var sz = wnd.body.getViewSize();
                         editor.setSize(sz.width, sz.height - 42);
                     }
+
                 }
+//                "activate": {
+//                    fn: function (el) {
+//                        var v = Ext.getBody().getViewSize();
+//                        debugger;
+//                        el.setSize(v.width, v.height);
+//                    },
+//                    scope: this
+//                }
             },
             items: new Ext.form.FormPanel({
                 baseCls: "x-plain",
@@ -6209,19 +6217,7 @@ Ext.define('Ext.m3.Window', {
     extend: 'Ext.Window',
     xtype: 'm3-window',
 
-    constructor: function (baseConfig, params) {
-        params = baseConfig.params || params;
-
-        // Ссылка на родительское окно
-        this.parentWindow = null;
-
-        if (params && params.parentWindowID) {
-            this.parentWindow = Ext.getCmp(params.parentWindowID);
-        }
-
-        if (params && params.helpTopic) {
-            this.m3HelpTopic = params.helpTopic;
-        }
+    constructor: function (baseConfig) {
 
         // на F1 что-то нормально не вешается обработчик..
         //this.keys = {key: 112, fn: function(k,e){e.stopEvent();console.log('f1 pressed');}}
@@ -6253,11 +6249,17 @@ Ext.define('Ext.m3.Window', {
              *  cmp - ссылка на компонент, который послал событие
              *  win - ссылка на дочернее окно
              */
-            'unmask'
+            'unmask',
+
+            /**
+             *
+             */
+            'gethandler'
         );
 
         var loadMask = new Ext.LoadMask(this.getEl(),
             {msg: 'Загрузка...', msgCls: 'x-mask'});
+
         this.on('mask', function (cmp, maskText, win) {
             loadMask.msgOrig = loadMask.msg;
             loadMask.msg = maskText || loadMask.msg;
@@ -6278,16 +6280,18 @@ Ext.define('Ext.m3.Window', {
         }, this);
     },
 
+    /**
+     * Выводит окно на передний план
+     */
     activate: function () {
         this.toFront();
     },
 
     initTools: function () {
-        if (this.m3HelpTopic) {
-            var m3HelpTopic = this.m3HelpTopic;
+        if (this.helpTopic) {
             this.addTool({id: 'help', handler: function () {
-                showHelpWindow(m3HelpTopic);
-            }});
+                showHelpWindow(this.helpTopic);
+            }.bind(this)});
         }
         Ext.m3.Window.superclass.initTools.call(this);
     }
@@ -7608,13 +7612,16 @@ Ext.define('Ext.m3.EditWindow', {
     /**
      * Инициализация дополнительного функционала
      */
+    constructor: function (cfg) {
+        if (!(cfg.form instanceof Ext.Component)) {
+            cfg.items = cfg.items || [];
+            cfg.items.unshift(cfg.form);
+        }
+        Ext.m3.EditWindow.superclass.constructor.call(this, cfg);
+    },
     initComponent: function () {
         this.callParent();
-
-        if (!(this.form instanceof Ext.Component)) {
-            this.form = Ext.create(this.form);
-            this.insert(0, this.form);
-        }
+        this.form = this.items.first();
 
         // Устанавливает функции на изменение значения
         this.items.each(function (item) {
@@ -7678,7 +7685,7 @@ Ext.define('Ext.m3.EditWindow', {
     getInvalidNames: function (submittedForm) {
         var invalidNames = [];
         submittedForm.items.each(function (f) {
-            if (!f.validate()) {
+            if (Ext.isFunction(f.validate) && !f.validate()) {
                 invalidNames.push('<br>- ' + f.fieldLabel)
             }
         });
@@ -7717,7 +7724,7 @@ Ext.define('Ext.m3.EditWindow', {
 
         var scope = this,
             mask = new Ext.LoadMask(this.body, {msg: 'Сохранение...'}),
-            params = Ext.applyIf(baseParams || {}, this.getContext() );
+            params = Ext.applyIf(baseParams || {}, this.getContext());
 
         //->TODO - deprecated
         // На форме могут находиться компоненты, которые не являются полями, но их можно сабмитить
@@ -12818,6 +12825,7 @@ Ext.ux.Notification = Ext.extend(Ext.Window, {
     );
 
 })();
+
 /**
  * Created by prefer on 31/01/14.
  *
@@ -14938,126 +14946,30 @@ Ext.ux.Lightbox.register('a[rel^=lightbox]');
  */
 
 /**
- * Нужно для правильной работы окна
+ *
  */
-Ext.onReady(function () {
-    Ext.override(Ext.Window, {
+Ext.define('Ext.Window', {
+    override: 'Ext.Window',
 
-        /*
-         *  Если установлена модальность и есть родительское окно, то
-         *  флаг модальности помещается во временную переменную tmpModal, и
-         *  this.modal = false;
-         */
-        tmpModal: false,
-        manager: new Ext.WindowGroup(),
-        // 2011.01.14 kirov
-        // убрал, т.к. совместно с desktop.js это представляет собой гремучую смесь
-        // кому нужно - пусть прописывает Ext.getBody() в своем "десктопе" на onReady или когда хочет
-        //,renderTo: Ext.getBody().id
-        constrain: true,
+    manager: new Ext.WindowGroup(),
+//    // 2011.01.14 kirov
+//    // убрал, т.к. совместно с desktop.js это представляет собой гремучую смесь
+//    // кому нужно - пусть прописывает Ext.getBody() в своем "десктопе" на onReady или когда хочет
+//    //,renderTo: Ext.getBody().id
+    constrain: true,
+
+    listeners: {
         /**
-         * Выводит окно на передний план
-         * Вызывается в контексте дочернего
-         * по отношению к parentWindow окну
+         * Выставляются размеры по той области, которая доступна
          */
-        activateChildWindow: function () {
-            this.toFront();
-        },
-        listeners: {
-
-            'beforeshow': function () {
-                var renderTo = Ext.get(this.renderTo);
-                if (renderTo) {
-                    if (renderTo.getHeight() < this.getHeight())
-                        this.setHeight(renderTo.getHeight());
-                }
-
-                if (this.parentWindow) {
-
-                    this.parentWindow.setDisabled(true);
-
-                    /*
-                     * В Extjs 3.3 Добавили общую проверку в функцию mask, см:
-                     *  if (!(/^body/i.test(dom.tagName) && me.getStyle('position') == 'static')) {
-                     me.addClass(XMASKEDRELATIVE);
-                     }
-                     *
-                     * было до версии 3.3:
-                     *  if(!/^body/i.test(dom.tagName) && me.getStyle('position') == 'static'){
-                     me.addClass(XMASKEDRELATIVE);
-                     }
-                     * Теперь же расположение замаскированых окон должно быть относительным
-                     * (relative) друг друга
-                     *
-                     * Такое поведение нам не подходит и другого решения найдено не было.
-                     * Кроме как удалять данный класс
-                     * */
-                    this.parentWindow.el.removeClass('x-masked-relative');
-
-                    this.parentWindow.on('activate', this.activateChildWindow, this);
-
-                    this.modal = false;
-                    this.tmpModal = true;
-
-                    if (window.AppDesktop) {
-                        var el = AppDesktop.getDesktop().taskbar.tbPanel.getTabWin(this.parentWindow);
-                        if (el) {
-                            el.mask();
-                        }
-                    }
-                }
-                if (this.modal) {
-                    var taskbar = Ext.get('ux-taskbar');
-                    if (taskbar) {
-                        taskbar.mask();
-                    }
-                    var toptoolbar = Ext.get('ux-toptoolbar');
-                    if (toptoolbar) {
-                        toptoolbar.mask();
-                    }
-                }
-            },
-            close: function () {
-                if (this.tmpModal && this.parentWindow) {
-                    this.parentWindow.un('activate', this.activateChildWindow, this);
-                    this.parentWindow.setDisabled(false);
-                    this.parentWindow.toFront();
-
-                    if (window.AppDesktop) {
-                        var el = AppDesktop.getDesktop().taskbar.tbPanel.getTabWin(this.parentWindow);
-                        if (el) {
-                            el.unmask();
-                        }
-                    }
-                }
-
-                if (this.modal) {
-                    var taskbar = Ext.get('ux-taskbar');
-                    if (taskbar) {
-                        taskbar.unmask();
-                    }
-                    var toptoolbar = Ext.get('ux-toptoolbar');
-                    if (toptoolbar) {
-                        toptoolbar.unmask();
-                    }
-                }
-            },
-            hide: function () {
-                if (this.modal) {
-                    if (!this.parentWindow) {
-                        var taskbar = Ext.get('ux-taskbar');
-                        if (taskbar) {
-                            taskbar.unmask();
-                        }
-                        var toptoolbar = Ext.get('ux-toptoolbar');
-                        if (toptoolbar) {
-                            toptoolbar.unmask();
-                        }
-                    }
-                }
+        'beforeshow': function () {
+            var renderTo = Ext.get(this.renderTo);
+            if (renderTo) {
+                if (renderTo.getHeight() < this.getHeight())
+                    this.setHeight(renderTo.getHeight());
             }
         }
-    });
+    }
 });
 
 /**
@@ -15157,24 +15069,24 @@ Ext.override(Ext.tree.TreeNodeUI, {
  * даже если установлен признак "не передавать"
  */
 Ext.override(Ext.form.Action.Submit, {
-    run : function(){
+    run: function () {
         var o = this.options,
             method = this.getMethod(),
             isGet = method == 'GET';
-        if(o.clientValidation === false || this.form.isValid()){
+        if (o.clientValidation === false || this.form.isValid()) {
             if (o.submitEmptyText === false) {
                 var fields = this.form.items,
                     emptyFields = [],
-                    setupEmptyFields = function(f){
+                    setupEmptyFields = function (f) {
                         // M prefer: field (например, combobox) может быть неотрендеренный
                         if (f.rendered && f.el.getValue() == f.emptyText) {
-                        // if (f.el.getValue() == f.emptyText) {
+                            // if (f.el.getValue() == f.emptyText) {
                             emptyFields.push(f);
                             f.el.dom.value = "";
                         }
                         // M prefer: rendered проверяется выше
-                        if(f.isComposite){
-                        // if(f.isComposite && f.rendered){
+                        if (f.isComposite) {
+                            // if(f.isComposite && f.rendered){
                             f.items.each(setupEmptyFields);
                         }
                     };
@@ -15182,21 +15094,21 @@ Ext.override(Ext.form.Action.Submit, {
                 fields.each(setupEmptyFields);
             }
             Ext.Ajax.request(Ext.apply(this.createCallback(o), {
-                form:this.form.el.dom,
-                url:this.getUrl(isGet),
+                form: this.form.el.dom,
+                url: this.getUrl(isGet),
                 method: method,
                 headers: o.headers,
-                params:!isGet ? this.getParams() : null,
+                params: !isGet ? this.getParams() : null,
                 isUpload: this.form.fileUpload
             }));
             if (o.submitEmptyText === false) {
-                Ext.each(emptyFields, function(f) {
+                Ext.each(emptyFields, function (f) {
                     if (f.applyEmptyText) {
                         f.applyEmptyText();
                     }
                 });
             }
-        }else if (o.clientValidation !== false){ // client validation failed
+        } else if (o.clientValidation !== false) { // client validation failed
             this.failureType = Ext.form.Action.CLIENT_INVALID;
             this.form.afterAction(this, false);
         }
@@ -15385,31 +15297,36 @@ Ext.override(Ext.form.ComboBox, {
  * setReadOnly для Ext.form.Field и Ext.form.TriggerField
  * см m3.css - стр. 137 .m3-grey-field
  */
-var setReadOnlyField = Ext.form.Field.prototype.setReadOnly.bind({});
-var restoreClass = function (readOnly) {
-    if (readOnly) {
-        this.addClass('m3-grey-field');
-        this.el.dom.setAttribute('readonly', '');
-    } else {
-        this.removeClass('m3-grey-field');
-        this.el.dom.removeAttribute('readonly');
-    }
-};
+(function () {
+    var setReadOnlyField = Ext.form.Field.prototype.setReadOnly.bind({});
 
-Ext.override(Ext.form.Field, {
-    setReadOnly: function (readOnly) {
-        setReadOnlyField.call(this, readOnly);
-        restoreClass.call(this, readOnly);
+    function restoreClass(readOnly) {
+        if (readOnly) {
+            this.addClass('m3-grey-field');
+            this.el.dom.setAttribute('readonly', '');
+        } else {
+            this.removeClass('m3-grey-field');
+            this.el.dom.removeAttribute('readonly');
+        }
     }
-});
 
-var setReadOnlyTriggerField = Ext.form.TriggerField.prototype.setReadOnly;
-Ext.override(Ext.form.TriggerField, {
-    setReadOnly: function (readOnly) {
-        setReadOnlyTriggerField.call(this, readOnly);
-        restoreClass.call(this, readOnly);
-    }
-});
+    Ext.define('Ext.form.Field', {
+        override: 'Ext.form.Field',
+        setReadOnly: function (readOnly) {
+            setReadOnlyField(readOnly);
+            restoreClass.call(this, readOnly);
+        }
+    });
+
+    var setReadOnlyTriggerField = Ext.form.TriggerField.prototype.setReadOnly;
+    Ext.define('Ext.form.TriggerField', {
+        override: 'Ext.form.TriggerField',
+        setReadOnly: function (readOnly) {
+            setReadOnlyTriggerField.call(this, readOnly);
+            restoreClass.call(this, readOnly);
+        }
+    });
+})();
 
 /**
  * #77796 Фикс для корректировки последней колонки в гриде
@@ -15484,13 +15401,13 @@ Ext.override(Ext.grid.GridView, {
 });
 
 /**
-* Инжектирование getContext
-*/
+ * Инжектирование getContext
+ */
 Ext.define('Ext.Component', {
     override: 'Ext.Component',
 
-    getContext: function(){
-        if (!Ext.isFunction(this['_getContext'])){
+    getContext: function () {
+        if (!Ext.isFunction(this['_getContext'])) {
             // Инжектирование _getContext
             this.fireEvent('getcontext', this);
         }

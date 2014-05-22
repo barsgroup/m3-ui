@@ -107,8 +107,7 @@ Ext.override(Ext.form.Field, {
                 this.onBlur();
                 // проставим значение, как будто мы ушли с поля и вернулись обратно
                 this.startValue = this.getValue();
-            }
-            ;
+            };
             this.fireEvent('specialkey', this, e);
         }
     }
@@ -218,21 +217,21 @@ function uiAjaxFailMessage(response, opt) {
         }
 
         win = new Ext.Window({
-            modal: true,
-            width: width,
-            height: height,
+//            modal: true,
+//            width: width,
+//            height: height,
             title: "Request Failure",
             layout: "fit",
             maximizable: true,
             maximized: true,
             listeners: {
-                "maximize": {
-                    fn: function (el) {
-                        var v = Ext.getBody().getViewSize();
-                        el.setSize(v.width, v.height);
-                    },
-                    scope: this
-                },
+//                "maximize": {
+//                    fn: function (el) {
+//                        var v = Ext.getBody().getViewSize();
+//                        el.setSize(v.width, v.height);
+//                    },
+//                    scope: this
+//                },
 
                 "resize": {
                     fn: function (wnd) {
@@ -240,7 +239,16 @@ function uiAjaxFailMessage(response, opt) {
                         var sz = wnd.body.getViewSize();
                         editor.setSize(sz.width, sz.height - 42);
                     }
+
                 }
+//                "activate": {
+//                    fn: function (el) {
+//                        var v = Ext.getBody().getViewSize();
+//                        debugger;
+//                        el.setSize(v.width, v.height);
+//                    },
+//                    scope: this
+//                }
             },
             items: new Ext.form.FormPanel({
                 baseCls: "x-plain",

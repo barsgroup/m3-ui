@@ -31,7 +31,6 @@ class ExtWindow(BaseExtPanel):
         label_align='labelAlign',
         label_pad='labelPad',
         help_topic='helpTopic',
-        # context_json='contextJson',
     )
 
     def __init__(self, *args, **kwargs):
