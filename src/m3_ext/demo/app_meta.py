@@ -26,7 +26,7 @@ def register_urlpatterns():
     """
     Регистрация конфигурации урлов для приложения
     """
-    return urls.defaults.patterns(
+    return urls.patterns(
         "",
         controller.urlpattern
     )
