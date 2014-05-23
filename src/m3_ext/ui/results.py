@@ -2,6 +2,7 @@
 """
 Результаты выполнения Action`s
 """
+import datetime
 from django.conf import settings
 from django import http
 from django.utils.html import escapejs
@@ -37,7 +38,7 @@ class UIJsonEncoder(_M3JSONEncoder):
                 kv for kv in obj.__dict__.iteritems()
                 if not kv[0].startswith('_')
             )
-        cfg = getattr(self.make_compatible(obj), '_config')
+        cfg = getattr(self.make_compatible(obj), '_config', None)
         if cfg is not None:
             return cfg
         return super(UIJsonEncoder, self).default(obj)
@@ -144,7 +145,9 @@ class UIJsonEncoder(_M3JSONEncoder):
                 obj.mask_re = '/%s/' % obj.mask_re
 
             if hasattr(obj, 'value'):
-                obj.value = escapejs(obj.value)
+                # значения типа date и datetime не надо эскейпить
+                if not isinstance(obj.value, datetime.date):
+                    obj.value = escapejs(obj.value)
 
         if hasattr(obj, 'help_topic'):
             obj.help_topic = settings.HELP_PREFIX + obj.help_topic[0] + '.html' + (
