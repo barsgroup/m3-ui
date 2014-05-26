@@ -4,5 +4,5 @@
 с помошью python-кода
 """
 
-from views import workspace
+from views import workspace, desktop_items
 from context_processors import desktop_processor

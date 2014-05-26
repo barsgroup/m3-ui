@@ -11,23 +11,6 @@
             font-family: Tahoma, Sans;
             font-size: 11px;
         }
-
-        #loading-mask {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: #000000;
-            z-index: 1001;
-        }
-
-        #loading {
-            position: absolute;
-            top: 40%;
-            left: 45%;
-            z-index: 1002;
-        }
     </style>
     <!-- css классы extjs -->
     <link rel='stylesheet' type='text/css' href='{{ STATIC_URL }}vendor/extjs/resources/css/ext-all.css'/>
@@ -73,6 +56,7 @@
 
     <script type="text/javascript" src="{{ STATIC_URL }}vendor/q.js"></script>
     <script type="text/javascript" src="{{ STATIC_URL }}m3/js/fabric.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}m3/js/m3-desktop.js"></script>
     <script type="text/javascript" src="{{ STATIC_URL }}vendor/require.js"></script>
     <script src="{{ STATIC_URL }}m3/js/ext-extensions/LockingGridColumnWithHeaderGroup.js"></script>
     {#    {% endif %}#}
@@ -87,53 +71,7 @@
     {% endblock %}
 </head>
 <body scroll="no">
-<!-- Анимация при входе на рабочий стол -->
-{# preload indicator area #}
-<div id="loading-mask"></div>
-<div id="loading">
-    <span id="loading-message">Загрузка приложения...</span>
-</div>
-{# END: preload indicator area #}
 
-<script type='text/javascript'>
-    // Анимация при входе на рабочий стол
-    Ext.onReady(function () {
-        // Инициализация всплывающих подсказок в extjs
-        Ext.QuickTips.init();
-
-        var loadingMask = Ext.get('loading-mask');
-        var loading = Ext.get('loading');
-        // Hide loading message
-        loading.fadeOut({ duration: 0.2, remove: true });
-        // Hide loading mask
-        loadingMask.setOpacity(0.9);
-        loadingMask.shift({
-            xy: loading.getXY(),
-            width: loading.getWidth(),
-            height: loading.getHeight(),
-            remove: true,
-            duration: 1,
-            opacity: 0.1,
-            easing: 'bounceOut'
-        });
-
-        new UI({
-            staticPrefix: '{{ STATIC_URL }}',
-
-            confStorage: function (key) {
-                // конфиги всегда будут грузиться с сервера
-                return UI.ajax({
-                    url: key,
-                    params: {'mode': 'ui'}
-                }).then(UI.evalResult);
-            },
-            uiFabric: Ext.create
-        });
-
-    });
-
-
-</script>
 
 {# Точка расширения для дополнительно html кода #}
 {% block content %}

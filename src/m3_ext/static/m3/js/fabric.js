@@ -6,15 +6,16 @@
  */
 UI = function (config) {
 
-    this.confStorage = config['confStorage']; // хранилище базовых конфигураций окон
-    this.uiFabric = config['uiFabric'];       // собственно, формирователь UI
+    var desktop = config['desktop'],// Ссылка на рабочий стол, в контексте которого создаются окна
+        confStorage = config['confStorage'], // хранилище базовых конфигураций окон
+        uiFabric = config['uiFabric'];       // собственно, формирователь UI
 
     UI.create = function (data) {         // словарь параметров должен содержать
         var initialData = data['data'],    // - словарь данных для инициализации
             key = data['ui'];              // - key, однозначно идентифицирующий окно в хранилище
 
         // грузим конфиг и данные из хранилища...
-        return this.confStorage(key)
+        return confStorage(key)
             .then(function (result) {
                 // ..., данные затем патчим инициализирующими данными,...
                 var data = Ext.apply(result.data || {}, initialData || {});
@@ -47,13 +48,14 @@ UI = function (config) {
                     }
                 };
 
-                var win = this.uiFabric(cfg);
+                var win = uiFabric(cfg);
                 if (Ext.isFunction(win.bind)) {
                     win.bind(data);
                 }
+                desktop.getDesktop().createWindow(win).show();
                 return win;
-            }.bind(this));
-    }.bind(this);
+            });
+    };
 };
 
 /**
@@ -139,15 +141,7 @@ UI.evalResult = function (response) {
         }).then(function () {
             if (obj.code) {
                 if (obj.code.ui) {
-                    return UI.create(obj.code)
-                        .then(function (win) {
-                            AppDesktop.getDesktop()
-                                .createWindow(win)
-                                .show();
-
-                            return win;
-                        });
-
+                    return UI.create(obj.code);
                 } else {
                     return obj.code;
                 }
