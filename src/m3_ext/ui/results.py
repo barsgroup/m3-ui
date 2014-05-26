@@ -184,7 +184,7 @@ class DataResult(_PreJsonResult):
     Результат запроса, возвращающий объект данных
     и доп.настройки для виджета лтображения
     """
-    def __init__(self, model, ui, context=None, data=None):
+    def __init__(self, model, ui, context=None, data=None, urls=None):
         """
         :model object: объект данных
         :ui string: ключ, идентифицирующий виджет для отображения
@@ -193,6 +193,7 @@ class DataResult(_PreJsonResult):
         """
         data = data or {}
         data['model'] = model
+        data['urls'] = urls
         data['context'] = context or {}
         super(DataResult, self).__init__({
             'success': True,
@@ -201,7 +202,6 @@ class DataResult(_PreJsonResult):
                 'ui': ui,
             }
         })
-        #self.encoder_clz = UIJsonEncoder
 
 
 class ExtGridDataQueryResult(_ActionResult):
