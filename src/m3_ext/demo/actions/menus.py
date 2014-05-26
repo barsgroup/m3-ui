@@ -1,6 +1,7 @@
 #coding: utf-8
 
-from base import Pack, UIAction
+from base import Pack
+from m3_ext import UIAction
 from m3_ext.ui import all_components as ext
 
 

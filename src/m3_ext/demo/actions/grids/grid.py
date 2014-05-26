@@ -4,9 +4,10 @@ from django import http
 from django.http import HttpResponse
 from m3.actions import Action
 from m3.actions.urls import get_url
+from m3_ext import UIAction
 from m3_ext.ui import all_components as ext
 
-from m3_ext.demo.actions.base import Pack, UIAction
+from m3_ext.demo.actions.base import Pack
 
 
 @Pack.register

@@ -1,8 +1,9 @@
 #coding: utf-8
+from m3_ext import UIAction
 from m3_ext.ui import all_components as ext
 
 from m3_ext.demo.actions.grids.grid import DataAction
-from m3_ext.demo.actions import UIAction, Pack
+from m3_ext.demo.actions import Pack
 
 
 @Pack.register

@@ -1,8 +1,9 @@
 # coding: utf-8
+from m3_ext import UIAction
 
 from m3_ext.ui import all_components as ext
 
-from m3_ext.demo.actions.base import Pack, UIAction
+from m3_ext.demo.actions.base import Pack
 
 
 @Pack.register

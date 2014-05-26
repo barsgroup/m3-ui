@@ -3,11 +3,12 @@ from m3.actions import Action
 from m3.actions.results import OperationResult
 from m3.actions.urls import get_url
 from m3.actions.utils import extract_int
+from m3_ext import UIAction
 
 from m3_ext.ui import all_components as ext
 from m3_ext.ui.results import ExtGridDataQueryResult
 
-from m3_ext.demo.actions import UIAction, Pack
+from m3_ext.demo.actions import Pack
 
 @Pack.register
 class ObjectGridAction(UIAction):
