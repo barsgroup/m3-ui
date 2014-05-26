@@ -70,7 +70,7 @@ def desktop_items(request):
 
             return result
 
-        return super(Encoder, self).default(obj)
+        raise TypeError("%r is not JSON-able!" % obj)
 
     if settings.DEBUG:
         opts = {

@@ -7,15 +7,15 @@
 UI = function (config) {
 
     var desktop = config['desktop'],// Ссылка на рабочий стол, в контексте которого создаются окна
-        confStorage = config['confStorage'], // хранилище базовых конфигураций окон
-        uiFabric = config['uiFabric'];       // собственно, формирователь UI
+        storage = config['storage'], // хранилище базовых конфигураций окон
+        create = config['create'];       // собственно, формирователь UI
 
     UI.create = function (data) {         // словарь параметров должен содержать
         var initialData = data['data'],    // - словарь данных для инициализации
             key = data['ui'];              // - key, однозначно идентифицирующий окно в хранилище
 
         // грузим конфиг и данные из хранилища...
-        return confStorage(key)
+        return storage(key)
             .then(function (result) {
                 // ..., данные затем патчим инициализирующими данными,...
                 var data = Ext.apply(result.data || {}, initialData || {});
@@ -48,7 +48,7 @@ UI = function (config) {
                     }
                 };
 
-                var win = uiFabric(cfg);
+                var win = create(cfg);
                 if (Ext.isFunction(win.bind)) {
                     win.bind(data);
                 }
@@ -70,15 +70,14 @@ UI.ajax = function (cfg) {
         method: 'GET'
     });
 
-    var obj = Ext.applyIf({
+    Ext.Ajax.request(Ext.applyIf({
         success: function () {
             result.resolve.apply(this, arguments);
         },
         failure: function (response) {
             result.reject(response);
         }
-    }, cfg);
-    Ext.Ajax.request(obj);
+    }, cfg));
     return result.promise;
 };
 
