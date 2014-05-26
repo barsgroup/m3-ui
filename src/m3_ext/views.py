@@ -66,11 +66,7 @@ def desktop_items(request):
                 result['items'] = list(obj.subitems)
             else:
                 result['url'] = obj.url
-                context = getattr(obj, 'context', {})
-                if context:
-                    result['context'] = context
-                else:
-                    result['context'] = {}
+                result['context'] = getattr(obj, 'context', {}) or {}
 
             return result
 
