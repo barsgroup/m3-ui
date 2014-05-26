@@ -13,7 +13,10 @@ def desktop_processor(request):
     desktop_model = DesktopModel(request)
     ControllerCache.populate()
     DesktopLoader._success = False
-    DesktopLoader.populate_desktop(desktop=desktop_model)
+    if hasattr(request, 'user'):
+        DesktopLoader.populate(request.user, desktop=desktop_model)
+    else:
+        DesktopLoader.populate_desktop(desktop=desktop_model)
     desktop_items = list(desktop_model.desktop.subitems)
     return {
         'desktop': {
