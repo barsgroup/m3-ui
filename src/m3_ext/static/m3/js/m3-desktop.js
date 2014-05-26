@@ -27,7 +27,10 @@ UI.buildDesktop = function (desktopUrl, staticUrl, startMenuCfg) {
                     UI.ajax({
                         url: data.url,
                         params: data.context
-                    }).then(UI.evalResult);
+                    })
+                        .then(UI.evalResult)
+                        .catch(uiAjaxFailMessage)
+                    ;
                 };
             }
         }

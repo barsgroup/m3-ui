@@ -31,9 +31,10 @@ Ext.define('Ext.m3.AddrField', {
     		place_store.loadData({total:1, rows:[rec]});
 		}
 		if (params.read_only)
-			var field_cls = 'm3-grey-field'
+			var field_cls = 'm3-grey-field';
 		else
-			var field_cls = ''
+			var field_cls = '';
+
 		this.place = new Ext.form.ComboBox({
 			name: params.place_field_name,
 			fieldLabel: params.place_label,

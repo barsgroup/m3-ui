@@ -83,5 +83,14 @@ Ext.define('Ext.m3.Window', {
             }.bind(this)});
         }
         Ext.m3.Window.superclass.initTools.call(this);
+    },
+
+    /**
+     * Поиск элемента по itemId
+     * @param itemId - что нужно искать
+     * @returns {*} Нашедший элемент
+     */
+    findByItemId: function(itemId){
+        return this.find('itemId', itemId)[0];
     }
 });
