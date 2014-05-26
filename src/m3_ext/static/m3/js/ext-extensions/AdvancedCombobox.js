@@ -101,7 +101,7 @@ Ext.define('Ext.m3.AdvancedComboBox', {
         }
 
         // Значения по-умолчанию
-        if (Object.getOwnPropertyNames(this.defaultRecord).length !== 0) { // Проверка на пустоту объекта
+        if (this.defaultRecord && Object.getOwnPropertyNames(this.defaultRecord).length !== 0) { // Проверка на пустоту объекта
             var record = new Ext.data.Record(this.defaultRecord);
             this.setRecord(record);
         } else {

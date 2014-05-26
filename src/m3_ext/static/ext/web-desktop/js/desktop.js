@@ -868,67 +868,20 @@ Ext.Desktop = function(app){
     var activeWindow;
 
     var toptoolbarEl = Ext.get('ux-toptoolbar');
-    
-    var TopToolbar = Ext.extend(Ext.Panel, {
-        monitorResize: true,
-        autoWidth: true,
-        autoHeight: true,
-        height: 0,
-        style: 'margin-top:0px',
-        bodyStyle: 'padding:0px',
-        renderTo: 'ux-toptoolbar',       
-        autoScroll: true,
-        tbar: [],
-        initComponent : function() {
-            TopToolbar.superclass.initComponent.call(this);
-            Ext.EventManager.onWindowResize(this.fireResize, this);
-        },
-        fireResize : function(w, h){
-            this.onResize(w, 0, w, 0);
-            this.fireEvent('resize', this, w, h, w, h);
+    var ms = app.getModules();
+    var toptools = [];
+    Ext.each(ms, function(m){
+        if (m && m.id && m.id.indexOf('toptoolbar-item') == 0) {
+            toptools.push(m.launcher);
         }
     });
-
-    var ms = app.getModules();
-    var toolsNotCreated = true;
-    if (ms.length > 0) {
-        var pnl;
-        var tbar;
-        for(var i = 0, len = ms.length; i < len; i++){
-            var m = ms[i];
-            if (m && m.id) {                           
-                if (m.id.indexOf('toptoolbar-item') == 0) {
-                    if(toolsNotCreated){
-                        pnl = new TopToolbar();
-                        tbar = pnl.getTopToolbar();
-                        toolsNotCreated = false;
-                    }
-                    if(m.launcher.text == 'FILLBLOCK'){
-                        tbar.add('->');
-                    } else if(m.launcher.text == 'TIMEBLOCK'){
-                        var clock = new Ext.ux.Clock();
-                        tbar.add(clock);
-                    } else if(m.launcher.text == '-'){
-                        tbar.add('-');
-    				} else if(m.launcher.text == 'UI_OBJECT'){
-                        tbar.add(m.launcher.ui_object);
-                    } else {
-                        tbar.add({
-                            scale: 'small'
-                           ,iconAlign: 'left'
-                           ,text: m.launcher.text
-                           ,iconCls: m.launcher.iconCls
-                           ,handler: m.launcher.handler
-                           ,menu: m.launcher.menu
-    					   ,tooltip: m.launcher.tooltip
-                        });
-                    }
-                }
-            }
-        }
-        if(!toolsNotCreated){
-            pnl.doLayout();
-        }
+    if (toptools.length > 0){
+        var pnl = Ext.create({
+            xtype: 'desktop-tb',
+            renderTo: 'ux-toptoolbar',
+            tbar: toptools
+        });
+        pnl.doLayout();
     }
 
     function minimizeWin(win){
@@ -1173,4 +1126,47 @@ Ext.app.Module = function(config){
 
 Ext.extend(Ext.app.Module, Ext.util.Observable, {
     init : Ext.emptyFn
+});
+
+Ext.define('Ext.m3.DesktopTopToolbar', {
+    extend: 'Ext.Panel',
+    xtype:'desktop-tb',
+    monitorResize: true,
+    autoWidth: true,
+    autoHeight: true,
+    height: 0,
+    style: 'margin-top:0px',
+    bodyStyle: 'padding:0px',
+    autoScroll: true,
+    tbar: [],
+    initComponent : function() {
+        this.tbar = this.replaceToolbar(this.tbar);
+        this.callParent(this);
+        Ext.EventManager.onWindowResize(this.fireResize, this);
+    },
+    fireResize : function(w, h){
+        this.onResize(w, 0, w, 0);
+        this.fireEvent('resize', this, w, h, w, h);
+    },
+    replaceToolbar: function(items){
+        var newItems = items;
+        if (items && Ext.isArray(items)) {
+            newItems = [];
+            Ext.each(items, function(item){
+                newItems.push(this.replaceTBItem(item));
+            }, this);
+        }
+        return newItems;
+    },
+    replaceTBItem: function(item){
+        if (item.text == 'FILLBLOCK') {
+            return '->';
+        } else if(item.text == 'TIMEBLOCK'){
+            return new Ext.ux.Clock();
+        } else if(item.text == '-'){
+            return '-';
+        } else {
+            return item;
+        }
+    }
 });
