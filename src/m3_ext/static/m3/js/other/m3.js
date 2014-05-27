@@ -6,15 +6,14 @@ Ext.QuickTips.init();
 /**
  * Чтобы ie и прочие не правильные браузеры, где нет console не падали
  */
-if (typeof console == "undefined") var console = { log: function () {
-} };
+if (typeof console == "undefined") var console = { log: function () {}};
 
 Ext.namespace('Ext.m3');
 
 /**
  *  Реализация стандартного assert
  * @param {Boolean} condition
- * @param {Str} errorMsg
+ * @param {String} errorMsg
  */
 function assert(condition, errorMsg) {
     if (!condition) {
@@ -22,52 +21,6 @@ function assert(condition, errorMsg) {
         throw new Error(errorMsg);
     }
 }
-
-/**
- *
- * @param {Object} text
- */
-function smart_eval(text) {
-    if (text == undefined) {
-        // на случай, когда в процессе получения ответа сервера произошел аборт
-        return;
-    }
-    if (text.substring(0, 1) == '{') {
-        // это у нас json объект
-        var obj = Ext.util.JSON.decode(text);
-        if (!obj) {
-            return;
-        }
-        if (obj.code) {
-            var eval_result = obj.code();
-            if (eval_result && eval_result instanceof Ext.Window && typeof AppDesktop != 'undefined' && AppDesktop) {
-                AppDesktop.getDesktop().createWindow(eval_result);
-            }
-            return eval_result;
-        }
-        else {
-            if (obj.message && obj.message != '') {
-                Ext.Msg.show({title: 'Внимание', msg: obj.message, buttons: Ext.Msg.OK, icon: (obj.success != undefined && !obj.success ? Ext.Msg.WARNING : Ext.Msg.Info)});
-                return;
-            }
-        }
-    }
-    else {
-        try {
-            var eval_result = eval(text);
-        } catch (e) {
-            Ext.Msg.show({
-                title: 'Внимание', msg: 'Произошла непредвиденная ошибка!', buttons: Ext.Msg.OK, fn: Ext.emptyFn, animEl: 'elId', icon: Ext.MessageBox.WARNING
-            });
-            throw e;
-        }
-        if (eval_result && eval_result instanceof Ext.Window && typeof AppDesktop != 'undefined' && AppDesktop) {
-            AppDesktop.getDesktop().createWindow(eval_result);
-        }
-        return eval_result;
-    }
-}
-
 
 /**
  * В поле добавим функционал отображения того, что оно изменено.
@@ -89,7 +42,7 @@ Ext.override(Ext.form.Field, {
                 if (this.isModified) {
                     newtext = '<span style="color:darkmagenta;">' + newtext + '</span>';
                 }
-                ;
+
                 //if (this.isModified) {newtext = '<span">*</span>' + newtext; };
                 var lab = this.el.up('.x-form-item', 10, true);
                 if (lab) {
@@ -107,7 +60,7 @@ Ext.override(Ext.form.Field, {
                 this.onBlur();
                 // проставим значение, как будто мы ушли с поля и вернулись обратно
                 this.startValue = this.getValue();
-            };
+            }
             this.fireEvent('specialkey', this, e);
         }
     }
@@ -336,40 +289,13 @@ function uiAjaxFailMessage(response, opt) {
 // Проверяет есть ли в ответе сообщение и выводит его
 // Возвращает серверный success
 function uiShowErrorMessage(response) {
-    var obj = Ext.util.JSON.decode(response.responseText);
+    var obj = Ext..decode(response.responseText);
     if (obj.error_msg)
         Ext.Msg.alert(SOFTWARE_NAME, obj.error_msg);
 // Не понятно зачем нужен этот код.
 //	if (obj.code)
 //		alert('Пришел код на выполнение ' + obj.code);
     return obj.success;
-}
-
-/**
- * Генерирует запрос на сервер по переданному url
- * @param {String} url URL запроса на получение формы
- * @param {Object} desktop Объект типа AppDesktop.getDesktop()
- * @param {Object} параметры запроса
- */
-function sendRequest(url, desktop, params) {
-    var mask = new Ext.LoadMask(Ext.getBody());
-    mask.show();
-    Ext.Ajax.request({
-        params: params,
-        url: url,
-        method: 'POST',
-        success: function (response, options) {
-            try {
-                smart_eval(response.responseText);
-            } finally {
-                mask.hide();
-            }
-        },
-        failure: function () {
-            uiAjaxFailMessage.apply(this, arguments);
-            mask.hide();
-        }
-    });
 }
 
 /**

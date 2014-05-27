@@ -157,11 +157,15 @@ UI.callAction = function (cfg) {
         .then(UI.evalResult)
         .then(cfg.success)
         .catch(cfg.failure)
-        .finally(this.fireEvent.createDelegate(this, ['unmask', this]))
+        .finally(this.fireEvent.createDelegate(this,
+            ['unmask', this]))
         .then(function (win) {
             if (win instanceof Ext.Component) {
                 this.fireEvent('mask', this, cfg.mode, win);
-                win.on('close', this.fireEvent.createDelegate(this, ['unmask', this, win]), this);
+                win.on('close',
+                    this.fireEvent.createDelegate(this,
+                        ['unmask', this, win]), this);
             }
+            return win;
         }.bind(this));
 };

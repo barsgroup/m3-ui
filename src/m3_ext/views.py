@@ -1,8 +1,7 @@
 # -*- coding: utf-8 -*-
-# Create your views here.rtn.core.views
 import json
-from django.core.urlresolvers import reverse
 
+from django.core.urlresolvers import reverse
 from django.http import HttpResponse
 from django.conf import settings
 from django.shortcuts import render_to_response
@@ -82,5 +81,5 @@ def desktop_items(request):
 
     return HttpResponse(
         json.dumps(desktop_processor(request), default=default, **opts),
-        mimetype='text/json'
+        mimetype='application/json'
     )
