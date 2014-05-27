@@ -289,7 +289,7 @@ function uiAjaxFailMessage(response, opt) {
 // Проверяет есть ли в ответе сообщение и выводит его
 // Возвращает серверный success
 function uiShowErrorMessage(response) {
-    var obj = Ext..decode(response.responseText);
+    var obj = Ext.decode(response.responseText);
     if (obj.error_msg)
         Ext.Msg.alert(SOFTWARE_NAME, obj.error_msg);
 // Не понятно зачем нужен этот код.
