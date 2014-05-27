@@ -9,7 +9,7 @@ class ExtLabel(ExtUIComponent):
     """
     Произвольный текст
     """
-    _xtype = 'textfield'
+    _xtype = 'label'
 
     js_attrs = ExtUIComponent.js_attrs.extend(
         'text',
