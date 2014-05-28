@@ -442,8 +442,48 @@ Ext.define('Ext.m3.EditWindow', {
         mask.hide();
         this.disableToolbars(false);
     },
+    /**
+     * Функция превращения вложенных объектов в плоские атрибуты
+     * Было:
+     * {
+     *   name: 'asdasd',
+     *   subobject: {
+     *     id: 12,
+     *     name: 'sdfsdfe'
+     *   }
+     * }
+     * Станет:
+     * {
+     *   name: 'asdasd',
+     *   subobject.id: 12,
+     *   subobject.name: 'sdfsdfe'
+     * }
+     * @param values исходный объект
+     */
+    plainValues: function (values) {
+        var plainValues = {};
+
+        function plain(values, prefix) {
+            var field, id, value;
+            if (prefix != '') {
+                prefix = prefix+'.';
+            }
+            for (id in values) {
+                if (!Ext.isFunction(values[id])) {
+                    value = values[id];
+                    if (Ext.isObject(value)) {
+                        plain(value, prefix+id);
+                    } else {
+                        plainValues[prefix+id] = value;
+                    }
+                }
+            }
+        }
+        plain(values, '');
+        return plainValues;
+    },
 
     bind: function (data) {
-        this.form.getForm().setValues(data.model);
+        this.form.getForm().setValues(this.plainValues(data.model));
     }
 });
