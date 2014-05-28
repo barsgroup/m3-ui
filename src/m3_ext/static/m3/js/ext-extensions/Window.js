@@ -1,10 +1,11 @@
 /**
  * Окно на базе Ext.Window
  */
-
 Ext.define('Ext.m3.Window', {
     extend: 'Ext.Window',
     xtype: 'm3-window',
+
+    helpTopic: null,
 
     constructor: function (baseConfig) {
 
@@ -78,17 +79,24 @@ Ext.define('Ext.m3.Window', {
 
     initTools: function () {
         if (this.helpTopic) {
+            assert(this.helpTopic instanceof Array);
+            assert(this.helpTopic.length > 0);
+
+            var url = this.helpTopic[0] + '.html';
+            if (this.helpTopic.length == 2){
+                url += '#' + this.helpTopic[1];
+            }
             this.addTool({id: 'help', handler: function () {
-                showHelpWindow(this.helpTopic);
+                showHelpWindow(url);
             }.bind(this)});
         }
-        Ext.m3.Window.superclass.initTools.call(this);
+        this.callParent();
     },
 
     /**
      * Поиск элемента по itemId
      * @param itemId - что нужно искать
-     * @returns {*} Нашедший элемент
+     * @returns {*} Нашедшийся элемент
      */
     findByItemId: function(itemId){
         return this.find('itemId', itemId)[0];

@@ -10,7 +10,26 @@ UI = function (config) {
         storage = config['storage'], // хранилище базовых конфигураций окон
         create = config['create'];       // собственно, формирователь UI
 
-    UI.create = function (data) {         // словарь параметров должен содержать
+    UI.createWindow = function (cfg, data) {
+        // формируем UI widget
+
+        cfg.listeners = cfg.listeners || {};
+        cfg.listeners['getcontext'] = function (cmp) {
+            cmp._getContext = function () {
+                return data.context;
+            }
+        };
+
+        var win = create(cfg);
+        if (Ext.isFunction(win.bind)) {
+            win.bind(data);
+        }
+        desktop.getDesktop().createWindow(win).show();
+        return win;
+    };
+
+    UI.create = function (data) {
+        // словарь параметров должен содержать
         var initialData = data['data'],    // - словарь данных для инициализации
             key = data['ui'];              // - key, однозначно идентифицирующий окно в хранилище
 
@@ -27,7 +46,13 @@ UI = function (config) {
                     result = Q.defer();
 
                 if (!Ext.ComponentMgr.types[module]) {
-                    require([config['staticPrefix'] + 'js/' + module + '.js'],
+                    var url = config['staticPrefix'] + 'js/' + module + '.js';
+
+                    // Добавляется параметр disable caching, чтобы браузеры не кешировали get-запросы
+                    url = Ext.urlAppend(url, '_dc=' + (new Date().getTime()));
+
+                    require([url],
+
                         // Параметры передаются в массиве, а дальше spread - тоже принимает массив, из-за этого [[...]]
                         result.resolve.createDelegate(this, [
                             [cfg, data]
@@ -38,23 +63,7 @@ UI = function (config) {
                 }
 
                 return result.promise;
-            }).spread(function (cfg, data) {
-                // формируем UI widget
-
-                cfg.listeners = cfg.listeners || {};
-                cfg.listeners['getcontext'] = function (cmp) {
-                    cmp._getContext = function () {
-                        return data.context;
-                    }
-                };
-
-                var win = create(cfg);
-                if (Ext.isFunction(win.bind)) {
-                    win.bind(data);
-                }
-                desktop.getDesktop().createWindow(win).show();
-                return win;
-            });
+            }).spread(UI.createWindow);
     };
 };
 
