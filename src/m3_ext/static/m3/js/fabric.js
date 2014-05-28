@@ -111,16 +111,6 @@ UI.submit = function (form, cfg) {
     return result.promise;
 };
 
-/**
- *
- * @param cfg
- * @returns {promise|Q.promise}
- */
-UI.msgBox = function (cfg) {
-    var result = Q.defer();
-    Ext.Msg.show(Ext.apply(cfg, {fn: result.resolve}));
-    return result.promise;
-};
 
 /**
  *
@@ -135,17 +125,27 @@ UI.evalResult = function (response) {
 
     return new Q()
         .then(function () {
+            var result = Q.defer();
             if (obj.message) {
-                return UI.msgBox({
+
+                Ext.Msg.show({
                     title: 'Внимание',
                     msg: obj.message,
                     buttons: Ext.Msg.OK,
-                    icon: (
-                        obj.success != undefined && !obj.success
+                    fn: function () {
+                        if (obj.success) {
+                            result.resolve(null);
+                        } else {
+                            result.reject(null);
+                        }
+                    },
+                    icon: (obj.success != undefined && !obj.success
                         ) ? Ext.Msg.WARNING : Ext.Msg.Info
                 });
+            } else {
+                result.resolve(null);
             }
-            return null;
+            return result.promise;
         }).then(function () {
             if (obj.code) {
                 if (obj.code.ui) {

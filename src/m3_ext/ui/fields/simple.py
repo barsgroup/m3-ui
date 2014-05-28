@@ -149,7 +149,6 @@ class ExtCheckBox(BaseExtField):
 
     js_attrs = BaseExtField.js_attrs.extend(
         'checked',  # Признак того, что значение выбрано
-
         box_label='boxLabel',  # Текст рядом с полем выбора значения
 
     )

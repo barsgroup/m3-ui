@@ -134,7 +134,6 @@ function uiFailureResponseOnFormSubmit(context) {
  * респонс сервера(предназначено для отладки серверных ошибок)
  */
 function uiAjaxFailMessage(response, opt) {
-
     // response.status === 0 -- "communication failure"
     if (Ext.isEmpty(response) || response.status === 0) {
         Ext.Msg.alert(SOFTWARE_NAME, 'Извините, сервер временно не доступен.');

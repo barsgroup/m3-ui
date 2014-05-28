@@ -49,12 +49,14 @@ class BaseExtField(ExtUIComponent):
         self.setdefault('allow_blank', True)
         self.setdefault('invalid_class', 'm3-form-invalid')
         self.setdefault('plugins', [])
-        self.setdefault('auto_create', {
-            "tag": "input",
-            "type": "text",
-            "size": "20",
-            "autocomplete": "off"
-        })
+
+        # Ломает Checkbox
+        # self.setdefault('auto_create', {
+        #     "tag": "input",
+        #     "type": "text",
+        #     "size": "20",
+        #     "autocomplete": "off"
+        # })
 
     def _make_read_only(
             self, access_off=True, exclude_list=(), *args, **kwargs):
