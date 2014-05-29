@@ -180,11 +180,6 @@ class ExtComboBox(BaseExtTriggerField):
 
     _xtype = 'm3-combobox'
 
-    def __init__(self, *args, **kwargs):
-        super(ExtComboBox, self).__init__(*args, **kwargs)
-        self.setdefault('mode', 'local')
-        self.setdefault('trigger_action', self.ALL)
-
 
 class ExtTimeField(BaseExtField):
     """

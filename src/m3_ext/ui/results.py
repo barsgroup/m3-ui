@@ -127,6 +127,11 @@ class UIJsonEncoder(_M3JSONEncoder):
             _set_action_url(obj, 'url_delete', 'action_delete')
             _set_action_url(obj, 'url', 'action_data')
 
+        # для BaseExtTriggerField, нужно поменять режим если указан DataStore
+        if hasattr(obj, 'store') and hasattr(obj, 'hide_trigger') \
+                and obj.store and obj.store._xtype == 'arraystore':
+            obj.mode = 'local'
+
         # Поля
         if hasattr(obj, 'invalid_class'):
             if getattr(obj, 'read_only', None):
