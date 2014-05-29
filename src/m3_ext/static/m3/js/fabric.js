@@ -111,6 +111,28 @@ UI.submit = function (form, cfg) {
     return result.promise;
 };
 
+UI.showMsg = function (obj) {
+    var result = Q.defer();
+    if (obj.message) {
+
+        Ext.Msg.show({
+            title: 'Внимание',
+            msg: obj.message,
+            buttons: Ext.Msg.OK,
+            fn: function () {
+                if (obj.success) {
+                    result.resolve(null);
+                } else {
+                    result.reject(null);
+                }
+            },
+            icon: (!obj.success) ? Ext.Msg.WARNING : Ext.Msg.Info
+        });
+    } else {
+        result.resolve(obj);
+    }
+    return result.promise;
+};
 
 /**
  *
@@ -118,35 +140,10 @@ UI.submit = function (form, cfg) {
  * @returns {*}
  */
 UI.evalResult = function (response) {
-    var obj = Ext.decode(response.responseText);
-    if (!obj) {
-        return null;
-    }
-
     return new Q()
-        .then(function () {
-            var result = Q.defer();
-            if (obj.message) {
-
-                Ext.Msg.show({
-                    title: 'Внимание',
-                    msg: obj.message,
-                    buttons: Ext.Msg.OK,
-                    fn: function () {
-                        if (obj.success) {
-                            result.resolve(null);
-                        } else {
-                            result.reject(null);
-                        }
-                    },
-                    icon: (obj.success != undefined && !obj.success
-                        ) ? Ext.Msg.WARNING : Ext.Msg.Info
-                });
-            } else {
-                result.resolve(null);
-            }
-            return result.promise;
-        }).then(function () {
+        .then(Ext.decode.createDelegate(this, [response.responseText]))
+        .then(UI.showMsg)
+        .then(function (obj) {
             if (obj.code) {
                 if (obj.code.ui) {
                     return UI.create(obj.code);

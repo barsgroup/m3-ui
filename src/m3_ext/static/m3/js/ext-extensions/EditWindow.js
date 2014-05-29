@@ -137,7 +137,7 @@ Ext.define('Ext.m3.EditWindow', {
         }
 
         var scope = this,
-            mask = new Ext.LoadMask(this.body, {msg: 'Сохранение...'}),
+//            mask = new Ext.LoadMask(this.body, {msg: 'Сохранение...'}),
             params = Ext.applyIf(baseParams || {}, this.getContext());
 
         //->TODO - deprecated
@@ -185,33 +185,58 @@ Ext.define('Ext.m3.EditWindow', {
         var submit = {
             url: this.form.url,
             submitEmptyText: false,
-            params: params,
-            scope: this,
-            success: function (form, action) {
-                try {
-                    if (this.fireEvent('aftersubmit', this, form, action)) {
-                        this.fireEvent('closed_ok', action.response.responseText);
-                        this.close(true);
-                        smart_eval(action.response.responseText);
-                    }
-                } finally {
-                    mask.hide();
-                    this.disableToolbars(false);
-                }
-            },
-            failure: function (form, action) {
-                if (this.fireEvent('submitfailed', this, form, action)) {
-                    uiAjaxFailMessage.apply(this, arguments);
-                }
-                mask.hide();
-                this.disableToolbars(false);
-            }
+            params: params
         };
 
         if (scope.fireEvent('beforesubmit', submit)) {
-            this.disableToolbars(true);
-            mask.show();
-            form.getForm().submit(submit);
+
+            new Q()
+                .then(this.fireEvent.createDelegate(this, ['mask', this]))
+                .then(function () {
+                    var result = Q.defer();
+                    form.getForm().submit(Ext.applyIf({
+                        success: function (form, action) {
+                            if (this.fireEvent('aftersubmit', this, form, action)) {
+                                result.resolve(action.response);
+                            }
+                        }.bind(this),
+                        failure: function (form, action) {
+                            if (this.fireEvent('submitfailed', this, form, action)) {
+                                result.reject(action);
+                            }
+                        }.bind(this)
+                    }, submit));
+                    return result.promise;
+                }.bind(this))
+                .then(UI.evalResult)
+                .then(function (win) {
+                    this.fireEvent('closed_ok', win);
+                    this.close(true);
+                }.bind(this))
+                .catch(function (action) {
+                    if (action instanceof TypeError) {
+                        uiAjaxFailMessage(action);
+                    }
+
+                    var error;
+                    switch (action.failureType) {
+                        case Ext.form.Action.CLIENT_INVALID:
+                            error = UI.showMsg({'success': false,
+                                'message': 'На форме имеются некорректно заполненные поля'});
+                            break;
+
+                        case Ext.form.Action.CONNECT_FAILURE:
+                            uiAjaxFailMessage(action.response);
+                            break;
+
+                        case Ext.form.Action.SERVER_INVALID:
+                            error = UI.showMsg(action.result);
+
+                    }
+                    return error;
+                })
+                .finally(this.fireEvent.createDelegate(this,
+                    ['unmask', this]));
         }
     },
 

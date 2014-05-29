@@ -100,5 +100,7 @@ Ext.define('Ext.m3.Window', {
      */
     findByItemId: function(itemId){
         return this.find('itemId', itemId)[0];
-    }
+    },
+
+    bind: Ext.emptyFn
 });
