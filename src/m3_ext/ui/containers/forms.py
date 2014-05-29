@@ -21,7 +21,6 @@ class ExtForm(BaseExtPanel):
 
     js_attrs = BaseExtPanel.js_attrs.extend(
         'url',
-        base_cls='baseCls',
         file_upload='fileUpload',
     )
 
@@ -71,7 +70,7 @@ class ExtPanel(BaseExtPanel):
         'floatable',  # Позволять ли панели быть "плавающей", (см Ext.layout.BorderLayout.Region)
         body_border='bodyBorder',  # Показывать ли внутреннюю границу у элемента
         base_cls='baseCls',  # Базовый CSS класс, по умолчанию 'x-panel'
-        body_cls='bodyCls',  # Данное свойства - приватное в контексте extjs, переопределяет стиль панели
+        body_cls='bodyCssClass',  # Дополнительный CSS класс тела панели
         auto_load='autoLoad',  # Автозагрузка контента
         auto_scroll='autoScroll',  # Скролл появляется автоматически
         title_collapse='titleCollapse',  # Сворачивать панель при щелчке на заголовке?
@@ -80,9 +79,7 @@ class ExtPanel(BaseExtPanel):
     def __init__(self, *args, **kwargs):
         super(ExtPanel, self).__init__(*args, **kwargs)
         self.setdefault('collapsible', False)
-        self.setdefault('body_border', True)
-        self.setdefault('base_cls', '')
-        self.setdefault('body_cls', '')
+        self.setdefault('body_border', False)
         self.setdefault('auto_scroll', True)
         self.setdefault('floatable', True)
         self.setdefault('title_collapse', False)
@@ -153,6 +150,7 @@ class ExtTabPanel(BaseExtPanel):
         self.setdefault('active_tab', 0)
         self.setdefault('enable_tab_scroll', True)
         self.setdefault('body_border', True)
+        self.setdefault('border', True)
         self.setdefault('plain', False)
         self.setdefault('auto_width', True)
         self.setdefault('tab_position', self.TOP)
@@ -183,3 +181,4 @@ class ExtFieldSet(ExtPanel):
     def __init__(self, *args, **kwargs):
         super(ExtFieldSet, self).__init__(*args, **kwargs)
         self.setdefault('checkbox_toggle', False)
+        self.setdefault('border', True)
