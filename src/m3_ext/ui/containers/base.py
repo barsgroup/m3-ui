@@ -77,7 +77,7 @@ class BaseExtPanel(BaseExtContainer):
     def __init__(self, *args, **kwargs):
         super(BaseExtPanel, self).__init__(*args, **kwargs)
         self.setdefault('header', False)
-        self.setdefault('border', False)
+        self.setdefault('border', True)
         self.setdefault('top_bar', [])
         self.setdefault('bottom_bar', [])
         self.setdefault('footer_bar', [])
