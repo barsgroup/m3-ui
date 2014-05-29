@@ -542,10 +542,7 @@ def to_object(obj, all_fields, exclusion=None):
             val = try_to_int(val)
 
         elif isinstance(item, fields.ExtHiddenField):
-            if item.type == fields.ExtHiddenField.INT:
-                val = try_to_int(val)
-            elif item.type == fields.ExtHiddenField.STRING:
-                val = unicode(val)
+            val = try_to_int(val)
         return val
 
     # список m2m полей модели нужен,
