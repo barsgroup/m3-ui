@@ -138,8 +138,8 @@ class UIJsonEncoder(_M3JSONEncoder):
             if hasattr(obj, 'regex'):
                 obj.regex = '/%s/' % obj.regex
 
-            if getattr(obj, 'max_length', None):
-                obj.auto_create.update({"maxlength": obj.max_length})
+            # if getattr(obj, 'max_length', None):
+            #     obj.auto_create.update({"maxlength": obj.max_length})
 
             if hasattr(obj, 'mask_re'):
                 obj.mask_re = '/%s/' % obj.mask_re
