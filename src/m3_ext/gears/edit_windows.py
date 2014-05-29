@@ -30,7 +30,7 @@ class GearEditWindow(windows.ExtEditWindow):
         self.btn_cancel = controls.ExtButton(
             name='cancel_btn',
             text=u'Отмена',
-            handler='cancelForm'
+            handler='close'
         )
 
         self.buttons.extend([self.btn_save, self.btn_cancel])
