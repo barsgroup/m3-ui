@@ -168,7 +168,7 @@ Ext.define('Ext.m3.EditWindow', {
             for (var k = 0; k < cStore.data.items.length; k++) {
                 cStoreData.push(cStore.data.items[k].data);
             }
-            params[cControl.name] = Ext.util.JSON.encode(cStoreData);
+            params[cControl.name] = Ext.encode(cStoreData);
         }
         //<-TODO - deprecated
 
@@ -230,7 +230,11 @@ Ext.define('Ext.m3.EditWindow', {
                             break;
 
                         case Ext.form.Action.SERVER_INVALID:
-                            error = UI.showMsg(action.result);
+                            if (action.result) {
+                                error = UI.showMsg(action.result)
+                            } else {
+                                uiAjaxFailMessage(action.response);
+                            }
 
                     }
                     return error;
@@ -491,19 +495,20 @@ Ext.define('Ext.m3.EditWindow', {
         function plain(values, prefix) {
             var field, id, value;
             if (prefix != '') {
-                prefix = prefix+'.';
+                prefix = prefix + '.';
             }
             for (id in values) {
                 if (!Ext.isFunction(values[id])) {
                     value = values[id];
                     if (Ext.isObject(value)) {
-                        plain(value, prefix+id);
+                        plain(value, prefix + id);
                     } else {
-                        plainValues[prefix+id] = value;
+                        plainValues[prefix + id] = value;
                     }
                 }
             }
         }
+
         plain(values, '');
         return plainValues;
     },
