@@ -491,6 +491,7 @@ Ext.define('Ext.m3.EditWindow', {
      */
     plainValues: function (values) {
         var plainValues = {};
+        var form = this.form.getForm();
 
         function plain(values, prefix) {
             var field, id, value;
@@ -501,14 +502,19 @@ Ext.define('Ext.m3.EditWindow', {
                 if (!Ext.isFunction(values[id])) {
                     value = values[id];
                     if (Ext.isObject(value)) {
-                        plain(value, prefix + id);
+                        // если уже есть поле на форме с таким именем
+                        // то не надо дальше раскладывать
+                        if (form.findField(prefix + id)) {
+                            plainValues[prefix + id] = value;
+                        } else {
+                            plain(value, prefix + id);
+                        }
                     } else {
-                        plainValues[prefix + id] = value;
+                        plainValues[prefix+id] = value;
                     }
                 }
             }
         }
-
         plain(values, '');
         return plainValues;
     },
