@@ -99,7 +99,23 @@ Ext.define('Ext.m3.Window', {
      * @returns {*} Нашедшийся элемент
      */
     findByItemId: function(itemId){
-        return this.find('itemId', itemId)[0];
+        var containers = [
+            this,
+            this.getTopToolbar(),
+            this.getBottomToolbar(),
+            this.getFooterToolbar()
+        ];
+        var result;
+        Ext.each(containers, function(cont) {
+            if (cont) {
+                var res = cont.find('itemId', itemId)[0];
+                if (res) {
+                    result = res;
+                    return false;
+                }
+            }
+        }, this);
+        return result;
     },
 
     bind: Ext.emptyFn
