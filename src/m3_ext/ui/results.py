@@ -89,7 +89,8 @@ class UIJsonEncoder(_M3JSONEncoder):
         elif hasattr(obj, 'columns') and hasattr(obj, 'store'):
 
             if not getattr(obj.store, 'fields', None):
-                fields = [obj.store.id_property] + [col.data_index for col in obj.columns]
+                fields = [obj.store.id_property] + [col.data_index for col in obj.columns
+                                                    if hasattr(col, 'data_index')]
                 obj.store.fields = fields
 
             # для ObjectGrid и ExtMultiGroupinGrid надо проставлять url из экшенов
