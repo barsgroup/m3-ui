@@ -20,7 +20,7 @@ class UIAction(_Action):
         if suffix == 'ui':
             return _DAC()
         else:
-            super(UIAction, self).build_context(request, suffix)
+            return super(UIAction, self).build_context(request, suffix)
 
     def get_ui(self, request, context):
         """
