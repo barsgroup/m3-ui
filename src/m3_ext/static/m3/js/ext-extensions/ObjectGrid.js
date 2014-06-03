@@ -131,6 +131,10 @@
             'getcontext'
         ],
 
+        initComponent: function () {
+            initComponent.apply(this);
+        },
+
         /**
          * Внутренняя функция для поиска и настройки элементов тулбара и контекстного меню
          */
@@ -402,6 +406,10 @@
                 }
             }
             return baseConf;
+        },
+        setBlocked: function(blocked, exclude) {
+            exclude.push("button_refresh");
+            this.callParent(arguments);
         }
     };
 
@@ -412,11 +420,6 @@
             extend: 'Ext.m3.GridPanel',
             xtype: 'm3-object-grid',
 
-
-            initComponent: function () {
-                initComponent.apply(this);
-            }
-
         }, baseObjectGrid)
     );
 
@@ -426,9 +429,6 @@
 
             extend: 'Ext.m3.EditorGridPanel',
             xtype: 'm3-edit-object-grid',
-            initComponent: function () {
-                initComponent.apply(this);
-            }
 
         }, baseObjectGrid)
     );

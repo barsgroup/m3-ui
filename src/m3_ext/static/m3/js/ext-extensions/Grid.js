@@ -66,7 +66,8 @@
 
             funcRowContMenu = function (grid, index, e) {
                 e.stopEvent();
-                if (!this.getSelectionModel().isSelected(index)) {
+                if (this.getSelectionModel().isSelected &&
+                    !this.getSelectionModel().isSelected(index)) {
                     this.getSelectionModel().selectRow(index);
                 }
                 params.rowContextMenu.showAt(e.getXY())
@@ -152,25 +153,38 @@
         }
     }
 
-
-    Ext.define('Ext.m3.GridPanel', {
-            extend: 'Ext.grid.GridPanel',
-            xtype: 'm3-grid',
-
-            initComponent: function () {
+    var basem3Grid = {
+        initComponent: function () {
                 initComponent.apply(this);
+        },
+        setBlocked: function(blocked, exclude) {
+            if (!includeInArr(exclude, this.itemId)) {
+                var containers = [
+                    this.getTopToolbar(),
+                    this.params.contextMenu,
+                    this.params.rowContextMenu
+                ];
+                Ext.each(containers, function (cont) {
+                    if (cont) {
+                        cont.cascade(function (item) {
+                            item.setBlocked(blocked, exclude);
+                        });
+                    }
+                });
             }
         }
+    };
+
+    Ext.define('Ext.m3.GridPanel', Ext.apply(basem3Grid, {
+            extend: 'Ext.grid.GridPanel',
+            xtype: 'm3-grid'
+        })
     );
 
-    Ext.define('Ext.m3.EditorGridPanel', {
+    Ext.define('Ext.m3.EditorGridPanel', Ext.apply(basem3Grid, {
             extend: 'Ext.grid.EditorGridPanel',
-            xtype: 'm3-edit-grid',
-
-            initComponent: function () {
-                initComponent.apply(this);
-            }
-        }
+            xtype: 'm3-edit-grid'
+        })
     );
 })();
 

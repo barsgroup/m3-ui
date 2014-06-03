@@ -3488,15 +3488,14 @@ Ext.QuickTips.init();
 /**
  * Чтобы ie и прочие не правильные браузеры, где нет console не падали
  */
-if (typeof console == "undefined") var console = { log: function () {
-} };
+if (typeof console == "undefined") var console = { log: function () {}};
 
 Ext.namespace('Ext.m3');
 
 /**
  *  Реализация стандартного assert
  * @param {Boolean} condition
- * @param {Str} errorMsg
+ * @param {String} errorMsg
  */
 function assert(condition, errorMsg) {
     if (!condition) {
@@ -3504,52 +3503,6 @@ function assert(condition, errorMsg) {
         throw new Error(errorMsg);
     }
 }
-
-/**
- *
- * @param {Object} text
- */
-function smart_eval(text) {
-    if (text == undefined) {
-        // на случай, когда в процессе получения ответа сервера произошел аборт
-        return;
-    }
-    if (text.substring(0, 1) == '{') {
-        // это у нас json объект
-        var obj = Ext.util.JSON.decode(text);
-        if (!obj) {
-            return;
-        }
-        if (obj.code) {
-            var eval_result = obj.code();
-            if (eval_result && eval_result instanceof Ext.Window && typeof AppDesktop != 'undefined' && AppDesktop) {
-                AppDesktop.getDesktop().createWindow(eval_result);
-            }
-            return eval_result;
-        }
-        else {
-            if (obj.message && obj.message != '') {
-                Ext.Msg.show({title: 'Внимание', msg: obj.message, buttons: Ext.Msg.OK, icon: (obj.success != undefined && !obj.success ? Ext.Msg.WARNING : Ext.Msg.Info)});
-                return;
-            }
-        }
-    }
-    else {
-        try {
-            var eval_result = eval(text);
-        } catch (e) {
-            Ext.Msg.show({
-                title: 'Внимание', msg: 'Произошла непредвиденная ошибка!', buttons: Ext.Msg.OK, fn: Ext.emptyFn, animEl: 'elId', icon: Ext.MessageBox.WARNING
-            });
-            throw e;
-        }
-        if (eval_result && eval_result instanceof Ext.Window && typeof AppDesktop != 'undefined' && AppDesktop) {
-            AppDesktop.getDesktop().createWindow(eval_result);
-        }
-        return eval_result;
-    }
-}
-
 
 /**
  * В поле добавим функционал отображения того, что оно изменено.
@@ -3571,7 +3524,7 @@ Ext.override(Ext.form.Field, {
                 if (this.isModified) {
                     newtext = '<span style="color:darkmagenta;">' + newtext + '</span>';
                 }
-                ;
+
                 //if (this.isModified) {newtext = '<span">*</span>' + newtext; };
                 var lab = this.el.up('.x-form-item', 10, true);
                 if (lab) {
@@ -3589,7 +3542,7 @@ Ext.override(Ext.form.Field, {
                 this.onBlur();
                 // проставим значение, как будто мы ушли с поля и вернулись обратно
                 this.startValue = this.getValue();
-            };
+            }
             this.fireEvent('specialkey', this, e);
         }
     }
@@ -3663,7 +3616,6 @@ function uiFailureResponseOnFormSubmit(context) {
  * респонс сервера(предназначено для отладки серверных ошибок)
  */
 function uiAjaxFailMessage(response, opt) {
-
     // response.status === 0 -- "communication failure"
     if (Ext.isEmpty(response) || response.status === 0) {
         Ext.Msg.alert(SOFTWARE_NAME, 'Извините, сервер временно не доступен.');
@@ -3818,40 +3770,13 @@ function uiAjaxFailMessage(response, opt) {
 // Проверяет есть ли в ответе сообщение и выводит его
 // Возвращает серверный success
 function uiShowErrorMessage(response) {
-    var obj = Ext.util.JSON.decode(response.responseText);
+    var obj = Ext.decode(response.responseText);
     if (obj.error_msg)
         Ext.Msg.alert(SOFTWARE_NAME, obj.error_msg);
 // Не понятно зачем нужен этот код.
 //	if (obj.code)
 //		alert('Пришел код на выполнение ' + obj.code);
     return obj.success;
-}
-
-/**
- * Генерирует запрос на сервер по переданному url
- * @param {String} url URL запроса на получение формы
- * @param {Object} desktop Объект типа AppDesktop.getDesktop()
- * @param {Object} параметры запроса
- */
-function sendRequest(url, desktop, params) {
-    var mask = new Ext.LoadMask(Ext.getBody());
-    mask.show();
-    Ext.Ajax.request({
-        params: params,
-        url: url,
-        method: 'POST',
-        success: function (response, options) {
-            try {
-                smart_eval(response.responseText);
-            } finally {
-                mask.hide();
-            }
-        },
-        failure: function () {
-            uiAjaxFailMessage.apply(this, arguments);
-            mask.hide();
-        }
-    });
 }
 
 /**
@@ -4015,7 +3940,8 @@ Ext.define('Ext.m3.ComboBox', {
 
             funcRowContMenu = function (grid, index, e) {
                 e.stopEvent();
-                if (!this.getSelectionModel().isSelected(index)) {
+                if (this.getSelectionModel().isSelected &&
+                    !this.getSelectionModel().isSelected(index)) {
                     this.getSelectionModel().selectRow(index);
                 }
                 params.rowContextMenu.showAt(e.getXY())
@@ -4101,25 +4027,38 @@ Ext.define('Ext.m3.ComboBox', {
         }
     }
 
-
-    Ext.define('Ext.m3.GridPanel', {
-            extend: 'Ext.grid.GridPanel',
-            xtype: 'm3-grid',
-
-            initComponent: function () {
+    var basem3Grid = {
+        initComponent: function () {
                 initComponent.apply(this);
+        },
+        setBlocked: function(blocked, exclude) {
+            if (!includeInArr(exclude, this.itemId)) {
+                var containers = [
+                    this.getTopToolbar(),
+                    this.params.contextMenu,
+                    this.params.rowContextMenu
+                ];
+                Ext.each(containers, function (cont) {
+                    if (cont) {
+                        cont.cascade(function (item) {
+                            item.setBlocked(blocked, exclude);
+                        });
+                    }
+                });
             }
         }
+    };
+
+    Ext.define('Ext.m3.GridPanel', Ext.apply(basem3Grid, {
+            extend: 'Ext.grid.GridPanel',
+            xtype: 'm3-grid'
+        })
     );
 
-    Ext.define('Ext.m3.EditorGridPanel', {
+    Ext.define('Ext.m3.EditorGridPanel', Ext.apply(basem3Grid, {
             extend: 'Ext.grid.EditorGridPanel',
-            xtype: 'm3-edit-grid',
-
-            initComponent: function () {
-                initComponent.apply(this);
-            }
-        }
+            xtype: 'm3-edit-grid'
+        })
     );
 })();
 
@@ -6212,10 +6151,11 @@ Ext.reg('tggridcolumn', Ext.tree.Column);
 /**
  * Окно на базе Ext.Window
  */
-
 Ext.define('Ext.m3.Window', {
     extend: 'Ext.Window',
     xtype: 'm3-window',
+
+    helpTopic: null,
 
     constructor: function (baseConfig) {
 
@@ -6289,11 +6229,69 @@ Ext.define('Ext.m3.Window', {
 
     initTools: function () {
         if (this.helpTopic) {
+            assert(this.helpTopic instanceof Array);
+            assert(this.helpTopic.length > 0);
+
+            var url = this.helpTopic[0] + '.html';
+            if (this.helpTopic.length == 2){
+                url += '#' + this.helpTopic[1];
+            }
             this.addTool({id: 'help', handler: function () {
-                showHelpWindow(this.helpTopic);
+                showHelpWindow(url);
             }.bind(this)});
         }
-        Ext.m3.Window.superclass.initTools.call(this);
+        this.callParent();
+    },
+
+    /**
+     * Поиск элемента по itemId
+     * @param itemId - что нужно искать
+     * @returns {*} Нашедшийся элемент
+     */
+    findByItemId: function(itemId){
+        var containers = [
+            this,
+            this.getTopToolbar(),
+            this.getBottomToolbar(),
+            this.getFooterToolbar()
+        ];
+        var result;
+        Ext.each(containers, function(cont) {
+            if (cont) {
+                var res = cont.find('itemId', itemId)[0];
+                if (res) {
+                    result = res;
+                    return false;
+                }
+            }
+        }, this);
+        return result;
+    },
+
+    bind: Ext.emptyFn,
+
+    /**
+     * Блокировка окна от изменений. Вызывает каскадно setBlocked
+     * @param blocked - признак блокировки bool
+     * @param exclude - список itemId элементов исключаемых из блокирования
+     */
+    setBlocked: function(blocked, exclude) {
+        var me = this,
+            containers = [
+                this,
+                this.getTopToolbar(),
+                this.getBottomToolbar(),
+                this.getFooterToolbar()
+            ];
+        Ext.each(containers, function(cont) {
+            if (cont) {
+                cont.cascade(function (item) {
+                    if (me != item) {
+                        item.setBlocked(blocked, exclude || []);
+                    }
+                });
+            }
+        });
     }
 });
 
@@ -6329,9 +6327,10 @@ Ext.define('Ext.m3.AddrField', {
     		place_store.loadData({total:1, rows:[rec]});
 		}
 		if (params.read_only)
-			var field_cls = 'm3-grey-field'
+			var field_cls = 'm3-grey-field';
 		else
-			var field_cls = ''
+			var field_cls = '';
+
 		this.place = new Ext.form.ComboBox({
 			name: params.place_field_name,
 			fieldLabel: params.place_label,
@@ -6991,7 +6990,7 @@ Ext.define('Ext.m3.AdvancedComboBox', {
         }
 
         // Значения по-умолчанию
-        if (Object.getOwnPropertyNames(this.defaultRecord).length !== 0) { // Проверка на пустоту объекта
+        if (this.defaultRecord && Object.getOwnPropertyNames(this.defaultRecord).length !== 0) { // Проверка на пустоту объекта
             var record = new Ext.data.Record(this.defaultRecord);
             this.setRecord(record);
         } else {
@@ -7588,6 +7587,12 @@ Ext.define('Ext.m3.Button', {
         if (typeof this.handler === 'string') {
             this.fireEvent('gethandler', this, this.handler);
         }
+    },
+
+    setBlocked: function(blocked, exclude) {
+        if (!includeInArr(exclude, this.itemId)) {
+            this.setDisabled(blocked);
+        }
     }
 });
 
@@ -7730,7 +7735,7 @@ Ext.define('Ext.m3.EditWindow', {
         }
 
         var scope = this,
-            mask = new Ext.LoadMask(this.body, {msg: 'Сохранение...'}),
+//            mask = new Ext.LoadMask(this.body, {msg: 'Сохранение...'}),
             params = Ext.applyIf(baseParams || {}, this.getContext());
 
         //->TODO - deprecated
@@ -7761,7 +7766,7 @@ Ext.define('Ext.m3.EditWindow', {
             for (var k = 0; k < cStore.data.items.length; k++) {
                 cStoreData.push(cStore.data.items[k].data);
             }
-            params[cControl.name] = Ext.util.JSON.encode(cStoreData);
+            params[cControl.name] = Ext.encode(cStoreData);
         }
         //<-TODO - deprecated
 
@@ -7778,33 +7783,62 @@ Ext.define('Ext.m3.EditWindow', {
         var submit = {
             url: this.form.url,
             submitEmptyText: false,
-            params: params,
-            scope: this,
-            success: function (form, action) {
-                try {
-                    if (this.fireEvent('aftersubmit', this, form, action)) {
-                        this.fireEvent('closed_ok', action.response.responseText);
-                        this.close(true);
-                        smart_eval(action.response.responseText);
-                    }
-                } finally {
-                    mask.hide();
-                    this.disableToolbars(false);
-                }
-            },
-            failure: function (form, action) {
-                if (this.fireEvent('submitfailed', this, form, action)) {
-                    uiAjaxFailMessage.apply(this, arguments);
-                }
-                mask.hide();
-                this.disableToolbars(false);
-            }
+            params: params
         };
 
         if (scope.fireEvent('beforesubmit', submit)) {
-            this.disableToolbars(true);
-            mask.show();
-            form.getForm().submit(submit);
+
+            new Q()
+                .then(this.fireEvent.createDelegate(this, ['mask', this]))
+                .then(function () {
+                    var result = Q.defer();
+                    form.getForm().submit(Ext.applyIf({
+                        success: function (form, action) {
+                            if (this.fireEvent('aftersubmit', this, form, action)) {
+                                result.resolve(action.response);
+                            }
+                        }.bind(this),
+                        failure: function (form, action) {
+                            if (this.fireEvent('submitfailed', this, form, action)) {
+                                result.reject(action);
+                            }
+                        }.bind(this)
+                    }, submit));
+                    return result.promise;
+                }.bind(this))
+                .then(UI.evalResult)
+                .then(function (win) {
+                    this.fireEvent('closed_ok', win);
+                    this.close(true);
+                }.bind(this))
+                .catch(function (action) {
+                    if (action instanceof TypeError) {
+                        uiAjaxFailMessage(action);
+                    }
+
+                    var error;
+                    switch (action.failureType) {
+                        case Ext.form.Action.CLIENT_INVALID:
+                            error = UI.showMsg({'success': false,
+                                'message': 'На форме имеются некорректно заполненные поля'});
+                            break;
+
+                        case Ext.form.Action.CONNECT_FAILURE:
+                            uiAjaxFailMessage(action.response);
+                            break;
+
+                        case Ext.form.Action.SERVER_INVALID:
+                            if (action.result) {
+                                error = UI.showMsg(action.result)
+                            } else {
+                                uiAjaxFailMessage(action.response);
+                            }
+
+                    }
+                    return error;
+                })
+                .finally(this.fireEvent.createDelegate(this,
+                    ['unmask', this]));
         }
     },
 
@@ -8035,9 +8069,56 @@ Ext.define('Ext.m3.EditWindow', {
         mask.hide();
         this.disableToolbars(false);
     },
+    /**
+     * Функция превращения вложенных объектов в плоские атрибуты
+     * Было:
+     * {
+     *   name: 'asdasd',
+     *   subobject: {
+     *     id: 12,
+     *     name: 'sdfsdfe'
+     *   }
+     * }
+     * Станет:
+     * {
+     *   name: 'asdasd',
+     *   subobject.id: 12,
+     *   subobject.name: 'sdfsdfe'
+     * }
+     * @param values исходный объект
+     */
+    plainValues: function (values) {
+        var plainValues = {};
+        var form = this.form.getForm();
+
+        function plain(values, prefix) {
+            var field, id, value;
+            if (prefix != '') {
+                prefix = prefix + '.';
+            }
+            for (id in values) {
+                if (!Ext.isFunction(values[id])) {
+                    value = values[id];
+                    if (Ext.isObject(value)) {
+                        // если уже есть поле на форме с таким именем
+                        // то не надо дальше раскладывать
+                        if (form.findField(prefix + id)) {
+                            plainValues[prefix + id] = value;
+                        } else {
+                            plain(value, prefix + id);
+                        }
+                    } else {
+                        plainValues[prefix+id] = value;
+                    }
+                }
+            }
+        }
+        plain(values, '');
+        return plainValues;
+    },
 
     bind: function (data) {
-        this.form.getForm().setValues(data.model);
+        this.form.getForm().setValues(this.plainValues(data.model));
     }
 });
 
@@ -12529,6 +12610,10 @@ Ext.ux.Notification = Ext.extend(Ext.Window, {
             'getcontext'
         ],
 
+        initComponent: function () {
+            initComponent.apply(this);
+        },
+
         /**
          * Внутренняя функция для поиска и настройки элементов тулбара и контекстного меню
          */
@@ -12800,6 +12885,10 @@ Ext.ux.Notification = Ext.extend(Ext.Window, {
                 }
             }
             return baseConf;
+        },
+        setBlocked: function(blocked, exclude) {
+            exclude.push("button_refresh");
+            this.callParent(arguments);
         }
     };
 
@@ -12810,11 +12899,6 @@ Ext.ux.Notification = Ext.extend(Ext.Window, {
             extend: 'Ext.m3.GridPanel',
             xtype: 'm3-object-grid',
 
-
-            initComponent: function () {
-                initComponent.apply(this);
-            }
-
         }, baseObjectGrid)
     );
 
@@ -12824,9 +12908,6 @@ Ext.ux.Notification = Ext.extend(Ext.Window, {
 
             extend: 'Ext.m3.EditorGridPanel',
             xtype: 'm3-edit-object-grid',
-            initComponent: function () {
-                initComponent.apply(this);
-            }
 
         }, baseObjectGrid)
     );
@@ -12848,75 +12929,82 @@ Ext.define('Ext.m3.ObjectSelectionPanel', {
 
     selectionGridConf: {},
 
-    initComponent: function(){
-        assert(this.selectionColumns, 'Columns for selection is undefined!');
+    constructor: function (cfg) {
+        assert(cfg.selectionColumns, 'Columns for selection is undefined!');
 
-        if (!(this.grid instanceof Ext.grid.GridPanel)){
-            this.grid.sm = new Ext.grid.CheckboxSelectionModel();
-            this.grid = Ext.create(this.grid);
+        if (!(cfg.grid instanceof Ext.grid.GridPanel)) {
+            cfg.grid.sm = new Ext.grid.CheckboxSelectionModel();
         } else {
             assert(this.grid.sm instanceof Ext.grid.CheckboxSelectionModel,
                 'sm has been Ext.grid.CheckboxSelectionModel')
         }
-        this.add(this.grid);
 
         var fields = ['_check'];
-        for (var i=0; i<this.selectionColumns.length; i++){
-            fields.push(this.selectionColumns[i]['data_index']);
+        for (var i = 0; i < cfg.selectionColumns.length; i++) {
+            fields.push(cfg.selectionColumns[i]['data_index']);
         }
 
         var sm = new Ext.grid.CheckboxSelectionModel();
-        this.selectionColumns.unshift(sm);
+        cfg.selectionColumns.unshift(sm);
 
-        var selectionConf = Ext.applyIf(this.selectionGridConf, {
-             region: 'east',
-             width: 200,
-             sm: sm,
-             title: 'Выбранные записи',
-             store: new Ext.data.ArrayStore({
+        var selectionConf = Ext.applyIf(cfg.selectionGridConf, {
+            region: 'east',
+            width: 200,
+            sm: sm,
+            title: 'Выбранные записи',
+            store: new Ext.data.ArrayStore({
                 autoDestroy: true,
                 fields: fields
-             }),
-             colModel: new Ext.grid.ColumnModel({
-                columns: this.selectionColumns
-             })
-         });
+            }),
+            colModel: new Ext.grid.ColumnModel({
+                columns: cfg.selectionColumns
+            })
+        });
 
-        this.selectionGrid = new Ext.grid.GridPanel(selectionConf);
+        cfg.selectionGrid = new Ext.grid.GridPanel(selectionConf);
 
+        cfg.items = cfg.items || [];
+        cfg.items.unshift(cfg.selectionGrid);
+        cfg.items.unshift(cfg.grid);
+
+        Ext.m3.ObjectSelectionPanel.superclass.constructor.call(this, cfg);
+    },
+
+    initComponent: function () {
+        this.callParent();
+        // в object-grid-e вызывается getComponent поэтому Ext.create делать нельзя, пока окно не сформируется
+        this.grid = this.items.first();
 
         this.grid.getSelectionModel().on('rowdeselect', this.onRowDeselect, this);
         this.grid.getSelectionModel().on('rowselect', this.onRowSelect, this);
         this.grid.getStore().on('load', this.onLoad, this);
         this.selectionGrid.getSelectionModel().on('rowdeselect', this.onRemoveSelected, this);
-
-        this.add(this.selectionGrid);
     },
 
-    onRowSelect: function(selModel, rowIndex, record){
+    onRowSelect: function (selModel, rowIndex, record) {
         if (this.selectionGrid.store.indexOfId(record.id) < 0) {
             this.selectionGrid.store.add(record);
             this.selectionGrid.selModel.selectLastRow(true);
         }
     },
 
-    onRowDeselect: function(selModel, rowIndex, record){
+    onRowDeselect: function (selModel, rowIndex, record) {
         var index = this.selectionGrid.store.indexOfId(record.id);
-        if (index >= 0){
+        if (index >= 0) {
             this.selectionGrid.store.removeAt(index);
         }
     },
 
-    onLoad: function(store){
+    onLoad: function (store) {
         var selectionRange = this.selectionGrid.store.getRange(),
             range = this.grid.store.getRange(),
             i = 0, j = 0;
-        for (i=0; i<selectionRange.length; i++){
-            for (j=0; j< range.length; j++){
-                if (selectionRange[i]['id'] == range[j]['id']){
+        for (i = 0; i < selectionRange.length; i++) {
+            for (j = 0; j < range.length; j++) {
+                if (selectionRange[i]['id'] == range[j]['id']) {
                     this.grid.getSelectionModel().selectRow(j, true);
                 }
-           }
+            }
         }
     },
     /**
@@ -12924,12 +13012,12 @@ Ext.define('Ext.m3.ObjectSelectionPanel', {
      *
      * @returns {*|Array|Ext.data.Record[]}
      */
-    getSelectedRecords: function(){
+    getSelectedRecords: function () {
         return this.selectionGrid.store.getRange();
     },
-    onRemoveSelected: function(selModel, rowIndex, record){
+    onRemoveSelected: function (selModel, rowIndex, record) {
         var index = this.grid.store.indexOfId(record.id);
-        if (index >= 0){
+        if (index >= 0) {
             this.grid.getSelectionModel().deselectRow(index);
         }
     }
@@ -15413,6 +15501,8 @@ Ext.override(Ext.grid.GridView, {
 Ext.define('Ext.Component', {
     override: 'Ext.Component',
 
+    setBlocked: Ext.emptyFn,
+
     getContext: function () {
         if (!Ext.isFunction(this['_getContext'])) {
             // Инжектирование _getContext
@@ -15422,3 +15512,24 @@ Ext.define('Ext.Component', {
     }
 });
 
+
+Ext.define('Ext.form.Field', {
+    override: 'Ext.form.Field',
+
+    setBlocked: function(blocked, exclude) {
+        if (!includeInArr(exclude, this.itemId)) {
+            this.setReadOnly(blocked);
+        }
+    }
+});
+
+
+Ext.define('Ext.menu.Item', {
+    override: 'Ext.menu.Item',
+
+    setBlocked: function(blocked, exclude) {
+        if (!includeInArr(exclude, this.itemId)) {
+            this.setDisabled(blocked);
+        }
+    }
+});
