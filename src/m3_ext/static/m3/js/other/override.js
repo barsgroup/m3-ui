@@ -464,11 +464,35 @@ Ext.override(Ext.grid.GridView, {
 Ext.define('Ext.Component', {
     override: 'Ext.Component',
 
+    setBlocked: Ext.emptyFn,
+
     getContext: function () {
         if (!Ext.isFunction(this['_getContext'])) {
             // Инжектирование _getContext
             this.fireEvent('getcontext', this);
         }
         return this._getContext();
+    }
+});
+
+
+Ext.define('Ext.form.Field', {
+    override: 'Ext.form.Field',
+
+    setBlocked: function(blocked, exclude) {
+        if (!includeInArr(exclude, this.itemId)) {
+            this.setReadOnly(blocked);
+        }
+    }
+});
+
+
+Ext.define('Ext.menu.Item', {
+    override: 'Ext.menu.Item',
+
+    setBlocked: function(blocked, exclude) {
+        if (!includeInArr(exclude, this.itemId)) {
+            this.setDisabled(blocked);
+        }
     }
 });

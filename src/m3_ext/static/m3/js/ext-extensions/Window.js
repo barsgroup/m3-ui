@@ -118,5 +118,29 @@ Ext.define('Ext.m3.Window', {
         return result;
     },
 
-    bind: Ext.emptyFn
+    bind: Ext.emptyFn,
+
+    /**
+     * Блокировка окна от изменений. Вызывает каскадно setBlocked
+     * @param blocked - признак блокировки bool
+     * @param exclude - список itemId элементов исключаемых из блокирования
+     */
+    setBlocked: function(blocked, exclude) {
+        var me = this,
+            containers = [
+                this,
+                this.getTopToolbar(),
+                this.getBottomToolbar(),
+                this.getFooterToolbar()
+            ];
+        Ext.each(containers, function(cont) {
+            if (cont) {
+                cont.cascade(function (item) {
+                    if (me != item) {
+                        item.setBlocked(blocked, exclude || []);
+                    }
+                });
+            }
+        });
+    }
 });
