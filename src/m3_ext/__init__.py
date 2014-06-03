@@ -16,9 +16,11 @@ class UIAction(_Action):
 
     suffixes = ('ui',)
 
-    @property
-    def url(self):
-        return '/' + self.__class__.__name__.lower()
+    def build_context(self, request, suffix=None):
+        if suffix == 'ui':
+            return _DAC()
+        else:
+            super(UIAction, self).build_context(request, suffix)
 
     def get_ui(self, request, context):
         """
@@ -44,7 +46,6 @@ class UIAction(_Action):
         }
 
     def run(self, request, context, suffix=None):
-        print repr(suffix)
         if suffix == 'ui':
             result = UIResult(self.get_ui(request, context))
         else:

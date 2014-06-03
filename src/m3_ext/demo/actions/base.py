@@ -40,6 +40,10 @@ class DemoAction(UIAction):
     """
 
     @property
+    def url(self):
+        return '/' + self.__class__.__name__.lower()
+
+    @property
     def title(self):
         """
         Название пункта меню и умолчательный заголовок окна
