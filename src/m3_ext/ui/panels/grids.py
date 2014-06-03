@@ -128,7 +128,8 @@ class ExtObjectGrid(containers.ExtGrid):
             auto_load=True,
             root='rows', id_property='id'
         ))
-        self.setdefault('load_mask', True)
+        # Вместо load_mask сейчас маскирование окна
+        # self.setdefault('load_mask', True)
         self.setdefault('row_id_name', 'row_id')
         self.setdefault('column_param_name', 'column')
         self.setdefault('allow_paging', True)
