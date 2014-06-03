@@ -121,7 +121,7 @@ UI.showMsg = function (obj) {
             buttons: Ext.Msg.OK,
             fn: function () {
                 if (obj.success) {
-                    result.resolve(null);
+                    result.resolve(obj);
                 } else {
                     result.reject(null);
                 }

@@ -154,10 +154,6 @@ class UIJsonEncoder(_M3JSONEncoder):
                 if not isinstance(obj.value, datetime.date):
                     obj.value = escapejs(obj.value)
 
-        if hasattr(obj, 'help_topic'):
-            obj.help_topic = settings.HELP_PREFIX + obj.help_topic[0] + '.html' + (
-                '#' + obj.help_topic[1] if len(obj.help_topic) > 1 else '')
-
         return obj
 
 
