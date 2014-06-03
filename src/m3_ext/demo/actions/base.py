@@ -3,6 +3,7 @@ import os
 import inspect
 
 from m3.actions import ActionPack
+from m3_ext import UIAction
 
 
 class Pack(ActionPack):
@@ -29,11 +30,23 @@ class Pack(ActionPack):
 
     @classmethod
     def register(cls, action_clz):
-
-        if not getattr(action_clz, 'menu', None):
-            action_clz.menu = os.path.basename(
-                os.path.dirname(
-                    inspect.getsourcefile(action_clz)))
-
         cls.action_classses.add(action_clz)
         return action_clz
+
+
+class DemoAction(UIAction):
+    """
+    Экшн, публикующий себя в меню
+    """
+
+    @property
+    def title(self):
+        """
+        Название пункта меню и умолчательный заголовок окна
+        """
+        return self.__class__.__name__
+
+    @property
+    def menu(self):
+        return os.path.basename(
+            os.path.dirname(inspect.getsourcefile(self.__class__)))

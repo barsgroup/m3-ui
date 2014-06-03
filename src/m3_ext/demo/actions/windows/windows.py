@@ -1,13 +1,12 @@
 #coding: utf-8
-from m3_ext import UIAction
+from m3_ext.demo.actions.base import DemoAction, Pack
 from m3_ext.ui import all_components as ext
 
 from m3_ext.demo.actions.grids.grid import DataAction
-from m3_ext.demo.actions import Pack
 
 
 @Pack.register
-class EditWindowAction(UIAction):
+class EditWindowAction(DemoAction):
     title = u'Окно редактирование с формой'
 
     def get_ui(self, request, context):
@@ -48,7 +47,7 @@ class EditWindowAction(UIAction):
 
 
 @Pack.register
-class ListWindowAction(UIAction):
+class ListWindowAction(DemoAction):
     """
     Пример оконного экшна со списком (гридом) внутри.
     """

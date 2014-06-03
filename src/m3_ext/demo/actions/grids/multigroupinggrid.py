@@ -1,15 +1,12 @@
 # -*- coding: utf-8 -*-
 from m3.actions import Action, ACD, PreJsonResult
-from m3_ext import UIAction
+from m3_ext.demo.actions.base import DemoAction, Pack
 from m3_ext.ui import all_components as ext
 from m3_legacy.datagrouping import GroupingRecordDataProvider
 
 
-from m3_ext.demo.actions.base import Pack
-
-
 @Pack.register
-class MultiGroupingGridAction(UIAction):
+class MultiGroupingGridAction(DemoAction):
     """
     Пример группировочной таблицы (ObjectGrid)
     """

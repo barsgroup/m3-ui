@@ -132,7 +132,7 @@ UI.buildDesktop = function (desktopUrl, staticUrl, startMenuCfg) {
                 // Загрузка конфигов с сервера
                 return UI.ajax({
                     url: key,
-                    params: {'mode': 'ui'}
+                    params: {}
                 }).then(UI.evalResult);
             },
             create: Ext.create

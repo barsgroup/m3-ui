@@ -1,12 +1,11 @@
 #coding: utf-8
 
-from base import Pack
-from m3_ext import UIAction
+from base import Pack, DemoAction
 from m3_ext.ui import all_components as ext
 
 
 @Pack.register
-class MenuAction(UIAction):
+class MenuAction(DemoAction):
     """
     Пример панели
     """

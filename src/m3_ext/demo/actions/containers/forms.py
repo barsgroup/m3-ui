@@ -1,12 +1,10 @@
 #coding: utf-8
-from m3_ext import UIAction
-
-from m3_ext.demo.actions.base import Pack
+from m3_ext.demo.actions.base import DemoAction, Pack
 from m3_ext.ui import all_components as ext
 
 
 @Pack.register
-class FormAction(UIAction):
+class FormAction(DemoAction):
     """
     Пример формы
     """
@@ -24,7 +22,7 @@ class FormAction(UIAction):
 
 
 @Pack.register
-class PanelAction(UIAction):
+class PanelAction(DemoAction):
     """
     Пример ExtPanel, ExtToolBar, ExtPagingBar
     """
@@ -58,7 +56,7 @@ class PanelAction(UIAction):
 
 
 @Pack.register
-class ContainerAction(UIAction):
+class ContainerAction(DemoAction):
     """
     Пример ExtContainer
     """
@@ -73,7 +71,7 @@ class ContainerAction(UIAction):
 
 
 @Pack.register
-class TitlePanelAction(UIAction):
+class TitlePanelAction(DemoAction):
     """
     Пример Title Panel
     """
@@ -98,7 +96,7 @@ class TitlePanelAction(UIAction):
 
 
 @Pack.register
-class TabPanelAction(UIAction):
+class TabPanelAction(DemoAction):
     """
     Пример TabPanel
     """
@@ -121,7 +119,7 @@ class TabPanelAction(UIAction):
 
 
 @Pack.register
-class FieldSetAction(UIAction):
+class FieldSetAction(DemoAction):
     """
     Пример ExtFieldSet
     """
@@ -146,7 +144,7 @@ class FieldSetAction(UIAction):
 
 
 @Pack.register
-class RadioGroupAction(UIAction):
+class RadioGroupAction(DemoAction):
     """
     Пример ExtRadioGroup
     """

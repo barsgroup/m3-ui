@@ -1,14 +1,12 @@
 #coding: utf-8
-from m3_ext import UIAction
+from m3_ext.demo.actions.base import DemoAction, Pack
 
 from m3_ext.ui import all_components as ext
 from m3_ext.ui.fields.simple import ExtStringField
 
-from m3_ext.demo.actions.base import Pack
-
 
 @Pack.register
-class FieldsUiAction(UIAction):
+class FieldsUiAction(DemoAction):
     title = u'Окно с формой и полями'
 
     def __init__(self):
@@ -45,7 +43,7 @@ class FieldsUiAction(UIAction):
 
 
 @Pack.register
-class FieldsAction(UIAction):
+class FieldsAction(DemoAction):
     """
     Пример ExtStringField
     """

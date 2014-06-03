@@ -1,13 +1,11 @@
 # coding: utf-8
-from m3_ext import UIAction
+from m3_ext.demo.actions.base import DemoAction, Pack
 
 from m3_ext.ui import all_components as ext
 
-from m3_ext.demo.actions.base import Pack
-
 
 @Pack.register
-class UploadFieldsAction(UIAction):
+class UploadFieldsAction(DemoAction):
     """
     Пример контрола для поиска
     """

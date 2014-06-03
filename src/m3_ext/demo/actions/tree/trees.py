@@ -2,16 +2,14 @@
 
 from m3.actions import Action
 from m3.actions.results import PreJsonResult
-from m3_ext import UIAction
+from m3_ext.demo.actions.base import DemoAction, Pack
 
 from m3_ext.ui import all_components as ext
 from m3_ext.ui.results import UIJsonEncoder
 
-from m3_ext.demo.actions import Pack
-
 
 @Pack.register
-class TreeAction(UIAction):
+class TreeAction(DemoAction):
     """
     Пример статических узлов для дерева
     """
@@ -71,7 +69,7 @@ class TreeAction(UIAction):
 
 
 @Pack.register
-class TreeRemoteAction(UIAction):
+class TreeRemoteAction(DemoAction):
     """
     Пример загрузки узлов для дерева с сервера
     """

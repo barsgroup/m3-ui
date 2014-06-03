@@ -1,15 +1,12 @@
 #coding: utf-8
 
 from m3.actions.urls import get_url
-from m3_ext import UIAction
+from m3_ext.demo.actions.base import DemoAction, Pack
 from m3_ext.demo.actions.grids.grid import DataAction
 from m3_ext.ui import all_components as ext
 
-from m3_ext.demo.actions.base import Pack
-
-
 @Pack.register
-class ContainerTableAction(UIAction):
+class ContainerTableAction(DemoAction):
     """
     Пример ContainerTable
     """

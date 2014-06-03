@@ -4,14 +4,12 @@ from django import http
 from django.http import HttpResponse
 from m3.actions import Action
 from m3.actions.urls import get_url
-from m3_ext import UIAction
+from m3_ext.demo.actions.base import DemoAction, Pack
 from m3_ext.ui import all_components as ext
-
-from m3_ext.demo.actions.base import Pack
 
 
 @Pack.register
-class SimpleGridAction(UIAction):
+class SimpleGridAction(DemoAction):
     """
     Пример простой таблицы
     """
@@ -53,7 +51,7 @@ class SimpleGridAction(UIAction):
 
 
 @Pack.register
-class EditGridAction(UIAction):
+class EditGridAction(DemoAction):
     """
     Пример простой редактируемой таблицы
     """
@@ -144,7 +142,7 @@ class DataAction(Action):
 
 
 @Pack.register
-class GridRemoteStoreAction(UIAction):
+class GridRemoteStoreAction(DemoAction):
     """
     Пример таблица с данными с сервера
     """
@@ -177,7 +175,7 @@ class GridRemoteStoreAction(UIAction):
 
 
 @Pack.register
-class BandedColumnAction(UIAction):
+class BandedColumnAction(DemoAction):
     """
     Пример таблицы с группировкой колонок
     """
@@ -220,7 +218,7 @@ class BandedColumnAction(UIAction):
 
 
 @Pack.register
-class GridAction(UIAction):
+class GridAction(DemoAction):
     """
     Пример ExtGrid и ExtDataStore
     """
@@ -294,7 +292,7 @@ class GridAction(UIAction):
 
 
 @Pack.register
-class GridAjaxAction(UIAction):
+class GridAjaxAction(DemoAction):
     """
     Пример ExtGrid и ExtDataStore
     """
@@ -372,7 +370,7 @@ class GridAjaxAction(UIAction):
 
 
 @Pack.register
-class GridCheckSelectionAction(UIAction):
+class GridCheckSelectionAction(DemoAction):
     """
     Пример таблицы с выбором строк галочками
     """
@@ -405,7 +403,7 @@ class GridCheckSelectionAction(UIAction):
 
 
 @Pack.register
-class GroupingViewSelectionAction(UIAction):
+class GroupingViewSelectionAction(DemoAction):
     """
     Пример таблицы с выбором строк галочками
     """

@@ -32,11 +32,14 @@ class ExtStringField(BaseExtField):
         select_on_focus='selectOnFocus',
         input_mask='inputMask',
 
+        auto_create='autoCreate',  # DOM-атрибуты
+
     )
 
     def __init__(self, *args, **kwargs):
         super(ExtStringField, self).__init__(*args, **kwargs)
         self.setdefault('enable_key_events', False)
+        self.setdefault('auto_create', {})
 
 
 class ExtDateField(BaseExtField):
