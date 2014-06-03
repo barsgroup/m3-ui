@@ -103,15 +103,14 @@ class UIJsonEncoder(_M3JSONEncoder):
                 _set_action_url(obj, 'url_export', 'action_export')
 
                 if hasattr(obj, 'GridTopBar'):
-                    # Если store не экземпляр ExtJsonStore,
-                    # то у него нет атрибута limit
-                    if hasattr(obj.store, 'limit'):
-                        obj.store.limit = obj.limit
 
                     # Настройка постраничного просмотра
                     if obj.allow_paging:
                         obj.paging_bar.page_size = obj.limit
                         obj.bottom_bar = obj.paging_bar
+
+                        if hasattr(obj.store, 'limit'):
+                            obj.store.limit = obj.limit
 
                 # store надо обязательно проставить url
                 if hasattr(obj, 'url_data'):
@@ -145,7 +144,7 @@ class UIJsonEncoder(_M3JSONEncoder):
                 obj.regex = '/%s/' % obj.regex
 
             # if getattr(obj, 'max_length', None):
-            #     obj.auto_create.update({"maxlength": obj.max_length})
+            # obj.auto_create.update({"maxlength": obj.max_length})
 
             if hasattr(obj, 'mask_re'):
                 obj.mask_re = '/%s/' % obj.mask_re
@@ -166,6 +165,7 @@ class UIResult(_PreJsonResult):
     """
     Результат, возвращающий виджет в виде конфигурации и данных
     """
+
     def __init__(self, ui):
         """
         :ui object: либо dict с config+data, либо ExtComponent
@@ -190,6 +190,7 @@ class DataResult(_PreJsonResult):
     Результат запроса, возвращающий объект данных
     и доп.настройки для виджета лтображения
     """
+
     def __init__(self, model, ui, context=None, data=None):
         """
         :model object: объект данных
