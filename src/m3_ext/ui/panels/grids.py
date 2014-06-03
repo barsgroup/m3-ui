@@ -125,7 +125,8 @@ class ExtObjectGrid(containers.ExtGrid):
 
         # Стор для загрузки данных
         self.setdefault('store', misc.ExtJsonStore(
-            auto_load=True, root='rows', id_property='id'
+            auto_load=True,
+            root='rows', id_property='id'
         ))
         self.setdefault('load_mask', True)
         self.setdefault('row_id_name', 'row_id')

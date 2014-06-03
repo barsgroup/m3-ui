@@ -1,4 +1,4 @@
-#coding:utf-8
+# coding:utf-8
 
 from m3_ext.ui.base import BaseExtComponent
 from base_store import BaseExtStore
@@ -21,7 +21,6 @@ class ExtDataStore(BaseExtStore):
         self.setdefault('data', data)
 
 
-
 class ExtJsonStore(BaseExtStore):
     """
     Хранилище данных, которое отправляет запрос на сервер и ждет, что данные
@@ -39,7 +38,6 @@ class ExtJsonStore(BaseExtStore):
     def __init__(self, *args, **kwargs):
         super(ExtJsonStore, self).__init__(*args, **kwargs)
         self.setdefault('start', 0)
-        self.setdefault('limit', -1)
 
 
 class ExtJsonWriter(BaseExtComponent):
