@@ -158,7 +158,7 @@ UI.evalResult = function (response) {
 
 UI.callAction = function (cfg) {
     return Q()
-        .then(this.fireEvent.createDelegate(this, ['mask', this]))
+        .then(this.fireEvent.createDelegate(this, ['mask', this, cfg.loadMaskText]))
         .then(UI.ajax.createDelegate(this, [cfg]))
         .then(UI.evalResult)
         .then(cfg.success)
