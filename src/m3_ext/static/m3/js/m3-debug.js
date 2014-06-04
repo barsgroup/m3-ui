@@ -3883,6 +3883,9 @@ Ext.define('Ext.m3.ComboBox', {
     // Костыль, чтобы копипаста в livegrid работала
     Ext.m3.configureGrid = initComponent = function () {
 
+        // сделаем enableBubble чуть раньше, чтобы можно было послать event
+        this.bubbleEvents.push('gethandler');
+        this.enableBubble(this.bubbleEvents);
 
         var params = this.params || {};
 
@@ -3981,7 +3984,13 @@ Ext.define('Ext.m3.ComboBox', {
                     needFilterPlugin = true;
                     return false;
                 }
-            });
+                if (typeof col.renderer === 'string') {
+                    this.fireEvent('gethandler', col, col.renderer);
+                    if (col.handler) {
+                        col.renderer = col.handler;
+                    }
+                }
+            }, this);
             if (needFilterPlugin) {
                 this.plugins.push(
                     {'ptype': 'gridfilters', 'menuFilterText': 'Фильтр'}
@@ -6197,12 +6206,14 @@ Ext.define('Ext.m3.Window', {
             'gethandler'
         );
 
-        var loadMask = new Ext.LoadMask(this.getEl(),
-            {msg: 'Загрузка...', msgCls: 'x-mask'});
-
+        var loadMask = new Ext.LoadMask(this.getEl(), {msg: 'Загрузка...'});
         this.on('mask', function (cmp, maskText, win) {
             loadMask.msgOrig = loadMask.msg;
-            loadMask.msg = maskText || loadMask.msg;
+            loadMask.msgClsOrig = loadMask.msgCls;
+            if (maskText){
+                loadMask.msg = maskText;
+                loadMask.msgCls = 'x-mask';
+            }
             loadMask.show();
 
             if (win instanceof Ext.m3.Window) {
@@ -6214,6 +6225,7 @@ Ext.define('Ext.m3.Window', {
         this.on('unmask', function (cmp, win) {
             loadMask.hide();
             loadMask.msg = loadMask.msgOrig;
+            loadMask.msgCls = loadMask.msgClsOrig;
             if (win instanceof Ext.m3.Window) {
                 this.un('activate', win.activate, win);
             }
@@ -12540,6 +12552,9 @@ Ext.ux.Notification = Ext.extend(Ext.Window, {
 
         var store = this.getStore();
         store.baseParams = Ext.applyIf(store.baseParams || {}, this.getContext());
+        store.on('beforeload', this.fireEvent.createDelegate(this, ['mask', this]));
+        store.on('load', this.fireEvent.createDelegate(this, ['unmask', this]));
+        store.on('loadexception', this.fireEvent.createDelegate(this, ['unmask', this]));
 
         this.addEvents(
             /**
@@ -15526,6 +15541,17 @@ Ext.define('Ext.form.Field', {
 
 Ext.define('Ext.menu.Item', {
     override: 'Ext.menu.Item',
+    bubbleEvents: [
+        'gethandler'
+    ],
+
+    initComponent: Ext.menu.Item.prototype.initComponent.createSequence(function() {
+        if (typeof this.handler === 'string') {
+            this.un("click", this.handler, this.scope);
+            this.fireEvent('gethandler', this, this.handler);
+            this.on("click", this.handler, this.scope);
+        }
+    }),
 
     setBlocked: function(blocked, exclude) {
         if (!includeInArr(exclude, this.itemId)) {

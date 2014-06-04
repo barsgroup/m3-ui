@@ -9,6 +9,9 @@
     // Костыль, чтобы копипаста в livegrid работала
     Ext.m3.configureGrid = initComponent = function () {
 
+        // сделаем enableBubble чуть раньше, чтобы можно было послать event
+        this.bubbleEvents.push('gethandler');
+        this.enableBubble(this.bubbleEvents);
 
         var params = this.params || {};
 
@@ -107,7 +110,13 @@
                     needFilterPlugin = true;
                     return false;
                 }
-            });
+                if (typeof col.renderer === 'string') {
+                    this.fireEvent('gethandler', col, col.renderer);
+                    if (col.handler) {
+                        col.renderer = col.handler;
+                    }
+                }
+            }, this);
             if (needFilterPlugin) {
                 this.plugins.push(
                     {'ptype': 'gridfilters', 'menuFilterText': 'Фильтр'}

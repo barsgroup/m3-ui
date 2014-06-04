@@ -47,11 +47,8 @@ class ExtContextMenuItem(ExtUIComponent):
         'menu',  # Ссылка на меню, если имеется вложенное меню
         'text',  # Текст для отображения
         'disabled',  # Флаг недоступности элемента меню
+        'handler',  # Имя метода/функции обработчика
         icon_cls='iconCls'  # CSS класс иконок
-    )
-
-    deprecated_attrs = ExtUIComponent.deprecated_attrs + (
-        'handler',  # bind to handler in js-file
     )
 
     def __init__(self, *args, **kwargs):
@@ -60,12 +57,6 @@ class ExtContextMenuItem(ExtUIComponent):
         self.setdefault('menu', None)
         self.setdefault('disabled', False)
         self.setdefault('icon_cls', '')
-
-        # # Идентификатор внутри меню
-        # self.item_id = None
-
-        # # Функция-обработчик
-        # self.handler = None
 
         # TODO: Написать и использовать отдельные классы: menucheckitem, etc.
         # этим параметром можно задавать тип элемента меню: menucheckitem,

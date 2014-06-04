@@ -489,6 +489,17 @@ Ext.define('Ext.form.Field', {
 
 Ext.define('Ext.menu.Item', {
     override: 'Ext.menu.Item',
+    bubbleEvents: [
+        'gethandler'
+    ],
+
+    initComponent: Ext.menu.Item.prototype.initComponent.createSequence(function() {
+        if (typeof this.handler === 'string') {
+            this.un("click", this.handler, this.scope);
+            this.fireEvent('gethandler', this, this.handler);
+            this.on("click", this.handler, this.scope);
+        }
+    }),
 
     setBlocked: function(blocked, exclude) {
         if (!includeInArr(exclude, this.itemId)) {

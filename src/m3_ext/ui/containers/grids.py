@@ -231,6 +231,7 @@ class ExtGridColumn(BaseExtComponent):
         'groupable',  # Возможность группироваться, только для таблиц с группировкой
         'filter',  # Компонент фильтра
         'css',  # Класс стиля
+        'renderer',  # Имя метода/функции рендерера
         data_index='dataIndex',  # Уникальное название колонки в пределах column model
         menu_disabled='menuDisabled',
         summary_type='summaryType',  # Тип группировки: "sum", "count"..., только для таблиц с группировкой
