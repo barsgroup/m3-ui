@@ -128,7 +128,7 @@ class DesktopModel(object):
     (start_menu и toolbox) в меню пуск
     и список модулей на Рабочем Столе (desktop)
     """
-    def __init__(self, request):
+    def __init__(self, request, desktop_filter=None):
         def filter_by_permissions(elem):
             """
             Возвращает True, если у ползователя есть права на пак элемента.
@@ -144,10 +144,12 @@ class DesktopModel(object):
                 return True
             else:
                 return pack.has_perm(request)
-        self.start_menu = DesktopElementCollection(filter_by_permissions)
-        self.toolbox = DesktopElementCollection(filter_by_permissions)
-        self.desktop = DesktopElementCollection(filter_by_permissions)
-        self.toptoolbar = DesktopElementCollection(filter_by_permissions)
+
+        desktop_filter = desktop_filter or filter_by_permissions
+        self.start_menu = DesktopElementCollection(desktop_filter)
+        self.toolbox = DesktopElementCollection(desktop_filter)
+        self.desktop = DesktopElementCollection(desktop_filter)
+        self.toptoolbar = DesktopElementCollection(desktop_filter)
 
 
 class BaseDesktopElement(object):
