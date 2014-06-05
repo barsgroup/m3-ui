@@ -107,6 +107,7 @@ class ExtNumberField(BaseExtField):
         self.setdefault('allow_decimals', True)
         self.setdefault('allow_negative', True)
         self.setdefault('enable_key_events', False)
+        self.setdefault('decimal_separator', '.')
 
 
 class ExtHiddenField(BaseExtField):
