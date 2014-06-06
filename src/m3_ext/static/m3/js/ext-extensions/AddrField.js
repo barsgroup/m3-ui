@@ -35,7 +35,7 @@ Ext.define('Ext.m3.AddrField', {
 		else
 			var field_cls = '';
 
-		this.place = new Ext.form.ComboBox({
+		this.place = new Ext.m3.ComboBox({
 			name: params.place_field_name,
 			fieldLabel: params.place_label,
 			allowBlank: params.place_allow_blank,
@@ -86,7 +86,7 @@ Ext.define('Ext.m3.AddrField', {
 				var rec = Ext.util.JSON.decode(params.street_record);
 				street_store.loadData({total:1, rows:[rec]});
 			}
-			this.street = new Ext.form.ComboBox({
+			this.street = new Ext.m3.ComboBox({
 				name: params.street_field_name,
 				fieldLabel: params.street_label,
 				allowBlank: params.street_allow_blank,

@@ -154,6 +154,14 @@ class UIJsonEncoder(_M3JSONEncoder):
                 if not isinstance(obj.value, datetime.date):
                     obj.value = escapejs(obj.value)
 
+        # адресный компонент
+        if class_name == 'ExtAddrComponent':
+            kladr_pack = urls.get_pack_instance('KLADRPack')
+            if kladr_pack:
+                obj.get_addr_url = kladr_pack.get_addr_action.absolute_url() if kladr_pack.get_addr_action else ''
+                obj.kladr_url = kladr_pack.get_places_action.absolute_url() if kladr_pack.get_places_action else ''
+                obj.street_url = kladr_pack.get_streets_action.absolute_url() if kladr_pack.get_streets_action else ''
+
         return obj
 
 
