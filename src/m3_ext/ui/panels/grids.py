@@ -4,25 +4,23 @@
 
 Created on 26.05.2010
 """
-import json
 
 from m3_ext.ui import containers, controls, menus, misc
-from m3_ext.ui.base import ExtUIComponent, BaseExtComponent
-from m3_ext.ui.containers.grids import ExtGridCheckBoxSelModel
+from m3_ext.ui.base import ExtUIComponent
 
 
 class ExtObjectGrid(containers.ExtGrid):
-
     """
     Панель с гqридом для управления списком объектов.
     """
-    #==========================================================================
+    # ==========================================================================
     # Внутренние классы для ExtObjectGrid
     #=========================================================================
     class GridContextMenu(menus.ExtContextMenu):
         """
         Внутренний класс для удобной работы с контекстным меню грида
         """
+
         def __init__(self, *args, **kwargs):
             super(ExtObjectGrid.GridContextMenu, self).__init__(
                 *args, **kwargs)
@@ -54,6 +52,7 @@ class ExtObjectGrid(containers.ExtGrid):
         """
         Внутренний класс для удобной работы топбаром грида
         """
+
         def __init__(self, *args, **kwargs):
             super(ExtObjectGrid.GridTopBar, self).__init__(*args, **kwargs)
             self.button_new = controls.ExtButton(
@@ -215,6 +214,7 @@ class ExtMultiGroupinGrid(containers.ExtGrid):
         """
         Внутренний класс для удобной работы топбаром грида
         """
+
         def __init__(self, *args, **kwargs):
             super(ExtMultiGroupinGrid.LiveGridTopBar, self).__init__(
                 *args, **kwargs)
@@ -363,7 +363,6 @@ class ExtObjectSelectionPanel(containers.ExtContainer):
     и возможности выбора и запоминания значений в случае Paging'a
     """
     _xtype = 'm3-object-selection-panel'
-
 
     js_attrs = containers.ExtContainer.js_attrs.extend(
         'grid',

@@ -3902,7 +3902,6 @@ Ext.define('Ext.m3.ComboBox', {
         if (this.cm && !(this.cm instanceof Ext.grid.ColumnModel)) {
             this.cm = Ext.create(this.cm);
         }
-
         // Добавлене selection model если нужно
         // раньше был экземпляр SelModel, теперь приходи конфиг
         if (this.sm && !(this.sm instanceof Ext.grid.AbstractSelectionModel)) {
@@ -3951,8 +3950,7 @@ Ext.define('Ext.m3.ComboBox', {
 
             funcRowContMenu = function (grid, index, e) {
                 e.stopEvent();
-                if (this.getSelectionModel().isSelected &&
-                    !this.getSelectionModel().isSelected(index)) {
+                if (this.getSelectionModel().isSelected && !this.getSelectionModel().isSelected(index)) {
                     this.getSelectionModel().selectRow(index);
                 }
                 params.rowContextMenu.showAt(e.getXY())
@@ -4021,8 +4019,6 @@ Ext.define('Ext.m3.ComboBox', {
                 bbar.bind(store);
             }
         });
-
-        this.callParent();
     };
 
     /**
@@ -4045,10 +4041,8 @@ Ext.define('Ext.m3.ComboBox', {
     }
 
     var basem3Grid = {
-        initComponent: function () {
-                initComponent.apply(this);
-        },
-        setBlocked: function(blocked, exclude) {
+
+        setBlocked: function (blocked, exclude) {
             if (!includeInArr(exclude, this.itemId)) {
                 var containers = [
                     this.getTopToolbar(),
@@ -4068,13 +4062,21 @@ Ext.define('Ext.m3.ComboBox', {
 
     Ext.define('Ext.m3.GridPanel', Ext.apply(basem3Grid, {
             extend: 'Ext.grid.GridPanel',
-            xtype: 'm3-grid'
+            xtype: 'm3-grid',
+            initComponent: function () {
+                initComponent.apply(this);
+                this.callParent();
+            }
         })
     );
 
     Ext.define('Ext.m3.EditorGridPanel', Ext.apply(basem3Grid, {
             extend: 'Ext.grid.EditorGridPanel',
-            xtype: 'm3-edit-grid'
+            xtype: 'm3-edit-grid',
+            initComponent: function () {
+                initComponent.apply(this);
+                this.callParent();
+            }
         })
     );
 })();
@@ -12535,8 +12537,6 @@ Ext.ux.Notification = Ext.extend(Ext.Window, {
             this.store.url = this.actionDataUrl;
         }
 
-        this.callParent();
-
         // настроим кнопки тулбара
         this.configureItem(this.getTopToolbar(), "button_new", this.actionNewUrl, this.onNewRecord);
         var edit_item = this.configureItem(this.getTopToolbar(), "button_edit", this.actionEditUrl, this.onEditRecord);
@@ -12547,7 +12547,6 @@ Ext.ux.Notification = Ext.extend(Ext.Window, {
         this.configureItem(this.getTopToolbar(), "button_refresh", this.actionDataUrl, this.refreshStore);
 
         // настроим меню в зависимости от переданных адресов
-        var params = this.params || {};
         if (params.contextMenu) {
             this.configureItem(params.contextMenu, "menuitem_new", this.actionNewUrl, this.onNewRecord);
             this.configureItem(params.contextMenu, "menuitem_edit", this.actionEditUrl, this.onEditRecord);
@@ -12634,10 +12633,6 @@ Ext.ux.Notification = Ext.extend(Ext.Window, {
             'getcontext'
         ],
 
-        initComponent: function () {
-            initComponent.apply(this);
-        },
-
         /**
          * Внутренняя функция для поиска и настройки элементов тулбара и контекстного меню
          */
@@ -12668,7 +12663,7 @@ Ext.ux.Notification = Ext.extend(Ext.Window, {
                 params: params,
                 success: this.newRecord.createDelegate(this),
                 failure: uiAjaxFailMessage,
-                mode: "Режим создания..."
+                mode: "Режим создания"
             };
             if (this.fireEvent('beforenewrequest', this, request)) {
                 UI.callAction.call(this, request);
@@ -12699,7 +12694,7 @@ Ext.ux.Notification = Ext.extend(Ext.Window, {
                         params: baseConf,
                         success: this.editRecord.createDelegate(this),
                         failure: uiAjaxFailMessage,
-                        mode: "Режим редактирования..."
+                        mode: "Режим редактирования"
                     };
                     if (this.fireEvent('beforeeditrequest', this, request)) {
                         UI.callAction.call(this, request);
@@ -12910,7 +12905,7 @@ Ext.ux.Notification = Ext.extend(Ext.Window, {
             }
             return baseConf;
         },
-        setBlocked: function(blocked, exclude) {
+        setBlocked: function (blocked, exclude) {
             exclude.push("button_refresh");
             this.callParent(arguments);
         }
@@ -12922,6 +12917,10 @@ Ext.ux.Notification = Ext.extend(Ext.Window, {
 
             extend: 'Ext.m3.GridPanel',
             xtype: 'm3-object-grid',
+            initComponent: function () {
+                this.callParent();
+                initComponent.apply(this);
+            }
 
         }, baseObjectGrid)
     );
@@ -12932,7 +12931,10 @@ Ext.ux.Notification = Ext.extend(Ext.Window, {
 
             extend: 'Ext.m3.EditorGridPanel',
             xtype: 'm3-edit-object-grid',
-
+            initComponent: function () {
+                this.callParent();
+                initComponent.apply(this);
+            }
         }, baseObjectGrid)
     );
 

@@ -20,7 +20,6 @@
         if (this.cm && !(this.cm instanceof Ext.grid.ColumnModel)) {
             this.cm = Ext.create(this.cm);
         }
-
         // Добавлене selection model если нужно
         // раньше был экземпляр SelModel, теперь приходи конфиг
         if (this.sm && !(this.sm instanceof Ext.grid.AbstractSelectionModel)) {
@@ -69,8 +68,7 @@
 
             funcRowContMenu = function (grid, index, e) {
                 e.stopEvent();
-                if (this.getSelectionModel().isSelected &&
-                    !this.getSelectionModel().isSelected(index)) {
+                if (this.getSelectionModel().isSelected && !this.getSelectionModel().isSelected(index)) {
                     this.getSelectionModel().selectRow(index);
                 }
                 params.rowContextMenu.showAt(e.getXY())
@@ -139,8 +137,6 @@
                 bbar.bind(store);
             }
         });
-
-        this.callParent();
     };
 
     /**
@@ -163,10 +159,8 @@
     }
 
     var basem3Grid = {
-        initComponent: function () {
-                initComponent.apply(this);
-        },
-        setBlocked: function(blocked, exclude) {
+
+        setBlocked: function (blocked, exclude) {
             if (!includeInArr(exclude, this.itemId)) {
                 var containers = [
                     this.getTopToolbar(),
@@ -186,13 +180,21 @@
 
     Ext.define('Ext.m3.GridPanel', Ext.apply(basem3Grid, {
             extend: 'Ext.grid.GridPanel',
-            xtype: 'm3-grid'
+            xtype: 'm3-grid',
+            initComponent: function () {
+                initComponent.apply(this);
+                this.callParent();
+            }
         })
     );
 
     Ext.define('Ext.m3.EditorGridPanel', Ext.apply(basem3Grid, {
             extend: 'Ext.grid.EditorGridPanel',
-            xtype: 'm3-edit-grid'
+            xtype: 'm3-edit-grid',
+            initComponent: function () {
+                initComponent.apply(this);
+                this.callParent();
+            }
         })
     );
 })();
