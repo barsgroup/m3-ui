@@ -105,7 +105,7 @@ class BaseExtTriggerField(BaseExtField):
     )
 
     deprecated_attrs = BaseExtField.deprecated_attrs + (
-        'trigger_action_all',
+        'trigger_action_all',  # Use trigger_action
     )
 
     def __init__(self, *args, **kwargs):
