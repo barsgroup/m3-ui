@@ -15542,7 +15542,7 @@ Ext.define('Ext.Component', {
 Ext.define('Ext.form.Field', {
     override: 'Ext.form.Field',
 
-    setBlocked: function(blocked, exclude) {
+    setBlocked: function (blocked, exclude) {
         if (!includeInArr(exclude, this.itemId)) {
             this.setReadOnly(blocked);
         }
@@ -15556,7 +15556,7 @@ Ext.define('Ext.menu.Item', {
         'gethandler'
     ],
 
-    initComponent: Ext.menu.Item.prototype.initComponent.createSequence(function() {
+    initComponent: Ext.menu.Item.prototype.initComponent.createSequence(function () {
         if (typeof this.handler === 'string') {
             this.un("click", this.handler, this.scope);
             this.fireEvent('gethandler', this, this.handler);
@@ -15564,7 +15564,7 @@ Ext.define('Ext.menu.Item', {
         }
     }),
 
-    setBlocked: function(blocked, exclude) {
+    setBlocked: function (blocked, exclude) {
         if (!includeInArr(exclude, this.itemId)) {
             this.setDisabled(blocked);
         }
