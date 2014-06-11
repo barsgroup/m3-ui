@@ -95,6 +95,8 @@
                     res, desktopConfig.topToolbarItems, 'toptoolbar-item-'
                 )
 
+                {% block postprocess_modules %}
+                {% endblock %}
                 return res;
             },
 
