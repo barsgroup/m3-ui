@@ -119,8 +119,10 @@ Ext.define('Ext.m3.ObjectTree', {
         this.callParent();
 
         var loader = this.getLoader();
-        loader.baseParams = this.getContext();
-
+            _self = this;
+        loader.on('beforeload', function(ldr) {
+            ldr.baseParams = Ext.apply(ldr.baseParams || {}, _self.getContext());
+        });
         // Повесим отображение маски при загрузке дерева
         loader.on('beforeload', this.fireEvent.createDelegate(this, ['mask', this]), this);
         loader.on('load', this.fireEvent.createDelegate(this, ['unmask', this]), this);

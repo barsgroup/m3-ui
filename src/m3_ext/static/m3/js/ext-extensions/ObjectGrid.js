@@ -54,7 +54,10 @@
         }
 
         var store = this.getStore();
-        store.baseParams = Ext.applyIf(store.baseParams || {}, this.getContext());
+            _self = this;
+        store.on('beforeload', function(st) {
+            st.baseParams = Ext.apply(st.baseParams || {}, _self.getContext());
+        });
         store.on('beforeload', this.fireEvent.createDelegate(this, ['mask', this]));
         store.on('load', this.fireEvent.createDelegate(this, ['unmask', this]));
         store.on('loadexception', this.fireEvent.createDelegate(this, ['unmask', this]));
