@@ -143,12 +143,12 @@ function uiAjaxFailMessage(response, opt) {
     // response['status'] === 200 -- Пользовательская ошибка, success == false
     if (response['status'] === 200 || opt && opt['failureType'] === "server") {
         // Пришел OperationResult('success':False)
-        if (opt && opt.response && opt.response.responseText) {
-            smart_eval(opt.response.responseText);
-        } else {
-            // grid and tree load обрабатывается тут
-            smart_eval(response.responseText);
-        }
+        // if (opt && opt.response && opt.response.responseText) {
+        //     smart_eval(opt.response.responseText);
+        // } else {
+        //     // grid and tree load обрабатывается тут
+        //     smart_eval(response.responseText);
+        // }
     } else {
         var bodySize = Ext.getBody().getViewSize(),
             width = (bodySize.width < 500) ? bodySize.width - 50 : 500,
