@@ -5,4 +5,3 @@
 """
 
 from views import workspace
-from context_processors import desktop_processor

@@ -4,54 +4,62 @@ import json
 from m3_ext.ui.app_ui import (
     DesktopModel, DesktopLoader, BaseDesktopElement, MenuSeparator
 )
-from m3.actions import ControllerCache
-
-
-def _dump_element(obj):
-    """
-    Возвращает UI-элемент в сериализованном виде
-    :param obj: элемент рабочего стола
-    :type obj: MenuSeparator / BaseDesktopElement
-    """
-    if isinstance(obj, MenuSeparator):
-        result = '-'
-    elif isinstance(obj, BaseDesktopElement):
-        result = {
-            'text': obj.name,
-            'icon': obj.icon,
-            'extra': {}
-        }
-        if obj.has_subitems:
-            result['items'] = list(obj.subitems)
-        else:
-            result['url'] = obj.url
-            context = getattr(obj, 'context', {})
-            if context:
-                result['context'] = context
-            else:
-                result['context'] = {}
-    else:
-        raise TypeError("%r is not JSON-able!" % obj)
-    return result
+from m3.actions import ControllerCache, ActionPack
 
 
 class DesktopProcessor(object):
 
     @classmethod
-    def get_filter_function(cls):
+    def filter_factory(cls, request, place):
         u"""
-        Получить функцию фильтрации элементов рабочего стола:
+        Возвращает функцию фильтрации элементов рабочего стола:
         f(DesktopShortcut) -> bool.
         """
-        return None
+
+        def filter_by_permissions(elem):
+            """
+            Возвращает True, если у ползователя есть права на пак элемента.
+            Работет только с DesktopShortcut'ами - у них есть атрибут pack,
+            остальные же элементы - отображаются всегда
+            :param elem: элемент рабочего стола
+            :type elem: DesktopShortcut
+            :return: has_perm - наличие права доступа к элементу
+            :rtype: bool
+            """
+            pack = getattr(elem, 'pack', None)
+            if pack is None or isinstance(pack, ActionPack):
+                return True
+            else:
+                return pack.has_perm(request)
+        return filter_by_permissions
 
     @classmethod
-    def get_dump_function(cls):
-        u"""
-        Получить функцию упаковки элементов рабочего стола:
-        f(DesktopShortcut) -> dict.
+    def _dump_element(cls, obj):
         """
-        return _dump_element
+        Возвращает UI-элемент в сериализованном виде
+        :param obj: элемент рабочего стола
+        :type obj: MenuSeparator / BaseDesktopElement
+        """
+        if isinstance(obj, MenuSeparator):
+            result = '-'
+        elif isinstance(obj, BaseDesktopElement):
+            result = {
+                'text': obj.name,
+                'icon': obj.icon,
+                'extra': {}
+            }
+            if obj.has_subitems:
+                result['items'] = list(obj.subitems)
+            else:
+                result['url'] = obj.url
+                context = getattr(obj, 'context', {})
+                if context:
+                    result['context'] = context
+                else:
+                    result['context'] = {}
+        else:
+            raise TypeError("%r is not JSON-able!" % obj)
+        return result
 
     @classmethod
     def _get_desktop(cls, request):
@@ -60,7 +68,7 @@ class DesktopProcessor(object):
         :param request: request
         :type request: Request
         """
-        desktop_model = DesktopModel(request, cls.get_filter_function())
+        desktop_model = DesktopModel(request, cls.filter_factory)
         ControllerCache.populate()
         DesktopLoader._success = False
         DesktopLoader.populate_desktop(desktop=desktop_model)
@@ -82,7 +90,7 @@ class DesktopProcessor(object):
         desktop = cls._get_desktop(request)
         return {
             'desktop': json.dumps(
-                desktop, indent=2, default=cls.get_dump_function(),
+                desktop, indent=2, default=cls._dump_element,
                 ensure_ascii=False),
             # TODO: переделать на JS!
             'desktop_icons': [
@@ -90,7 +98,3 @@ class DesktopProcessor(object):
                 for (idx, i) in enumerate(desktop['desktopItems'], 1)
             ]
         }
-
-
-def desktop_processor(request):
-    return DesktopProcessor.process(request)
