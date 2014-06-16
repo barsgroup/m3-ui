@@ -3,7 +3,8 @@
 from django.shortcuts import render_to_response
 from django import template as django_template
 
-from context_processors import desktop_processor
+from m3_ext.context_processors import DesktopProcessor
+
 
 def workspace(template='m3_workspace.html', context_processors=None):
     u"""
@@ -18,7 +19,7 @@ def workspace(template='m3_workspace.html', context_processors=None):
         """
         return reduce(
             lambda x, f: x.update(f(request)) or x,
-            [desktop_processor] + list(context_processors or []),
+            [DesktopProcessor.process] + list(context_processors or []),
             {}
         )
 
