@@ -31,13 +31,7 @@
                     };
                 };
             };
-            if (data.hasOwnProperty('extra')){
-                for (var key in data.extra) {
-                    if (data.extra.hasOwnProperty(key)) {
-                        res[key] = data.extra[key];
-                    }
-                }
-            }
+            Ext.applyIf(res, data.extra || {});
             return res;
         };
         /**
