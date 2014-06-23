@@ -5,7 +5,7 @@
  * @constructor
  */
 UI = function (config) {
-    var desktop = config['desktop'],// Ссылка на рабочий стол, в контексте которого создаются окна
+    var desktop = config['desktop'], // Ссылка на рабочий стол, в контексте которого создаются окна
         storage = config['storage'], // хранилище базовых конфигураций окон
         create = config['create'];       // собственно, формирователь UI
 
