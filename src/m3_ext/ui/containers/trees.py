@@ -79,8 +79,8 @@ class ExtTree(BaseExtPanel):
 
         # контекстное меню.
         context_menu_items = [
-            self.handler_contextmenu,
-            self.handler_containercontextmenu
+            getattr(self, 'handler_contextmenu', None),
+            getattr(self, 'handler_containercontextmenu', None)
         ]
         for context_menu in context_menu_items:
             if (

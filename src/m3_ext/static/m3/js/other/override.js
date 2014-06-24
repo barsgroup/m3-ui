@@ -471,7 +471,9 @@ Ext.define('Ext.Component', {
             // Инжектирование _getContext
             this.fireEvent('getcontext', this);
         }
-        return this._getContext();
+        if (Ext.isFunction(this['_getContext'])) {
+            return this._getContext();
+        }
     }
 });
 

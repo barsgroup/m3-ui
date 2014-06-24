@@ -3618,7 +3618,7 @@ function uiFailureResponseOnFormSubmit(context) {
 function uiAjaxFailMessage(response, opt) {
     // response.status === 0 -- "communication failure"
     if (Ext.isEmpty(response) || response.status === 0) {
-        Ext.Msg.alert(SOFTWARE_NAME, 'Извините, сервер временно не доступен.');
+        Ext.Msg.alert('', 'Извините, сервер временно не доступен.');
         return;
     }
 
@@ -12560,7 +12560,10 @@ Ext.ux.Notification = Ext.extend(Ext.Window, {
         }
 
         var store = this.getStore();
-        store.baseParams = Ext.applyIf(store.baseParams || {}, this.getContext());
+            _self = this;
+        store.on('beforeload', function(st) {
+            st.baseParams = Ext.apply(st.baseParams || {}, _self.getContext());
+        });
         store.on('beforeload', this.fireEvent.createDelegate(this, ['mask', this]));
         store.on('load', this.fireEvent.createDelegate(this, ['unmask', this]));
         store.on('loadexception', this.fireEvent.createDelegate(this, ['unmask', this]));
@@ -13170,8 +13173,10 @@ Ext.define('Ext.m3.ObjectTree', {
         this.callParent();
 
         var loader = this.getLoader();
-        loader.baseParams = this.getContext();
-
+            _self = this;
+        loader.on('beforeload', function(ldr) {
+            ldr.baseParams = Ext.apply(ldr.baseParams || {}, _self.getContext());
+        });
         // Повесим отображение маски при загрузке дерева
         loader.on('beforeload', this.fireEvent.createDelegate(this, ['mask', this]), this);
         loader.on('load', this.fireEvent.createDelegate(this, ['unmask', this]), this);
@@ -13410,6 +13415,7 @@ Ext.define('Ext.m3.ObjectTree', {
         return baseConf;
     }
 });
+
 Ext.namespace('Ext.ux');
 
 Ext.ux.OnDemandLoad = function(){
@@ -15535,7 +15541,9 @@ Ext.define('Ext.Component', {
             // Инжектирование _getContext
             this.fireEvent('getcontext', this);
         }
-        return this._getContext();
+        if (Ext.isFunction(this['_getContext'])) {
+            return this._getContext();
+        }
     }
 });
 
