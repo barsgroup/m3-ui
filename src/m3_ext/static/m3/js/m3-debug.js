@@ -12541,7 +12541,7 @@ Ext.ux.Notification = Ext.extend(Ext.Window, {
         // настроим кнопки тулбара
         this.configureItem(this.getTopToolbar(), "button_new", this.actionNewUrl, this.onNewRecord);
         var edit_item = this.configureItem(this.getTopToolbar(), "button_edit", this.actionEditUrl, this.onEditRecord);
-        if (edit_item) {
+        if (edit_item && this.actionEditUrl) {
             this.on('dblclick', edit_item.handler);
         }
         this.configureItem(this.getTopToolbar(), "button_delete", this.actionDeleteUrl, this.onDeleteRecord);
