@@ -6,7 +6,8 @@ Ext.QuickTips.init();
 /**
  * Чтобы ie и прочие не правильные браузеры, где нет console не падали
  */
-if (typeof console == "undefined") var console = { log: function () {}};
+if (typeof console == "undefined") var console = { log: function () {
+}};
 
 Ext.namespace('Ext.m3');
 
@@ -134,10 +135,10 @@ function uiFailureResponseOnFormSubmit(context) {
  * респонс сервера(предназначено для отладки серверных ошибок)
  */
 function uiAjaxFailMessage(response, opt) {
-    // response.status === 0 -- "communication failure"
-    if (Ext.isEmpty(response) || response.status === 0) {
-        Ext.Msg.alert('', 'Извините, сервер временно не доступен.');
+    if (!response) {
         return;
+    } else if (response.status === 0) {
+        Ext.Msg.alert('', 'Извините, сервер временно не доступен.');
     }
 
     // response['status'] === 200 -- Пользовательская ошибка, success == false

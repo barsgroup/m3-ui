@@ -3,7 +3,6 @@
 Результаты выполнения Action`s
 """
 import datetime
-from django.conf import settings
 from django import http
 from django.utils.html import escapejs
 
