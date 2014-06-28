@@ -49,6 +49,7 @@ Ext.define('Ext.m3.Window', {
         );
 
         var loadMask = new Ext.LoadMask(this.getEl(), {msg: 'Загрузка...'});
+        var loadMaskCount = 0;
         this.on('mask', function (cmp, maskText, win) {
             loadMask.msgOrig = loadMask.msg;
             loadMask.msgClsOrig = loadMask.msgCls;
@@ -57,6 +58,7 @@ Ext.define('Ext.m3.Window', {
                 loadMask.msgCls = 'x-mask';
             }
             loadMask.show();
+            loadMaskCount++;
 
             if (win instanceof Ext.m3.Window) {
                 this.on('activate', win.activate, win);
@@ -65,12 +67,15 @@ Ext.define('Ext.m3.Window', {
         }, this);
 
         this.on('unmask', function (cmp, win) {
-            loadMask.hide();
+            loadMaskCount--;
+            if (loadMaskCount <= 0) {
+                loadMask.hide();
+                if (win instanceof Ext.m3.Window) {
+                    this.un('activate', win.activate, win);
+                }
+            }
             loadMask.msg = loadMask.msgOrig;
             loadMask.msgCls = loadMask.msgClsOrig;
-            if (win instanceof Ext.m3.Window) {
-                this.un('activate', win.activate, win);
-            }
         }, this);
     },
 

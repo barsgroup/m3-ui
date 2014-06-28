@@ -191,7 +191,7 @@ Ext.define('Ext.m3.EditWindow', {
         if (scope.fireEvent('beforesubmit', submit)) {
 
             new Q()
-                .then(this.fireEvent.createDelegate(this, ['mask', this]))
+                .then(this.fireEvent.createDelegate(this, ['mask', this, 'Сохранение...']))
                 .then(function () {
                     var result = Q.defer();
                     form.getForm().submit(Ext.applyIf({
