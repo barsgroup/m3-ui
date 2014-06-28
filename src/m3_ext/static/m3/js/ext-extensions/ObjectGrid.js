@@ -10,7 +10,7 @@
         var params = this.params || {};
         assert(params.allowPaging !== undefined, 'allowPaging is undefined');
         assert(params.rowIdName !== undefined, 'rowIdName is undefined');
-        assert(params.actions !== undefined, 'actions is undefined');
+        params.actions = params.actions || {};
 
         this.allowPaging = params.allowPaging;
         this.rowIdName = params.rowIdName;

@@ -48,8 +48,8 @@ Ext.define('Ext.m3.Window', {
             'gethandler'
         );
 
-        var loadMask = new Ext.LoadMask(this.getEl(), {msg: 'Загрузка...'});
-        var loadMaskCount = 0;
+        var loadMask = new Ext.LoadMask(this.getEl(), {msg: 'Загрузка...'}),
+            loadMaskCount = 0;
         this.on('mask', function (cmp, maskText, win) {
             loadMask.msgOrig = loadMask.msg;
             loadMask.msgClsOrig = loadMask.msgCls;
