@@ -208,6 +208,14 @@ class _BaseMenu(_UIFabric):
                 return grp
             return None
 
+    class separator(object):
+        """
+        Разделитель (в инстанциировании не нуждается)
+        """
+        @staticmethod
+        def _populate():
+            return app_ui.MenuSeparator()
+
     def __init__(self, menu_root=None):
         # упаковщик элементов ("корень" меню)
         self._menu_root = menu_root
