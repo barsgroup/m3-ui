@@ -125,7 +125,7 @@ UI.showMsg = function (obj) {
  */
 UI.evalResult = function (response) {
     return new Q()
-        .then(Ext.decode.createDelegate(this, [response.responseText]))
+        .then(JSON.parse.createDelegate(this, [response.responseText]))
         .then(UI.showMsg)
         .then(function (obj) {
             if (obj.code) {
