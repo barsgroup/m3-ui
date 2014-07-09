@@ -233,6 +233,16 @@ class BaseExtComponent(object):
                         attr
                     )
 
+    def __getstate__(self):
+        return dict(self._config), self._data, self._py_only, self._configured
+
+    def __setstate__(self, value):
+        _config, _data, _py_only, _configured = value
+        self._config.update(_config)
+        self._py_only.update(_py_only)
+        self._data.update(_data)
+        self._configured.update(_configured)
+
 
 class ExtUIComponent(BaseExtComponent):
     """
