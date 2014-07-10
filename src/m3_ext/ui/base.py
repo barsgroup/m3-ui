@@ -186,21 +186,20 @@ class BaseExtComponent(object):
             warn("\"%s.%s\" is deprecated!" % (self.__class__.__name__, attr),
                  UserWarning, stacklevel=2)
 
-        if self.js_attrs.maps(attr):
-            conf = super(BaseExtComponent, self).__getattribute__('_config')
-            conf[attr] = value
+        # компонентам проставляется itemId
+        is_component = isinstance(value, BaseExtComponent)
+        if is_component:
+            value.item_id = attr
 
-        elif attr.startswith('_') or isinstance(value, BaseExtComponent):
-            # атрибуты, существующие только в python
-            pyo = super(BaseExtComponent, self).__getattribute__('_py_only')
-            pyo[attr] = value
-            # компонентам проставляется itemId
-            if isinstance(value, BaseExtComponent):
-                value.item_id = attr
+        if self.js_attrs.maps(attr):
+            storage = '_config'
+        # атрибуты, существующие только в python
+        elif attr.startswith('_') or is_component:
+            storage = '_py_only'
+        # всё прочее
         else:
-            # всё прочее
-            data = super(BaseExtComponent, self).__getattribute__('_data')
-            data[attr] = value
+            storage = '_data'
+        super(BaseExtComponent, self).__getattribute__(storage)[attr] = value
 
     def __getattr__(self, attr):
         if attr in self.__slots__:
