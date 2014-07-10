@@ -99,10 +99,10 @@ class DesktopElementCollection(object):
                             item.subitems)),
                     key=self.sorting_key
                 ))
-                if not item.subitems:
-                    result = None
-                else:
-                    result = item
+                result = any(
+                    not (isinstance(i, MenuSeparator) or i.name in ('-', u'-'))
+                    for i in item.subitems
+                ) and item or None
             return result
 
         # обертка списка элементов в некое подобие LaunchGroup
