@@ -149,6 +149,7 @@ class BaseExtComponent(object):
     # хранилище атрибутов ExtJS и правила их преобразования
     js_attrs = AttrDict(
         'xtype',
+        'plugins',
         item_id='itemId',
     )
 
@@ -161,7 +162,7 @@ class BaseExtComponent(object):
 
     def __new__(cls, *args, **kwargs):
         self = super(BaseExtComponent, cls).__new__(cls)
-        self._config = self.js_attrs(xtype=cls._xtype)
+        self._config = self.js_attrs(xtype=cls._xtype, plugins=[])
         self._data = {}
         self._py_only = {}
         self._configured = set(kwargs.keys())
