@@ -8275,20 +8275,17 @@ Ext.ux.grid.Exporter = Ext.extend(Ext.util.Observable,{
     },
     onRender:function(){
         //создадим top bar, если его нет
-        if (!this.grid.tbar){
+        if (!this.grid.getTopToolbar()){
             this.grid.elements += ',tbar';
-            tbar = new Ext.Toolbar();
-            this.grid.tbar = tbar;
-            this.grid.add(tbar);
-            this.grid.doLayout();
-    }
+            this.grid.topToolbar = this.grid.createToolbar(this.grid.tbar);
+        }
         //добавим кнопку
-        this.grid.tbar.insert(0, new Ext.Button({
+        this.grid.getTopToolbar().insert(0, new Ext.Button({
             text:'Экспорт',
             iconCls:'icon-application-go',
             listeners:{
                 scope:this,
-                click:this.exportData                
+                click:this.exportData
             }
         }));
     },
