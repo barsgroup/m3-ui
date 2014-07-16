@@ -3488,7 +3488,8 @@ Ext.QuickTips.init();
 /**
  * Чтобы ie и прочие не правильные браузеры, где нет console не падали
  */
-if (typeof console == "undefined") var console = { log: function () {}};
+if (typeof console == "undefined") var console = { log: function () {
+}};
 
 Ext.namespace('Ext.m3');
 
@@ -3616,10 +3617,10 @@ function uiFailureResponseOnFormSubmit(context) {
  * респонс сервера(предназначено для отладки серверных ошибок)
  */
 function uiAjaxFailMessage(response, opt) {
-    // response.status === 0 -- "communication failure"
-    if (Ext.isEmpty(response) || response.status === 0) {
-        Ext.Msg.alert('', 'Извините, сервер временно не доступен.');
+    if (!response) {
         return;
+    } else if (response.status === 0) {
+        Ext.Msg.alert('', 'Извините, сервер временно не доступен.');
     }
 
     // response['status'] === 200 -- Пользовательская ошибка, success == false
@@ -6218,7 +6219,8 @@ Ext.define('Ext.m3.Window', {
             'gethandler'
         );
 
-        var loadMask = new Ext.LoadMask(this.getEl(), {msg: 'Загрузка...'});
+        var loadMask = new Ext.LoadMask(this.getEl(), {msg: 'Загрузка...'}),
+            loadMaskCount = 0;
         this.on('mask', function (cmp, maskText, win) {
             loadMask.msgOrig = loadMask.msg;
             loadMask.msgClsOrig = loadMask.msgCls;
@@ -6227,6 +6229,7 @@ Ext.define('Ext.m3.Window', {
                 loadMask.msgCls = 'x-mask';
             }
             loadMask.show();
+            loadMaskCount++;
 
             if (win instanceof Ext.m3.Window) {
                 this.on('activate', win.activate, win);
@@ -6235,12 +6238,15 @@ Ext.define('Ext.m3.Window', {
         }, this);
 
         this.on('unmask', function (cmp, win) {
-            loadMask.hide();
+            loadMaskCount--;
+            if (loadMaskCount <= 0) {
+                loadMask.hide();
+                if (win instanceof Ext.m3.Window) {
+                    this.un('activate', win.activate, win);
+                }
+            }
             loadMask.msg = loadMask.msgOrig;
             loadMask.msgCls = loadMask.msgClsOrig;
-            if (win instanceof Ext.m3.Window) {
-                this.un('activate', win.activate, win);
-            }
         }, this);
     },
 
@@ -7813,7 +7819,7 @@ Ext.define('Ext.m3.EditWindow', {
         if (scope.fireEvent('beforesubmit', submit)) {
 
             new Q()
-                .then(this.fireEvent.createDelegate(this, ['mask', this]))
+                .then(this.fireEvent.createDelegate(this, ['mask', this, 'Сохранение...']))
                 .then(function () {
                     var result = Q.defer();
                     form.getForm().submit(Ext.applyIf({
@@ -12516,7 +12522,7 @@ Ext.ux.Notification = Ext.extend(Ext.Window, {
         var params = this.params || {};
         assert(params.allowPaging !== undefined, 'allowPaging is undefined');
         assert(params.rowIdName !== undefined, 'rowIdName is undefined');
-        assert(params.actions !== undefined, 'actions is undefined');
+        params.actions = params.actions || {};
 
         this.allowPaging = params.allowPaging;
         this.rowIdName = params.rowIdName;
@@ -12564,7 +12570,7 @@ Ext.ux.Notification = Ext.extend(Ext.Window, {
         store.on('beforeload', function(st) {
             st.baseParams = Ext.apply(st.baseParams || {}, _self.getContext());
         });
-        store.on('beforeload', this.fireEvent.createDelegate(this, ['mask', this]));
+        store.on('beforeload', this.fireEvent.createDelegate(this, ['mask', this, 'Загрузка...']));
         store.on('load', this.fireEvent.createDelegate(this, ['unmask', this]));
         store.on('loadexception', this.fireEvent.createDelegate(this, ['unmask', this]));
 
@@ -13178,7 +13184,7 @@ Ext.define('Ext.m3.ObjectTree', {
             ldr.baseParams = Ext.apply(ldr.baseParams || {}, _self.getContext());
         });
         // Повесим отображение маски при загрузке дерева
-        loader.on('beforeload', this.fireEvent.createDelegate(this, ['mask', this]), this);
+        loader.on('beforeload', this.fireEvent.createDelegate(this, ['mask', this, 'Загрузка...']), this);
         loader.on('load', this.fireEvent.createDelegate(this, ['unmask', this]), this);
         loader.on('loadexception', this.fireEvent.createDelegate(this, ['unmask', this]), this);
 
@@ -13806,7 +13812,7 @@ Ext.define('Ext.m3.SearchField', {
     },
     _getComponentForSearch: function(){
         var mainParent = this._getMainParent.call(this, this.ownerCt);
-        var result = mainParent.find(this.componentItemId);
+        var result = mainParent.find('itemId', this.componentItemId);
         if (result.length > 0){
             return result[0];
         }
@@ -13872,6 +13878,7 @@ Ext.define('Ext.m3.SearchField', {
         this.onTrigger2Click();
     }
 });
+
 /**
  * Ext.ux.DateTimePicker & Ext.ux.form.DateTimeField
  * http://www.sencha.com/forum/showthread.php?98292-DateTime-field-again-and-again-)

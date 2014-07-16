@@ -34,7 +34,7 @@ Ext.define('Ext.m3.SearchField', {
     },
     _getComponentForSearch: function(){
         var mainParent = this._getMainParent.call(this, this.ownerCt);
-        var result = mainParent.find(this.componentItemId);
+        var result = mainParent.find('itemId', this.componentItemId);
         if (result.length > 0){
             return result[0];
         }
