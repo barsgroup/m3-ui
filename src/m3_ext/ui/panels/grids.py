@@ -161,19 +161,23 @@ class ExtObjectGrid(containers.ExtGrid):
     def _make_read_only(
             self, access_off=True, exclude_list=(), *args, **kwargs):
         self.read_only = access_off
+        if self.top_bar:
+            exclude_list = list(exclude_list)+[self.top_bar.button_refresh]
         # Выключаем\включаем компоненты.
-        # for item in (
-        #     self.context_menu_grid.menuitem_new,
-        #     self.context_menu_grid.menuitem_edit,
-        #     self.context_menu_grid.menuitem_delete,
-        #     self.context_menu_row.menuitem_new,
-        #     self.context_menu_row.menuitem_edit,
-        #     self.context_menu_row.menuitem_delete,
-        #     self.context_menu_row,
-        # ):
-        #     item.make_read_only(
-        #         access_off, exclude_list, *args, **kwargs
-        #     )
+        for item in (
+            self.handler_contextmenu.menuitem_new,
+            self.handler_contextmenu.menuitem_edit,
+            self.handler_contextmenu.menuitem_delete,
+            self.handler_rowcontextmenu.menuitem_new,
+            self.handler_rowcontextmenu.menuitem_edit,
+            self.handler_rowcontextmenu.menuitem_delete,
+            self.handler_rowcontextmenu,
+        ):
+            if hasattr(item, 'make_read_only') and callable(
+                        item.make_read_only):
+                item.make_read_only(
+                    access_off, exclude_list, *args, **kwargs
+                )
         if hasattr(self.top_bar, 'items') and self.top_bar.items:
             for item in self.top_bar.items:
                 if hasattr(item, 'make_read_only') and callable(

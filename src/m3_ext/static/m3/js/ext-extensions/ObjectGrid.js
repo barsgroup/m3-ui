@@ -173,6 +173,11 @@
         onEditRecord: function () {
             assert(this.actionEditUrl, 'actionEditUrl is not define');
             assert(this.rowIdName, 'rowIdName is not define');
+            // выходим, если кнопка редактирования заблокирована
+            // т.к. этот же обработчик висит на двойном клике
+            if (this.getTopToolbar().getComponent("button_edit").disabled) {
+                return;
+            }
 
             if (this.getSelectionModel().hasSelection()) {
                 // при локальном редактировании запросим также текущую строку
