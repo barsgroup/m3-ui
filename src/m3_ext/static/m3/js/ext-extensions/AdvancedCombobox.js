@@ -278,11 +278,17 @@ Ext.define('Ext.m3.AdvancedComboBox', {
                 this.collapse();
             } else {
                 this.onFocus({});
-                this.doQuery(this.allQuery, true);
+                this.doQuery(null, true);
             }
             this.el.focus();
         }
     },
+
+    getParams: function(q){
+        var result = Ext.m3.AdvancedComboBox.superclass.getParams.call(this, q);
+        return Ext.applyIf(result, this.getContext());
+    },
+
     /**
      * Кнопка открытия справочника в режиме выбора
      */
