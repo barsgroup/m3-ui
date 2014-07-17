@@ -106,7 +106,7 @@ class ExtToolbarMenu(ExtUIComponent):
     """
     Класс, позволяющий вставлять меню в ToolBar
     """
-    _xtype = 'button'
+    _xtype = 'm3-button'
 
     js_attrs = ExtUIComponent.js_attrs.extend(
         'text',
