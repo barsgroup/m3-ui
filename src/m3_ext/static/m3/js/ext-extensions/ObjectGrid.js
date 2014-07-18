@@ -153,7 +153,7 @@
         onNewRecord: function () {
             assert(this.actionNewUrl, 'actionNewUrl is not define');
 
-            var params = this.getContext();
+            var params = Ext.apply({}, this.getContext());
             params[this.rowIdName] = '';
 
             var request = {
@@ -364,7 +364,7 @@
          * @param {boolean} withRow Признак добавление в контекст текущей выбранной записи
          */
         getSelectionContext: function (withRow) {
-            var baseConf = this.getContext(),
+            var baseConf = Ext.apply({}, this.getContext()),
                 sm = this.getSelectionModel(),
                 record, sels, ids, i, len;
             // для режима выделения строк

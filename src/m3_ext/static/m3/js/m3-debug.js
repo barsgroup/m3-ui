@@ -7197,11 +7197,17 @@ Ext.define('Ext.m3.AdvancedComboBox', {
                 this.collapse();
             } else {
                 this.onFocus({});
-                this.doQuery(this.allQuery, true);
+                this.doQuery(null, true);
             }
             this.el.focus();
         }
     },
+
+    getParams: function(q){
+        var result = Ext.m3.AdvancedComboBox.superclass.getParams.call(this, q);
+        return Ext.applyIf(result, this.getContext());
+    },
+
     /**
      * Кнопка открытия справочника в режиме выбора
      */
@@ -12665,7 +12671,7 @@ Ext.ux.Notification = Ext.extend(Ext.Window, {
         onNewRecord: function () {
             assert(this.actionNewUrl, 'actionNewUrl is not define');
 
-            var params = this.getContext();
+            var params = Ext.apply({}, this.getContext());
             params[this.rowIdName] = '';
 
             var request = {
@@ -12685,6 +12691,11 @@ Ext.ux.Notification = Ext.extend(Ext.Window, {
         onEditRecord: function () {
             assert(this.actionEditUrl, 'actionEditUrl is not define');
             assert(this.rowIdName, 'rowIdName is not define');
+            // выходим, если кнопка редактирования заблокирована
+            // т.к. этот же обработчик висит на двойном клике
+            if (this.getTopToolbar().getComponent("button_edit").disabled) {
+                return;
+            }
 
             if (this.getSelectionModel().hasSelection()) {
                 // при локальном редактировании запросим также текущую строку
@@ -12871,7 +12882,7 @@ Ext.ux.Notification = Ext.extend(Ext.Window, {
          * @param {boolean} withRow Признак добавление в контекст текущей выбранной записи
          */
         getSelectionContext: function (withRow) {
-            var baseConf = this.getContext(),
+            var baseConf = Ext.apply({}, this.getContext()),
                 sm = this.getSelectionModel(),
                 record, sels, ids, i, len;
             // для режима выделения строк
@@ -13406,7 +13417,7 @@ Ext.define('Ext.m3.ObjectTree', {
         }
     },
     refreshStore: function () {
-        this.getLoader().baseParams = this.getContext();
+        this.getLoader().baseParams = Ext.apply({}, this.getContext());
         this.getLoader().load(this.getRootNode());
     },
     /**
@@ -13414,7 +13425,7 @@ Ext.define('Ext.m3.ObjectTree', {
      * Используется при ajax запросах
      */
     getSelectionContext: function () {
-        var baseConf = this.getContext();
+        var baseConf = Ext.apply({}, this.getContext());
         if (this.getSelectionModel().getSelectedNode()) {
             baseConf[this.rowIdName] = this.getSelectionModel().getSelectedNode().id;
         }

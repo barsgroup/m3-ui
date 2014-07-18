@@ -1007,7 +1007,7 @@ Ext.define('Ext.m3.MultiGroupingGridPanel', {
     onNewRecord: function () {
         assert(this.actionNewUrl, 'actionNewUrl is not define');
         var mask = new Ext.LoadMask(this.body),
-            baseConf = this.getContext(),
+            baseConf = Ext.apply({}, this.getContext()),
             disableState = this.getToolbarsState();
 
         // Если контекст замусорен и уже содержит чей-то id, то вместо создания элемента
@@ -1331,7 +1331,7 @@ Ext.define('Ext.m3.MultiGroupingGridPanel', {
      * @param {boolean} withRow Признак добавление в контекст текущей выбранной записи
      */
     getSelectionContext: function (withRow) {
-        var baseConf = this.getContext(),
+        var baseConf = Ext.apply({}, this.getContext()),
             sm = this.getSelectionModel(),
             idField = this.getStore().idProperty,
             record;

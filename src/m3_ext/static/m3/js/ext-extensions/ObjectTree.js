@@ -346,7 +346,7 @@ Ext.define('Ext.m3.ObjectTree', {
         }
     },
     refreshStore: function () {
-        this.getLoader().baseParams = this.getContext();
+        this.getLoader().baseParams = Ext.apply({}, this.getContext());
         this.getLoader().load(this.getRootNode());
     },
     /**
@@ -354,7 +354,7 @@ Ext.define('Ext.m3.ObjectTree', {
      * Используется при ajax запросах
      */
     getSelectionContext: function () {
-        var baseConf = this.getContext();
+        var baseConf = Ext.apply({}, this.getContext());
         if (this.getSelectionModel().getSelectedNode()) {
             baseConf[this.rowIdName] = this.getSelectionModel().getSelectedNode().id;
         }
