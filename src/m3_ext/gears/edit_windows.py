@@ -6,7 +6,6 @@
 from m3_ext.ui import windows
 from m3_ext.ui import panels
 from m3_ext.ui import controls
-from m3.actions import Action, ControllerCache
 
 
 class GearEditWindow(windows.ExtEditWindow):
@@ -15,6 +14,7 @@ class GearEditWindow(windows.ExtEditWindow):
     и в котором есть кнопки OK и Отмена.
     Размеры окна по умолчанию 600x400
     """
+
     def __init__(self, *args, **kwargs):
         super(GearEditWindow, self).__init__(*args, **kwargs)
 
@@ -44,24 +44,24 @@ class GearEditWindow(windows.ExtEditWindow):
         self.width, self.height = width, height
         self.min_width, self.min_height = width, height
 
-    #NR: property теперь не работают, надо переписывать submit_action
-    # на form.url = urls.get_url(action)
-    # в results тоже не получится это использовать, так как там нет окна,
-    # там только его дочерние элементы
-    # def _set_submit_action(self, value):
-    #     """ Из переданного типа экшена пытается получить адрес для формы """
-    #     if isinstance(value, str):
-    #         self.form.url = ControllerCache.get_action_url(value)
-    #
-    #     elif isinstance(value, Action):
-    #         self.form.url = value.get_absolute_url()
-    #
-    #     elif issubclass(value, Action):
-    #         self.form.url = value.absolute_url()
-    #
-    # submit_action = property(
-    #     lambda self: self._submit_action,
-    #     _set_submit_action
-    # )
+        # NR: property теперь не работают, надо переписывать submit_action
+        # на form.url = urls.get_url(action)
+        # в results тоже не получится это использовать, так как там нет окна,
+        # там только его дочерние элементы
+        # def _set_submit_action(self, value):
+        #     """ Из переданного типа экшена пытается получить адрес для формы """
+        #     if isinstance(value, str):
+        #         self.form.url = ControllerCache.get_action_url(value)
+        #
+        #     elif isinstance(value, Action):
+        #         self.form.url = value.get_absolute_url()
+        #
+        #     elif issubclass(value, Action):
+        #         self.form.url = value.absolute_url()
+        #
+        # submit_action = property(
+        #     lambda self: self._submit_action,
+        #     _set_submit_action
+        # )
 
 # Удалено GearTableEditWindow. Используется только в закупках

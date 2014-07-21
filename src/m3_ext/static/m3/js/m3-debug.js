@@ -7203,7 +7203,7 @@ Ext.define('Ext.m3.AdvancedComboBox', {
         }
     },
 
-    getParams: function(q){
+    getParams: function (q) {
         var result = Ext.m3.AdvancedComboBox.superclass.getParams.call(this, q);
         return Ext.applyIf(result, this.getContext());
     },
@@ -7331,22 +7331,24 @@ Ext.define('Ext.m3.AdvancedComboBox', {
     onSelectInDictionary: function () {
         assert(this.actionSelectUrl, 'actionSelectUrl is undefined');
 
-        if (this.fireEvent('beforerequest', this)) {
+        var req = {
+            mode: "Пожалуйста выберите элемент...",
+            url: this.actionSelectUrl,
+            params: Ext.apply({}, this.getContext()),
+            failure: uiAjaxFailMessage,
+            success: function (win) {
+                win.on('select', function (cmp, id, displayText) {
+                    if (this.fireEvent('afterselect', this, id, displayText)) {
+                        this.addRecordToStore(id, displayText);
+                    }
+                }, this);
+                return win;
+            }.bind(this)
+        };
 
-            UI.callAction.call(this, {
-                mode: "Пожалуйста выберите элемент...",
-                url: this.actionSelectUrl,
-                params: this.getContext(),
-                failure: uiAjaxFailMessage,
-                success: function (win) {
-                    win.on('select', function (cmp, id, displayText) {
-                        if (this.fireEvent('afterselect', this, id, displayText)) {
-                            this.addRecordToStore(id, displayText);
-                        }
-                    }, this);
-                    return win;
-                }.bind(this)
-            });
+        if (this.fireEvent('beforerequest', this, req)) {
+
+            UI.callAction.call(this, req);
         }
     },
     /**
@@ -15596,4 +15598,20 @@ Ext.define('Ext.menu.Item', {
             this.setDisabled(blocked);
         }
     }
+});
+
+/**
+ * Принудительное приведение типов объекта или массива в json-строку
+ */
+Ext.define('Ext.Ajax', {
+    override: 'Ext.Ajax',
+
+    request: Ext.Ajax.request.createInterceptor(function (options) {
+        Ext.iterate(options.params, function (key, value) {
+            if (Ext.isObject(value) || Ext.isArray(value)) {
+                options.params[key] = Ext.encode(value);
+            }
+        });
+        return options;
+    })
 });

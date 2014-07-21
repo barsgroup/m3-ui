@@ -509,3 +509,19 @@ Ext.define('Ext.menu.Item', {
         }
     }
 });
+
+/**
+ * Принудительное приведение типов объекта или массива в json-строку
+ */
+Ext.define('Ext.Ajax', {
+    override: 'Ext.Ajax',
+
+    request: Ext.Ajax.request.createInterceptor(function (options) {
+        Ext.iterate(options.params, function (key, value) {
+            if (Ext.isObject(value) || Ext.isArray(value)) {
+                options.params[key] = Ext.encode(value);
+            }
+        });
+        return options;
+    })
+});

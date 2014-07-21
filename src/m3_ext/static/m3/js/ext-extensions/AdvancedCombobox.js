@@ -284,7 +284,7 @@ Ext.define('Ext.m3.AdvancedComboBox', {
         }
     },
 
-    getParams: function(q){
+    getParams: function (q) {
         var result = Ext.m3.AdvancedComboBox.superclass.getParams.call(this, q);
         return Ext.applyIf(result, this.getContext());
     },
@@ -412,22 +412,24 @@ Ext.define('Ext.m3.AdvancedComboBox', {
     onSelectInDictionary: function () {
         assert(this.actionSelectUrl, 'actionSelectUrl is undefined');
 
-        if (this.fireEvent('beforerequest', this)) {
+        var req = {
+            mode: "Пожалуйста выберите элемент...",
+            url: this.actionSelectUrl,
+            params: Ext.apply({}, this.getContext()),
+            failure: uiAjaxFailMessage,
+            success: function (win) {
+                win.on('select', function (cmp, id, displayText) {
+                    if (this.fireEvent('afterselect', this, id, displayText)) {
+                        this.addRecordToStore(id, displayText);
+                    }
+                }, this);
+                return win;
+            }.bind(this)
+        };
 
-            UI.callAction.call(this, {
-                mode: "Пожалуйста выберите элемент...",
-                url: this.actionSelectUrl,
-                params: this.getContext(),
-                failure: uiAjaxFailMessage,
-                success: function (win) {
-                    win.on('select', function (cmp, id, displayText) {
-                        if (this.fireEvent('afterselect', this, id, displayText)) {
-                            this.addRecordToStore(id, displayText);
-                        }
-                    }, this);
-                    return win;
-                }.bind(this)
-            });
+        if (this.fireEvent('beforerequest', this, req)) {
+
+            UI.callAction.call(this, req);
         }
     },
     /**
