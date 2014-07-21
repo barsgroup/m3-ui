@@ -6,7 +6,13 @@ from django import template as django_template
 from m3_ext.context_processors import DesktopProcessor
 
 
-def workspace(template='m3_workspace.html', context_processors=None):
+DEFAULT_PROCESSORS = (DesktopProcessor.process,)
+
+
+def workspace(
+    template='m3_workspace.html',
+    context_processors=DEFAULT_PROCESSORS
+):
     u"""
     Возвращает view для тображения Рабочего Стола
     на основе указанного шаблона
@@ -19,7 +25,7 @@ def workspace(template='m3_workspace.html', context_processors=None):
         """
         return reduce(
             lambda x, f: x.update(f(request)) or x,
-            [DesktopProcessor.process] + list(context_processors or []),
+            context_processors,
             {}
         )
 
