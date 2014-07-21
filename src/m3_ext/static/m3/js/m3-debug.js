@@ -13104,6 +13104,7 @@ Ext.define('Ext.m3.ObjectTree', {
         var contextMenu = Ext.create({}, 'menu'),
             containerContextMenu = Ext.create({}, 'menu'),
             tbar = Ext.create(this.tbar),
+            buff,
 
             buttonNewInRoot = {
                 text: 'Новый в корне',
@@ -13131,10 +13132,13 @@ Ext.define('Ext.m3.ObjectTree', {
             },
             buttonRefresh = {
                 text: 'Обновить',
-                iconCls: 'refresh-icon-16',
+                iconCls: 'x-tbar-loading',
                 handler: this.refreshStore,
                 scope: this
             };
+
+        // сохраняем пользовательские кнопки
+        buff = tbar.removeAll(false);
 
         if (this.actionNewUrl) {
             contextMenu.add(buttonNewInRoot);
@@ -13181,6 +13185,9 @@ Ext.define('Ext.m3.ObjectTree', {
         if (containerContextMenu.items && containerContextMenu.items.length > 0) {
             this.containerContextMenu = containerContextMenu;
         }
+
+        // восстанавливаем пользовательские кнопки
+        tbar.add(buff);
 
         this.tbar = tbar;
     },
