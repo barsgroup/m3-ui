@@ -106,7 +106,6 @@
             Ext.each(columns, function (col) {
                 if (col.filter) {
                     needFilterPlugin = true;
-                    return false;
                 }
                 if (typeof col.renderer === 'string') {
                     this.fireEvent('gethandler', col, col.renderer);
