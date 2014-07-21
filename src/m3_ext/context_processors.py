@@ -71,7 +71,10 @@ class DesktopProcessor(object):
         desktop_model = DesktopModel(request, cls.filter_factory)
         ControllerCache.populate()
         DesktopLoader._success = False
-        DesktopLoader.populate_desktop(desktop=desktop_model)
+        if hasattr(request, 'user'):
+            DesktopLoader.populate(request.user, desktop=desktop_model)
+        else:
+            DesktopLoader.populate_desktop(desktop=desktop_model)
 
         return {
             'desktopItems': list(desktop_model.desktop.subitems),
