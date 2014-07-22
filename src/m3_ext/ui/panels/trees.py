@@ -20,6 +20,7 @@ class ExtObjectTree(containers.ExtTree):
         row_id_name='rowIdName',
         incremental_update='incrementalUpdate',
         folder_sort='folderSort',
+        enable_sort='enableSort',
 
         url_new='actionNewUrl',
         url_edit='actionEditUrl',
