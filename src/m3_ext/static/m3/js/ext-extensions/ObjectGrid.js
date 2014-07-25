@@ -53,11 +53,10 @@
             this.configureItem(params.rowContextMenu, "menuitem_delete", this.actionDeleteUrl, this.onDeleteRecord);
         }
 
-        var store = this.getStore(),
-            _self = this;
+        var store = this.getStore();
         store.on('beforeload', function(st) {
-            st.baseParams = Ext.apply(st.baseParams || {}, _self.getContext());
-        });
+            st.baseParams = Ext.apply(st.baseParams || {}, this.getContext());
+        }, this);
         store.on('beforeload', this.fireEvent.createDelegate(this, ['mask', this, 'Загрузка...']));
         store.on('load', this.fireEvent.createDelegate(this, ['unmask', this]));
         store.on('loadexception', this.fireEvent.createDelegate(this, ['unmask', this]));
