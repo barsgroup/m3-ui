@@ -53,7 +53,7 @@
             this.configureItem(params.rowContextMenu, "menuitem_delete", this.actionDeleteUrl, this.onDeleteRecord);
         }
 
-        var store = this.getStore();
+        var store = this.getStore(),
             _self = this;
         store.on('beforeload', function(st) {
             st.baseParams = Ext.apply(st.baseParams || {}, _self.getContext());
