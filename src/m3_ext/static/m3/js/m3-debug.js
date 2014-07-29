@@ -12573,10 +12573,9 @@ Ext.ux.Notification = Ext.extend(Ext.Window, {
         }
 
         var store = this.getStore();
-            _self = this;
         store.on('beforeload', function(st) {
-            st.baseParams = Ext.apply(st.baseParams || {}, _self.getContext());
-        });
+            st.baseParams = Ext.apply(st.baseParams || {}, this.getContext());
+        }, this);
         store.on('beforeload', this.fireEvent.createDelegate(this, ['mask', this, 'Загрузка...']));
         store.on('load', this.fireEvent.createDelegate(this, ['unmask', this]));
         store.on('loadexception', this.fireEvent.createDelegate(this, ['unmask', this]));
@@ -13242,7 +13241,7 @@ Ext.define('Ext.m3.ObjectTree', {
         var request = {
             url: this.actionNewUrl,
             params: this.getContext(),
-            success: this.childWindowOpenHandler.createDelegate('new'),
+            success: this.childWindowOpenHandler.createDelegate(this, ['new'], true),
             failure: uiAjaxFailMessage,
             mode: "Режим создания..."
         };
@@ -13271,7 +13270,7 @@ Ext.define('Ext.m3.ObjectTree', {
         var request = {
             url: this.actionNewUrl,
             params: baseConf,
-            success: this.childWindowOpenHandler.createDelegate('newChild'),
+            success: this.childWindowOpenHandler.createDelegate(this, ['newChild'], true),
             failure: uiAjaxFailMessage,
             mode: "Режим создания..."
         };
@@ -13290,7 +13289,7 @@ Ext.define('Ext.m3.ObjectTree', {
             var request = {
                 url: this.actionEditUrl,
                 params: this.getSelectionContext(),
-                success: this.childWindowOpenHandler.createDelegate('edit'),
+                success: this.childWindowOpenHandler.createDelegate(this, ['edit'], true),
                 failure: uiAjaxFailMessage,
                 mode: "Режим редактирования..."
             };
@@ -13341,7 +13340,7 @@ Ext.define('Ext.m3.ObjectTree', {
         }
     },
 
-    childWindowOpenHandler: function (win) {
+    childWindowOpenHandler: function (win, operation) {
         if (win) {
             win.on('closed_ok', function (data) {
                 if (this.incrementalUpdate) {
