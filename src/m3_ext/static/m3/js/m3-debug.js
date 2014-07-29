@@ -15620,3 +15620,17 @@ Ext.define('Ext.Ajax', {
         return options;
     })
 });
+
+
+Ext.define('Ext.form.TextField', {
+    override: 'Ext.form.TextField',
+
+    initComponent : Ext.form.TextField.prototype.initComponent.createInterceptor(function () {
+        if (this.maxLength) {
+            this.autoCreate = Ext.applyIf(
+                {tag: 'input', type: 'text', maxlength: this.maxLength},
+                this.autoCreate
+            );
+        }
+    })
+});
