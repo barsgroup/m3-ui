@@ -15626,7 +15626,7 @@ Ext.define('Ext.form.TextField', {
     override: 'Ext.form.TextField',
 
     initComponent : Ext.form.TextField.prototype.initComponent.createInterceptor(function () {
-        if (this.maxLength) {
+        if (this.maxLength && this.maxLength != Number.MAX_VALUE) {
             this.autoCreate = Ext.applyIf(
                 {tag: 'input', type: 'text', maxlength: this.maxLength},
                 this.autoCreate
