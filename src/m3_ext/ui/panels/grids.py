@@ -24,28 +24,32 @@ class ExtObjectGrid(containers.ExtGrid):
         def __init__(self, *args, **kwargs):
             super(ExtObjectGrid.GridContextMenu, self).__init__(
                 *args, **kwargs)
+
             self.menuitem_new = menus.ExtContextMenuItem(
                 text=u'Добавить',
-                icon_cls='add_item',
-                handler='contextMenuNew'
+                icon_cls='add_item'
             )
             self.menuitem_edit = menus.ExtContextMenuItem(
                 text=u'Изменить',
-                icon_cls='edit_item',
-                handler='contextMenuEdit'
+                icon_cls='edit_item'
             )
             self.menuitem_delete = menus.ExtContextMenuItem(
                 text=u'Удалить',
-                icon_cls='delete_item',
-                handler='contextMenuDelete'
+                icon_cls='delete_item'
             )
             self.menuitem_separator = menus.ExtContextMenuSeparator()
+
+            self.menuitem_refresh = menus.ExtContextMenuItem(
+                text=u'Обновить',
+                icon_cls='x-tbar-loading'
+            )
 
             self.items.extend([
                 self.menuitem_new,
                 self.menuitem_edit,
                 self.menuitem_delete,
                 self.menuitem_separator,
+                self.menuitem_refresh
             ])
 
     class GridTopBar(containers.ExtToolBar):

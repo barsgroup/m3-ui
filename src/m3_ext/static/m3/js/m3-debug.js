@@ -12552,33 +12552,93 @@ Ext.ux.Notification = Ext.extend(Ext.Window, {
         }
 
         // настроим кнопки тулбара
-        this.configureItem(this.getTopToolbar(), "button_new", this.actionNewUrl, this.onNewRecord);
-        var edit_item = this.configureItem(this.getTopToolbar(), "button_edit", this.actionEditUrl, this.onEditRecord);
+        this.configureItem(
+            this.getTopToolbar(),
+            "button_new",
+            this.actionNewUrl,
+            this.onNewRecord);
+
+        var edit_item = this.configureItem(
+            this.getTopToolbar(),
+            "button_edit",
+            this.actionEditUrl,
+            this.onEditRecord);
+
         if (edit_item && this.actionEditUrl) {
             this.on('dblclick', edit_item.handler);
         }
-        this.configureItem(this.getTopToolbar(), "button_delete", this.actionDeleteUrl, this.onDeleteRecord);
-        this.configureItem(this.getTopToolbar(), "button_refresh", this.actionDataUrl, this.refreshStore);
+
+        this.configureItem(
+            this.getTopToolbar(),
+            "button_delete",
+            this.actionDeleteUrl,
+            this.onDeleteRecord);
+
+        this.configureItem(
+            this.getTopToolbar(),
+            "button_refresh",
+            this.actionDataUrl,
+            this.refreshStore);
 
         // настроим меню в зависимости от переданных адресов
         if (params.contextMenu) {
-            this.configureItem(params.contextMenu, "menuitem_new", this.actionNewUrl, this.onNewRecord);
-            this.configureItem(params.contextMenu, "menuitem_edit", this.actionEditUrl, this.onEditRecord);
-            this.configureItem(params.contextMenu, "menuitem_delete", this.actionDeleteUrl, this.onDeleteRecord);
+            this.configureItem(
+                params.contextMenu,
+                "menuitem_new",
+                this.actionNewUrl,
+                this.onNewRecord);
+            this.configureItem(
+                params.contextMenu,
+                "menuitem_edit",
+                false,
+                this.onEditRecord);
+            this.configureItem(
+                params.contextMenu,
+                "menuitem_delete",
+                false,
+                this.onDeleteRecord);
         }
         if (params.rowContextMenu) {
-            this.configureItem(params.rowContextMenu, "menuitem_new", this.actionNewUrl, this.onNewRecord);
-            this.configureItem(params.rowContextMenu, "menuitem_edit", this.actionEditUrl, this.onEditRecord);
-            this.configureItem(params.rowContextMenu, "menuitem_delete", this.actionDeleteUrl, this.onDeleteRecord);
+            this.configureItem(
+                params.rowContextMenu,
+                "menuitem_new",
+                this.actionNewUrl,
+                this.onNewRecord);
+            this.configureItem(
+                params.rowContextMenu,
+                "menuitem_edit",
+                this.actionEditUrl,
+                this.onEditRecord);
+            this.configureItem(
+                params.rowContextMenu,
+                "menuitem_delete",
+                this.actionDeleteUrl,
+                this.onDeleteRecord);
         }
 
+        this.configureItem(
+            params.contextMenu,
+            "menuitem_refresh",
+            this.actionDataUrl,
+            this.refreshStore);
+
+        this.configureItem(
+            params.rowContextMenu,
+            "menuitem_refresh",
+            this.actionDataUrl,
+            this.refreshStore);
+
         var store = this.getStore();
-        store.on('beforeload', function(st) {
+        store.on('beforeload', function (st) {
             st.baseParams = Ext.apply(st.baseParams || {}, this.getContext());
         }, this);
-        store.on('beforeload', this.fireEvent.createDelegate(this, ['mask', this, 'Загрузка...']));
-        store.on('load', this.fireEvent.createDelegate(this, ['unmask', this]));
-        store.on('loadexception', this.fireEvent.createDelegate(this, ['unmask', this]));
+
+        store.on('beforeload',
+            this.fireEvent.createDelegate(this, ['mask', this, 'Загрузка...']));
+        store.on('load',
+            this.fireEvent.createDelegate(this, ['unmask', this]));
+        store.on('loadexception',
+            this.fireEvent.createDelegate(this, ['unmask', this]));
 
         this.addEvents(
             /**
