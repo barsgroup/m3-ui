@@ -142,12 +142,6 @@ class UIJsonEncoder(_M3JSONEncoder):
             if hasattr(obj, 'regex'):
                 obj.regex = '/%s/' % obj.regex
 
-            # if getattr(obj, 'max_length', None):
-            # obj.auto_create.update({"maxlength": obj.max_length})
-
-            if hasattr(obj, 'mask_re'):
-                obj.mask_re = '/%s/' % obj.mask_re
-
             if hasattr(obj, 'value'):
                 # значения типа date и datetime не надо эскейпить
                 if not isinstance(obj.value, datetime.date):

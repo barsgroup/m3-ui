@@ -537,5 +537,8 @@ Ext.define('Ext.form.TextField', {
                 this.autoCreate
             );
         }
+        if (this.maskRe && Ext.isString(this.maskRe)) {
+            this.maskRe = new RegExp(this.maskRe);
+        }
     })
 });
