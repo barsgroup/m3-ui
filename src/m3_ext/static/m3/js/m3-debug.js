@@ -1023,10 +1023,11 @@ Ext.extend(Ext.ux.grid.GridHeaderFilters, Ext.util.Observable, {
                     anchor: '100%'
                 });
 
-                // Если не экземляр, надо создать экземпляр
-                if (fc.constructor && fc.constructor === Object) {
-                    fc = Ext.create(fc);
-                }
+                // kirov NR: непонятно почему, но раньше так работало. теперь можно без этого
+//                // Если не экземляр, надо создать экземпляр
+//                if (fc.constructor && fc.constructor === Object) {
+//                    fc = Ext.create(fc);
+//                }
 
                 if (!this.cfgFilterInit && !Ext.isEmpty(fc.value)) {
                     this.filters[fc.filterName] = Ext.isFunction(fc.filterEncoder) ? fc.filterEncoder.call(this, fc.value) : fc.value;
