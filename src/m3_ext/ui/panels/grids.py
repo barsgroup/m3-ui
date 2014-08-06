@@ -462,6 +462,9 @@ class ExtMultiGroupinGrid(containers.ExtGrid):
         # - особенным образом обрабатываются данные при редактировании
         self.local_edit = False
 
+        # Признак отображения всплывающих подсказок
+        self.show_tooltips = True
+
         # Признак возможности группировки (показывает панель)
         self.groupable = True
 
@@ -566,6 +569,7 @@ class ExtMultiGroupinGrid(containers.ExtGrid):
             ('rowIdName', self.row_id_name),
             ('localEdit', self.local_edit),
             ('groupable', self.groupable),
+            ('showTooltips', self.show_tooltips),
             ('displayInfo', self.display_info),
             ('displayMsg', self.display_message),
             ('bufferSize', self.buffer_size),
@@ -578,6 +582,21 @@ class ExtMultiGroupinGrid(containers.ExtGrid):
 
     def t_render_params(self):
         return self._get_params_str()
+
+    def t_render_plugins(self):
+        if self.show_tooltips:
+            tooltips = []
+            for column in self.columns:
+                if column.tooltip:
+                    tooltips.append(column.tooltip)
+                else:
+                    tooltips.append({
+                        'field': column.data_index,
+                        'tpl': '{%s}' % column.data_index
+                    })
+            self.plugins.append(
+                'new Ext.ux.plugins.grid.CellToolTips(%s)' % tooltips)
+        return super(ExtMultiGroupinGrid, self).t_render_plugins()
 
     @property
     def handler_beforenew(self):
