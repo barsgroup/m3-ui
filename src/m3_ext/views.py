@@ -9,10 +9,16 @@ from django.template.context import RequestContext
 
 from m3_ext.ui.app_ui import BaseDesktopElement, MenuSeparator
 
-from context_processors import desktop_processor
+from m3_ext.context_processors import DesktopProcessor
 
 
-def workspace(template='m3_workspace.html', context_processors=None):
+DEFAULT_PROCESSORS = (DesktopProcessor.process,)
+
+
+def workspace(
+    template='m3_workspace.html',
+    context_processors=DEFAULT_PROCESSORS
+):
     u"""
     Возвращает view для отображения Рабочего Стола
     на основе указанного шаблона
@@ -25,8 +31,8 @@ def workspace(template='m3_workspace.html', context_processors=None):
         """
         return reduce(
             lambda x, f: x.update(f(request)) or x,
-            context_processors or [],
-            ctx
+            context_processors,
+            {}
         )
 
     def workspace_view(request):

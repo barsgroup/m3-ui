@@ -11,7 +11,7 @@ from m3_ext.ui.base import ExtUIComponent
 
 class ExtObjectGrid(containers.ExtGrid):
     """
-    Панель с гqридом для управления списком объектов.
+    Панель с гридом для управления списком объектов.
     """
     # ==========================================================================
     # Внутренние классы для ExtObjectGrid
@@ -363,6 +363,14 @@ class ExtMultiGroupinGrid(containers.ExtGrid):
                         exclude_list,
                         *args, **kwargs
                     )
+
+        # убираем редактирование записи по даблклику
+        if access_off:
+            self.dblclick_handler_disabled = dblclick_handler
+            self.dblclick_handler = self.EMPTY_HANDLER
+        else:
+            self.dblclick_handler = self.dblclick_handler_disabled
+            self.dblclick_handler_disabled = self.EMPTY_HANDLER
 
 
 class ExtObjectSelectionPanel(containers.ExtContainer):

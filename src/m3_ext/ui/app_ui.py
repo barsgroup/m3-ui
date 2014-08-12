@@ -95,10 +95,10 @@ class DesktopElementCollection(object):
                             item.subitems)),
                     key=self.sorting_key
                 ))
-                if not item.subitems:
-                    result = None
-                else:
-                    result = item
+                result = any(
+                    not (isinstance(i, MenuSeparator) or i.name in ('-', u'-'))
+                    for i in item.subitems
+                ) and item or None
             return result
 
         # обертка списка элементов в некое подобие LaunchGroup
@@ -124,26 +124,15 @@ class DesktopModel(object):
     (start_menu и toolbox) в меню пуск
     и список модулей на Рабочем Столе (desktop)
     """
-    def __init__(self, request):
-        def filter_by_permissions(elem):
-            """
-            Возвращает True, если у ползователя есть права на пак элемента.
-            Работет только с DesktopShortcut'ами - у них есть атрибут pack,
-            остальные же элементы - отображаются всегда
-            :param elem: элемент рабочего стола
-            :type elem: DesktopShortcut
-            :return: has_perm - наличие права доступа к элементу
-            :rtype: bool
-            """
-            pack = getattr(elem, 'pack', None)
-            if pack is None or isinstance(pack, ActionPack):
-                return True
-            else:
-                return pack.has_perm(request)
-        self.start_menu = DesktopElementCollection(filter_by_permissions)
-        self.toolbox = DesktopElementCollection(filter_by_permissions)
-        self.desktop = DesktopElementCollection(filter_by_permissions)
-        self.toptoolbar = DesktopElementCollection(filter_by_permissions)
+    def __init__(self, request, filter_factory):
+        self.start_menu = DesktopElementCollection(
+            filter_factory(request, DesktopLoader.START_MENU))
+        self.toolbox = DesktopElementCollection(
+            filter_factory(request, DesktopLoader.TOOLBOX))
+        self.desktop = DesktopElementCollection(
+            filter_factory(request, DesktopLoader.DESKTOP))
+        self.toptoolbar = DesktopElementCollection(
+            filter_factory(request, DesktopLoader.TOPTOOLBAR))
 
 
 class BaseDesktopElement(object):
