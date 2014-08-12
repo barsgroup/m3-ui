@@ -9,7 +9,6 @@ from m3_ext.ui import all_components as ext
 from m3_ext.ui.results import UIResult, DataResult
 
 from views import workspace, desktop_items
-from context_processors import desktop_processor
 
 
 class UIAction(_Action):
