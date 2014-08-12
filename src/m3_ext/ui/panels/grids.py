@@ -15,10 +15,12 @@ from m3_ext.ui.containers.grids import ExtGridCheckBoxSelModel
 
 
 class ExtObjectGrid(containers.ExtGrid):
+    """
+    Панель с гридом для управления списком объектов.
+    """
+    EMPTY_HANDLER = 'Ext.emptyFn'
+    DEFAULT_HANDLER = 'onEditRecord'
 
-    """
-    Панель с гqридом для управления списком объектов.
-    """
     #==========================================================================
     # Внутренние классы для ExtObjectGrid
     #=========================================================================
@@ -161,7 +163,8 @@ class ExtObjectGrid(containers.ExtGrid):
         self.paging_bar = containers.ExtPagingBar()
 
         # Обработчик двойного клика
-        self.dblclick_handler = 'onEditRecord'
+        self.dblclick_handler = DEFAULT_HANDLER
+        self.dblclick_handler_disabled = self.EMPTY_HANDLER
 
         # Признак редактирования на клиенте
         # - особенным образом обрабатываются данные при редактировании
@@ -197,7 +200,12 @@ class ExtObjectGrid(containers.ExtGrid):
                         access_off, exclude_list, *args, **kwargs)
 
         # убираем редактирование записи по даблклику
-        self.dblclick_handler = 'Ext.emptyFn'
+        if access_off:
+            self.dblclick_handler_disabled = dblclick_handler
+            self.dblclick_handler = self.EMPTY_HANDLER
+        else:
+            self.dblclick_handler = self.dblclick_handler_disabled
+            self.dblclick_handler_disabled = self.EMPTY_HANDLER
 
     @property
     def handler_beforenew(self):
@@ -354,6 +362,8 @@ class ExtMultiGroupinGrid(containers.ExtGrid):
     .. seealso::
         m3.helpers.datagrouping
     """
+    EMPTY_HANDLER = 'Ext.emptyFn'
+    DEFAULT_HANDLER = 'onEditRecord'
 
     class GridExportMenu(menus.ExtContextMenu):
         """
@@ -443,7 +453,8 @@ class ExtMultiGroupinGrid(containers.ExtGrid):
         self.row_id_name = 'row_id'
 
         # Обработчик двойного клика
-        self.dblclick_handler = 'onEditRecord'
+        self.dblclick_handler = DEFAULT_HANDLER
+        self.dblclick_handler_disabled = self.EMPTY_HANDLER
 
         # Топ бар для грида
         self._top_bar = ExtMultiGroupinGrid.LiveGridTopBar()
@@ -611,6 +622,14 @@ class ExtMultiGroupinGrid(containers.ExtGrid):
                         exclude_list,
                         *args, **kwargs
                     )
+
+        # убираем редактирование записи по даблклику
+        if access_off:
+            self.dblclick_handler_disabled = dblclick_handler
+            self.dblclick_handler = self.EMPTY_HANDLER
+        else:
+            self.dblclick_handler = self.dblclick_handler_disabled
+            self.dblclick_handler_disabled = self.EMPTY_HANDLER
 
 
 class ExtObjectSelectionPanel(containers.ExtContainer):
