@@ -24,15 +24,6 @@
     <script type="text/javascript" src="{{ STATIC_URL }}vendor/q.js"></script>
     <link rel='stylesheet' type='text/css' href='{{ STATIC_URL }}ext/css/lightbox.css'/>
 
-        {% if DEBUG  %}
-            <script type="text/javascript" src="{{ STATIC_URL }}vendor/extjs/adapter/ext/ext-base-debug.js"></script>
-            <script type='text/javascript' src='{{ STATIC_URL }}vendor/extjs/ext-all-debug.js'></script>
-            <script type='text/javascript' src='{{ STATIC_URL }}vendor/extjs/ux-all-debug.js'></script>
-        {% else %}
-            <script type="text/javascript" src="{{ STATIC_URL }}vendor/extjs/adapter/ext/ext-base.js"></script>
-            <script type='text/javascript' src='{{ STATIC_URL }}vendor/extjs/ext-all.js'></script>
-            <script type='text/javascript' src='{{ STATIC_URL }}vendor/extjs/ux-all.js'></script>
-        {% endif %}
 
     <script type="text/javascript" src="{{ STATIC_URL }}vendor/require.js"></script>
         <script type="text/javascript">
@@ -87,12 +78,6 @@
 
     <script type="text/javascript" src="{{ STATIC_URL }}m3/js/fabric.js"></script>
     <script type="text/javascript" src="{{ STATIC_URL }}m3/js/m3-desktop.js"></script>
-        <!-- m3 js-->
-        {% if DEBUG  %}
-            <script type='text/javascript' src='{{ STATIC_URL }}m3/js/m3-debug.js'></script>
-        {% else %}
-            <script type='text/javascript' src='{{ STATIC_URL }}m3/js/m3-opt.js'></script>
-        {% endif %}
 
     <script src="{{ STATIC_URL }}m3/js/ext-extensions/LockingGridColumnWithHeaderGroup.js"></script>
     {#    {% endif %}#}

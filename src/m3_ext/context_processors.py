@@ -82,6 +82,7 @@ class DesktopProcessor(object):
             'topToolbarItems': list(desktop_model.toptoolbar.subitems),
             'toolboxItems': list(desktop_model.toolbox.subitems),
         }
+
     @classmethod
     def process(cls, request):
         """
@@ -91,11 +92,9 @@ class DesktopProcessor(object):
         """
         desktop = cls._get_desktop(request)
         return {
-            'desktop': json.dumps(
-                desktop, indent=2, default=cls._dump_element,
-                ensure_ascii=False),
+            'desktop': desktop,
             # TODO: переделать на JS!
-            'desktop_icons': [
+            'desktopIcons': [
                 (idx, i.name, i.icon)
                 for (idx, i) in enumerate(desktop['desktopItems'], 1)
             ]

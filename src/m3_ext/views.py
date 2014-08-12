@@ -12,12 +12,9 @@ from m3_ext.ui.app_ui import BaseDesktopElement, MenuSeparator
 from m3_ext.context_processors import DesktopProcessor
 
 
-DEFAULT_PROCESSORS = (DesktopProcessor.process,)
-
-
 def workspace(
     template='m3_workspace.html',
-    context_processors=DEFAULT_PROCESSORS
+    context_processors=tuple()
 ):
     u"""
     Возвращает view для отображения Рабочего Стола
@@ -86,6 +83,6 @@ def desktop_items(request):
         opts = {'separators': (',', ':')}
 
     return HttpResponse(
-        json.dumps(desktop_processor(request), default=default, **opts),
+        json.dumps(DesktopProcessor.process(request), default=default, **opts),
         mimetype='application/json'
     )
