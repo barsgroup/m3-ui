@@ -163,7 +163,7 @@ class ExtObjectGrid(containers.ExtGrid):
         self.paging_bar = containers.ExtPagingBar()
 
         # Обработчик двойного клика
-        self.dblclick_handler = DEFAULT_HANDLER
+        self.dblclick_handler = self.DEFAULT_HANDLER
         self.dblclick_handler_disabled = self.EMPTY_HANDLER
 
         # Признак редактирования на клиенте
@@ -453,7 +453,7 @@ class ExtMultiGroupinGrid(containers.ExtGrid):
         self.row_id_name = 'row_id'
 
         # Обработчик двойного клика
-        self.dblclick_handler = DEFAULT_HANDLER
+        self.dblclick_handler = self.DEFAULT_HANDLER
         self.dblclick_handler_disabled = self.EMPTY_HANDLER
 
         # Топ бар для грида
