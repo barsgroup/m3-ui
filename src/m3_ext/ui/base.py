@@ -24,10 +24,56 @@ class ExtComponentException(Exception):
     pass
 
 
+class ListenerMap(object):
+    """
+    Дескриптор коллекции листенеров.
+    При рендеринге контрола с выставленным флагом flag_attr
+    обработчики из списка в атрибуте storage_attr
+    будут заменены на None
+    """
+    def __init__(self, storage_attr, flag_attr):
+        self._storage_attr = storage_attr
+        self._flag_attr = flag_attr
+
+    def __get__(self, inst, cls):
+        disable = getattr(inst, self._flag_attr, False)
+        manageable = set(getattr(cls, 'manageable_listeners', tuple()))
+        class ListenerStorage(object):
+
+            def __init__(self, data):
+                self._data = data
+
+            def items(self):
+                if not disable:
+                    return self._data.items()
+                return [
+                    (k, v if k not in manageable else None)
+                    for (k, v) in self._data.iteritems()
+                ]
+
+            def __getitem__(self, key):
+                return self._data[key]
+
+            def __setitem__(self, key, val):
+                self._data[key] = val
+
+            def get(self, key, default=None):
+                return self._data.get(key, default)
+
+        return ListenerStorage(getattr(inst, self._storage_attr))
+
+    def __set__(self, inst, val):
+        assert inst is not None, "ListenerMap settable only in instances!"
+        setattr(inst, self._storage_attr, val)
+
+
 class BaseExtComponent(object):
     """
     Базовый класс для всех компонентов пользовательского интерфейса
     """
+
+    _listeners = ListenerMap('_listeners_stored', 'read_only')
+
     def __init__(self, *args, **kwargs):
         # Каждый компонент может иметь шаблон, в котором он будет рендериться
         self.template = ''

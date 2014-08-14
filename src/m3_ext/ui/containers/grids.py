@@ -22,6 +22,7 @@ class ExtGrid(BaseExtPanel):
     поэтому некоторые атрибуты могут действовать в одном,
     но не действовать в другом гриде.
     """
+    manageable_listeners = ('dblclick',)
 
     # TODO: Реализовать человеческий MVC грид
 
