@@ -767,16 +767,15 @@ Ext.m3.MultiGroupingGridPanel = Ext.extend(Ext.ux.grid.livegrid.GridPanel, {
             plugins.push(groupPlugin);
 
             if (params.showTooltips) {
-                var grid = this;
                 var tipConf = [];
                 tipConf.push({
                     field: groupPlugin.groupFieldId,
                     tpl: '{' + groupPlugin.groupFieldId + '}',
                     fn: function (params) {
-                        var rec = grid.getStore().getById(params[grid.getStore().idProperty]);
+                        var rec = this.getStore().getById(params[this.getStore().idProperty]);
                         params[groupPlugin.groupFieldId] = groupPlugin.getGroupText(rec);
                         return params;
-                    }
+                    }.bind(this)
                 });
                 plugins.push(new Ext.ux.plugins.grid.CellToolTips(tipConf));
             }
