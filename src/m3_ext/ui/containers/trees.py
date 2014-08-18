@@ -36,6 +36,9 @@ class ExtTree(BaseExtPanel):
         # Текст для корневого элемента
         self.root_text = None
 
+        # Если включен - показываем корневой элемент
+        self.show_root = False
+
         # Возможность использовать drag & drop.
         # То есть одновременные
         self.drag_drop = False
@@ -100,9 +103,11 @@ class ExtTree(BaseExtPanel):
     def t_render_root(self):
         return (
             "new Ext.tree.AsyncTreeNode({id: '-1', "
-            "expanded: true, allowDrag: false %s %s})"
+            "expanded: true, allowDrag: false, "
+            "uiProvider: Ext.ux.tree.TreeGridNodeUI %s %s %s})"
         ) % (
             (',text:"%s"' % self.root_text) if self.root_text else '',
+            (',%s:"%s"' % (self.columns[0].data_index, self.root_text)) if self.columns and self.root_text else '',
             (',children:[%s]' % ','.join(
                 [node.render() for node in self.nodes])) if self.nodes else ''
         )
@@ -276,6 +281,7 @@ class ExtTree(BaseExtPanel):
     def render_params(self):
         super(ExtTree, self).render_params()
         self._put_params_value('customLoad', self.custom_load)
+        self._put_params_value('rootVisible', self.show_root)
 
 
 #==============================================================================
