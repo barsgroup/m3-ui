@@ -37,7 +37,7 @@ class ExtTree(BaseExtPanel):
         self.root_text = None
 
         # Если включен - показываем корневой элемент
-        self.show_root = False
+        self.root_visible = False
 
         # Возможность использовать drag & drop.
         # То есть одновременные
@@ -281,7 +281,7 @@ class ExtTree(BaseExtPanel):
     def render_params(self):
         super(ExtTree, self).render_params()
         self._put_params_value('customLoad', self.custom_load)
-        self._put_params_value('rootVisible', self.show_root)
+        self._put_params_value('rootVisible', self.root_visible)
 
 
 #==============================================================================
