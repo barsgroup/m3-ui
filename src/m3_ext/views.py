@@ -12,10 +12,11 @@ from m3_ext.ui.app_ui import BaseDesktopElement, MenuSeparator
 from m3_ext.context_processors import DesktopProcessor
 
 
+DEFAULT_PROCESSORS = (DesktopProcessor.process,)
+
+
 def workspace(
-    template='m3_workspace.html',
-    context_processors=tuple()
-):
+        template='m3_workspace.html', context_processors=DEFAULT_PROCESSORS):
     u"""
     Возвращает view для отображения Рабочего Стола
     на основе указанного шаблона
