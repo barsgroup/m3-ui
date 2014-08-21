@@ -1,11 +1,10 @@
-#coding:utf-8
+# coding:utf-8
 """
 Классы для работы первично отображаемого интерфейса MIS.
 Включают список модулей в меню "Пуск" и список модулей на "Рабочем столе"
 """
 
 import threading
-import inspect
 import itertools
 import warnings
 from uuid import uuid4
@@ -40,10 +39,10 @@ except ImportError:
     def get_assigned_metaroles_query(*args):
         return []
 
-    def get_metarole(code):
+    def get_metarole(*args):
         return UserMetarole()
 
-from m3.actions import ControllerCache, Action, ActionPack
+from m3.actions import ControllerCache, Action
 from m3 import M3JSONEncoder
 
 

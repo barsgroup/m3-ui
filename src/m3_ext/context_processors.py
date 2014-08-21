@@ -1,5 +1,4 @@
-#coding: utf-8
-import json
+# coding: utf-8
 
 from m3_ext.ui.app_ui import (
     DesktopModel, DesktopLoader, BaseDesktopElement, MenuSeparator
@@ -93,9 +92,4 @@ class DesktopProcessor(object):
         desktop = cls._get_desktop(request)
         return {
             'desktop': desktop,
-            # TODO: переделать на JS!
-            'desktopIcons': [
-                (idx, i.name, i.icon)
-                for (idx, i) in enumerate(desktop['desktopItems'], 1)
-            ]
         }

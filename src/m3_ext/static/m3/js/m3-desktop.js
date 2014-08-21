@@ -45,10 +45,10 @@ UI.buildDesktop = function (desktopUrl, staticUrl, startMenuCfg) {
     function createDesktopIcons(cfg) {
 
         var children = [];
-        cfg['desktopIcons'].forEach(function (value, index) {
+        cfg['desktop']['desktopItems'].forEach(function (value, index) {
             children.push({
                 tag: 'td',
-                id: "desktop-item-" + value.id + "-shortcut",
+                id: "desktop-item-" + (index + 1) + "-shortcut",
                 children: [
                     {
                         tag: 'a',
@@ -59,7 +59,7 @@ UI.buildDesktop = function (desktopUrl, staticUrl, startMenuCfg) {
                             },
                             {
                                 tag: 'div',
-                                html: value.name
+                                html: value.text
                             }
                         ]
                     }

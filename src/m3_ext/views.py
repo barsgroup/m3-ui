@@ -15,8 +15,7 @@ from m3_ext.context_processors import DesktopProcessor
 DEFAULT_PROCESSORS = (DesktopProcessor.process,)
 
 
-def workspace(
-        template='m3_workspace.html', context_processors=DEFAULT_PROCESSORS):
+def workspace(template='m3_workspace.html', context_processors=None):
     u"""
     Возвращает view для отображения Рабочего Стола
     на основе указанного шаблона
@@ -29,8 +28,8 @@ def workspace(
         """
         return reduce(
             lambda x, f: x.update(f(request)) or x,
-            context_processors,
-            {}
+            context_processors or [],
+            ctx
         )
 
     def workspace_view(request):
