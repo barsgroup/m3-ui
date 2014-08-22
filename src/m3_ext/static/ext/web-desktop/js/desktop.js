@@ -807,13 +807,6 @@ function getDesktopComponent(el) {
  * http://www.extjs.com/license
  */
 
-//ZIgi 16.12 дабы окна рендерились только внутри десктопа
-//оставляя верхний и нижний тулбары
-Ext.override(Ext.Window,
-{
-    renderTo: 'x-desktop'
-});
-
 TopToolbar = Ext.extend(Ext.Panel, {
     monitorResize: true,
     autoWidth: true,
@@ -856,6 +849,13 @@ Ext.define('Ext.Desktop', {
                 }, this);
             }, this);
         }
+
+        //ZIgi 16.12 дабы окна рендерились только внутри десктопа
+        //оставляя верхний и нижний тулбары
+        Ext.override(Ext.Window,
+        {
+            renderTo: 'x-desktop'
+        });
 
         // В ИЕ7 не поддерживается display: inline-block
         // и из-за этого ярлыки на рабочем столе выстраиваются в одну линию
@@ -1148,10 +1148,18 @@ Ext.app.App = Ext.extend(Ext.util.Observable, {
         this.isReady = true;
 
         if (this.enableDragAndDrop) {
-            // зона сбрасывания иконок из топбара
             var dropzone = new Ext.dd.DropTarget(Ext.get('ux-toptoolbar'), {
                 app: this,
                 ddGroup: 'desktopitems',
+                notifyDrop: function (source, e, data) {
+                    this.app.removeDesktopItem(source.id);
+                    return true;
+                }
+            });
+
+            var dropzone = new Ext.dd.DropTarget(Ext.get('x-desktop'), {
+                app: this,
+                ddGroup: 'toolbaritems',
                 notifyDrop: function (source, e, data) {
                     this.app.addDesktopItem(source, e, data);
                     return true;
@@ -1161,21 +1169,20 @@ Ext.app.App = Ext.extend(Ext.util.Observable, {
     },
 
     addDesktopItem: function(source, e, data){
+        // добавим ярлык на рабочий стол
+        var shortcuts = Ext.query("#x-shortcuts > tbody > tr")[0];
+        var count = shortcuts.querySelectorAll('td').length;
+        var name = data.id + '-shortcut' + count;
+        shortcuts.insertAdjacentHTML(
+            'beforeEnd', this.getShortcutHTML(name, this.getShortcutIconCls(data), data.text));
+        // навесим обработчик
+        this.getDesktop().prepareDesktopItem(Ext.get(name));
+
         if (this.addDesktopItemUrl){
             Ext.Ajax.request({
                 url: this.addDesktopItemUrl,
-                params: {'shortname': data.shortname},
+                params: this.getAddDesktopItemParams(data),
                 method: 'POST',
-                success: function () {
-                    // добавим ярлык на рабочий стол
-                    var shortcuts = $("#x-shortcuts > tbody > tr");
-                    var count = shortcuts.children("td").size();
-                    var name = data.id + '-shortcut' + count;
-                    var iconCls = data.iconClsBig || '';
-                    shortcuts.append('<td id="' + name + '"><a href="#"><div class="block"><div class="base-desktop-image ' + iconCls + '"><span class="delete-desktop-item" onclick="javascript:AppDesktop.removeDesktopItem(\'' + name + '\')"></span><div class="text">' + data.text + '</div></div></div></a></td>');
-                    // навесим обработчик
-                    this.getDesktop().prepareDesktopItem(Ext3.get(name));
-                },
                 failure: function(){
                     uiAjaxFailMessage.apply(this, arguments);
                 },
@@ -1184,21 +1191,37 @@ Ext.app.App = Ext.extend(Ext.util.Observable, {
         }
     },
 
+    getShortcutIconCls: function (data) {
+        return 'default-launcher';
+    },
+
+    getShortcutHTML: function (id, iconCls, text) {
+        return String.format(
+            '<td id="{0}"><a href="#"><div class="base-desktop-image {1}"></div><div class="desktop-item-shortcut-label">{2}</div></a></td>',
+            id, iconCls, text
+        );
+    },
+
+    getAddDesktopItemParams: function (data) {
+        return {}
+    },
+
+    getRemoveDesktopItemParams: function (data) {
+        return {}
+    },
+
     removeDesktopItem: function(id){
-        var el = Ext3.get(id),
+        var el = Ext.get(id),
             cmp = getDesktopComponent(el);
-
         el.removeAllListeners();
-        if (this.removeDesktopItemUrl){
+        // уберем ярлык с рабочего стола
+        Ext.query('#' + el.id)[0].remove();
 
+        if (this.removeDesktopItemUrl){
             Ext.Ajax.request({
                 url: this.removeDesktopItemUrl,
-                params: {'shortname': cmp.shortname},
+                params: this.getRemoveDesktopItemParams(cmp),
                 method: 'POST',
-                success: function(){
-                    // уберем ярлык с рабочего стола
-                    $('#' + el.id).remove();
-                },
                 failure: function(){
                     uiAjaxFailMessage.apply(this, arguments);
                 },
@@ -1314,10 +1337,10 @@ Ext.app.App = Ext.extend(Ext.util.Observable, {
                 res.handler = function() {
                     sendRequest(
                         data.url,
-                        this.scope.getDesktop(),
+                        this.getDesktop(),
                         data.context
                     );
-                };
+                }.bind(this);
             }
         }
         Ext.applyIf(res, data.extra || {});
