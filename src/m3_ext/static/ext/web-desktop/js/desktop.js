@@ -179,10 +179,10 @@ Ext.ux.StartMenu = Ext.extend(Ext.menu.Menu, {
         }
 
         this.fireEvent("beforeshow", this);
-        var posArray = this.el.getAlignToXY(el, pos || this.defaultAlign)
+        var posArray = this.el.getAlignToXY(el, pos || this.defaultAlign);
         //kir add 15.03.2011
         // Если taskbar находится вверху, делается переназначение положения.
-        posArray[1] = posArray[1] < 0 ? el.getHeight() : posArray[1]
+        posArray[1] = posArray[1] < 0 ? el.getHeight() : posArray[1];
         this.showAt(posArray ,parentMenu, false);
 
         var tPanelWidth = this.toolsPanelWidth;
@@ -270,7 +270,7 @@ Ext.ux.StartMenu = Ext.extend(Ext.menu.Menu, {
 Ext.ux.TaskBar = function(app){
     this.app = app;
     this.init();
-}
+};
 
 Ext.extend(Ext.ux.TaskBar, Ext.util.Observable, {
     init : function(){
@@ -394,7 +394,6 @@ Ext.ux.TaskButtonsPanel = Ext.extend(Ext.BoxComponent, {
     initComponent : function() {
         Ext.ux.TaskButtonsPanel.superclass.initComponent.call(this);
         this.on('resize', this.delegateUpdates);
-
         this.items = [];
 
         this.stripWrap = Ext.get(this.el).createChild({
@@ -724,16 +723,16 @@ Ext.extend(Ext.ux.TaskBar.TaskButton, Ext.Button, {
         this.cmenu.on('beforeshow', function(){
             var items = this.cmenu.items.items;
             var w = this.win;
-			if (w.masked) {
-				 for (var i = 0, len = items.length; i < len; i++) {
-				 	items[i].setDisabled(true);
-				 }
-			}
-			else {
-				items[0].setDisabled(w.maximized !== true && w.hidden !== true);
-				items[1].setDisabled(w.minimized === true || !w.minimizable);
-				items[2].setDisabled(w.maximized === true || w.hidden === true || !w.maximizable);
-			}
+            if (w.masked) {
+                for (var i = 0, len = items.length; i < len; i++) {
+                    items[i].setDisabled(true);
+                }
+            }
+            else {
+                items[0].setDisabled(w.maximized !== true && w.hidden !== true);
+                items[1].setDisabled(w.minimized === true || !w.minimizable);
+                items[2].setDisabled(w.maximized === true || w.hidden === true || !w.maximizable);
+            }
         }, this);
 
         this.el.on('contextmenu', function(e){
@@ -745,6 +744,9 @@ Ext.extend(Ext.ux.TaskBar.TaskButton, Ext.Button, {
             var xy = e.getXY();
             xy[1] -= this.cmenu.el.getHeight();
             this.cmenu.showAt(xy);
+        }, this);
+        this.win.on('close', function(){
+            this.cmenu.destroy();
         }, this);
     },
 
@@ -760,13 +762,13 @@ Ext.extend(Ext.ux.TaskBar.TaskButton, Ext.Button, {
 
 
 Ext.ux.Clock = Ext.extend(Ext.Toolbar.TextItem,{
-	shortdays: ["Вс", "Пн", "Вт", "Ср", "Чт", "Пт", "Сб"],
+    shortdays: ["Вс", "Пн", "Вт", "Ср", "Чт", "Пт", "Сб"],
     currTime: function(){
-		var d = new Date();
-		var dateStr = d.format('d (XXX) M Y G:i:s');
-		var day = this.shortdays[d.getDay()];
-		return dateStr.replace('XXX', day);
-	}
+        var d = new Date();
+        var dateStr = d.format('d (XXX) M Y G:i:s');
+        var day = this.shortdays[d.getDay()];
+        return dateStr.replace('XXX', day);
+    }
     ,initComponent: function() {
         Ext.apply(this, {
             text: this.currTime()
@@ -779,7 +781,7 @@ Ext.ux.Clock = Ext.extend(Ext.Toolbar.TextItem,{
             run: this.update,
             scope: this,
             interval: 1000 //1 second
-        }
+        };
         Ext.TaskMgr.start(this.clock_updater);
     }
     ,update: function() {
@@ -788,25 +790,148 @@ Ext.ux.Clock = Ext.extend(Ext.Toolbar.TextItem,{
 });
 Ext.reg('ux_clock', Ext.ux.Clock);
 
+function getDesktopComponent(el) {
+    var module = AppDesktop.getModule(el.id.replace('-shortcut', ''));
+    if(module){
+        return module.launcher;
+    } else {
+        // если не нашли в модулях, то поищем вообще в компонентах
+        return Ext.getCmp(el.id.replace(/-shortcut\d*/, ''));
+    }
+}
+
 /*!
  * Ext JS Library 3.3.0
  * Copyright(c) 2006-2010 Ext JS, Inc.
  * licensing@extjs.com
  * http://www.extjs.com/license
  */
-Ext.Desktop = function(app){
-    var taskbar,
-        desktopEl = Ext.get('x-desktop'),
-        taskbarEl = Ext.get('ux-taskbar'),
-        shortcuts = Ext.get('x-shortcuts');
 
-    this.taskbar = taskbar = new Ext.ux.TaskBar(app);
-    this.xTickSize = this.yTickSize = 1;
+TopToolbar = Ext.extend(Ext.Panel, {
+    monitorResize: true,
+    autoWidth: true,
+    autoHeight: true,
+    height: 0,
+    style: 'margin-top:0px',
+    bodyStyle: 'padding:0px',
+    renderTo: 'ux-toptoolbar',
+    autoScroll: true,
+    tbar: [],
 
-    // В ИЕ7 не поддерживается display: inline-block
-    // и из-за этого ярлыки на рабочем столе выстраиваются в одну линию
-    // Этот недостаток предотвращается навешиванием на ресайз обработчика:
-    if (Ext.isIE7) {
+    initComponent : function() {
+        TopToolbar.superclass.initComponent.call(this);
+        Ext.EventManager.onWindowResize(this.fireResize, this);
+    },
+    fireResize : function(w, h){
+        this.onResize(w, 0, w, 0);
+        this.fireEvent('resize', this, w, h, w, h);
+    },
+    beforeDestroy : function(){
+        TopToolbar.superclass.beforeDestroy.call(this);
+        Ext.EventManager.removeResizeListener(this.fireResize, this);
+    }
+});
+
+Ext.define('Ext.Desktop', {
+    constructor: function (app) {
+        this.primaryEvent = app.primaryEvent || 'click';
+        this.enableDragAndDrop = app.enableDragAndDrop;
+        this.activeWindow = undefined;
+        this.windowManager = new Ext.WindowGroup();
+        this.taskbar = new Ext.ux.TaskBar(app);
+        this.xTickSize = this.yTickSize = 1;
+
+        var shortcuts = Ext.get('x-shortcuts');
+        if(shortcuts){
+            app.on('ready', function(){
+                Ext.each(shortcuts.query('td'), function(item){
+                    this.prepareDesktopItem(Ext.get(item));
+                }, this);
+            }, this);
+        }
+
+        //ZIgi 16.12 дабы окна рендерились только внутри десктопа
+        //оставляя верхний и нижний тулбары
+        Ext.override(Ext.Window,
+        {
+            renderTo: 'x-desktop'
+        });
+
+        // В ИЕ7 не поддерживается display: inline-block
+        // и из-за этого ярлыки на рабочем столе выстраиваются в одну линию
+        // Этот недостаток предотвращается навешиванием на ресайз обработчика:
+        if (Ext.isIE7) {
+            this.tuneForIE7();
+        }
+    },
+
+    addModules: function (modules) {
+        var toolsNotCreated = true;
+        if (modules.length > 0) {
+        var tbar;
+            for (var i = 0; i < modules.length; i++) {
+                var m = modules[i];
+                if (m && m.id) {
+                    if (m.id.indexOf('toptoolbar-item') === 0) {
+                        if(toolsNotCreated){
+                            this.topToolBarPanel = new TopToolbar();
+                            tbar = this.topToolBarPanel.getTopToolbar();
+                            // добавим функционал друг энд глюк
+                                tbar.on('add', function (toolbar, cmp) {
+                                // компонент можно тянуть, если у него есть признак :)
+                                if (cmp.dragable === true){
+                                    cmp.on('render', function(){
+                                        var dd = new Ext.dd.DragSource(this.el,{
+                                            ddGroup: 'toolbaritems',
+                                            scroll: false,
+                                            dragData: cmp,
+                                            onStartDrag: function(){
+                                                // закроем все меню при начале перетаскивания
+                                                tbar.cascade(function () {
+                                                    if (this.hideMenu) this.hideMenu();
+                                                });
+                                            }
+                                        });
+                                    }, cmp);
+                                }
+                            });
+                            toolsNotCreated = false;
+                        }
+                        if(m.launcher.text == 'FILLBLOCK'){
+                            tbar.add('->');
+                        } else if(m.launcher.text == 'TIMEBLOCK'){
+                            var clock = new Ext.ux.Clock();
+                            tbar.add(clock);
+                        } else if(m.launcher.text == '-'){
+                            tbar.add('-');
+                        } else if(m.launcher.text == 'UI_OBJECT'){
+                            tbar.add(m.launcher.ui_object);
+                        } else {
+                            tbar.add({
+                                scale: 'small'
+                               ,iconAlign: 'left'
+                               ,text: m.launcher.text
+                               ,iconCls: m.launcher.iconCls
+                               ,handler: m.launcher.handler
+                               ,menu: m.launcher.menu
+                               ,tooltip: m.launcher.tooltip
+                               ,dragable: this.enableDragAndDrop
+                               ,dragData: m
+                            });
+                        }
+                    }
+                }
+            }
+            if(!toolsNotCreated){
+                this.topToolBarPanel.doLayout();
+            }
+        }
+
+        this.layout();
+        Ext.EventManager.onWindowResize(this.layout);
+    },
+
+    tuneForIE7: function () {
         Ext.EventManager.onWindowResize(function () {
             var box,
                 shortcutsElements,
@@ -854,217 +979,110 @@ Ext.Desktop = function(app){
                 }
             }
         });
-    }
+        Ext.EventManager.fireResize();
+    },
 
-
-    //ZIgi 16.12 дабы окна рендерились только внутри десктопа
-    //оставляя верхний и нижний тулбары
-    Ext.override(Ext.Window,
-    {
-        renderTo: 'x-desktop'
-    });
-
-    var windows = new Ext.WindowGroup();
-    var activeWindow;
-
-    var toptoolbarEl = Ext.get('ux-toptoolbar');
-    
-    var TopToolbar = Ext.extend(Ext.Panel, {
-        monitorResize: true,
-        autoWidth: true,
-        autoHeight: true,
-        height: 0,
-        style: 'margin-top:0px',
-        bodyStyle: 'padding:0px',
-        renderTo: 'ux-toptoolbar',       
-        autoScroll: true,
-        tbar: [],
-        initComponent : function() {
-            TopToolbar.superclass.initComponent.call(this);
-            Ext.EventManager.onWindowResize(this.fireResize, this);
-        },
-        fireResize : function(w, h){
-            this.onResize(w, 0, w, 0);
-            this.fireEvent('resize', this, w, h, w, h);
-        }
-    });
-
-    var ms = app.getModules();
-    tools_not_created = true;
-    if (ms.length > 0) {
-        var pnl;
-        var tbar;
-        for(var i = 0, len = ms.length; i < len; i++){
-            var m = ms[i];
-            if (m && m.id) {                           
-                if (m.id.indexOf('toptoolbar-item') == 0) {
-                    if(tools_not_created){
-                        pnl = new TopToolbar();
-                        tbar = pnl.getTopToolbar();
-                        tools_not_created = false;
-                    };
-                    if(m.launcher.text == 'FILLBLOCK'){
-                        tbar.add('->');
-                    } else if(m.launcher.text == 'TIMEBLOCK'){
-                        var clock = new Ext.ux.Clock();
-                        tbar.add(clock);
-                    } else if(m.launcher.text == '-'){
-                        tbar.add('-');
-    				} else if(m.launcher.text == 'UI_OBJECT'){
-                        tbar.add(m.launcher.ui_object);
-                    } else {
-                        tbar.add({
-                            scale: 'small'
-                           ,iconAlign: 'left'
-                           ,text: m.launcher.text
-                           ,iconCls: m.launcher.iconCls
-                           ,handler: m.launcher.handler
-                           ,menu: m.launcher.menu
-    					   ,tooltip: m.launcher.tooltip
-                        });
-                    };
-                };
-            }
-        };
-        if(!tools_not_created){
-            pnl.doLayout();
-        }
-    };  
-
-    function minimizeWin(win){
+    minimizeWin: function (win) {
         win.minimized = true;
         win.hide();
-    }
+    },
 
-    function markActive(win){
-        if(activeWindow && activeWindow != win){
-            markInactive(activeWindow);
+    markActive: function (win) {
+        if(this.activeWindow && this.activeWindow != win){
+            this.markInactive(this.activeWindow);
         }
-        taskbar.setActiveButton(win.taskButton);
-        activeWindow = win;
+        this.taskbar.setActiveButton(win.taskButton);
+        this.activeWindow = win;
         Ext.fly(win.taskButton.el).addClass('active-win');
         win.minimized = false;
-    }
+    },
 
-    function markInactive(win){
-        if(win == activeWindow){
-            activeWindow = null;
+    markInactive: function (win) {
+        if(win == this.activeWindow){
+            this.activeWindow = null;
             Ext.fly(win.taskButton.el).removeClass('active-win');
         }
-    }
+    },
 
-    function removeWin(win){
-        taskbar.removeTaskButton(win.taskButton);
-        layout();
-    }
+    removeWin: function (win){
+        this.taskbar.removeTaskButton(win.taskButton);
+        this.layout();
+    },
 
-    function layout(){
-        var viewHeight = Ext.lib.Dom.getViewHeight(),
+    layout: function () {
+        var taskbarEl = Ext.get('ux-taskbar'),
+            desktopEl = Ext.get('x-desktop'),
+            toptoolbarEl = Ext.get('ux-toptoolbar'),
+            viewHeight = Ext.lib.Dom.getViewHeight(),
             taskbarHeight = taskbarEl.getHeight(),
             toptoolbarHeight = toptoolbarEl.getHeight();
 
         desktopEl.setHeight(viewHeight - taskbarHeight - toptoolbarHeight);
-    }
-    Ext.EventManager.onWindowResize(layout);
+    },
 
-    this.layout = layout;
-
-    this.createWindow = function(win, cls){
-        /* D prefer 24.03.10 
-         * modify @config parameter to @win parameter
-         * win - Готовое окно
-         * >>
-        var win = new (cls||Ext.Window)(
-            Ext.applyIf(config||{}, {
-                renderTo: desktopEl,
-                manager: windows,
-                minimizable: true,
-                maximizable: true
-            })
-        );*/
-        //win.render(desktopEl);
-
-        win.taskButton = taskbar.addTaskButton(win);
-
-        //win.cmenu = new Ext.menu.Menu({
-        //    items: []
-        //});
-
+    createWindow: function (win) {
+        win.taskButton = this.taskbar.addTaskButton(win);
         win.animateTarget = win.taskButton.el;
 
-        win.on({
-            'activate': {
-                fn: markActive
-            },
-            'beforeshow': {
-                fn: markActive
-            },
-            'deactivate': {
-                fn: markInactive
-            },
-            'minimize': {
-                fn: minimizeWin
-            },
-            'close': {
-                fn: removeWin
-            }
-        });
+        win.on('activate', this.markActive, this);
+        win.on('beforeshow', this.markActive, this);
+        win.on('deactivate', this.markInactive, this);
+        win.on('minimize', this.minimizeWin, this);
+        win.on('close', this.removeWin, this);
 
-        layout();
+        this.markActive(win);
+        this.layout();
         return win;
-    };
+    },
 
-    this.getManager = function(){
-        return windows;
-    };
+    getManager: function () {
+        return this.windowManager;
+    },
 
-    this.getWindow = function(id){
-        return windows.get(id);
-    }
+    getWindow: function (id) {
+        return this.getManager().get(id);
+    },
 
-    this.getWinWidth = function(){
+    getWinWidth: function () {
         var width = Ext.lib.Dom.getViewWidth();
         return width < 200 ? 200 : width;
-    }
+    },
 
-    this.getWinHeight = function(){
-        var height = (Ext.lib.Dom.getViewHeight()-taskbarEl.getHeight());
+    getWinHeight: function () {
+        var taskbarEl = Ext.get('ux-taskbar'),
+            height = (Ext.lib.Dom.getViewHeight() - taskbarEl.getHeight());
         return height < 100 ? 100 : height;
-    }
+    },
 
-    this.getWinX = function(width){
+    getWinX: function (width) {
         return (Ext.lib.Dom.getViewWidth() - width) / 2
-    }
+    },
 
-    this.getWinY = function(height){
+    getWinY: function (height) {
+        var taskbarEl = Ext.get('ux-taskbar'),
+            toptoolbarEl = Ext.get('ux-toptoolbar');
         return (Ext.lib.Dom.getViewHeight()-taskbarEl.getHeight() - height - toptoolbarEl.getHeight()) / 2;
-    }
+    },
 
-    layout();
-
-    // Если в прикладном приложении при создании Ext.app.App передать в словаре
-    // параметр primaryEvent, то срабатывание именно этого эвента запустит
-    // действие, назначенное на ярлык на рабочем столе.
-    // Пример: если передать primaryEvent: 'dblclick', то ярлыки будут
-    // открываться только по даблклику.
-    var primaryEvent = app.primaryEvent || 'click';
-    if(shortcuts){
-        shortcuts.on(primaryEvent, function(e, t){
+    prepareDesktopItem: function (el) {
+        var shortcuts = Ext.get('x-shortcuts');
+        if (this.enableDragAndDrop) {
+            // добавим возможность тащить
+            var dd = new Ext.dd.DragSource(el, {
+                ddGroup: 'desktopitems',
+                scroll: false,
+                dragData: getDesktopComponent(el)
+            });
+        }
+        el.on(this.primaryEvent, function(e, t){
             var t = e.getTarget('td', shortcuts);
 			if(t){
                 e.stopEvent();
-                var module = app.getModule(t.id.replace('-shortcut', ''));
-                if(module){
-                    module.launcher.handler();
-                }
+                getDesktopComponent(t).handler();
             }
         });
     }
-
-    if (Ext.isIE7) {
-        Ext.EventManager.fireResize();
-    }
-};
+});
 
 /*!
  * Ext JS Library 3.3.0
@@ -1072,23 +1090,44 @@ Ext.Desktop = function(app){
  * licensing@extjs.com
  * http://www.extjs.com/license
  */
-Ext.app.App = function(cfg){
-    Ext.apply(this, cfg);
-    this.addEvents({
-        'ready' : true,
-        'beforeunload' : true
-    });
+Ext.app.Module = Ext.extend(Ext.util.Observable, {
+    constructor: function (config) {
+        Ext.apply(this, config);
+        Ext.app.Module.superclass.constructor.call(this);
+    }
+});
 
-    Ext.onReady(this.initApp, this);
-};
-
-Ext.extend(Ext.app.App, Ext.util.Observable, {
+/*!
+ * Ext JS Library 3.3.0
+ * Copyright(c) 2006-2010 Ext JS, Inc.
+ * licensing@extjs.com
+ * http://www.extjs.com/license
+ */
+Ext.app.App = Ext.extend(Ext.util.Observable, {
     isReady: false,
     startMenu: null,
     modules: null,
 
-    getStartConfig : function(){
-		//
+    constructor: function (desktopConfig, params) {
+        this.startMenuIcon = params.startMenuIcon;
+        this.startMenuText = params.startMenuText;
+
+        this.enableDragAndDrop = params.enableDragAndDrop;
+        this.addDesktopItemUrl = params.addDesktopItemUrl;
+        this.removeDesktopItemUrl = params.removeDesktopItemUrl;
+
+        this.menuItems = desktopConfig.menuItems;
+        this.desktopItems = desktopConfig.desktopItems;
+        this.topToolbarItems = desktopConfig.topToolbarItems;
+        this.toolboxItems = desktopConfig.toolboxItems;
+
+        this.extraParams = params.extra;
+
+        this.addEvents({
+            'ready': true,
+            'beforeunload': true
+        });
+        Ext.onReady(this.initApp, this);
     },
 
     initApp : function(){
@@ -1100,42 +1139,116 @@ Ext.extend(Ext.app.App, Ext.util.Observable, {
 
         this.modules = this.getModules();
         if(this.modules){
+            this.getDesktop().addModules(this.modules);
             this.initModules(this.modules);
         }
-
-        this.init();
 
         Ext.EventManager.on(window, 'beforeunload', this.onUnload, this);
         this.fireEvent('ready', this);
         this.isReady = true;
+
+        if (this.enableDragAndDrop) {
+            var dropzone = new Ext.dd.DropTarget(Ext.get('ux-toptoolbar'), {
+                app: this,
+                ddGroup: 'desktopitems',
+                notifyDrop: function (source, e, data) {
+                    this.app.removeDesktopItem(source.id);
+                    return true;
+                }
+            });
+
+            var dropzone = new Ext.dd.DropTarget(Ext.get('x-desktop'), {
+                app: this,
+                ddGroup: 'toolbaritems',
+                notifyDrop: function (source, e, data) {
+                    this.app.addDesktopItem(source, e, data);
+                    return true;
+                }
+            });
+        }
     },
 
-    getModules : Ext.emptyFn,
-    init : Ext.emptyFn,
+    addDesktopItem: function(source, e, data){
+        // добавим ярлык на рабочий стол
+        var shortcuts = Ext.query("#x-shortcuts > tbody > tr")[0];
+        var count = shortcuts.querySelectorAll('td').length;
+        var name = data.id + '-shortcut' + count;
+        shortcuts.insertAdjacentHTML(
+            'beforeEnd', this.getShortcutHTML(name, this.getShortcutIconCls(data), data.text));
+        // навесим обработчик
+        this.getDesktop().prepareDesktopItem(Ext.get(name));
+
+        if (this.addDesktopItemUrl){
+            Ext.Ajax.request({
+                url: this.addDesktopItemUrl,
+                params: this.getAddDesktopItemParams(data),
+                method: 'POST',
+                failure: function(){
+                    uiAjaxFailMessage.apply(this, arguments);
+                },
+                scope: this
+            });
+        }
+    },
+
+    getShortcutIconCls: function (data) {
+        return 'default-launcher';
+    },
+
+    getShortcutHTML: function (id, iconCls, text) {
+        return String.format(
+            '<td id="{0}"><a href="#"><div class="base-desktop-image {1}"></div><div class="desktop-item-shortcut-label">{2}</div></a></td>',
+            id, iconCls, text
+        );
+    },
+
+    getAddDesktopItemParams: function (data) {
+        return {}
+    },
+
+    getRemoveDesktopItemParams: function (data) {
+        return {}
+    },
+
+    removeDesktopItem: function(id){
+        var el = Ext.get(id),
+            cmp = getDesktopComponent(el);
+        el.removeAllListeners();
+        // уберем ярлык с рабочего стола
+        Ext.query('#' + el.id)[0].remove();
+
+        if (this.removeDesktopItemUrl){
+            Ext.Ajax.request({
+                url: this.removeDesktopItemUrl,
+                params: this.getRemoveDesktopItemParams(cmp),
+                method: 'POST',
+                failure: function(){
+                    uiAjaxFailMessage.apply(this, arguments);
+                },
+                scope: this
+            });
+        }
+    },
 
     initModules : function(ms){
         for(var i = 0, len = ms.length; i < len; i++){
             var m = ms[i];
-			// M prefer 23.03.10 >>
-            // this.launcher.add(m.launcher);	
-            // -->
             if (m && m.launcher && m.launcher.in_start_menu == true) {
-            	this.launcher.add(m.launcher);		
-            };
-            // prefer <<
-           if (m) { 
+                this.launcher.add(m.launcher);
+            }
+           if (m) {
                 m.app = this;
            }
         }
     },
 
     getModule : function(name){
-    	var ms = this.modules;
-    	for(var i = 0, len = ms.length; i < len; i++){
+        var ms = this.modules;
+        for(var i = 0, len = ms.length; i < len; i++){
             //ZIgi 23.02.11
-    		if(ms[i] && ( ms[i].id == name || ms[i].appType == name)){
-    			return ms[i];
-			}
+            if(ms[i] && ( ms[i].id == name || ms[i].appType == name)){
+                return ms[i];
+            }
         }
         return '';
     },
@@ -1156,21 +1269,109 @@ Ext.extend(Ext.app.App, Ext.util.Observable, {
         if(this.fireEvent('beforeunload', this) === false){
             e.stopEvent();
         }
+    },
+
+    // Реализация функции, которая выводит список
+    getModules : function(){
+        var res = [];
+
+        // пункты Главного Меню
+        this.addEachModuleTo(
+            res, this.menuItems, 'menu-item-', true
+        );
+
+        // элементы собственно Рабочего Стола
+        this.addEachModuleTo(
+            res, this.desktopItems, 'desktop-item-'
+        );
+
+        // верхняя панель
+        this.addEachModuleTo(
+            res, this.topToolbarItems, 'toptoolbar-item-'
+        );
+
+        res = this.postprocessModules(res);
+        return res;
+    },
+
+    postprocessModules: function(modules) {
+        return modules;
+    },
+
+    // Обязательные настройки меню "Пуск"
+    getStartConfig: function() {
+        var items = [];
+        for (var i = 0; i < this.toolboxItems.length; i += 1) {
+            var item = this.toolboxItems[i];
+            items.push(this.makeItem(item));
+        }
+        return {
+            toolItems: items,
+            title: this.startMenuText,
+            toolsPanelWidth: 120,
+            width: 330,
+            iconCls: this.startMenuIcon
+        };
+    },
+
+    /**
+    * Преобразователь конфигов для элементов в собственно элементы
+    */
+    makeItem: function (data) {
+        var res;
+        if (data == '-') {
+            res = data; // разделитель
+        } else {
+            res = {
+                scope: this,
+                text: data.text,
+                iconCls: data.icon
+            };
+            if (data.items != undefined && data.items.length > 0) {
+                res.handler = function() { return false; };
+                res.menu = [];
+                for (var i = 0; i < data.items.length; i += 1) {
+                    res.menu.push(this.makeItem(data.items[i]))
+                }
+            } else {
+                res.handler = function() {
+                    sendRequest(
+                        data.url,
+                        this.getDesktop(),
+                        data.context
+                    );
+                }.bind(this);
+            }
+        }
+        Ext.applyIf(res, data.extra || {});
+        return res;
+    },
+
+    /**
+     * Генератор модулей - потомков от Ext.app.Module
+     */
+    makeModule: function (data, idPrefix, idx, inStartMenu) {
+        /**
+         * Генератор словарей, описывающих элементы (под)меню
+         */
+        assert(data != '-', "Separator at top level!");
+        var module = new Ext.app.Module();
+        module.id = idPrefix + idx;
+        module.launcher = this.makeItem(data);
+        if (inStartMenu) {
+            module.launcher.in_start_menu = true;
+        }
+        return module;
+    },
+
+    /**
+     * Добавляет каждый элемент @source@ в @target@, как модуль
+     * с id вида (@prefix@ + N).
+     * Флаг inStartMenu=true добавит модуль в меню
+     */
+    addEachModuleTo: function (target, source, prefix, inStartMenu) {
+        for(var i = 0; i < source.length; i += 1) {
+            target.push(this.makeModule(source[i], prefix, i + 1, inStartMenu));
+        }
     }
-});
-
-/*!
- * Ext JS Library 3.3.0
- * Copyright(c) 2006-2010 Ext JS, Inc.
- * licensing@extjs.com
- * http://www.extjs.com/license
- */
-Ext.app.Module = function(config){
-    Ext.apply(this, config);
-    Ext.app.Module.superclass.constructor.call(this);
-    this.init();
-}
-
-Ext.extend(Ext.app.Module, Ext.util.Observable, {
-    init : Ext.emptyFn
 });
