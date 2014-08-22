@@ -13435,6 +13435,7 @@ Ext.m3.ObjectTree = Ext.extend(Ext.ux.tree.TreeGrid, {
         assert(params.rowIdName !== undefined, 'rowIdName is undefined');
         assert(params.actions !== undefined, 'actions is undefined');
 
+        this.rootVisible = params.rootVisible;
         this.allowPaging = params.allowPaging;
         this.rowIdName = params.rowIdName;
         this.actionNewUrl = params.actions.newUrl;
@@ -13796,6 +13797,7 @@ Ext.m3.ObjectTree = Ext.extend(Ext.ux.tree.TreeGrid, {
 });
 
 Ext.reg('m3-object-tree', Ext.m3.ObjectTree);
+
 Ext.namespace('Ext.ux');
 
 Ext.ux.OnDemandLoad = function(){
