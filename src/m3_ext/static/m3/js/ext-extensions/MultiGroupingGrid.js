@@ -401,6 +401,7 @@ Ext.extend(Ext.ux.grid.MultiGrouping, Ext.util.Observable, {
      * @param {Ext.Button} button Кнопка, которую удаляют
      */
     deleteGroupingButton:function(button){
+        button.dd.destroy();
         button.destroy();
         this.doGroup(this.getGroupColumns()) 
     },
