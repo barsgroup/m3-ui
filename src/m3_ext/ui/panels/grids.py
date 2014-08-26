@@ -15,9 +15,8 @@ from m3_ext.ui.containers.grids import ExtGridCheckBoxSelModel
 
 
 class ExtObjectGrid(containers.ExtGrid):
-
     """
-    Панель с гqридом для управления списком объектов.
+    Панель с гридом для управления списком объектов.
     """
     #==========================================================================
     # Внутренние классы для ExtObjectGrid
@@ -195,9 +194,6 @@ class ExtObjectGrid(containers.ExtGrid):
                         item.make_read_only):
                     item.make_read_only(
                         access_off, exclude_list, *args, **kwargs)
-
-        # убираем редактирование записи по даблклику
-        self.dblclick_handler = 'Ext.emptyFn'
 
     @property
     def handler_beforenew(self):
