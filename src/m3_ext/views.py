@@ -19,23 +19,13 @@ def workspace(
     :param template: имя файла шаблона
     :type template: str
     """
-    def make_context(request):
-        """
-        Формирует контекст, прогоняя request через цепочку процессоров
-        """
-        return reduce(
-            lambda x, f: x.update(f(request)) or x,
-            context_processors,
-            {}
-        )
-
+    from django.conf import settings
     def workspace_view(request):
         u"""
         view для отображения Рабочего Стола
         """
         context = django_template.RequestContext(
-            request, make_context(request))
-
+            request, {'DEBUG': settings.DEBUG},
+            processors=context_processors)
         return render_to_response(template, context)
-
     return workspace_view
