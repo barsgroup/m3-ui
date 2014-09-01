@@ -585,13 +585,13 @@ class ExtMultiGroupinGrid(containers.ExtGrid):
             for column in self.columns:
                 if column.tooltip:
                     tooltips.append(column.tooltip)
-                else:
+                elif column.data_index:
                     tooltips.append({
                         'field': column.data_index,
                         'tpl': '{%s}' % column.data_index
                     })
             self.plugins.append(
-                'new Ext.ux.plugins.grid.CellToolTips(%s)' % tooltips)
+                'new Ext.ux.plugins.grid.CellToolTips(%s)' % json.dumps(tooltips))
         return super(ExtMultiGroupinGrid, self).t_render_plugins()
 
     @property
