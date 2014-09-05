@@ -643,10 +643,17 @@ Ext.m3.AdvancedComboBox = Ext.extend(Ext.m3.ComboBox, {
             this.showDictSelectBtn();
             this.showDropDownBtn();
         } else {
-            this.hideClearBtn();
-            this.hideEditBtn();
-            this.hideDictSelectBtn();
-            this.hideDropDownBtn();
+            if (this.triggers){ // this.triggers появляется только после рендера
+                this.hideClearBtn();
+                this.hideEditBtn();
+                this.hideDictSelectBtn();
+                this.hideDropDownBtn();
+            } else { // иначе достаточно просто пометить соответствующие поля
+                this.hiddenTrigger1 = true; // для правильного расчета
+                this.hiddenTrigger2 = true; // ширины триггеров
+                this.hiddenTrigger3 = true;
+                this.hiddenTrigger4 = true;
+            }
         }
     },
 
@@ -672,14 +679,13 @@ Ext.m3.AdvancedComboBox = Ext.extend(Ext.m3.ComboBox, {
         }
 
         this.disableTriggers(readOnly);
+        this.showTriggers(!readOnly); // скрытие/показ триггеров
+
         Ext.m3.AdvancedComboBox.superclass.setReadOnly.call(this, readOnly);
         if (readOnly) {
             this.el.setWidth(width);
             if (this.wrap) this.wrap.setWidth(width);
         } else {
-
-            this.showTriggers(!readOnly);
-
             this.onResize(width);
         }
     }
