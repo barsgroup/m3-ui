@@ -99,6 +99,12 @@ Ext.extend(Ext.ux.grid.MultiGrouping, Ext.util.Observable, {
                     button.dd = new Ext.dd.DD(el, undefined, {
                         isTarget: true
                     });
+
+                    button.on('beforedestroy', function(button) {
+                        if (button.dd) {
+                            button.dd.destroy();
+                        }
+                    });
                     
                     //if a button has a menu, it is disabled while dragging with this function
                     var menuDisabler = function() {
@@ -401,7 +407,6 @@ Ext.extend(Ext.ux.grid.MultiGrouping, Ext.util.Observable, {
      * @param {Ext.Button} button Кнопка, которую удаляют
      */
     deleteGroupingButton:function(button){
-        button.dd.destroy();
         button.destroy();
         this.doGroup(this.getGroupColumns()) 
     },
@@ -419,6 +424,9 @@ Ext.extend(Ext.ux.grid.MultiGrouping, Ext.util.Observable, {
             this.droppable.init(this.tbar);
             this.droppable.createDropTarget();
             this.tbar.on('reordered',this.changeGroupingOrder,this);
+            this.tbar.on('beforedestroy', function() {
+                this.droppable.dropTarget.destroy();
+            }.bind(this));
             var startItemCount = this.tbar.items.length;
             for (var ind = 0; ind < this.toolItems.length; ind++) {
             	item = this.toolItems[ind];
