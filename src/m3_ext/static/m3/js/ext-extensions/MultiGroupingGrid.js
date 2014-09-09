@@ -426,7 +426,7 @@ Ext.extend(Ext.ux.grid.MultiGrouping, Ext.util.Observable, {
             this.tbar.on('reordered',this.changeGroupingOrder,this);
             this.tbar.on('beforedestroy', function() {
                 this.droppable.dropTarget.destroy();
-            }.bind(this));
+            }, this);
             var startItemCount = this.tbar.items.length;
             for (var ind = 0; ind < this.toolItems.length; ind++) {
             	item = this.toolItems[ind];
