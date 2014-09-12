@@ -407,8 +407,10 @@ Ext.extend(Ext.ux.grid.MultiGrouping, Ext.util.Observable, {
      * @param {Ext.Button} button Кнопка, которую удаляют
      */
     deleteGroupingButton:function(button){
+        // При явном вызове destroy event'ы не отсылаются. Удалим dragSource вручную.
+        button.dd.destroy();
         button.destroy();
-        this.doGroup(this.getGroupColumns()) 
+        this.doGroup(this.getGroupColumns())
     },
     /**
      * Событие отрисовки панели группировки
