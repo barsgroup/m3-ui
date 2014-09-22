@@ -1,16 +1,18 @@
-#coding: utf-8
+# coding: utf-8
 import os
 from setuptools import setup, find_packages
+
 
 def read(fname):
     try:
         return open(os.path.join(os.path.dirname(__file__),
-            fname)).read()
+                                 fname)).read()
     except IOError:
         return ''
 
+
 setup(name='m3-ext3',
-      version='3.0.0',
+      version='3.0.1',
       url='https://bitbucket.org/barsgroup/m3-ext',
       license='MIT',
       author='BARS Group',
@@ -22,12 +24,12 @@ setup(name='m3-ext3',
       long_description=read('README'),
       include_package_data=True,
       classifiers=[
-        'Intended Audience :: Developers',
-        'Environment :: Web Environment',
-        'Natural Language :: Russian',
-        'Natural Language :: English',
-        'Operating System :: OS Independent',
-        'Programming Language :: Python',
-      	'Development Status :: 4 - Beta',
-	],
+          'Intended Audience :: Developers',
+          'Environment :: Web Environment',
+          'Natural Language :: Russian',
+          'Natural Language :: English',
+          'Operating System :: OS Independent',
+          'Programming Language :: Python',
+          'Development Status :: 4 - Beta',
+      ],
 )

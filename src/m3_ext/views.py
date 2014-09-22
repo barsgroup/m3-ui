@@ -1,11 +1,10 @@
 # -*- coding: utf-8 -*-
 import json
 
-from django.core.urlresolvers import reverse
 from django.http import HttpResponse
 from django.conf import settings
 from django.shortcuts import render_to_response
-from django.template.context import RequestContext
+from django import template as django_template
 
 from m3_ext.ui.app_ui import BaseDesktopElement, MenuSeparator
 
@@ -15,32 +14,25 @@ from m3_ext.context_processors import DesktopProcessor
 DEFAULT_PROCESSORS = (DesktopProcessor.process,)
 
 
-def workspace(template='m3_workspace.html', context_processors=None):
+def workspace(
+        template='m3_workspace.html',
+        context_processors=DEFAULT_PROCESSORS
+):
     u"""
-    Возвращает view для отображения Рабочего Стола
+    Возвращает view для тображения Рабочего Стола
     на основе указанного шаблона
     :param template: имя файла шаблона
     :type template: str
     """
-    def make_context(request, ctx):
-        """
-        Формирует контекст, прогоняя request через цепочку процессоров
-        """
-        return reduce(
-            lambda x, f: x.update(f(request)) or x,
-            context_processors or [],
-            ctx
-        )
+    from django.conf import settings
 
     def workspace_view(request):
         u"""
         view для отображения Рабочего Стола
         """
-        context = RequestContext(
-            request,
-            make_context(
-                request,
-                {'desktop_url': reverse(desktop_items)}))
+        context = django_template.RequestContext(
+            request, {'DEBUG': settings.DEBUG},
+            processors=context_processors)
         return render_to_response(template, context)
 
     return workspace_view

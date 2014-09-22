@@ -36,6 +36,7 @@ class ExtTree(BaseExtPanel):
         handler_containercontextmenu="containerContextMenu",
         url="dataUrl",  # url для загрузки данных
         read_only="readOnly",  # Если включен - не рендерим drag'n'drop
+        root_visible='rootVisible',  # Отображать ли корневой элемент или нет
 
         plugins="plugins",  # перечень плагинов
     )
