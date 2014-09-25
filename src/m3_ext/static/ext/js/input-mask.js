@@ -14,6 +14,7 @@ Ext.extend(Ext.ux.Mask, Object, {
         this.Charset = " !\"#$%&\'()*+,-./0123456789:;<=>?@" + this.LetrasU + "[\]^_/`" + this.LetrasL + "{|}~";
         c.enableKeyEvents = true;
         c.on('keypress', function(field, evt) { return this.press(field, evt) }, this);
+        c.on('changemask', function(mask) { this.mask = mask }, this);
     },
     press: function(field, evt) {
         var value = field.getValue();
