@@ -637,10 +637,11 @@ Ext.define('Ext.m3.AdvancedComboBox', {
             width = this.bufferSize;
         }
 
+        Ext.m3.AdvancedComboBox.superclass.setReadOnly.call(this, readOnly);
+
         this.disableTriggers(readOnly);
         this.showTriggers(!readOnly); // скрытие/показ триггеров
 
-        Ext.m3.AdvancedComboBox.superclass.setReadOnly.call(this, readOnly);
         if (readOnly) {
             this.el.setWidth(width);
             if (this.wrap) this.wrap.setWidth(width);

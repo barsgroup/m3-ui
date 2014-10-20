@@ -1166,6 +1166,7 @@ Ext.define('Ext.m3.MultiGroupingGridPanel', {
                 }
             }, this);
         }
+        return window;
     },
     onEditRecordWindowOpenHandler: function (response, opts) {
         var window = smart_eval(response.responseText);
@@ -1176,6 +1177,7 @@ Ext.define('Ext.m3.MultiGroupingGridPanel', {
                 }
             }, this);
         }
+        return window;
     },
     /**
      * Общий метод создания новой записи в store
