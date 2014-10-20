@@ -1194,23 +1194,25 @@ Ext.m3.MultiGroupingGridPanel = Ext.extend(Ext.ux.grid.livegrid.GridPanel, {
      */
     ,onNewRecordWindowOpenHandler: function (response, opts){
         var window = smart_eval(response.responseText);
-        if(window){
+        if (window) {
             window.on('closed_ok', function(data){
                 if (this.fireEvent('rowadded', this, data)) {
                     this.createOrReplaceRecord(data, true);
                 }
             }, this);
         }
+        return window;
     }
     ,onEditRecordWindowOpenHandler: function (response, opts){
         var window = smart_eval(response.responseText);
-        if(window){
+        if (window) {
             window.on('closed_ok', function(data){
                 if (this.fireEvent('rowedited', this, data)) {
                     this.createOrReplaceRecord(data, false);
                 }
             }, this);
         }
+        return window;
     }
     /**
      * Общий метод создания новой записи в store
