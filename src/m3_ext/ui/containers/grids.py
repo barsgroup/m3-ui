@@ -210,9 +210,10 @@ class ExtGrid(BaseExtPanel):
             for column in self.columns:
                 column.make_read_only(
                     self.read_only, exclude_list, *args, **kwargs)
-
-        # убираем редактирование записи по даблклику
-        self.handler_dblclick = 'Ext.emptyFn'
+        
+        if self.read_only:
+            # убираем редактирование записи по даблклику
+            self.handler_dblclick = 'Ext.emptyFn'
 
         # контекстное меню.
         context_menu_items = [self.handler_contextmenu,
