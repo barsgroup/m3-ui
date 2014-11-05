@@ -16,6 +16,7 @@ from m3.actions.results import PreJsonResult as _PreJsonResult
 from m3.actions.context import ActionContext as _ActionContext
 
 from helpers import paginated_json_data as _paginated_json_data
+from m3_ext.ui.fields import ExtMultiSelectField
 
 
 def _set_action_url(obj, url, action):
@@ -70,11 +71,12 @@ class UIJsonEncoder(_M3JSONEncoder):
                 pack = ControllerCache.find_pack(obj.pack)
                 assert pack, 'Pack %s not found in ControllerCache' % pack
 
-                get_url = getattr(pack, 'get_multi_select_url', None) or getattr(pack, 'get_select_url')
-
                 # url формы выбора
                 if not getattr(obj, 'url', None):
-                    obj.url = get_url()
+                    if isinstance(pack, ExtMultiSelectField):
+                        obj.url = pack.get_multi_select_url()
+                    else:
+                        obj.url = pack.get_select_url()
 
                 # url формы редактирования элемента
                 if not getattr(obj, 'edit_url', None):
