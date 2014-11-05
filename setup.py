@@ -12,7 +12,7 @@ def read(fname):
 
 
 setup(name='m3-ui',
-      version='3.0.1.3',
+      version='3.0.1.4',
       url='https://bitbucket.org/barsgroup/m3-ext',
       license='MIT',
       author='BARS Group',
