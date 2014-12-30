@@ -1000,16 +1000,15 @@ Ext.m3.MultiGroupingGridPanel = Ext.extend(Ext.ux.grid.livegrid.GridPanel, {
             	this.view.showLoadMask(false);
 
                 try{
-
-                    // Если выполнилось, то пришел обьект - сообщение об ошибке.
-                    Ext.util.JSON.decode(res.responseText);
-
-                    // Выводим пользователю сообщение об отсутствие прав на выполнение действия
-                    Ext.Msg.show({
-                        title: 'Внимание'
-                        ,msg: 'У вас нет прав на выполнение этого действия!'
-                        ,buttons: Ext.Msg.OK
-                    })
+                    // Случай ошибки бизнес-логики на стороне сервера
+                    var result = Ext.util.JSON.decode(res.responseText);
+                    if (!result.success) {
+                        Ext.Msg.show({
+                            title: 'Внимание'
+                            ,msg: result.message
+                            ,buttons: Ext.Msg.OK
+                        });
+                    }
 
                 }catch(e){
                     // Если пришел не JSON, то открываем окно для скачивания
