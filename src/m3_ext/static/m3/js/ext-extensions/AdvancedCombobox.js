@@ -200,15 +200,25 @@ Ext.m3.AdvancedComboBox = Ext.extend(Ext.m3.ComboBox, {
             var triggerIndex = 'Trigger' + (index + 1);
             t.hide = function () {
                 var w = triggerField.wrap.getWidth();
+                if (w === 0) {
+                    w = triggerField.bufferSize;
+                    triggerField.wrap.setWidth(w);
+                }
+
                 this.dom.style.display = 'none';
-                triggerField.el.setWidth(w - triggerField.trigger.getWidth());
-                this['hidden' + triggerIndex] = true;
+                triggerField['hidden' + triggerIndex] = true;
+                triggerField.el.setWidth(w - triggerField.getTriggerWidth());
             };
             t.show = function () {
                 var w = triggerField.wrap.getWidth();
+                if (w === 0) {
+                    w = triggerField.bufferSize;
+                    triggerField.wrap.setWidth(w);
+                }
+
                 this.dom.style.display = '';
-                triggerField.el.setWidth(w - triggerField.trigger.getWidth());
-                this['hidden' + triggerIndex] = false;
+                triggerField['hidden' + triggerIndex] = false;
+                triggerField.el.setWidth(w - triggerField.getTriggerWidth());
             };
 
             if (this.allTriggers[index].hide) {
@@ -382,6 +392,46 @@ Ext.m3.AdvancedComboBox = Ext.extend(Ext.m3.ComboBox, {
         }
     },
     /**
+     * Показывает кнопку выбора из справочника
+     */
+    showDictSelectBtn: function () {
+        if (!this.hideTriggerDictSelect && this.rendered && !this.readOnly && !this.disabled) {
+            this.getTrigger(2).show();
+        } else {
+            this.hiddenTrigger3 = false || this.hideTriggerDictSelect || this.readOnly || this.disabled;
+        }
+    },
+    /**
+     * Скрывает кнопку выбора из справочника
+     */
+    hideDictSelectBtn: function () {
+        if (this.rendered) {
+            this.getTrigger(2).hide();
+        } else {
+            this.hiddenTrigger3 = true;
+        }
+    },
+    /**
+     * Показывает кнопку выпадающего списка
+     */
+    showDropDownBtn: function () {
+        if (!this.hideTriggerDropDown && this.rendered && !this.readOnly && !this.disabled) {
+            this.getTrigger(1).show();
+        } else {
+            this.hiddenTrigger2 = false || this.hideTriggerDropDown || this.readOnly || this.disabled;
+        }
+    },
+    /**
+     * Скрывает кнопку выпадающего списка
+     */
+    hideDropDownBtn: function () {
+        if (this.rendered) {
+            this.getTrigger(1).hide();
+        } else {
+            this.hiddenTrigger2 = true;
+        }
+    },
+    /**
      * Показывает кнопку открытия карточки элемента
      */
     showEditBtn: function () {
@@ -435,10 +485,13 @@ Ext.m3.AdvancedComboBox = Ext.extend(Ext.m3.ComboBox, {
         if (this.fireEvent('beforerequest', this)) {
 
             var parentWin = Ext.getCmp(this.actionContextJson['m3_window_id']),
+                mask;
+            if (parentWin) {
                 mask = new Ext.LoadMask(parentWin.getEl(),
                     {msg: "Пожалуйста выберите элемент...", msgCls: 'x-mask'});
+                mask.show();
+            }
 
-            mask.show();
             Ext.Ajax.request({
                 url: this.actionSelectUrl,
                 method: 'POST',
@@ -452,14 +505,17 @@ Ext.m3.AdvancedComboBox = Ext.extend(Ext.m3.ComboBox, {
                                 this.addRecordToStore(id, displayText);
                             }
                         }, this);
-
-                        win.on('close', function () {
-                            mask.hide();
-                        });
+                        if (mask) {
+                            win.on('close', function () {
+                                mask.hide();
+                            });
+                        }
                     }
                 },
                 failure: function (response, opts) {
-                    mask.hide();
+                    if (mask) {
+                        mask.hide();
+                    }
                     uiAjaxFailMessage.apply(this, arguments);
                 },
                 scope: this
@@ -584,17 +640,20 @@ Ext.m3.AdvancedComboBox = Ext.extend(Ext.m3.ComboBox, {
                 this.showClearBtn();
                 this.showEditBtn();
             }
-            if (!this.hideTriggerDictSelect) {
-                this.getTrigger(2).show();
-            }
-            if (!this.hideTriggerDropDown) {
-                this.getTrigger(1).show();
-            }
+            this.showDictSelectBtn();
+            this.showDropDownBtn();
         } else {
-            this.hideClearBtn();
-            this.hideEditBtn();
-            this.getTrigger(2).hide();
-            this.getTrigger(1).hide();
+            if (this.triggers){ // this.triggers появляется только после рендера
+                this.hideClearBtn();
+                this.hideEditBtn();
+                this.hideDictSelectBtn();
+                this.hideDropDownBtn();
+            } else { // иначе достаточно просто пометить соответствующие поля
+                this.hiddenTrigger1 = true; // для правильного расчета
+                this.hiddenTrigger2 = true; // ширины триггеров
+                this.hiddenTrigger3 = true;
+                this.hiddenTrigger4 = true;
+            }
         }
     },
 
@@ -615,15 +674,19 @@ Ext.m3.AdvancedComboBox = Ext.extend(Ext.m3.ComboBox, {
      */
     setReadOnly: function (readOnly) {
         var width = this.getWidth();
-        this.disableTriggers(readOnly);
+        if (width === 0) {
+            width = this.bufferSize;
+        }
+
         Ext.m3.AdvancedComboBox.superclass.setReadOnly.call(this, readOnly);
+
+        this.disableTriggers(readOnly);
+        this.showTriggers(!readOnly); // скрытие/показ триггеров
+
         if (readOnly) {
             this.el.setWidth(width);
             if (this.wrap) this.wrap.setWidth(width);
         } else {
-
-            this.showTriggers(!readOnly);
-
             this.onResize(width);
         }
     }

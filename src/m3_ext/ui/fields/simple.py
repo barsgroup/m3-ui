@@ -80,23 +80,23 @@ class ExtDateField(BaseExtField):
     def __init__(self, *args, **kwargs):
         super(ExtDateField, self).__init__(*args, **kwargs)
 
-        #
-        self.start_day = 1  # атрибут задает с какого дня начинается неделя в календаре.
-                            # 0-Воскресенье, 1-Понедельник, 2-Вторник и т.д.
+        # атрибут задает с какого дня начинается неделя в календаре.
+        # 0-Воскресенье, 1-Понедельник, 2-Вторник и т.д.
+        self.start_day = 1
 
-        #
+        # Прятать кнопку "Сегодняшняя дата"
         self.hide_today_btn = False
 
-        #
-        self.enable_key_events = False  # Разрешает перехват нажатий клавиш
+        # Разрешает перехват нажатий клавиш
+        self.enable_key_events = False
 
-        #
+        # Максимальная возможная дата
         self.max_value = None
 
-        #
+        # Минимально возможная дата
         self.min_value = None
 
-        #
+        # Формат даты
         try:
             self.format = settings.DATE_FORMAT.replace('%', '')
         except:
@@ -427,6 +427,9 @@ class ExtDisplayField(BaseExtField):
 
 
 class ExtDateTimeField(ExtDateField):
+    """
+    Поле ввода даты-времени
+    """
 
     def render(self):
         try:
@@ -441,6 +444,9 @@ class ExtDateTimeField(ExtDateField):
 
 
 class ExtAdvTimeField(BaseExtField):
+    """
+    Поле ввода времени с дополнительными ползунками
+    """
 
     def render(self):
         try:

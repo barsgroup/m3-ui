@@ -9,12 +9,12 @@ def read(fname):
     except IOError:
         return ''
 
-setup(name='m3-ext3',
-      version='2.0.5.11',
-      url='https://src.bars-open.ru/py/m3/m3_contrib/m3_ext_demo',
+setup(name='m3-ui',
+      version='2.0.7.4',
+      url='https://bitbucket.org/barsgroup/m3-ext',
       license='MIT',
       author='BARS Group',
-      author_email='telepenin@bars-open.ru',
+      author_email='bars@bars-open.ru',
       package_dir={'': 'src'},
       packages=find_packages('src'),
       description=read('DESCRIPTION'),
@@ -28,6 +28,7 @@ setup(name='m3-ext3',
         'Natural Language :: English',
         'Operating System :: OS Independent',
         'Programming Language :: Python',
-      	'Development Status :: 4 - Beta',
+        'License :: OSI Approved :: MIT License',
+	    'Development Status :: 5 - Production/Stable',
 	],
 )

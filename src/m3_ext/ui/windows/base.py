@@ -129,6 +129,7 @@ class BaseExtWindow(ExtUIComponent):
     def t_render_layout_config(self):
         """
         Рендерит конфиг, если указан layout
+        :rtype: str
         """
         return '{%s}' % ','.join([
             '%s:"%s"' % (k, v)
@@ -246,12 +247,14 @@ class BaseExtWindow(ExtUIComponent):
         """
         Осуществляет поиск экземпляра
         во вложенных объектах по имени экземпляра
+        :param name: имя экземпляра
+        :type name: str
         """
-        for item in self._items:
+        for item in self.items:
             if hasattr(item, 'name') and name == getattr(item, 'name'):
                 return item
 
-            if hasattr(item, '_items'):
+            if hasattr(item, 'find_by_name'):
                 res = item.find_by_name(name)
                 if res:
                     return res
@@ -283,6 +286,7 @@ class BaseExtWindow(ExtUIComponent):
     def t_render_keys(self):
         """
         Биндинг множества кнопок к их действиям
+        :rtype: str
         """
         return '[%s]' % ','.join([
             '{%s}' % ','.join([
@@ -294,6 +298,7 @@ class BaseExtWindow(ExtUIComponent):
     def _help_topic_full_path(self):
         """
         Возвращает квалицифирующее имя топика помощи
+        :rtype: str
         """
         if not self.help_topic:
             return ''

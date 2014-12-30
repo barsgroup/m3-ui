@@ -84,33 +84,6 @@ Ext.extend(Ext.ux.grid.MultiGrouping, Ext.util.Observable, {
 
             grid.on('afterrender',this.onRender,this);
             
-       		// Добавим плугин подсказок
-			var tipConf = [];
-			Ext.each(this.cm.columns, function(column,index){
-                if (column.tooltip != undefined) {
-                    // если задана настройка подсказок, то укажем ее
-                    tipConf.push(column.tooltip);
-                } else {
-                    // иначе собственные подсказки
-                    tipConf.push({
-                        field: column.dataIndex,
-                        tpl: '{' + column.dataIndex + '}'
-                    });
-                }
-	        });
-	        tipConf.push({
-	                field:this.groupFieldId,
-	                tpl:'{'+this.groupFieldId+'}',
-	                fn: function(params){
-				       	var rec = grid.getStore().getById(params[grid.getStore().idProperty]);
-				       	params[grid.groupPlugin.groupFieldId] = grid.groupPlugin.getGroupText(rec);
-				       	return params;
-					}
-	           });
-	        this.grid.tipPlugin = new Ext.ux.plugins.grid.CellToolTips(tipConf);
-	        this.grid.plugins.push(this.grid.tipPlugin);
-	        this.grid.tipPlugin.init(this.grid);
-
             this.reorderer = new Ext.ux.ToolbarReorderer({
                 owner:this,
                 createItemDD: function(button) {
@@ -125,6 +98,12 @@ Ext.extend(Ext.ux.grid.MultiGrouping, Ext.util.Observable, {
                     
                     button.dd = new Ext.dd.DD(el, undefined, {
                         isTarget: true
+                    });
+
+                    button.on('beforedestroy', function(button) {
+                        if (button.dd) {
+                            button.dd.destroy();
+                        }
                     });
                     
                     //if a button has a menu, it is disabled while dragging with this function
@@ -428,8 +407,10 @@ Ext.extend(Ext.ux.grid.MultiGrouping, Ext.util.Observable, {
      * @param {Ext.Button} button Кнопка, которую удаляют
      */
     deleteGroupingButton:function(button){
+        // При явном вызове destroy event'ы не отсылаются. Удалим dragSource вручную.
+        button.dd.destroy();
         button.destroy();
-        this.doGroup(this.getGroupColumns()) 
+        this.doGroup(this.getGroupColumns())
     },
     /**
      * Событие отрисовки панели группировки
@@ -445,6 +426,9 @@ Ext.extend(Ext.ux.grid.MultiGrouping, Ext.util.Observable, {
             this.droppable.init(this.tbar);
             this.droppable.createDropTarget();
             this.tbar.on('reordered',this.changeGroupingOrder,this);
+            this.tbar.on('beforedestroy', function() {
+                this.droppable.dropTarget.destroy();
+            }, this);
             var startItemCount = this.tbar.items.length;
             for (var ind = 0; ind < this.toolItems.length; ind++) {
             	item = this.toolItems[ind];
@@ -790,9 +774,23 @@ Ext.m3.MultiGroupingGridPanel = Ext.extend(Ext.ux.grid.livegrid.GridPanel, {
 				dataIdField: params.dataIdField,
 				dataDisplayField: params.dataDisplayField
 			};
-			plugins.push(new Ext.ux.grid.MultiGrouping(group_param));
+            var groupPlugin = new Ext.ux.grid.MultiGrouping(group_param)
+            plugins.push(groupPlugin);
+
+            if (params.showTooltips) {
+                var tipConf = [];
+                tipConf.push({
+                    field: groupPlugin.groupFieldId,
+                    tpl: '{' + groupPlugin.groupFieldId + '}',
+                    fn: function (params) {
+                        var rec = this.getStore().getById(params[this.getStore().idProperty]);
+                        params[groupPlugin.groupFieldId] = groupPlugin.getGroupText(rec);
+                        return params;
+                    }.bind(this)
+                });
+                plugins.push(new Ext.ux.plugins.grid.CellToolTips(tipConf));
+            }
 		}
-		
 		plugins = plugins.concat(params.plugins || []);
 		var bundedColumns = params.bundedColumns;
 		if (bundedColumns && bundedColumns instanceof Array &&
@@ -1196,23 +1194,25 @@ Ext.m3.MultiGroupingGridPanel = Ext.extend(Ext.ux.grid.livegrid.GridPanel, {
      */
     ,onNewRecordWindowOpenHandler: function (response, opts){
         var window = smart_eval(response.responseText);
-        if(window){
+        if (window) {
             window.on('closed_ok', function(data){
                 if (this.fireEvent('rowadded', this, data)) {
                     this.createOrReplaceRecord(data, true);
                 }
             }, this);
         }
+        return window;
     }
     ,onEditRecordWindowOpenHandler: function (response, opts){
         var window = smart_eval(response.responseText);
-        if(window){
+        if (window) {
             window.on('closed_ok', function(data){
                 if (this.fireEvent('rowedited', this, data)) {
                     this.createOrReplaceRecord(data, false);
                 }
             }, this);
         }
+        return window;
     }
     /**
      * Общий метод создания новой записи в store

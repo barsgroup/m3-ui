@@ -15,15 +15,13 @@ from m3_ext.ui.containers.grids import ExtGridCheckBoxSelModel
 
 
 class ExtObjectGrid(containers.ExtGrid):
-
     """
-    Панель с гqридом для управления списком объектов.
+    Панель с гридом для управления списком объектов.
     """
     #==========================================================================
     # Внутренние классы для ExtObjectGrid
     #=========================================================================
     class GridContextMenu(menus.ExtContextMenu):
-
         """
         Внутренний класс для удобной работы с контекстным меню грида
         """
@@ -197,9 +195,6 @@ class ExtObjectGrid(containers.ExtGrid):
                     item.make_read_only(
                         access_off, exclude_list, *args, **kwargs)
 
-        # убираем редактирование записи по даблклику
-        self.dblclick_handler = 'Ext.emptyFn'
-
     @property
     def handler_beforenew(self):
         return self._listeners.get('beforenewrequest')
@@ -349,16 +344,18 @@ class ExtObjectGrid(containers.ExtGrid):
 
 
 class ExtMultiGroupinGrid(containers.ExtGrid):
-
     """
     Грид с возможностью множественной группировки колонок.
-    Обработка группировки происходит на сервере (см. m3.helpers.datagrouping)
+    Обработка группировки происходит на сервере
+    .. seealso::
+        m3.helpers.datagrouping
     """
-    class GridExportMenu(menus.ExtContextMenu):
 
+    class GridExportMenu(menus.ExtContextMenu):
         """
         Внутренний класс для удобной работы с контекстным меню грида
         """
+
         def __init__(self, *args, **kwargs):
             super(ExtMultiGroupinGrid.GridExportMenu, self).__init__(
                 *args, **kwargs)
@@ -460,6 +457,9 @@ class ExtMultiGroupinGrid(containers.ExtGrid):
         # Признак редактирования на клиенте
         # - особенным образом обрабатываются данные при редактировании
         self.local_edit = False
+
+        # Признак отображения всплывающих подсказок
+        self.show_tooltips = True
 
         # Признак возможности группировки (показывает панель)
         self.groupable = True
@@ -565,6 +565,7 @@ class ExtMultiGroupinGrid(containers.ExtGrid):
             ('rowIdName', self.row_id_name),
             ('localEdit', self.local_edit),
             ('groupable', self.groupable),
+            ('showTooltips', self.show_tooltips),
             ('displayInfo', self.display_info),
             ('displayMsg', self.display_message),
             ('bufferSize', self.buffer_size),
@@ -577,6 +578,21 @@ class ExtMultiGroupinGrid(containers.ExtGrid):
 
     def t_render_params(self):
         return self._get_params_str()
+
+    def t_render_plugins(self):
+        if self.show_tooltips:
+            tooltips = []
+            for column in self.columns:
+                if column.tooltip:
+                    tooltips.append(column.tooltip)
+                elif column.data_index:
+                    tooltips.append({
+                        'field': column.data_index,
+                        'tpl': '{%s}' % column.data_index
+                    })
+            self.plugins.append(
+                'new Ext.ux.plugins.grid.CellToolTips(%s)' % json.dumps(tooltips))
+        return super(ExtMultiGroupinGrid, self).t_render_plugins()
 
     @property
     def handler_beforenew(self):
@@ -614,8 +630,8 @@ class ExtMultiGroupinGrid(containers.ExtGrid):
 
 class ExtObjectSelectionPanel(containers.ExtContainer):
     """
-    Класс, совмещающий возможность ObjectGrid'a и возможности выбора и запоминания значений
-    в случае Paging'a
+    Класс, совмещающий возможность ObjectGrid'a
+    и возможности выбора и запоминания значений в случае Paging'a
     """
 
     def __init__(self,

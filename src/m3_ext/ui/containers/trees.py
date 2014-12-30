@@ -36,6 +36,9 @@ class ExtTree(BaseExtPanel):
         # Текст для корневого элемента
         self.root_text = None
 
+        # Если включен - показываем корневой элемент
+        self.root_visible = False
+
         # Возможность использовать drag & drop.
         # То есть одновременные
         self.drag_drop = False
@@ -100,9 +103,11 @@ class ExtTree(BaseExtPanel):
     def t_render_root(self):
         return (
             "new Ext.tree.AsyncTreeNode({id: '-1', "
-            "expanded: true, allowDrag: false %s %s})"
+            "expanded: true, allowDrag: false, "
+            "uiProvider: Ext.ux.tree.TreeGridNodeUI %s %s %s})"
         ) % (
             (',text:"%s"' % self.root_text) if self.root_text else '',
+            (',%s:"%s"' % (self.columns[0].data_index, self.root_text)) if self.columns and self.root_text else '',
             (',children:[%s]' % ','.join(
                 [node.render() for node in self.nodes])) if self.nodes else ''
         )
@@ -113,7 +118,7 @@ class ExtTree(BaseExtPanel):
     def add_nodes(self, *args):
         """
         Добавляет переданные узлы дерева
-        @param *args: Узлы дерева
+        :param *args: Узлы дерева
         """
         for node in args:
             self.nodes.append(node)
@@ -121,7 +126,7 @@ class ExtTree(BaseExtPanel):
     def add_column(self, **kwargs):
         """
         Добавляет колонку с аргументами
-        @param **kwargs: Аргументы
+        :param **kwargs: Аргументы
         """
         self.columns.append(ExtGridColumn(**kwargs))
 
@@ -135,14 +140,14 @@ class ExtTree(BaseExtPanel):
     def add_number_column(self, **kwargs):
         """
         Добавляет колонку с аргументами
-        @param **kwargs: Аргументы
+        :param **kwargs: Аргументы
         """
         self.columns.append(ExtGridNumberColumn(**kwargs))
 
     def add_date_column(self, **kwargs):
         """
         Добавляет колонку с аргументами
-        @param **kwargs: Аргументы
+        :param **kwargs: Аргументы
         """
         self.columns.append(ExtGridDateColumn(**kwargs))
 
@@ -276,10 +281,12 @@ class ExtTree(BaseExtPanel):
     def render_params(self):
         super(ExtTree, self).render_params()
         self._put_params_value('customLoad', self.custom_load)
+        self._put_params_value('rootVisible', self.root_visible)
 
 
 #==============================================================================
 class ExtTreeNode(ExtUIComponent):
+    """Узел дерева"""
 
     def __init__(self, *args, **kwargs):
         super(ExtTreeNode, self).__init__(*args, **kwargs)
@@ -292,10 +299,10 @@ class ExtTreeNode(ExtUIComponent):
         self.icon_cls = None
 
         # True - Листьевой узел
-        self.leaf = False
+        self.leaf = True
 
         # Имеются ли дочерние узлы
-        self.has_children = False
+        # self.has_children = False
 
         # Развернут ли элемент
         self.expanded = False
@@ -314,6 +321,14 @@ class ExtTreeNode(ExtUIComponent):
 
         self.__items = {}
         self.init_component(*args, **kwargs)
+
+    @property
+    def has_children(self):
+        return not self.leaf
+
+    @has_children.setter
+    def has_children(self, val):
+        self.leaf = not val
 
     def t_render_children(self):
         return '[%s]' % ','.join([child.render() for child in self.children])

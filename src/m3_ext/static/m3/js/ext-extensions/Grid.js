@@ -67,26 +67,26 @@ Ext.m3.GridPanel = Ext.extend(Ext.grid.GridPanel, {
 					bbar.bind(store);
 				}
 			}	
-		}
-		,baseConfig.listeners || {});
+		},
+		baseConfig.listeners || {});
 
 		var config = Ext.applyIf({
-			sm: selModel
-			,colModel: gridColumns
-			,plugins: plugins
+			sm: selModel,
+			colModel: gridColumns,
+			plugins: plugins
 		}, baseConfig);
 		
 		Ext.m3.GridPanel.superclass.constructor.call(this, config);
-	}
-	,initComponent: function(){
+	},
+	initComponent: function(){
 		Ext.m3.GridPanel.superclass.initComponent.call(this);
 		var store = this.getStore();
 		store.on('exception', this.storeException, this);
-	}
+	},
 	/**
 	 * Обработчик исключений хранилица
 	 */
-	,storeException: function (proxy, type, action, options, response, arg){
+	storeException: function (proxy, type, action, options, response, arg){
 		//console.log(proxy, type, action, options, response, arg);
 		uiAjaxFailMessage(response, options);
 	}
@@ -185,9 +185,9 @@ Ext.m3.EditorGridPanel = Ext.extend(Ext.grid.EditorGridPanel, {
   		    buttons: Ext.Msg.CANCEL,
   		    icon: Ext.Msg.WARNING
   		  });
-  		};
+  		}
 		} else {
 		  uiAjaxFailMessage(response, options);
-		};
+		}
 	}
 });

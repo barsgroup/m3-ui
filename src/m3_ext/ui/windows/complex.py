@@ -2,8 +2,6 @@
 
 """
 Created on 9.03.10
-
-@author: prefer
 """
 
 from m3_ext.ui.containers.grids import ExtGridCheckBoxSelModel
@@ -25,6 +23,7 @@ from base import BaseExtWindow
 # deprecated: use objectpack
 class ExtDictionaryWindow(BaseExtWindow):
     """
+    :deprecated:
     Базовое окно для линейного, иерархичесого и совмещенного справочника
     """
 

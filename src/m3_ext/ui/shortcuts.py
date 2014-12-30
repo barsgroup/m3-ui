@@ -15,8 +15,11 @@ from m3_ext.ui.windows.base import BaseExtWindow
 
 
 def js_submit_form(
-        form, success_handler='', failure_handler='',
-        invalid_handler='', params=None):
+        form,
+        success_handler='',
+        failure_handler='',
+        invalid_handler='',
+        params=None):
     """
     :deprecated: Использовать методы окна, например,
         в ExtEditWindow метод submitForm
