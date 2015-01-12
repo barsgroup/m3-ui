@@ -1,16 +1,19 @@
-#coding: utf-8
+# coding: utf-8
 import os
+
 from setuptools import setup, find_packages
+
 
 def read(fname):
     try:
         return open(os.path.join(os.path.dirname(__file__),
-            fname)).read()
+                                 fname)).read()
     except IOError:
         return ''
 
+
 setup(name='m3-ui',
-      version='2.0.7.4',
+      version='2.0.7.5',
       url='https://bitbucket.org/barsgroup/m3-ext',
       license='MIT',
       author='BARS Group',
@@ -22,13 +25,13 @@ setup(name='m3-ui',
       long_description=read('README'),
       include_package_data=True,
       classifiers=[
-        'Intended Audience :: Developers',
-        'Environment :: Web Environment',
-        'Natural Language :: Russian',
-        'Natural Language :: English',
-        'Operating System :: OS Independent',
-        'Programming Language :: Python',
-        'License :: OSI Approved :: MIT License',
-	    'Development Status :: 5 - Production/Stable',
-	],
+          'Intended Audience :: Developers',
+          'Environment :: Web Environment',
+          'Natural Language :: Russian',
+          'Natural Language :: English',
+          'Operating System :: OS Independent',
+          'Programming Language :: Python',
+          'License :: OSI Approved :: MIT License',
+          'Development Status :: 5 - Production/Stable',
+      ],
 )
