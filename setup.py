@@ -1,4 +1,4 @@
-# coding: utf-8
+#coding: utf-8
 import os
 from setuptools import setup, find_packages
 
@@ -12,7 +12,7 @@ def read(fname):
 
 
 setup(name='m3-ui',
-      version='3.0.1.4',
+      version='3.0.1.5',
       url='https://bitbucket.org/barsgroup/m3-ext',
       license='MIT',
       author='BARS Group',
@@ -24,13 +24,13 @@ setup(name='m3-ui',
       long_description=read('README'),
       include_package_data=True,
       classifiers=[
-        'Intended Audience :: Developers',
-        'Environment :: Web Environment',
-        'Natural Language :: Russian',
-        'Natural Language :: English',
-        'Operating System :: OS Independent',
-        'Programming Language :: Python',
-        'License :: OSI Approved :: MIT License',
-	    'Development Status :: 5 - Production/Stable',
-	],
+          'Intended Audience :: Developers',
+          'Environment :: Web Environment',
+          'Natural Language :: Russian',
+          'Natural Language :: English',
+          'Operating System :: OS Independent',
+          'Programming Language :: Python',
+          'License :: OSI Approved :: MIT License',
+          'Development Status :: 5 - Production/Stable',
+      ],
 )
