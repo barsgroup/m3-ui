@@ -50,6 +50,15 @@ function createAdvancedComboBox(baseConfig, params){
 }
 
 /**
+ * Создание переопределенного комбобокса с динамическим обновлением стор при прокрутке списка
+ * @param {Object} baseConfig
+ * @param {Object} params
+ */
+function createAdvancedScrollComboBox(baseConfig, params){
+	return new Ext.m3.AdvancedScrollComboBox(baseConfig, params);
+}
+
+/**
  * Создание своего переопределенного компонента DateField
  * @param {Object} baseConfig
  */

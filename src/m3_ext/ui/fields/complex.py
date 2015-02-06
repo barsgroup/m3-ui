@@ -330,6 +330,19 @@ class ExtDictSelectField(BaseExtTriggerField):
 
 
 #==============================================================================
+class ExtDictSelectScrollField(ExtDictSelectField):
+    """
+    Поле с выбором из справочника c динамическим обновлением списка при прокрутке
+    """
+
+    def render(self):
+        super(ExtDictSelectScrollField, self).render()
+
+        base_config = self._get_config_str()
+        params = self._get_params_str()
+        return 'createAdvancedScrollComboBox({%s},{%s})' % (base_config, params)
+
+#==============================================================================
 class ExtSearchField(BaseExtField):
     """Поле поиска"""
     def __init__(self, *args, **kwargs):

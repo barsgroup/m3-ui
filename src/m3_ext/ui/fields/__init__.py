@@ -11,6 +11,7 @@ from simple import (ExtDateField,
                     ExtDisplayField,
                     ExtRadio)
 from complex import (ExtDictSelectField,
+                     ExtDictSelectScrollField,
                      ExtMultiSelectField,
                      ExtSearchField,
                      ExtFileUploadField,
