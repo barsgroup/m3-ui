@@ -236,7 +236,7 @@ class ExtForm(BaseExtPanel):
 
                 if hasattr(settings, 'MEDIA_URL'):
                     item.file_url = '%s/%s' % (
-                        settings.MEDIA_URL, unicode(value))
+                        settings.MEDIA_URL.strip('/'), unicode(value))
                 else:
                     item.file_url = None
 
