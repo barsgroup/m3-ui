@@ -23,7 +23,7 @@
         <link rel='stylesheet' type='text/css' href='{{ STATIC_URL }}ext/css/lightbox.css'/>
 
         <!-- базовые файлы extjs -->
-        {% if DEBUG  %}
+        {% if debug  %}
             <script type="text/javascript" src="{{ STATIC_URL }}vendor/extjs/adapter/ext/ext-base-debug.js"></script>
             <script type='text/javascript' src='{{ STATIC_URL }}vendor/extjs/ext-all-debug.js'></script>
             <script type='text/javascript' src='{{ STATIC_URL }}vendor/extjs/ux-all-debug.js'></script>
@@ -44,7 +44,7 @@
         {% endblock %}
 
         <!-- m3 js-->
-        {% if DEBUG  %}
+        {% if debug  %}
             <script type='text/javascript' src='{{ STATIC_URL }}m3/js/m3-debug.js'></script>
         {% else %}
             <script type='text/javascript' src='{{ STATIC_URL }}m3/js/m3-opt.js'></script>
