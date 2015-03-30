@@ -5,6 +5,7 @@
     <head>
         <title>{% block title %}M3{% endblock %}</title>
         <meta content="text/html; charset=utf-8" http-equiv="Content-Type" />
+        {% block extra_meta %}{% endblock %}
         <style type='text/css'>
             html, body{font-family:Tahoma,Sans;font-size:11px;}
             #loading-mask{position:absolute;top:0;left:0;width:100%;height:100%;background:#000000;z-index:1001;}
