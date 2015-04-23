@@ -7747,9 +7747,10 @@ Ext.m3.AdvancedScrollComboBox = Ext.extend(Ext.m3.AdvancedComboBox, {
         var item = Ext.DomQuery.selectNode('.x-combo-list-item', t),
             scrollLimit = parseInt(this.defaultLimit) || 0,
             cached, 
-            startScroll; 
+            startScroll,
+            store = this.store; 
         e.stopPropagation();
-        if ((item) && (scrollLimit > 0)) {
+        if (item && scrollLimit > 0 && store.getCount() !== store.getTotalCount()) {
             cached = (t.scrollTop + t.offsetHeight) / item.offsetHeight >> 0;
             if ((t.scrollTop === 0) || (cached === scrollLimit)) {
                 if (t.scrollTop > 0) { 
@@ -7761,7 +7762,7 @@ Ext.m3.AdvancedScrollComboBox = Ext.extend(Ext.m3.AdvancedComboBox, {
                     startScroll = 0;
                 }
                 this.scrolled = startScroll;
-                this.store.reload({
+                store.reload({
                     params: {
                         start: startScroll,
                         limit: scrollLimit
