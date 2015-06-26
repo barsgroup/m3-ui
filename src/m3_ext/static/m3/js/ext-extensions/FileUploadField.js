@@ -37,7 +37,7 @@ Ext.ux.form.FileUploadField = Ext.extend(Ext.form.TextField,  {
             }
             if (params.fileUrl) {
                 this.fileUrl = params.fileUrl;
-            }                            
+            }
             if (baseConfig.readOnly) {
                 this.readOnlyAll = true;
             }
@@ -62,12 +62,12 @@ Ext.ux.form.FileUploadField = Ext.extend(Ext.form.TextField,  {
              * @param {String} value The file value returned by the underlying file input field
              */
             'fileselected',
-            
+
             /**
              * Отрабатывает, когда изменилось значение
              */
             'change',
-            
+
             /**
              * Событие, возникающее до изменения значения поля. Если вернуть false
              * то изменения поля не будет, true - изменить значение поля.
@@ -179,15 +179,15 @@ Ext.ux.form.FileUploadField = Ext.extend(Ext.form.TextField,  {
                      return;
                  }
                  var v = this.fileInput.dom.value;
-                 if (this.fireEvent('beforechange', this, v)) {	                 		                 
+                 if (this.fireEvent('beforechange', this, v)) {
 	                 this.setValue(v);
 	                 this.fireEvent('fileselected', this, v);
 	                 this.fireEvent('change', this, v);
-	                 
+
 	                 if (v) {
 	                    // Очищаем ссылку на файл
 	                    this.fileUrl = null;
-	
+
 	                    if (!this.buttonClear.isVisible()) {
 	                        this.buttonClear.show();
 	                        this.el.setWidth( this.el.getWidth() - this.buttonClear.getWidth());
@@ -246,13 +246,7 @@ Ext.ux.form.FileUploadField = Ext.extend(Ext.form.TextField,  {
             w -= btnDonwloadWidth;
         }
 
-        if (Ext.isWebKit) {
-            // Юлядть
-            // Некорректная верстка в вебкитовских движках
-            this.el.setWidth(w + 5);
-        } else {
-            this.el.setWidth(w);
-        }
+        this.el.setWidth(w);
 
     }
 
@@ -294,7 +288,7 @@ Ext.ux.form.FileUploadField = Ext.extend(Ext.form.TextField,  {
     }
 
     //private
-    ,clickClearField: function(){    	
+    ,clickClearField: function(){
     	if (this.fireEvent('beforechange', this, '')){
 			this.clearFeild();
     	}
@@ -311,7 +305,7 @@ Ext.ux.form.FileUploadField = Ext.extend(Ext.form.TextField,  {
         this.el.setWidth(width);
         this.buttonClear.hide();
 	},
-    
+
     getFileUrl: function(url){
         return document.location.protocol + '//' + document.location.host +
             '/' + url;

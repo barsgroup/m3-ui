@@ -30,7 +30,7 @@
     background-image:url(../images/search.png) !important;
 }
 q:before,q:after{content:'';}.m3-el-mask {
-	position: absolute;	
+	position: absolute;
 	z-index: 100;
     -moz-opacity: 0.5;
     opacity: .50;
@@ -39,7 +39,7 @@ q:before,q:after{content:'';}.m3-el-mask {
 }
 .ext-gecko2 .ext-mb-fix-cursor {
     overflow:auto;
-    
+
 }.m3-el-mask {
     background-color: #ccc;
 }
@@ -111,14 +111,14 @@ td.x-grid3-hd-over .x-grid3-hd-inner, td.sort-desc .x-grid3-hd-inner, td.sort-as
 
 .x-form-file-clear {
     position: absolute;
-    
+
     right: 22px;
     z-index: 3;
 }
 
 .x-form-file-download {
     position: absolute;
-    
+
     right: 44px;
     z-index: 3;
 }
@@ -302,4 +302,8 @@ http://stackoverflow.com/questions/19000022/ext-js-grid-body-width-issue-on-goog
     .x-grid3-gcell { /* Grouped grid cell (esp. in head) */
         box-sizing: border-box;
     }
-}  
+}
+
+.x-form-file-wrap > .x-btn {
+    -webkit-margin-end: 6px;
+}
