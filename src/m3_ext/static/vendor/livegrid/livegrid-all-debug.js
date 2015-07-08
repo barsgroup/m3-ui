@@ -1507,7 +1507,7 @@ Ext.extend(Ext.ux.grid.livegrid.GridView, Ext.grid.GridView, {
     {
         if (!inRange) {
             if (index + this.ds.bufferSize >= this.ds.totalLength) {
-                return this.ds.totalLength - this.ds.bufferSize;
+                return this.ds.totalLength - this.ds.bufferSize + 1;
             }
 
             // Для того, чтобы запрос на обновление грида не зацикливался, необходимо чтобы
