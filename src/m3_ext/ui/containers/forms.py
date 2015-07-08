@@ -787,6 +787,9 @@ class ExtTabPanel(BaseExtPanel):
         # Если True, то применяется lazy рендеринг табов
         self.deferred_render = None
 
+        # Если True, то layout таба перестраивается при каждой активации таба
+        self.layout_on_tab_change = None
+
         # Показывает панель вкладок без фонового изображения
         self.plain = False
 
