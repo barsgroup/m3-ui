@@ -363,7 +363,7 @@ Ext.m3.AdvancedComboBox = Ext.extend(Ext.m3.ComboBox, {
      * @param {Object} index
      */
     onSelect: function (record, index) {
-		var oldValue = this.getValue();
+        var oldValue = this.getValue();
         if (this.fireEvent('afterselect', this, record.data[this.valueField], record.data[this.displayField])) {
             Ext.m3.AdvancedComboBox.superclass.onSelect.call(this, record, index);
             this.showClearBtn();
