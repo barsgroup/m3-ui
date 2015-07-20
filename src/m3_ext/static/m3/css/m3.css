@@ -302,4 +302,8 @@ http://stackoverflow.com/questions/19000022/ext-js-grid-body-width-issue-on-goog
     .x-grid3-gcell { /* Grouped grid cell (esp. in head) */
         box-sizing: border-box;
     }
-}  
+}
+  
+.x-form-file-wrap > .x-btn {
+    -webkit-margin-end: 6px;
+}

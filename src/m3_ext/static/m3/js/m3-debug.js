@@ -15262,13 +15262,7 @@ Ext.ux.form.FileUploadField = Ext.extend(Ext.form.TextField,  {
             w -= btnDonwloadWidth;
         }
 
-        if (Ext.isWebKit) {
-            // Юлядть
-            // Некорректная верстка в вебкитовских движках
-            this.el.setWidth(w + 5);
-        } else {
-            this.el.setWidth(w);
-        }
+        this.el.setWidth(w);
 
     }
 
