@@ -3671,8 +3671,11 @@ Ext.app.form.SearchField = Ext.extend(Ext.form.TwinTriggerField, {
     }
 
     ,onTrigger2Click : function(e, html, arg){
-        var value = this.getRawValue();
-        var cmp = this.getComponentForSearch();
+        var value = this.getRawValue(),
+            cmp = this.getComponentForSearch();
+            search = this;
+        this.setDisabled(true);
+        this.setHideTrigger(true);
         if (cmp instanceof Ext.grid.GridPanel) {
             var o = {start: 0};
             var store = cmp.getStore();
@@ -3693,6 +3696,10 @@ Ext.app.form.SearchField = Ext.extend(Ext.form.TwinTriggerField, {
         	this.hasSearch = true;
 	    	this.triggers[0].show();
         }
+        setTimeout(function(){
+            search.setDisabled(false);
+            search.setHideTrigger(false);
+        }, 200);
     }
     
     ,clear : function(node_id){ this.onTrigger1Click() }
