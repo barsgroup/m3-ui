@@ -7824,7 +7824,9 @@ Ext.m3.AdvancedScrollComboBox = Ext.extend(Ext.m3.AdvancedComboBox, {
         nodes = Ext.DomQuery.jsSelect('.x-combo-list-item', this.elem);
         for(node in nodes) {
             if (this.store.data.items[node] && this.store.data.items[node].json) {
-                nodes[node].className += ' ' + this.store.data.items[node].json['item_option'];
+                if (this.store.data.items[node] && this.store.data.items[node].json && nodes[node].className.indexOf(this.store.data.items[node].json['item_option']) < 0) {
+                    nodes[node].className += ' ' + this.store.data.items[node].json['item_option'];
+                }
             }
         }
     },
