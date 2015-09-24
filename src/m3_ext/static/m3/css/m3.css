@@ -288,9 +288,9 @@ span.CodeMirror-selected {
     height: 15px;
 }
 
-/* фикс для группирующих колонок в хроме */
+/* фикс для группирующих колонок */
 .x-grid3-hd-row td.x-grid3-gcell {
-    -webkit-box-sizing: border-box;
+    box-sizing: content-box;
 }
 
 /*
