@@ -233,10 +233,8 @@ class ExtForm(BaseExtPanel):
             )):
                 item.value = unicode(value)
                 # Относительную URL ссылку до статики
-
-                if hasattr(settings, 'MEDIA_URL'):
-                    item.file_url = '%s/%s' % (
-                        settings.MEDIA_URL.strip('/'), unicode(value))
+                if value:
+                    item.file_url = value.url.lstrip('/')
                 else:
                     item.file_url = None
 
