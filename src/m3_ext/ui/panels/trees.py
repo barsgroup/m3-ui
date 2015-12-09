@@ -135,6 +135,9 @@ class ExtObjectTree(containers.ExtTree):
         # иначе, сортируются как элементы
         self.folder_sort = True
 
+        # Возможность сортировки в дереве
+        self.enable_tree_sort = True
+
         # После редактирования и добавления обновляется только тот узел дерева,
         # в котором произошли изменения
         self.incremental_update = False
@@ -216,6 +219,7 @@ class ExtObjectTree(containers.ExtTree):
         self._put_params_value('rowIdName', self.row_id_name)
         self._put_params_value('parentIdName', self.parent_id_name)
         self._put_params_value('folderSort', self.folder_sort)
+        self._put_params_value('enableTreeSort', self.enable_tree_sort)
         self._put_params_value('incrementalUpdate', self.incremental_update)
 
     def t_render_base_config(self):
