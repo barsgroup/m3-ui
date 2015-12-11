@@ -14,7 +14,7 @@ def workspace(
     context_processors=DEFAULT_PROCESSORS
 ):
     u"""
-    Возвращает view для тображения Рабочего Стола
+    Возвращает view для отображения Рабочего Стола
     на основе указанного шаблона
     :param template: имя файла шаблона
     :type template: str
