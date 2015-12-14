@@ -17,6 +17,7 @@ Ext.m3.ObjectTree = Ext.extend(Ext.ux.tree.TreeGrid, {
         this.actionContextJson = params.actions.contextJson;
         this.parentIdName = params.parentIdName;
         this.incrementalUpdate = params.incrementalUpdate;
+        this.enableTreeSort = params.enableTreeSort;
         if (params.customLoad) {
             var ajax = Ext.Ajax;
             this.on('expandnode', function (node) {
@@ -68,8 +69,12 @@ Ext.m3.ObjectTree = Ext.extend(Ext.ux.tree.TreeGrid, {
 
         Ext.m3.ObjectTree.superclass.initComponent.call(this);
         // Созадем свой сортировщик с переданными параметрами
-        var sorter = new Ext.ux.tree.TreeGridSorter(this, {folderSort: this.folderSort,
-            property: this.columns[0].dataIndex || 'text'});
+        if (this.enableTreeSort) {
+            var sorter = new Ext.ux.tree.TreeGridSorter(this, {
+                folderSort: this.folderSort,
+                property: this.columns[0].dataIndex || 'text'
+            });
+        }
         // Повесим отображение маски при загрузке дерева
         loader.on('beforeload', this.onBeforeLoad, this);
         loader.on('load', this.onLoad, this);
