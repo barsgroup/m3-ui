@@ -14,13 +14,13 @@ import itertools
 import warnings
 from uuid import uuid4
 
-from django.conf import settings
+from django.apps import apps
 from django.utils.importlib import import_module
 from django.contrib.auth.models import User, AnonymousUser
 try:
     from django.utils.log import logger
 except ImportError:
-    from django.utils.log import getLogger
+    from logging import getLogger
     logger = getLogger('django')
 
 try:
@@ -341,15 +341,15 @@ class DesktopLoader(object):
                 cls._cache = {}
                 # Из инитов всех приложения
                 # пытаемся выполнить register_desktop_menu
-                for app_name in settings.INSTALLED_APPS:
+                for app_config in apps.get_app_configs():
                     try:
-                        module = import_module('.app_meta', app_name)
+                        module = import_module('.app_meta', app_config.name)
                     except ImportError, err:
                         if err.args[0].find('No module named') == -1 or (
                                 err.args[0].find('app_meta') == -1):
                             logger.exception(
                                 u'При сборке интерфейса не удалось '
-                                u'подключить %s', app_name
+                                u'подключить %s', app_config.name
                             )
                             raise
                         continue
