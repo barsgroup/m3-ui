@@ -256,7 +256,7 @@ class ExtDataReader(BaseExtComponent):
             res_value = '""'
         elif isinstance(value, bool):
             res_value = str(value).lower()
-        elif isinstance(value, (int, Decimal, float)):
+        elif isinstance(value, (int, Decimal, float, long)):
             res_value = str(value)
         elif isinstance(value, datetime.date):
             res_value = 'new Date("%s")' % value.ctime()
