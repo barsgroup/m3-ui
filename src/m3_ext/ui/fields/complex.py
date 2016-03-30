@@ -390,6 +390,7 @@ class ExtFileUploadField(BaseExtField):
 
         # Привязка к файлу
         self._memory_file = None
+        self.multiple = False
 
     def render_possible_file_extensions(self):
         p = self.possible_file_extensions
@@ -403,6 +404,7 @@ class ExtFileUploadField(BaseExtField):
         super(ExtFileUploadField, self).render_params()
         self._put_params_value('prefixUploadField', ExtFileUploadField.PREFIX)
         self._put_params_value('fileUrl', self.file_url)
+        self._put_params_value('multiple', self.multiple)
         self._put_params_value(
             'possibleFileExtensions', self.render_possible_file_extensions())
 

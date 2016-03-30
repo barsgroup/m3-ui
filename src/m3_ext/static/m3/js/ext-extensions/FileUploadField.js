@@ -30,6 +30,11 @@ Ext.ux.form.FileUploadField = Ext.extend(Ext.form.TextField,  {
      */
     ,iconClsDownloadFile: 'x-form-file-download-icon'
 
+    /**
+     * Множественный выбор файлов
+     */
+    ,multiple: false
+    
     ,constructor: function(baseConfig, params){
         if (params) {
             if (params.prefixUploadField) {
@@ -43,6 +48,9 @@ Ext.ux.form.FileUploadField = Ext.extend(Ext.form.TextField,  {
             }
             if (params.possibleFileExtensions) {
                 this.possibleFileExtensions = params.possibleFileExtensions;
+            }
+            if (params.multiple) {
+                this.multiple = params.multiple;
             }
         }
 
@@ -178,7 +186,16 @@ Ext.ux.form.FileUploadField = Ext.extend(Ext.form.TextField,  {
                      this.reset();
                      return;
                  }
-                 var v = this.fileInput.dom.value;
+                 if (this.multiple) {
+                     var v,
+                         filenames = [];
+                     Ext3.each(this.fileInput.dom.files, function (item) {
+                         filenames.push(item.name);
+                     });
+                     v = filenames.join(';')
+                 } else {
+                     var v = this.fileInput.dom.value;
+                 }
                  if (this.fireEvent('beforechange', this, v)) {	                 		                 
 	                 this.setValue(v);
 	                 this.fireEvent('fileselected', this, v);
@@ -199,7 +216,7 @@ Ext.ux.form.FileUploadField = Ext.extend(Ext.form.TextField,  {
     }
 
     ,createFileInput : function() {
-        this.fileInput = this.wrap.createChild({
+        var fileInputParams = {
             id: this.getFileInputId(),
             name: (this.prefixUploadField || '') + this.name,
             cls: 'x-form-file',
@@ -207,7 +224,11 @@ Ext.ux.form.FileUploadField = Ext.extend(Ext.form.TextField,  {
             type: 'file',
             size: 1,
             width: 20
-        });
+        };
+        if (this.multiple) {
+            fileInputParams['multiple'] = this.multiple;
+        }
+        this.fileInput = this.wrap.createChild(fileInputParams);
 
         Ext.QuickTips.unregister(this.fileInput);
         Ext.QuickTips.register({
