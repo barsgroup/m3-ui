@@ -390,6 +390,7 @@ class ExtFileUploadField(BaseExtField):
 
         # Привязка к файлу
         self._memory_file = None
+        # Флаг множественного выбора файлов
         self.multiple = False
 
     def render_possible_file_extensions(self):
