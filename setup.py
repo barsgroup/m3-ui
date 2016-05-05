@@ -22,7 +22,6 @@ def _read(fname):
 
 setup(
     name='m3-ui',
-    version='2.0.7.19',
     url='https://bitbucket.org/barsgroup/m3-ext',
     license='MIT',
     author='BARS Group',
@@ -43,4 +42,11 @@ setup(
         'License :: OSI Approved :: MIT License',
         'Development Status :: 5 - Production/Stable',
     ],
+    dependency_links=(
+        'http://pypi.bars-open.ru/simple/m3-builder',
+    ),
+    setup_requires=(
+        'm3-builder>=1.0.1',
+    ),
+    set_build_info=os.path.dirname(__file__),
 )
