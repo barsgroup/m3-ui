@@ -49,6 +49,7 @@ except ImportError:
 
 from m3.actions import ControllerCache, Action, ActionPack
 from m3 import M3JSONEncoder
+from m3_django_compat import get_user_model
 
 
 # Константы: "Разделитель", "Блок с текущим временем", "Заполняющий блок"
@@ -435,12 +436,12 @@ class DesktopLoader(object):
         :param sorting: функция сортировки
         :type sorting: callable
         """
-        assert isinstance(user, (User, AnonymousUser))
+        assert isinstance(user, (get_user_model(), AnonymousUser))
 
         roles = []
         if not isinstance(user, AnonymousUser):
             roles.extend(get_assigned_metaroles_query(user))
-            if user.is_superuser:
+            if getattr(user, 'is_superuser', False):
                 roles.append(SUPER_ADMIN)
 
         cls.populate_desktop(desktop, roles, sorting)
