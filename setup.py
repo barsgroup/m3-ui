@@ -1,13 +1,21 @@
 # coding: utf-8
 import os
 
+from pip.download import PipSession
+from pip.req.req_file import parse_requirements
 from setuptools import setup, find_packages
 
 
-def read(fname):
+def _get_requirements(file_name):
+    pip_session = PipSession()
+    requirements = parse_requirements(file_name, session=pip_session)
+
+    return tuple(str(requirement.req) for requirement in requirements)
+
+
+def _read(fname):
     try:
-        return open(os.path.join(os.path.dirname(__file__),
-                                 fname)).read()
+        return open(os.path.join(os.path.dirname(__file__), fname)).read()
     except IOError:
         return ''
 
@@ -21,9 +29,9 @@ setup(
     author_email='bars@bars-open.ru',
     package_dir={'': 'src'},
     packages=find_packages('src'),
-    description=read('DESCRIPTION'),
-    install_requires=read('REQUIREMENTS'),
-    long_description=read('README'),
+    description=_read('DESCRIPTION'),
+    install_requires=_get_requirements('REQUIREMENTS'),
+    long_description=_read('README'),
     include_package_data=True,
     classifiers=[
         'Intended Audience :: Developers',
