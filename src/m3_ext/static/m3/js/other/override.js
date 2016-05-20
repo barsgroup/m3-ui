@@ -577,3 +577,18 @@ Ext.override(Ext.grid.GridView, {
         return true;
     }
 });
+
+/**
+ * Вставка в DOM после переданного элемента.
+ * Фикс для IE10-IE11 "parentNode null or not an object".
+ */
+
+Ext.override(Ext.Element, {
+    insertAfter: function(el){
+        el = Ext.getDom(el);
+        if (el && el.parentNode) {
+            el.parentNode.insertBefore(this.dom, el.nextSibling);
+        }
+        return this;
+    }
+});
