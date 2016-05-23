@@ -146,7 +146,7 @@ class ExtNumberField(BaseExtField):
 
     # Невидимый пробел для того чтобы, можно было убрать разделитель
     # тысячной и дробной части
-    INVISIBLE_WHITE_SPACE = '\u0008'
+    INVISIBLE_WHITE_SPACE = '\u200b'
 
     def __init__(self, *args, **kwargs):
         super(ExtNumberField, self).__init__(*args, **kwargs)
