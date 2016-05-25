@@ -1,6 +1,8 @@
 ## История изменений
 
 **2.0.7.20**
+- В IE 10-11 исправлена ошибка при обновлении грида с GridHeaderFilters и контролами DateField и SelectField в нем.
+- Исправлена проблема отображения GridHeaderFilters в IE 10-11.
 - Добавил параметр thousandSeparator в ExtNumberField
 
 **2.0.7.19**
