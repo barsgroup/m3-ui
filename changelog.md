@@ -3,6 +3,7 @@
 **2.0.7.20**
 - В IE 10-11 исправлена ошибка при обновлении грида с GridHeaderFilters и контролами DateField и SelectField в нем.
 - Исправлена проблема отображения GridHeaderFilters в IE 10-11.
+- Добавлен параметр thousandSeparator в ExtNumberField
 
 **2.0.7.19**
 - Пересобраны файлы статики m3-debug.js m3-opt.js с учетом изменений из версии 2.0.7.18
