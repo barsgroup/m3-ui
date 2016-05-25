@@ -144,12 +144,19 @@ class ExtNumberField(BaseExtField):
     Поле ввода числового значения
     """
 
+    # Невидимый пробел для того чтобы, можно было убрать разделитель
+    # тысячной и дробной части
+    INVISIBLE_WHITE_SPACE = u'\u200b'
+
     def __init__(self, *args, **kwargs):
         super(ExtNumberField, self).__init__(*args, **kwargs)
 
         # Свойства валидации специфичные для чисел
         # Разделитель целой и дробной части
         self.decimal_separator = None
+
+        # Разделитель тысячных частей
+        self.thousand_separator = None
 
         # Признак, что может быть дробная часть
         self.allow_decimals = True
@@ -163,13 +170,15 @@ class ExtNumberField(BaseExtField):
         # Маскимально возможное значение
         self.max_value = None
 
-        # Если превышено максимально возможное значение, то будет отображаться этот текст
+        # Если превышено максимально возможное значение,
+        # то будет отображаться этот текст
         self.max_text = None
 
         # Минимальное возможное значение
         self.min_value = None
 
-        # Если превышено минимальное возможное значение, то будет отображаться этот текст
+        # Если превышено минимальное возможное значение,
+        # то будет отображаться этот текст
         self.min_text = None
 
         # Разрешает перехват нажатий клавиш
@@ -183,6 +192,7 @@ class ExtNumberField(BaseExtField):
     def render_base_config(self):
         super(ExtNumberField, self).render_base_config()
         self._put_config_value('decimalSeparator', self.decimal_separator)
+        self._put_config_value('thousandSeparator', self.thousand_separator)
         self._put_config_value('allowDecimals', self.allow_decimals)
         self._put_config_value('allowNegative', self.allow_negative)
         self._put_config_value('decimalPrecision', self.decimal_precision)
