@@ -11,5 +11,5 @@ class SimpleTest(unittest.TestCase):
     def test_ext_string_field(self):
         field = ExtStringField(name='test_string_field')
         field.value = 1
-        with self.assertRaises(AttributeError):
+        with self.assertRaises(RuntimeError):
             field.render()
