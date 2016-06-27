@@ -1,5 +1,8 @@
 ## История изменений
 
+**2.1.2**
+- Добавлена проверка типа для атрибута value в ExtStringField.
+
 **2.1.1**
 - Добавил параметр thousandSeparator в ExtNumberField
 
