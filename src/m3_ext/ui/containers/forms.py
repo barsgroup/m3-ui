@@ -1,10 +1,4 @@
-#coding:utf-8
-'''
-Created on 25.02.2010
-
-@author: akvarats
-'''
-
+# coding: utf-8
 import datetime
 import decimal
 import os
@@ -29,12 +23,11 @@ except ImportError:
     from django.utils.log import getLogger
     logger = getLogger('django')
 
+from m3_django_compat import ModelOptions
 from m3_ext.ui import render_template
 from m3.actions.interfaces import ISelectablePack, IMultiSelectablePack
-from m3_ext.ui.base import ExtUIComponent, BaseExtComponent
-
+from m3_ext.ui.base import BaseExtComponent
 from m3_ext.ui.containers.base import BaseExtPanel
-
 
 
 def _is_field(obj):
@@ -577,7 +570,7 @@ class ExtForm(BaseExtPanel):
         # чтобы проверить возможность их сохранения
         try:
             list_of_m2m = [
-                x[0].name for x in obj._meta.get_m2m_with_model()]
+                x[0].name for x in ModelOptions(obj).get_m2m_with_model()]
         except AttributeError:
             list_of_m2m = []
 
