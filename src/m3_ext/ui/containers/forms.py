@@ -292,15 +292,13 @@ class ExtForm(BaseExtPanel):
         for field in all_fields:
             if not field.name:
                 continue
-            assert not isinstance(field.name, unicode), (
-                'The names of all fields must not be instance of unicode')
-            assert isinstance(field.name, str) and len(field.name) > 0, (
+            field_name = str(field.name)
+            assert isinstance(field_name, str) and len(field_name) > 0, (
                 'The names of all fields must be set for a successful '
                 'assignment. Check the definition of the form.')
             # заполним атрибуты только те, которые не в списке исключаемых
-            if not field.name in exclusion:
-
-                names = field.name.split('.')
+            if field_name not in exclusion:
+                names = field_name.split('.')
                 new_val, has_attr = get_value(obj, names)
                 if has_attr:
                     new_val = new_val if new_val is not None else ''
