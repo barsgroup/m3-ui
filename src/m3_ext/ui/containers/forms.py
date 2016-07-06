@@ -1,10 +1,4 @@
-#coding:utf-8
-'''
-Created on 25.02.2010
-
-@author: akvarats
-'''
-
+# coding: utf-8
 import datetime
 import decimal
 import os
@@ -29,12 +23,11 @@ except ImportError:
     from django.utils.log import getLogger
     logger = getLogger('django')
 
+from m3_django_compat import ModelOptions
 from m3_ext.ui import render_template
 from m3.actions.interfaces import ISelectablePack, IMultiSelectablePack
-from m3_ext.ui.base import ExtUIComponent, BaseExtComponent
-
+from m3_ext.ui.base import BaseExtComponent
 from m3_ext.ui.containers.base import BaseExtPanel
-
 
 
 def _is_field(obj):
@@ -293,9 +286,10 @@ class ExtForm(BaseExtPanel):
             if not field.name:
                 continue
             field_name = str(field.name)
-            assert isinstance(field_name, str) and len(field_name) > 0, (
+            assert field_name, (
                 'The names of all fields must be set for a successful '
-                'assignment. Check the definition of the form.')
+                'assignment. Check the definition of the form.'
+            )
             # заполним атрибуты только те, которые не в списке исключаемых
             if field_name not in exclusion:
                 names = field_name.split('.')
@@ -577,7 +571,7 @@ class ExtForm(BaseExtPanel):
         # чтобы проверить возможность их сохранения
         try:
             list_of_m2m = [
-                x[0].name for x in obj._meta.get_m2m_with_model()]
+                x[0].name for x in ModelOptions(obj).get_m2m_with_model()]
         except AttributeError:
             list_of_m2m = []
 
@@ -586,27 +580,24 @@ class ExtForm(BaseExtPanel):
         for field in all_fields:
             if not field.name:
                 continue
-            assert not isinstance(field.name, unicode), (
-                'The names of all fields '
-                'must not be instance of unicode'
-            )
-            assert isinstance(field.name, str) and len(field.name) > 0, (
+            field_name = str(field.name)
+            assert field_name, (
                 'The names of all fields must be set for a successful'
                 ' assignment. Check the definition of the form.'
             )
 
             # заполним атрибуты только те, которые не в списке исключаемых
-            if not field.name in exclusion:
+            if not field_name in exclusion:
                 # запрещаем пытаться сохранять many2many для объекта без pk
                 if hasattr(obj, 'pk'):
-                    if obj.pk is None and field.name in list_of_m2m:
+                    if obj.pk is None and field_name in list_of_m2m:
                         raise ValueError(' '.join(
                             ["'%s' instance needs to have a primary" % (
                                 obj.__class__.__name__),
                              "key value before a many-to-many "
                              "relationship can be used."]))
 
-                names = field.name.split('.')
+                names = field_name.split('.')
                 set_field(obj, names, convert_value(field), field)
 
     @property
