@@ -1,4 +1,5 @@
 # coding: utf-8
+from logging import getLogger
 import datetime
 import decimal
 import os
@@ -17,17 +18,15 @@ except ImportError:
 
 from django.core.files.base import ContentFile
 from django.conf import settings
-try:
-    from django.utils.log import logger
-except ImportError:
-    from django.utils.log import getLogger
-    logger = getLogger('django')
 
 from m3_django_compat import ModelOptions
 from m3_ext.ui import render_template
 from m3.actions.interfaces import ISelectablePack, IMultiSelectablePack
 from m3_ext.ui.base import BaseExtComponent
 from m3_ext.ui.containers.base import BaseExtPanel
+
+
+logger = getLogger('django')
 
 
 def _is_field(obj):

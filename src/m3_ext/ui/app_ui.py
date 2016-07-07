@@ -3,19 +3,19 @@ u"""Классы для работы первично отображаемого
 
 Включают список модулей в меню "Пуск" и список модулей на "Рабочем столе"
 """
-import threading
 from importlib import import_module
+from logging import getLogger
+import threading
 import itertools
 import warnings
 from uuid import uuid4
 
 from django.conf import settings
 from django.contrib.auth.models import AnonymousUser
-try:
-    from django.utils.log import logger
-except ImportError:
-    from django.utils.log import getLogger
-    logger = getLogger('django')
+
+
+logger = getLogger('django')
+
 
 try:
     from m3_users import GENERIC_USER, SUPER_ADMIN
