@@ -1,22 +1,16 @@
-#coding:utf-8
-"""
-:Created: Nov 18, 2010
+# coding:utf-8
+u"""Классы для работы первично отображаемого интерфейса MIS.
 
-:Author: prefer
-
-Классы для работы первично отображаемого интерфейса MIS.
 Включают список модулей в меню "Пуск" и список модулей на "Рабочем столе"
 """
-
 import threading
-import inspect
+from importlib import import_module
 import itertools
 import warnings
 from uuid import uuid4
 
 from django.conf import settings
-from django.utils.importlib import import_module
-from django.contrib.auth.models import User, AnonymousUser
+from django.contrib.auth.models import AnonymousUser
 try:
     from django.utils.log import logger
 except ImportError:
@@ -47,7 +41,7 @@ except ImportError:
     def get_metarole(code):
         return UserMetarole()
 
-from m3.actions import ControllerCache, Action, ActionPack
+from m3.actions import ControllerCache, Action
 from m3 import M3JSONEncoder
 from m3_django_compat import get_user_model
 
