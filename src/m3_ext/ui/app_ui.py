@@ -11,7 +11,6 @@ import warnings
 from uuid import uuid4
 
 from django.conf import settings
-from django.contrib.auth.models import AnonymousUser
 
 
 logger = getLogger('django')
@@ -430,6 +429,7 @@ class DesktopLoader(object):
         :param sorting: функция сортировки
         :type sorting: callable
         """
+        from django.contrib.auth.models import AnonymousUser
         assert isinstance(user, (get_user_model(), AnonymousUser))
 
         roles = []
