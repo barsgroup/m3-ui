@@ -1,12 +1,8 @@
-#coding:utf-8
-"""
-Created on 3.3.2010
-
-@author: prefer
-"""
+# coding:utf-8
+from collections import OrderedDict
 import json
+
 from django.conf import settings
-from django.utils.datastructures import SortedDict
 
 from m3_ext.ui.base import ExtUIComponent, BaseExtComponent
 from base import BaseExtPanel
@@ -86,7 +82,7 @@ class ExtGrid(BaseExtPanel):
 
         # protected
         self.show_banded_columns = False
-        self.banded_columns = SortedDict()
+        self.banded_columns = OrderedDict()
 
     def t_render_plugins(self):
         """
