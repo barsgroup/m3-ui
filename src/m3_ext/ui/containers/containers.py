@@ -273,6 +273,15 @@ class ExtPagingBar(BaseExtContainer):
         return 'new %s' % res if not self._is_function_render else res
 
 
+class ExtCountFreePagingBar(ExtPagingBar):
+    """ Пагинатор не требующий общего количества записей """
+
+    def __init__(self, *args, **kwargs):
+        super(ExtCountFreePagingBar, self).__init__(*args, **kwargs)
+        self._ext_name = 'Ext.m3.CountFreePagingToolbar'
+        self.display_message = u'Показано записей {0} - {1}'
+
+
 class ExtToolbarMenu(ExtUIComponent):
     """
     Класс, позволяющий легко вставлять меню в ToolBar
