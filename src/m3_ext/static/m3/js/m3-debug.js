@@ -12759,7 +12759,7 @@ Ext.m3.MultiSelectField = Ext.extend(Ext.m3.AdvancedComboBox, {
      * Отменяет выбор в DataView this.view и очищает строку на форме.
      */
     clearValue:function() {
-        this.checkedItems = [];
+        this.checkedItems.splice(0, this.checkedItems.length);
         if (this.view)
             this.view.refresh();
 
