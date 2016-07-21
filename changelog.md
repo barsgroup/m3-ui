@@ -1,5 +1,9 @@
 ## История изменений
 
+**2.2.5**
+- Добавлен CountFreePagingToolbar - пагинатор не требующий общего к
+оличества записей.
+
 **2.2.4**
 - В ``AdvancedCombobox.onSelectInDictionary`` добавлен блок finally со скрытием маски.
 
