@@ -498,18 +498,24 @@ Ext.m3.AdvancedComboBox = Ext.extend(Ext.m3.ComboBox, {
                 method: 'POST',
                 params: this.actionContextJson,
                 success: function (response, opts) {
-                    var win = smart_eval(response.responseText);
-                    if (win) {
+                    try {
+                        var win = smart_eval(response.responseText);
+                        if (win) {
 
-                        win.on('closed_ok', function (id, displayText) {
-                            if (this.fireEvent('afterselect', this, id, displayText)) {
-                                this.addRecordToStore(id, displayText);
+                            win.on('closed_ok', function (id, displayText) {
+                                if (this.fireEvent('afterselect', this, id, displayText)) {
+                                    this.addRecordToStore(id, displayText);
+                                }
+                            }, this);
+                            if (mask) {
+                                win.on('close', function () {
+                                    mask.hide();
+                                });
                             }
-                        }, this);
+                        }
+                    } finally {
                         if (mask) {
-                            win.on('close', function () {
-                                mask.hide();
-                            });
+                            mask.hide();
                         }
                     }
                 },
