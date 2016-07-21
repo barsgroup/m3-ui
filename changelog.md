@@ -1,5 +1,8 @@
 ## История изменений
 
+**2.0.7.22**
+- В ``AdvancedCombobox.onSelectInDictionary`` добавлен блок finally со скрытием маски.
+
 **2.0.7.21**
 - Добавлена проверка типа для атрибута value в ExtStringField.
 
