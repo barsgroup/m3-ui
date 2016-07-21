@@ -14,7 +14,7 @@ def read(fname):
 
 setup(
     name='m3-ui',
-    version='2.1.1',
+    version='2.1.3',
     url='https://bitbucket.org/barsgroup/m3-ext',
     license='MIT',
     author='BARS Group',
