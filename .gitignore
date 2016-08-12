@@ -1,0 +1,23 @@
+version.conf
+
+# dev specificIDE specific files
+.idea/*
+.ropeproject/*
+.codeintel/*
+.project
+.pydevproject
+.settings
+.coverage
+*.log
+
+# python specific
+*.pyc
+
+# setuptools specific
+.eggs
+dist
+src/extedu.egg-info
+
+# Sphinx
+docs/_build
+docs/api
