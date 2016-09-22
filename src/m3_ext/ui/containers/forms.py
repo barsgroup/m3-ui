@@ -20,10 +20,11 @@ from django.core.files.base import ContentFile
 from django.conf import settings
 
 from m3_django_compat import ModelOptions
-from m3_ext.ui import render_template
 from m3.actions.interfaces import ISelectablePack, IMultiSelectablePack
 from m3_ext.ui.base import BaseExtComponent
 from m3_ext.ui.containers.base import BaseExtPanel
+
+from ..helpers import _render_globals
 
 
 logger = getLogger('django')
@@ -682,12 +683,7 @@ class ExtPanel(BaseExtPanel):
         """
         Рендерит и возвращает js-код, который помещен в template_globals
         """
-        if self.template_globals:
-            return render_template(
-                self.template_globals,
-                {'component': self, 'self': self, 'panel': self})
-
-        return ''
+        return _render_globals(self)
 
     @property
     def items(self):

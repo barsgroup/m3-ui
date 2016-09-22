@@ -12,9 +12,11 @@ Created on 01.03.2010
 import datetime
 import decimal
 
-from m3_ext.ui import render_template, render_component
+from m3_ext.ui import render_component
 from m3_ext.ui import generate_client_id, normalize
 from m3 import date2str
+
+from .helpers import _render_globals
 
 
 class ExtComponentException(Exception):
@@ -119,11 +121,7 @@ class BaseExtComponent(object):
         Рендерит и возвращает js-код, который помещен в template_globals
         :rtype: str
         """
-        if self.template_globals:
-            return render_template(
-                self.template_globals,
-                {'component': self, 'self': self})
-        return ''
+        return _render_globals(self)
 
     def pre_render(self):
         """
