@@ -16,6 +16,8 @@ from m3_ext.ui import render_template
 from m3_ext.ui.containers.base import BaseExtContainer
 from m3_ext.ui.controls.base import BaseExtControl
 
+from ..helpers import _render_globals
+
 
 class ExtWindowRenderer(object):
     """
@@ -236,12 +238,7 @@ class BaseExtWindow(ExtUIComponent):
                 item.action_context.m3_window_id = self.client_id
 
     def render_globals(self):
-        if self.template_globals:
-            return render_template(
-                self.template_globals,
-                {'component': self, 'window': self}
-            )
-        return ''
+        return _render_globals(self)
 
     def find_by_name(self, name):
         """
