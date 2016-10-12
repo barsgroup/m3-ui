@@ -1,10 +1,11 @@
-#coding:utf-8
+# coding:utf-8
 """
 Хелперы, которые помогают формировать пользовательский интерфейс
 """
 from collections import Iterable
 
 from django.db.models.query import QuerySet
+from django.utils.safestring import mark_safe
 from m3 import M3JSONEncoder
 
 from m3_ext.ui import render_template
@@ -43,9 +44,9 @@ def _render_globals(component):
             result = render_template(component.template_globals, context)
 
         elif isinstance(component.template_globals, Iterable):
-            result = u'\n'.join(
+            result = mark_safe(u'\n'.join(
                 render_template(template, context)
                 for template in component.template_globals
-            )
+            ))
 
     return result
