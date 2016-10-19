@@ -41,10 +41,19 @@ class ExtStringField(BaseExtField):
         # форматирует строку при вводе
         self.input_mask = None
 
+        # префикс поля, добавляет к строке
+        # неудаляемые символы при вводе
+        # НЕ РАБОТАЕТ совместно с маской ввода
+        self.prefix = None
+
         self.init_component(*args, **kwargs)
 
     def render_base_config(self):
-        if self.input_mask:
+        if self.prefix:
+            unmask_len = self.max_length - len(self.prefix)
+            prefix = self.prefix + 'A'*unmask_len
+            self.plugins.append("new Ext.m3.InputTextMask('%s')" % prefix)
+        elif self.input_mask:
             self.plugins.append("new Ext.ux.Mask('%s')" % self.input_mask)
 
         # Экранирование значений с обратным слешем
