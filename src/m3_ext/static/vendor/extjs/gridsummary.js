@@ -44,6 +44,10 @@ Ext.extend(Ext.ux.grid.GridSummary, Ext.util.Observable, {
         v.afterMethod('onColumnWidthUpdated', this.doWidth, this);
         v.afterMethod('onAllColumnWidthsUpdated', this.doAllWidths, this);
         v.afterMethod('onColumnHiddenUpdated', this.doHidden, this);
+        grid.on('columnresize', this.refreshSummary, this);
+        grid.on('columnmove', this.refreshSummary, this);
+        grid.getColumnModel().on('hiddenchange', this.refreshSummary, this);
+        grid.on('resize', this.refreshSummary, this);
 
         if (Ext.isGecko || Ext.isOpera) {
             // restore gridview's horizontal scroll position when store data is changed
