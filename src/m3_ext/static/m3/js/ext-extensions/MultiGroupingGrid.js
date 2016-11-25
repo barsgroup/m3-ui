@@ -327,6 +327,18 @@ Ext.extend(Ext.ux.grid.MultiGrouping, Ext.util.Observable, {
 	            });	
             }
             this.expandedItems = [];
+
+            this.grid.on('resize', function(grid, width, height, e){
+                // после изменения порядка группировки при изменении размеров
+                // окошка происходил наезд кнопок группировки друг на друга,
+                // так как не очищался css-атрибут left
+                var items = grid.grouper.tbar.items.items;
+                for (var i = 0; i < items.length; i++){
+                    if (items[i].el){
+                        items[i].el.setStyle('left', 'auto');
+                    }
+                }
+            });
         }
 	},
 	/**
