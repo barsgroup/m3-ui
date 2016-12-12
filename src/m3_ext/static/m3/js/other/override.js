@@ -32,6 +32,28 @@ if (!Function.prototype.bind) {
 }
 
 /**
+ * Необходимо для фикса ошибки "parentNode null or not an object" в IE10
+ */
+Ext.override(Ext.Element, {
+
+    /**
+    * Inserts this element after the passed element in the DOM
+    * @param {Mixed} el The element to insert after
+    * @return {Ext.Element} this
+    *
+    * @overrides  to fix IE issue of "parentNode null or not an object".
+    */
+    insertAfter: function(el){
+        el = Ext.getDom(el);
+        if (el && el.parentNode) {
+            el.parentNode.insertBefore(this.dom, el.nextSibling);
+        }
+        return this;
+    }
+});
+
+
+/**
  * Нужно для правильной работы окна
  */
 Ext.onReady(function () {
