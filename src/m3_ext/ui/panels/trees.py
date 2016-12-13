@@ -1,4 +1,4 @@
-#coding: utf-8
+# coding: utf-8
 """
 Модуль с преднастроенными панелями-деевьями
 
@@ -8,6 +8,7 @@ Created on 25.06.2010
 """
 
 from m3_ext.ui import containers, controls, menus, render_component
+from m3_ext.ui.fields import ExtSearchField
 from m3.actions.urls import get_url
 
 
@@ -142,7 +143,19 @@ class ExtObjectTree(containers.ExtTree):
         # в котором произошли изменения
         self.incremental_update = False
 
+        # Список исключений для make_read_only
+        self._mro_exclude_list = []
+
         self.init_component()
+
+    def add_search_field(self):
+        u"""Добавляет строку поиска в гриде."""
+        self.top_bar.search_field = ExtSearchField(
+            empty_text=u'Поиск', width=200, component_for_search=self)
+        self.top_bar.add_fill()
+        self.top_bar.items.append(self.top_bar.search_field)
+
+        self._mro_exclude_list.append(self.top_bar.search_field)
 
     def render(self):
         """
