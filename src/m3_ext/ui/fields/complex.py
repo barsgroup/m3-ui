@@ -566,7 +566,6 @@ class ExtMultiSelectField(ExtDictSelectField):
 
         super(ExtMultiSelectField, self).__init__(*args, **kwargs)
         self.init_component(*args, **kwargs)
-        self.hidden_name = self.client_id
 
     @property
     def value(self):
