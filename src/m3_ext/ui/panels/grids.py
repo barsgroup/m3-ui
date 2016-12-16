@@ -12,6 +12,7 @@ from m3_ext.ui import containers, controls, menus, misc, render_component
 from m3_ext.ui.base import ExtUIComponent, BaseExtComponent
 from m3.actions.urls import get_url
 from m3_ext.ui.containers.grids import ExtGridCheckBoxSelModel
+from m3_ext.ui.fields import ExtSearchField
 
 
 class ExtObjectGrid(containers.ExtGrid):
@@ -170,11 +171,25 @@ class ExtObjectGrid(containers.ExtGrid):
         # для одновременного изменения с атрибутом page_size paging_bar-а
         self._limit = self.store.limit if hasattr(self.store, 'limit') else -1
 
+        # Список исключений для make_read_only
+        self._mro_exclude_list = []
+
         self.init_component()
+
+    def add_search_field(self):
+        u"""Добавляет строку поиска в гриде."""
+        self.top_bar.search_field = ExtSearchField(
+            empty_text=u'Поиск', width=200, component_for_search=self)
+        self.top_bar.add_fill()
+        self.top_bar.items.append(self.top_bar.search_field)
+
+        self._mro_exclude_list.append(self.top_bar.search_field)
 
     def _make_read_only(
             self, access_off=True, exclude_list=(), *args, **kwargs):
         self.read_only = access_off
+        exclude_list = self._mro_exclude_list + (exclude_list or [])
+
         # Выключаем\включаем компоненты.
         for item in (
             self.context_menu_grid.menuitem_new,
