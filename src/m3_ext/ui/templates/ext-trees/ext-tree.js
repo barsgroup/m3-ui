@@ -8,7 +8,7 @@ function(){
 			var container_contmenu = {{ v.render }};
 		{% endifequal %}
 	{% endfor%}
-	
+
 	var tree = new Ext.ux.tree.TreeGrid({
 		{% include 'base-ext-ui.js'%}
 		
@@ -18,7 +18,7 @@ function(){
 		{% if component.buttom_bar %} ,bbar: {{ component.t_render_buttom_bar|safe }} {% endif %}
 		{% if component.footer_bar %} ,fbar: {{ component.t_render_footer_bar|safe }} {% endif %}
         {% if component.dd_group %} ,ddGroup: '{{ component.dd_group }}' {% endif %}
-		
+        ,enableSort: {{ component.enable_sort | lower }}
 	    ,useArrows: true
 	    ,autoScroll: false
 	    ,animate: true

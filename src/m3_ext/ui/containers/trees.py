@@ -66,6 +66,9 @@ class ExtTree(BaseExtPanel):
         # Разрешить только драгить (перемещать из дерево)
         self.enable_drag = False
 
+        # Указывает на необходимость создания сортировки в дереве
+        self.enable_sort = True
+
         # перечень плагинов
         self.plugins = []
 
