@@ -68,17 +68,17 @@ def bind_to_request(request, all_fields):
     from m3_ext.ui import fields
 
     for field in all_fields:
-        name = field.name
+        field_name = str(field.name)
         if isinstance(field, (
-                fields.ExtFileUploadField,
-                fields.ExtImageUploadField
+            fields.ExtFileUploadField,
+            fields.ExtImageUploadField
         )):
             # Файлы нужно забирать из request.FILES
             field.memory_file = request.FILES.get(
-                fields.ExtFileUploadField.PREFIX + field.name)
+                fields.ExtFileUploadField.PREFIX + field_name)
         # возьмем только то, что есть в запросе
-        if name in request.POST:
-            value = request.POST.get(name)
+        if field_name in request.POST:
+            value = request.POST.get(field_name)
             field.value = value
 
 
@@ -268,15 +268,13 @@ def from_object(obj, all_fields, exclusion=None):
     for field in all_fields:
         if not field.name:
             continue
-        assert not isinstance(field.name, unicode), (
-            'The names of all fields must not be instance of unicode')
-        assert isinstance(field.name, str) and len(field.name) > 0, (
+        field_name = str(field.name)
+        assert isinstance(field_name, str) and len(field_name) > 0, (
             'The names of all fields must be set for a successful '
             'assignment. Check the definition of the form.')
         # заполним атрибуты только те, которые не в списке исключаемых
-        if not field.name in exclusion:
-
-            names = field.name.split('.')
+        if field_name not in exclusion:
+            names = field_name.split('.')
             new_val, has_attr = get_value(obj, names)
             if has_attr:
                 new_val = new_val if new_val is not None else ''
@@ -557,25 +555,21 @@ def to_object(obj, all_fields, exclusion=None):
     for field in all_fields:
         if not field.name:
             continue
-        assert not isinstance(field.name, unicode), (
-            'The names of all fields '
-            'must not be instance of unicode'
-        )
-        assert isinstance(field.name, str) and len(field.name) > 0, (
-            'The names of all fields must be set for a successful'
-            ' assignment. Check the definition of the form.'
-        )
+        field_name = str(field.name)
+        assert isinstance(field_name, str) and len(field_name) > 0, (
+            'The names of all fields must be set for a successful '
+            'assignment. Check the definition of the form.')
 
         # заполним атрибуты только те, которые не в списке исключаемых
-        if not field.name in exclusion:
+        if field_name not in exclusion:
             # запрещаем пытаться сохранять many2many для объекта без pk
             if hasattr(obj, 'pk'):
-                if obj.pk is None and field.name in list_of_m2m:
+                if obj.pk is None and field_name in list_of_m2m:
                     raise ValueError(' '.join(
                         ["'%s' instance needs to have a primary" % (
                             obj.__class__.__name__),
                          "key value before a many-to-many "
                          "relationship can be used."]))
 
-            names = field.name.split('.')
+            names = field_name.split('.')
             set_field(obj, names, convert_value(field), field)

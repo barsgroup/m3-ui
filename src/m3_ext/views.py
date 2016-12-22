@@ -76,5 +76,5 @@ def desktop_items(request):
 
     return HttpResponse(
         json.dumps(DesktopProcessor.process(request), default=default, **opts),
-        mimetype='application/json'
+        content_type='application/json'
     )

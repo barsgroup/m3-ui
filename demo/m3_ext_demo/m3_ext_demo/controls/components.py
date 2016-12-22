@@ -482,7 +482,7 @@ def base_tree_data(request):
 "success": true}
 
             '''
-        return http.HttpResponse(res2, mimetype='application/json')
+        return http.HttpResponse(res2, content_type='application/json')
     return http.HttpResponse(res)
 
 
@@ -1318,8 +1318,6 @@ def data_locking_grouping_grid(request):
         res.append(d)
 
     return http.HttpResponse('{"total":100,"rows":%s}' % json.dumps(res))
-
-    #return http.HttpResponse(json.dumps(data), mimetype='application/json')
 
 
 @url(r'^ui/locking-grouping-grid')
