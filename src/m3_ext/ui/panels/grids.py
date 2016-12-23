@@ -7,6 +7,7 @@ Created on 26.05.2010
 @author: akvarats
 """
 import json
+from itertools import chain
 
 from m3_ext.ui import containers, controls, menus, misc, render_component
 from m3_ext.ui.base import ExtUIComponent, BaseExtComponent
@@ -188,7 +189,9 @@ class ExtObjectGrid(containers.ExtGrid):
     def _make_read_only(
             self, access_off=True, exclude_list=(), *args, **kwargs):
         self.read_only = access_off
-        exclude_list = self._mro_exclude_list + (exclude_list or [])
+
+        _type = type(self._mro_exclude_list)
+        exclude_list = _type(chain(self._mro_exclude_list, exclude_list or []))
 
         # Выключаем\включаем компоненты.
         for item in (
