@@ -4,6 +4,7 @@
 __pycache__/
 *.py[cod]
 *$py.class
+*.pyc
 
 # C extensions
 *.so
@@ -90,4 +91,9 @@ ENV/
 
 # Rope project settings
 .ropeproject
+.codeintel/*
+.pydevproject
 .idea
+
+# m3-builder
+version.conf

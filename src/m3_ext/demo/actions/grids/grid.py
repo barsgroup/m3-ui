@@ -138,7 +138,7 @@ class DataAction(Action):
                '{"id":81,"lname":"Ухт2омский","fname":"Йоган",adress:" Бунден штрассе"}',
                '{"id":91,"lname":"Поб2едилов","fname":"Йоган",adress:" Бунден штрассе"}',
                '{"id":1110,"lname":"Св2идригайлов","fname":"Йоган",adress:" Бунден штрассе"}']
-        return HttpResponse('{"total":121,"rows":[%s]}' % ','.join(res), mimetype='application/json')
+        return HttpResponse('{"total":121,"rows":[%s]}' % ','.join(res), content_type='application/json')
 
 
 @Pack.register
@@ -460,4 +460,4 @@ class GroupingDataAction(Action):
             res.append(d)
 
         return http.HttpResponse('{"total":100,"rows":%s}' % json.dumps(res),
-                                 mimetype='application/json')
+                                 content_type='application/json')

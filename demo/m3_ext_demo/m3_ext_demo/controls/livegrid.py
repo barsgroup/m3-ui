@@ -153,7 +153,7 @@ def livegrid_data(request):
         data = M3JSONEncoder().encode({'data': list, 'count': count, 'totalCount': total})
     else:
         data = M3JSONEncoder().encode({'data': list, 'count': count, 'totalCount': total[0], 'totalRow': total[1]})
-    return http.HttpResponse(data,  mimetype='application/json')
+    return http.HttpResponse(data,  content_type='application/json')
 
 @url(r'^ui/exportgrid-export$')
 def exportgrid_export(request):
