@@ -1,17 +1,11 @@
-#coding:utf-8
-"""
-Created on 3.3.2010
-
-
-"""
-import json
+# coding:utf-8
 
 from django.conf import settings
 
 from m3.actions import _must_be_replaced_by
 from m3_ext.ui.base import ExtUIComponent, BaseExtComponent
 
-from base import BaseExtPanel
+from .base import BaseExtPanel
 
 
 class ExtGrid(BaseExtPanel):

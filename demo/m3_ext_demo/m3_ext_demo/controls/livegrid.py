@@ -4,6 +4,7 @@ import random
 from django import http
 from m3 import M3JSONEncoder
 
+from m3_django_compat import get_request_params
 from m3_ext.ui.containers import ExtGridColumn, ExtToolBar
 from m3_ext.ui.controls import ExtButton
 from m3_ext.ui.fields import ExtDateField
@@ -164,9 +165,10 @@ def exportgrid_export(request):
     from django.conf import settings
 
     w = xlwt.Workbook()
-    ws = w.add_sheet(request.REQUEST.get('title'))
-    columns = json.loads(request.REQUEST.get('columns'))
-    data = json.loads(request.REQUEST.get('data'))
+    request_params = get_request_params(request)
+    ws = w.add_sheet(request_params.get('title'))
+    columns = json.loads(request_params.get('columns'))
+    data = json.loads(request_params.get('data'))
 
     title_style = xlwt.easyxf(
         "font: bold on, height 400;"
@@ -182,7 +184,7 @@ def exportgrid_export(request):
         "borders: left thin, right thin, top thin, bottom thin;"
     )
 
-    ws.write_merge(0,0,0,len(columns),request.REQUEST.get('title'),title_style)
+    ws.write_merge(0,0,0,len(columns), request_params.get('title'),title_style)
     ws.row(0).height = 500
     columns_cash = {}
     for idx,column in enumerate(columns):
@@ -207,13 +209,14 @@ def exportgrid_export(request):
 
 @url(r'^ui/livegrid-export$')
 def livegrid_export(request):
-    title = request.REQUEST.get('title')
-    columns = json.loads(request.REQUEST.get('columns'))
-    total = int(request.POST.get('totalLength'))
-    grouped = json.loads(request.POST.get('grouped'))
-    exp = json.loads(request.POST.get('exp'))
-    direction = request.POST.get('dir')
-    sort = request.POST.get('sort')
+    request_params = get_request_params(request)
+    title = request_params.get('title')
+    columns = json.loads(request_params.get('columns'))
+    total = int(request_params.get('totalLength'))
+    grouped = json.loads(request_params.get('grouped'))
+    exp = json.loads(request_params.get('exp'))
+    direction = request_params.get('dir')
+    sort = request_params.get('sort')
     sorting = {}
     if sort:
         sorting[sort] = direction
