@@ -1,10 +1,12 @@
 # coding: utf-8
-from m3.actions.urls import get_url
-from m3_ext.demo.actions.base import DemoAction, Pack
-from m3_ext.demo.actions.grids.objectgrid import ObjectGridNewAction, ObjectGridEditAction, ObjectGridDeleteAction
-from m3_ext.demo.actions.tree.trees import TreeDataAction
 
+from m3.actions.urls import get_url
 from m3_ext.ui import all_components as ext
+from m3_ext.ext_demo.actions.base import DemoAction, Pack
+from m3_ext.ext_demo.actions.grids.objectgrid import ObjectGridNewAction
+from m3_ext.ext_demo.actions.grids.objectgrid import ObjectGridEditAction
+from m3_ext.ext_demo.actions.grids.objectgrid import ObjectGridDeleteAction
+from m3_ext.ext_demo.actions.tree.trees import TreeDataAction
 
 
 @Pack.register

@@ -6,12 +6,15 @@ import datetime
 import decimal
 import json
 import os
+
 from django.conf import settings
 from django.core.files.base import ContentFile
-
 from django.db.models.query import QuerySet
+from m3_django_compat import ModelOptions
+
 from m3 import M3JSONEncoder
 from m3.actions.interfaces import IMultiSelectablePack, ISelectablePack
+
 
 try:
     from PIL import Image  # require PIL module
@@ -547,7 +550,7 @@ def to_object(obj, all_fields, exclusion=None):
     # чтобы проверить возможность их сохранения
     try:
         list_of_m2m = [
-            x[0].name for x in obj._meta.get_m2m_with_model()]
+            x[0].name for x in ModelOptions(obj).get_m2m_with_model()]
     except AttributeError:
         list_of_m2m = []
 
