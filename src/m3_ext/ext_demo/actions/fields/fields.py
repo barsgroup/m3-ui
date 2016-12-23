@@ -1,8 +1,8 @@
-#coding: utf-8
-from m3_ext.demo.actions.base import DemoAction, Pack
+# coding: utf-8
 
 from m3_ext.ui import all_components as ext
 from m3_ext.ui.fields.simple import ExtStringField
+from m3_ext.ext_demo.actions.base import DemoAction, Pack
 
 
 @Pack.register

@@ -1,8 +1,7 @@
 # -*- coding: utf-8 -*-
 
-from base import Pack, DemoAction
-
 from m3_ext.ui import all_components as ext
+from .base import Pack, DemoAction
 
 
 @Pack.register

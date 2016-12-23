@@ -1,4 +1,4 @@
-#coding: utf-8
+# coding: utf-8
 """
 Загрузчик шаблонов (темплейтов) для генерации пользовательского интерфейса
 для m3_ext_demo.ui.
@@ -17,6 +17,8 @@ import sys
 from django.conf import settings
 from django.template import TemplateDoesNotExist
 from django.utils._os import safe_join
+from m3_django_compat import BaseLoader
+
 
 # At compile time, cache the directories to search.
 fs_encoding = sys.getfilesystemencoding() or sys.getdefaultencoding()
@@ -47,6 +49,14 @@ def get_template_sources(template_name, template_dirs=None):
         except ValueError:
             # The joined path was located outside of template_dir.
             pass
+
+
+class Loader(BaseLoader):
+
+    is_usable = True
+
+    def load_template_source(self, template_name, template_dirs=None):
+        return load_template_source(template_name, template_dirs)
 
 
 def load_template_source(template_name, template_dirs=None):
