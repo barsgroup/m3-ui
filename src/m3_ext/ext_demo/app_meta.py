@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from django.conf import urls
+from django.conf.urls import url
 
 from m3.actions import ActionController
 from m3_ext.ui.desktop import uificate_the_controller
@@ -25,7 +25,4 @@ def register_urlpatterns():
     """
     Регистрация конфигурации урлов для приложения
     """
-    return urls.patterns(
-        "",
-        controller.urlpattern
-    )
+    return [url(*controller.urlpattern)]
