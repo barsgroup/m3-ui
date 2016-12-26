@@ -1,6 +1,4 @@
-#coding:utf-8
-"""
-"""
+# coding:utf-8
 
 from m3_ext.ui.containers.base import BaseExtPanel
 from m3_ext.ui.helpers import bind_to_request, from_object, to_object

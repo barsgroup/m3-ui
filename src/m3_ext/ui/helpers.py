@@ -1,11 +1,11 @@
-#coding:utf-8
-"""
-Хелперы, которые помогают формировать пользовательский интерфейс
-"""
+# coding:utf-8
+u"""Хелперы, которые помогают формировать пользовательский интерфейс."""
+
 import datetime
 import decimal
 import json
 import os
+from logging import getLogger
 
 from django.conf import settings
 from django.core.files.base import ContentFile
@@ -14,6 +14,9 @@ from m3_django_compat import ModelOptions
 
 from m3 import M3JSONEncoder
 from m3.actions.interfaces import IMultiSelectablePack, ISelectablePack
+
+
+logger = getLogger('django')
 
 
 try:
@@ -28,13 +31,6 @@ except ImportError:
             raise ImportError("PIL not installed!")
 
     Image = _FakeImage
-
-try:
-    from django.utils.log import logger
-except ImportError:
-    from django.utils.log import getLogger
-
-    logger = getLogger('django')
 
 
 def paginated_json_data(query, start=0, limit=25):

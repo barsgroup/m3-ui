@@ -1,5 +1,5 @@
 # coding:utf-8
-"""
+u"""
 Классы для работы первично отображаемого интерфейса MIS.
 Включают список модулей в меню "Пуск" и список модулей на "Рабочем столе"
 """
@@ -8,15 +8,14 @@ import threading
 import itertools
 import warnings
 from uuid import uuid4
+from logging import getLogger
+from importlib import import_module
 
 from django.conf import settings
-from django.utils.importlib import import_module
-from django.contrib.auth.models import User, AnonymousUser
-try:
-    from django.utils.log import logger
-except ImportError:
-    from django.utils.log import getLogger
-    logger = getLogger('django')
+
+
+logger = getLogger('django')
+
 
 try:
     from m3_users import GENERIC_USER, SUPER_ADMIN
@@ -430,6 +429,7 @@ class DesktopLoader(object):
         :param sorting: функция сортировки
         :type sorting: callable
         """
+        from django.contrib.auth.models import User, AnonymousUser
         assert isinstance(user, (User, AnonymousUser))
 
         roles = []
