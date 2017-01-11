@@ -592,3 +592,28 @@ Ext.override(Ext.Element, {
         return this;
     }
 });
+
+/**
+* В ExtJS по какой-то причине используется parseInt что приводит к ошибкам
+* при обработке дробных значений
+* было size = side && parseInt(this.getStyle(styles[side]), 10)
+* стало size = side && parseFloat(this.getStyle(styles[side]))
+*/
+Ext.override(Ext.Element, {
+    addStyles : function(sides, styles){
+        var ttlSize = 0,
+            sidesArr = sides.match(/\w/g),
+            side,
+            size,
+            i,
+            len = sidesArr.length;
+        for (i = 0; i < len; i++) {
+            side = sidesArr[i];
+            size = side && parseFloat(this.getStyle(styles[side]));
+            if (size) {
+                ttlSize += Math.abs(size);
+            }
+        }
+        return ttlSize;
+    }
+});
