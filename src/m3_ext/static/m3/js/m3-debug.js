@@ -16249,7 +16249,7 @@ if (!Function.prototype.bind) {
 }
 
 /**
- * Необходимо для фикса IE10
+ * Необходимо для фикса ошибки "parentNode null or not an object" в IE10
  */
 Ext.override(Ext.Element, {
 
@@ -16814,6 +16814,31 @@ Ext.override(Ext.grid.GridView, {
         }
 
         return true;
+    }
+});
+
+/**
+* В ExtJS по какой-то причине используется parseInt что приводит к ошибкам
+* при обработке дробных значений
+* было size = side && parseInt(this.getStyle(styles[side]), 10)
+* стало size = side && parseFloat(this.getStyle(styles[side]))
+*/
+Ext.override(Ext.Element, {
+    addStyles : function(sides, styles){
+        var ttlSize = 0,
+            sidesArr = sides.match(/\w/g),
+            side,
+            size,
+            i,
+            len = sidesArr.length;
+        for (i = 0; i < len; i++) {
+            side = sidesArr[i];
+            size = side && parseFloat(this.getStyle(styles[side]));
+            if (size) {
+                ttlSize += Math.abs(size);
+            }
+        }
+        return ttlSize;
     }
 });
 
