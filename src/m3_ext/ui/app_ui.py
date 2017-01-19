@@ -17,7 +17,7 @@ logger = getLogger('django')
 
 
 try:
-    from m3_users import GENERIC_USER, SUPER_ADMIN
+    from m3_users.app_meta import GENERIC_USER, SUPER_ADMIN
     from m3_users.helpers import get_assigned_metaroles_query
     from m3_users.metaroles import UserMetarole, get_metarole
 except ImportError:
