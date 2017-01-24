@@ -3,6 +3,9 @@
 
 **2.2.14**
 - Исправлен импорт из m3_users
+- Доработана функция ``m3_ext.ui.js_template_loader.get_template_sources``,
+  при вызове ``safe_join`` перехватывается исключение типа SuspiciousOperation,
+  добавленное в Django 1.8.X
 
 
 **2.2.13**
