@@ -16,6 +16,7 @@ import sys
 from django.conf import settings
 from django.template import TemplateDoesNotExist
 from django.utils._os import safe_join
+from django.core.exceptions import SuspiciousOperation
 from m3_django_compat import BaseLoader
 
 
@@ -45,7 +46,9 @@ def get_template_sources(template_name, template_dirs=None):
         except UnicodeDecodeError:
             # The template dir name was a bytestring that wasn't valid UTF-8.
             raise
-        except ValueError:
+        # В Django <1.8.X safe_join выбрасывает ValueError
+        # В Django >=1.8.X safe_join выбрасывает SuspiciousOperation
+        except (SuspiciousOperation, ValueError):
             # The joined path was located outside of template_dir.
             pass
 
