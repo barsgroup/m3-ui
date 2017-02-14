@@ -166,7 +166,7 @@ class ExtContainerTable(BaseExtContainer):
 
     def find_by_name(self, name):
         for item in self.items:
-            if hasattr(item, 'name') and name == getattr(item, 'name'):
+            if hasattr(item, 'name') and name == item.name:
                 return item
 
             if hasattr(item, 'find_by_name'):
