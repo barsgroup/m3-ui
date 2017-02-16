@@ -1,6 +1,10 @@
 ## История изменений
 
 
+**2.2.15**
+- Добавлен метод find_by_name для класса ExtContainerTable
+
+
 **2.2.14**
 - Исправлен импорт из m3_users
 - Доработана функция ``m3_ext.ui.js_template_loader.get_template_sources``,
