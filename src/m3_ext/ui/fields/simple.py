@@ -153,6 +153,10 @@ class ExtNumberField(BaseExtField):
     Поле ввода числового значения
     """
 
+    # Невидимый пробел для того чтобы, можно было убрать разделитель
+    # тысячной и дробной части
+    INVISIBLE_WHITE_SPACE = u'\u200b'
+
     def __init__(self, *args, **kwargs):
         super(ExtNumberField, self).__init__(*args, **kwargs)
 
