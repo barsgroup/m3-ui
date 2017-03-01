@@ -164,6 +164,16 @@ class ExtContainerTable(BaseExtContainer):
             for col in range(self.__rows_count)
         ]
 
+    def find_by_name(self, name):
+        for item in self.items:
+            if hasattr(item, 'name') and name == item.name:
+                return item
+
+            if hasattr(item, 'find_by_name'):
+                res = item.find_by_name(name)
+                if res:
+                    return res
+
     def set_item(self, row, col, cmp, colspan=1, **kwargs):
         """
         Устанавливает контрол *cmp* в ячейку с колонкой *col* и строкой *row*
