@@ -1,12 +1,14 @@
 ## История изменений
 
+**2.2.17**
+- Добавлен параметр thousandSeparator в ExtNumberField
+
 **2.2.16**
 - Возвращен атрибут INVISIBLE_WHITE_SPACE класса ExtNumberField для возможности
   убрать разделитель тысячной и дробной части
 
 **2.2.15**
 - Добавлен метод find_by_name для класса ExtContainerTable
-
 
 **2.2.14**
 - Исправлен импорт из m3_users
