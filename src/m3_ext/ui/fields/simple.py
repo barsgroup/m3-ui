@@ -402,6 +402,11 @@ class ExtHTMLEditor(BaseExtField):
         self.init_component(*args, **kwargs)
 
     def render_base_config(self):
+        if self.value:
+            if not isinstance(self.value, basestring):
+                # Если value не строка, то пытаемся привести к unicode
+                self.value = unicode(self.value)
+            self.value = self.value.replace('\\', '\\\\')
         super(ExtHTMLEditor, self).render_base_config()
 
     def render(self):
