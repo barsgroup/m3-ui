@@ -2,6 +2,7 @@
 
 **2.2.18**
 - Добавлены параметры min_text и max_text в ExtDateField
+- Добавлено экранирование обратных слешей в ExtHTMLEditor
 
 **2.2.17**
 - Добавлен параметр thousandSeparator в ExtNumberField
