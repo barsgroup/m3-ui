@@ -99,8 +99,16 @@ class ExtDateField(BaseExtField):
         # Разрешает перехват нажатий клавиш
         self.enable_key_events = False
 
+        # Если превышена максимальная дата,
+        # то будет отображаться этот текст
+        self.max_text = None
+
         # Максимальная возможная дата
         self.max_value = None
+
+        # Если превышена минимальная дата,
+        # то будет отображаться этот текст
+        self.min_text = None
 
         # Минимально возможная дата
         self.min_value = None
@@ -130,6 +138,8 @@ class ExtDateField(BaseExtField):
         self._put_config_value('startDay', self.start_day)
         self._put_config_value('maxValue', self.max_value)
         self._put_config_value('minValue', self.min_value)
+        self._put_config_value('maxText', self.max_text)
+        self._put_config_value('minText', self.min_text)
         self._put_config_value('editable', self.editable)
 
     def render_params(self):
