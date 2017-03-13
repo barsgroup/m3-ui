@@ -1,5 +1,8 @@
 ## История изменений
 
+**2.2.19**
+- Доработан MultiGroupingGrid
+
 **2.2.18**
 - Добавлены параметры min_text и max_text в ExtDateField
 - Добавлено экранирование обратных слешей в ExtHTMLEditor
