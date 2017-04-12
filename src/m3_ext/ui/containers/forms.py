@@ -5,17 +5,6 @@ import decimal
 import os
 import json
 
-try:
-    from PIL import Image  # require PIL module
-except ImportError:
-    class _FakeImage(object):
-        """
-        Заглушка для PIL.Image
-        """
-        def __getattr__(self, attr):
-            raise ImportError("PIL not installed!")
-    Image = _FakeImage
-
 from django.core.files.base import ContentFile
 from django.conf import settings
 
@@ -25,6 +14,14 @@ from m3_ext.ui.base import BaseExtComponent
 from m3_ext.ui.containers.base import BaseExtPanel
 
 from ..helpers import _render_globals
+
+try:
+    from PIL import Image  # require PIL module
+except ImportError:
+    class Image(object):
+        u"""Заглушка для PIL.Image."""
+        def __getattr__(self, attr):
+            raise ImportError("PIL not installed!")
 
 
 logger = getLogger('django')

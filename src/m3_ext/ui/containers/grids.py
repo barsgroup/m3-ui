@@ -5,7 +5,7 @@ import json
 from django.conf import settings
 
 from m3_ext.ui.base import ExtUIComponent, BaseExtComponent
-from base import BaseExtPanel
+from .base import BaseExtPanel
 
 
 class ExtGrid(BaseExtPanel):
@@ -72,7 +72,7 @@ class ExtGrid(BaseExtPanel):
         # признак отображения вертикальных линий в гриде
         self.column_lines = True
 
-        #Если True не рендерим drag and drop, выключаем editor
+        # Если True не рендерим drag and drop, выключаем editor
         self.read_only = False
 
         # Метка. Использовать только если задан layout=form
@@ -90,7 +90,9 @@ class ExtGrid(BaseExtPanel):
         """
         res = []
         for plugin in self.plugins:
-            res.append(plugin.render() if hasattr(plugin, 'render') else plugin)
+            res.append(
+                plugin.render() if hasattr(plugin, 'render') else plugin
+            )
 
         return '[%s]' % ','.join(res)
 
@@ -174,7 +176,7 @@ class ExtGrid(BaseExtPanel):
         if not column:
             column = BlankBandColumn()
         # Колонки хранятся в списках внутки сортированного словаря,
-        #чтобы их можно было
+        # чтобы их можно было
         # извечь по возрастанию уровней
         column.colspan = colspan
         level_list = self.banded_columns.get(level, [])
@@ -259,7 +261,6 @@ class ExtGrid(BaseExtPanel):
     def col_model(self, value):
         self.__cm = value
         self.__cm.grid = self
-
 
     @property
     def handler_click(self):
