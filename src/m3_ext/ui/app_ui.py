@@ -5,12 +5,14 @@ u"""Классы для работы первично отображаемого
 """
 from importlib import import_module
 from logging import getLogger
-import threading
-import itertools
-import warnings
 from uuid import uuid4
+import itertools
+import threading
+import warnings
 
 from django.conf import settings
+from m3 import M3JSONEncoder
+from m3.actions import ControllerCache, Action
 
 
 logger = getLogger('django')
@@ -39,10 +41,6 @@ except ImportError:
 
     def get_metarole(code):
         return UserMetarole()
-
-from m3.actions import ControllerCache, Action
-from m3 import M3JSONEncoder
-from m3_django_compat import get_user_model
 
 
 # Константы: "Разделитель", "Блок с текущим временем", "Заполняющий блок"
@@ -430,7 +428,6 @@ class DesktopLoader(object):
         :type sorting: callable
         """
         from django.contrib.auth.models import AnonymousUser
-        assert isinstance(user, (get_user_model(), AnonymousUser))
 
         roles = []
         if not isinstance(user, AnonymousUser):
@@ -537,7 +534,7 @@ class DesktopLoader(object):
                 for role in metarole.get_owner_metaroles():
                     insert_for_role(role, element, processed_metaroles)
 
-        #===============================================
+        # ===============================================
         assert place in (
             cls.DESKTOP,
             cls.START_MENU,
@@ -551,9 +548,9 @@ class DesktopLoader(object):
         insert_for_role(metarole, element, processed_metaroles=[])
 
 
-#==============================================================================
+# =============================================================================
 # Разные полезные шорткаты
-#==============================================================================
+# =============================================================================
 
 def add_desktop_launcher(
     name='', url='', icon='', path=None, metaroles=None, places=None
