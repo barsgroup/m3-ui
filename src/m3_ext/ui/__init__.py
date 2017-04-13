@@ -1,8 +1,6 @@
-#coding:utf-8
-
+# coding:utf-8
 from uuid import uuid4
 
-from django.template import Context
 from django.template.loader import get_template
 
 
@@ -12,9 +10,8 @@ def render_component(component):
     :type component: BaseExtComponent или наследник
     :rtype: str
     """
-    context = Context({'component': component, 'self': component})
     template = get_template(component.template)
-    return template.render(context)
+    return template.render({'component': component, 'self': component})
 
 
 def render_template(template_name, variables=None):
@@ -25,19 +22,17 @@ def render_template(template_name, variables=None):
     :type variables: dict
     :rtype: str
     """
-    context = Context(variables or {})
     template = get_template(template_name)
-    return template.render(context)
+    return template.render(variables or {})
 
 
-def normalize(str):
+def normalize(s):
     """
     Конвертирует строку в вид, понятный javascript'у
-    :param str: строка
-    :type str: str
+    :param str s: строка
     :rtype: str
     """
-    return str.replace(
+    return s.replace(
         '\r', '\\r'
     ).replace(
         '\n', '\\n'
