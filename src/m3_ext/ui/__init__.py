@@ -1,7 +1,7 @@
 # coding:utf-8
 from uuid import uuid4
 
-from django.template.loader import get_template
+from m3_django_compat import get_template
 
 
 def render_component(component):
