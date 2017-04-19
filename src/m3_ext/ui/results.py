@@ -2,12 +2,13 @@
 """
 Результаты выполнения Action`s
 """
-from django import http
+import json
 
-from m3.actions import (
-    ActionResult as _ActionResult,
-    BaseContextedResult as _BaseContextedResult,
-)
+from django import http
+from m3.actions import ActionResult as _ActionResult
+from m3.actions import BaseContextedResult as _BaseContextedResult
+from m3.actions import OperationResult as _OperationResult
+from m3_ext.ui.windows.window import BaseConfirmWindow
 
 import helpers as _helpers
 
@@ -66,3 +67,35 @@ class ExtGridDataQueryResult(_ActionResult):
         return http.HttpResponse(
             _helpers.paginated_json_data(
                 self.data, self.start, self.limit))
+
+
+class ConfirmWindowResult(_OperationResult):
+    """Результат, содержащий запрос на подтверждение выполнения действия.
+
+    Позволяет возвращать результат, который отобразит окно подтверждения
+    выполнения действия с последующим выполнением этого действия.
+
+    :param basestring text: Текст сообщения
+    :param basestring url: callback url
+    :param dict params: словарь дополнительных параметров для передачи
+                        в HTTP запросе
+    :param bool prevent_escape: не экранировать спец. символы в text
+    :param request: объект HTTP запроса, для копирования его параметров
+    :type request: django.http.HttpRequest
+    """
+
+    def __init__(
+            self, text=None, url=None, params=None, request=None,
+            prevent_escape=False, *args, **kwargs):
+        super(ConfirmWindowResult, self).__init__(*args, **kwargs)
+
+        window = BaseConfirmWindow()
+
+        params = params or {}
+        params.update(getattr(request, 'REQUEST', {}))
+        window.set_params(
+            text=text, url=url, params=json.dumps(params),
+            prevent_escape=prevent_escape,
+        )
+
+        self.code = window.get_script()
