@@ -1,5 +1,9 @@
 ## История изменений
 
+**2.2.24**
+- доработана функция convert_value в m3_ext.ui.containers.forms.ExtForm для
+  корректной работы choices в BooleanField
+
 **2.2.23**
 - Добавлен ``ConfirmWindowResult`` для реализации окон подтверждения.
 
