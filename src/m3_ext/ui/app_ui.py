@@ -13,6 +13,7 @@ import warnings
 from django.conf import settings
 from m3 import M3JSONEncoder
 from m3.actions import ControllerCache, Action
+from m3_django_compat import get_installed_apps
 
 
 logger = getLogger('django')
@@ -333,7 +334,7 @@ class DesktopLoader(object):
                 cls._cache = {}
                 # Из инитов всех приложения
                 # пытаемся выполнить register_desktop_menu
-                for app_name in settings.INSTALLED_APPS:
+                for app_name in get_installed_apps():
                     try:
                         module = import_module('.app_meta', app_name)
                     except ImportError, err:

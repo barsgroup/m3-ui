@@ -1,5 +1,9 @@
 ## История изменений
 
+**2.2.25**
+- Добавлена поддержка классов конфигурации django-приложений в параметре
+  ``INSTALLED_APPS``.
+
 **2.2.24**
 - доработана функция convert_value в m3_ext.ui.containers.forms.ExtForm для
   корректной работы choices в BooleanField
