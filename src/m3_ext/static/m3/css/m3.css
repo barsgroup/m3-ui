@@ -290,7 +290,7 @@ span.CodeMirror-selected {
 
 /* фикс для группирующих колонок */
 .x-grid3-hd-row td.x-grid3-gcell, .x-grid-with-col-lines .x-grid3-row td.x-grid3-cell {
-    -webkit-box-sizing: border-box;
+    -webkit-box-sizing: content-box;
     -moz-box-sizing: content-box;
 }
 
