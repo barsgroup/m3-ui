@@ -440,6 +440,9 @@ class ExtDisplayField(BaseExtField):
     """
     def __init__(self, *args, **kwargs):
         super(ExtDisplayField, self).__init__(*args, **kwargs)
+        # Флаг для экранирования значения
+        self.html_encode = False
+
         self.init_component(*args, **kwargs)
 
     def render_base_config(self):
@@ -449,6 +452,8 @@ class ExtDisplayField(BaseExtField):
         # излишне
         if self.read_only:
             self._set_config_value('cls', None)
+
+        self._put_config_value('htmlEncode', self.html_encode)
 
     def render(self):
         try:
