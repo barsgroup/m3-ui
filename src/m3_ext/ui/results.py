@@ -8,9 +8,10 @@ from django import http
 from m3.actions import ActionResult as _ActionResult
 from m3.actions import BaseContextedResult as _BaseContextedResult
 from m3.actions import OperationResult as _OperationResult
-from m3_ext.ui.windows.window import BaseConfirmWindow
+from m3_django_compat import get_request_params
 
-import helpers as _helpers
+from . import helpers as _helpers
+from .windows.window import BaseConfirmWindow
 
 
 class ExtUIScriptResult(_BaseContextedResult):
@@ -84,15 +85,20 @@ class ConfirmWindowResult(_OperationResult):
     :type request: django.http.HttpRequest
     """
 
+    #: Класс окна, которое увидит пользователь при возврате ConfirmWindowResult
+    window_cls = BaseConfirmWindow
+
     def __init__(
             self, text=None, url=None, params=None, request=None,
             prevent_escape=False, *args, **kwargs):
         super(ConfirmWindowResult, self).__init__(*args, **kwargs)
 
-        window = BaseConfirmWindow()
-
         params = params or {}
-        params.update(getattr(request, 'REQUEST', {}))
+        if request:
+            params.update(get_request_params(request))
+
+        window = self.window_cls()
+
         window.set_params(
             text=text, url=url, params=json.dumps(params),
             prevent_escape=prevent_escape,
