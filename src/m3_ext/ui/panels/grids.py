@@ -319,6 +319,10 @@ class ExtObjectGrid(containers.ExtGrid):
         if not self.url_data and self.action_data:
             self.url_data = get_url(self.action_data)
 
+        # Добавляем client_id для взаимодействия сторонних окон с гридом
+        if self.action_context:
+            self.action_context.m3_grid_id = self.client_id
+
         context_json = (
             self.action_context.json if self.action_context else None)
 
