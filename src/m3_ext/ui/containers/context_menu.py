@@ -105,7 +105,10 @@ class ExtContextMenuItem(ExtUIComponent):
 
     def render(self, container=None):
         # FIXME: container не используется
-        res = ['text:"%s"' % self.text.replace('"', "&quot;")]
+        res = [
+            'id: "%s"' % self.client_id,
+            'text:"%s"' % self.text.replace('"', '&quot;'),
+        ]
         if self.custom_itemtype:
             res.append('xtype: "%s"' % self.custom_itemtype)
         if self.icon_cls:
