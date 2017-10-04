@@ -1524,8 +1524,14 @@ Ext.ux.grid.LockingGridColumnWithHeaderGroup = Ext.extend(Ext.util.Observable, {
                 el1.dom.style.height = '';
                 el2.dom.style.height = '';
 
-                var h1 = el1.getHeight(),
-                    h2 = el2.getHeight();
+                try {
+                    // если есть поддержка getBoundingClientRect воспользуемся им
+                    var h1 = el1.dom.getBoundingClientRect().height,
+                        h2 = el2.dom.getBoundingClientRect().height;
+                } catch (err) {
+                    var h1 = el1.getHeight(),
+                        h2 = el2.getHeight();
+                }
 
                 if (h1 > h2) {
                     el2.setHeight(h1);
