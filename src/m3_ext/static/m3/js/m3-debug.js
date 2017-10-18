@@ -11638,8 +11638,14 @@ Ext.ux.grid.LockingGridColumnWithHeaderGroup = Ext.extend(Ext.util.Observable, {
                 el1.dom.style.height = '';
                 el2.dom.style.height = '';
 
-                var h1 = el1.getHeight(),
-                    h2 = el2.getHeight();
+                try {
+                    // если есть поддержка getBoundingClientRect воспользуемся им
+                    var h1 = el1.dom.getBoundingClientRect().height,
+                        h2 = el2.dom.getBoundingClientRect().height;
+                } catch (err) {
+                    var h1 = el1.getHeight(),
+                        h2 = el2.getHeight();
+                }
 
                 if (h1 > h2) {
                     el2.setHeight(h1);
@@ -13035,7 +13041,6 @@ Ext.m3.MultiSelectField = Ext.extend(Ext.m3.AdvancedComboBox, {
     initComponent:function() {
         this.checkedItems = [];
         this.hideTriggerDictEdit = true;
-        this.editable = false;
 
         if (!this.tpl) {
              this.tpl = '<tpl for="."><div class="x-combo-list-item x-multi-combo-item">' +
