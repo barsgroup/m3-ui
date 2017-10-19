@@ -563,6 +563,7 @@ class ExtMultiSelectField(ExtDictSelectField):
         self.multiple_display_value = None
         self._value = ''
         self._init_flag = True
+        self.editable = False
 
         super(ExtMultiSelectField, self).__init__(*args, **kwargs)
         self.init_component(*args, **kwargs)

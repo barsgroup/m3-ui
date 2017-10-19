@@ -21,7 +21,6 @@ Ext.m3.MultiSelectField = Ext.extend(Ext.m3.AdvancedComboBox, {
     initComponent:function() {
         this.checkedItems = [];
         this.hideTriggerDictEdit = true;
-        this.editable = false;
 
         if (!this.tpl) {
              this.tpl = '<tpl for="."><div class="x-combo-list-item x-multi-combo-item">' +
