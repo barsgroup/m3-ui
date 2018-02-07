@@ -1,9 +1,5 @@
-#coding:utf-8
-"""
-Created on 3.3.2010
-
-@author: prefer
-"""
+# coding: utf-8
+from __future__ import absolute_import
 
 from m3_ext.ui.base import ExtUIComponent
 

@@ -1,19 +1,15 @@
-#coding: utf-8
-"""
-Created on 27.02.2010
+# coding: utf-8
+from __future__ import absolute_import
 
-@author: akvarats
-@author: prefer
-"""
-
-from datetime import datetime, date
+from datetime import date
+from datetime import datetime
 
 from django.conf import settings
 from django.utils.html import escapejs
-
 from m3 import date2str
 
-from base import BaseExtField, BaseExtTriggerField
+from .base import BaseExtField
+from .base import BaseExtTriggerField
 
 
 #==============================================================================

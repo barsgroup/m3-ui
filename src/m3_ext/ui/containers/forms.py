@@ -1,19 +1,23 @@
 # coding: utf-8
+from __future__ import absolute_import
+
 from logging import getLogger
 import datetime
 import decimal
-import os
 import json
+import os
 
-from django.core.files.base import ContentFile
 from django.conf import settings
-
+from django.core.files.base import ContentFile
+from m3.actions.interfaces import IMultiSelectablePack
+from m3.actions.interfaces import ISelectablePack
 from m3_django_compat import ModelOptions
-from m3.actions.interfaces import ISelectablePack, IMultiSelectablePack
+
 from m3_ext.ui.base import BaseExtComponent
 from m3_ext.ui.containers.base import BaseExtPanel
 
 from ..helpers import _render_globals
+
 
 try:
     from PIL import Image  # require PIL module

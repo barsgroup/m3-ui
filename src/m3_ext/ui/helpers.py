@@ -1,7 +1,9 @@
-# coding:utf-8
+# coding: utf-8
 """
 Хелперы, которые помогают формировать пользовательский интерфейс
 """
+from __future__ import absolute_import
+
 from collections import Iterable
 
 from django.db.models.query import QuerySet

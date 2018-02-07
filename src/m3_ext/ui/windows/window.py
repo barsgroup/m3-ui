@@ -1,12 +1,9 @@
 # coding: utf-8
-"""
-Created on 25.02.2010
+from __future__ import absolute_import
 
-@author: akvarats
-"""
 from django.template.loader import render_to_string
 
-from base import BaseExtWindow
+from .base import BaseExtWindow
 
 
 class ExtWindow(BaseExtWindow):

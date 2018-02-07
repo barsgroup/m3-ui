@@ -1,10 +1,14 @@
-# coding:utf-8
+# coding: utf-8
+from __future__ import absolute_import
+
 from collections import OrderedDict
 import json
 
 from django.conf import settings
 
-from m3_ext.ui.base import ExtUIComponent, BaseExtComponent
+from m3_ext.ui.base import BaseExtComponent
+from m3_ext.ui.base import ExtUIComponent
+
 from .base import BaseExtPanel
 
 

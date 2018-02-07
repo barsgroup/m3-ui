@@ -1,20 +1,18 @@
-#coding:utf-8
+# coding: utf-8
 """
 Модуль с базовыми классами/интерфейсами, которые необходимы
 для работы подсистемы m3_ext_demo.ui
-
-Created on 01.03.2010
-
-@author: akvarats
-@author: prefer
 """
+from __future__ import absolute_import
 
 import datetime
 import decimal
 
-from m3_ext.ui import render_component
-from m3_ext.ui import generate_client_id, normalize
 from m3 import date2str
+
+from m3_ext.ui import generate_client_id
+from m3_ext.ui import normalize
+from m3_ext.ui import render_component
 
 from .helpers import _render_globals
 

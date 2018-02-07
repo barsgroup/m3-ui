@@ -1,14 +1,12 @@
-#coding:utf-8
-"""
-Created on 02.03.2010
-
-@author: akvarats
-"""
+# coding: utf-8
+from __future__ import absolute_import
 
 from django.template import TemplateSyntaxError
+
 from m3_ext.ui.containers import ExtForm
-from base import BaseExtWindow
 from m3_ext.ui.windows.base import ExtWindowRenderer
+
+from .base import BaseExtWindow
 
 
 class ExtEditWindow(BaseExtWindow):

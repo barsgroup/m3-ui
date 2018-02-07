@@ -1,17 +1,16 @@
-# coding:utf-8
+# coding: utf-8
 """
 Базовые окна редактирования
-
-Created on 14.12.2010
-
-@author: akvarats
 """
+from __future__ import absolute_import
 
-from m3_ext.ui import windows
-from m3_ext.ui import panels
-from m3_ext.ui import controls
+from m3.actions import Action
+from m3.actions import ControllerCache
+
 from m3_ext.ui import containers
-from m3.actions import Action, ControllerCache
+from m3_ext.ui import controls
+from m3_ext.ui import panels
+from m3_ext.ui import windows
 
 
 class GearEditWindow(windows.ExtEditWindow):

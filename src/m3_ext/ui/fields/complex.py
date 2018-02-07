@@ -1,23 +1,22 @@
-#coding:utf-8
-"""
-Created on 27.02.2010
+# coding: utf-8
+from __future__ import absolute_import
 
-@author: prefer
-"""
-import os
 import json
+import os
 
 from django.conf import settings
 from django.utils.html import escapejs
+from m3 import actions
+from m3.actions import ControllerCache
+from m3.actions.interfaces import IMultiSelectablePack
+from m3.actions.interfaces import ISelectablePack
 
 from base import BaseExtField
 
-from m3 import actions
-from m3_ext.ui.misc import ExtJsonStore
+from m3_ext.ui.base import BaseExtComponent
+from m3_ext.ui.base import ExtUIComponent
 from m3_ext.ui.fields.base import BaseExtTriggerField
-from m3_ext.ui.base import BaseExtComponent, ExtUIComponent
-from m3.actions import ControllerCache
-from m3.actions.interfaces import ISelectablePack, IMultiSelectablePack
+from m3_ext.ui.misc import ExtJsonStore
 
 
 #==============================================================================

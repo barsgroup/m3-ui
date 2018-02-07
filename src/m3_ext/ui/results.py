@@ -1,7 +1,9 @@
-# -*- coding: utf-8 -*-
+# coding: utf-8
 """
 Результаты выполнения Action`s
 """
+from __future__ import absolute_import
+
 import json
 
 from django import http

@@ -1,20 +1,15 @@
-#coding:utf-8
-"""
-Created on 3.3.2010
-
-@author: prefer
-"""
-import json
-import abc
-import datetime
+# coding: utf-8
+from __future__ import absolute_import
 
 from decimal import Decimal
+import abc
+import datetime
+import json
 
 from m3_ext.ui import normalize
-
 from m3_ext.ui.base import BaseExtComponent
 
-from base_store import BaseExtStore
+from .base_store import BaseExtStore
 
 
 class ExtDataStore(BaseExtStore):

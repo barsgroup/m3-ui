@@ -1,8 +1,10 @@
-# coding:utf-8
+# coding: utf-8
 u"""Классы для работы первично отображаемого интерфейса MIS.
 
 Включают список модулей в меню "Пуск" и список модулей на "Рабочем столе"
 """
+from __future__ import absolute_import
+
 from importlib import import_module
 from logging import getLogger
 from uuid import uuid4
@@ -12,7 +14,8 @@ import warnings
 
 from django.conf import settings
 from m3 import M3JSONEncoder
-from m3.actions import ControllerCache, Action
+from m3.actions import Action
+from m3.actions import ControllerCache
 from m3_django_compat import get_installed_apps
 
 
@@ -337,7 +340,7 @@ class DesktopLoader(object):
                 for app_name in get_installed_apps():
                     try:
                         module = import_module('.app_meta', app_name)
-                    except ImportError, err:
+                    except ImportError as err:
                         if err.args[0].find('No module named') == -1 or (
                                 err.args[0].find('app_meta') == -1):
                             logger.exception(

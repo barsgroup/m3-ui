@@ -1,11 +1,9 @@
-#coding:utf-8
+# coding: utf-8
 """
 Модуль шорткатов для подсистемы m3_ext_demo.ui
-
-Created on 24.03.2010
-
-@author: akvarats
 """
+from __future__ import absolute_import
+
 import json
 
 from django import http
@@ -192,4 +190,3 @@ function(buttonId, text, opt){
                              'icon': self.icon,
                              'handler': handler}
         return result
-

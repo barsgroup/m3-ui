@@ -1,17 +1,15 @@
-#coding:utf-8
+# coding: utf-8
 '''
 Модуль с различными полезными окнами и прочими элементами
 пользовательского интерфейса.
-
-Created on 24.02.2011
-
-@author: akvarats
 '''
+from __future__ import absolute_import
 
-from m3_ext.ui import (windows,
-                       fields,
-                       controls,
-                       containers,)
+from m3_ext.ui import containers
+from m3_ext.ui import controls
+from m3_ext.ui import fields
+from m3_ext.ui import windows
+
 
 class ExternalLinkWindow(windows.ExtWindow):
     '''

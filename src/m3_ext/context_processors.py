@@ -1,10 +1,15 @@
-#coding: utf-8
+# coding: utf-8
+from __future__ import absolute_import
+
 import json
 
-from m3_ext.ui.app_ui import (
-    DesktopModel, DesktopLoader, BaseDesktopElement, MenuSeparator
-)
-from m3.actions import ControllerCache, ActionPack
+from m3.actions import ActionPack
+from m3.actions import ControllerCache
+
+from m3_ext.ui.app_ui import BaseDesktopElement
+from m3_ext.ui.app_ui import DesktopLoader
+from m3_ext.ui.app_ui import DesktopModel
+from m3_ext.ui.app_ui import MenuSeparator
 
 
 class DesktopProcessor(object):

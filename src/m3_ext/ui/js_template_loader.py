@@ -10,13 +10,15 @@ template-loaders в django.
 необходимо добавить строку 'm3_ext_demo.ui.js_template_loader.load_template_source'
 в tuple TEMPLATE_LOADERS
 """
+from __future__ import absolute_import
+
 import os
 import sys
 
 from django.conf import settings
+from django.core.exceptions import SuspiciousOperation
 from django.template import TemplateDoesNotExist
 from django.utils._os import safe_join
-from django.core.exceptions import SuspiciousOperation
 from m3_django_compat import BaseLoader
 
 

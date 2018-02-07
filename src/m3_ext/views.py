@@ -1,7 +1,8 @@
-# -*- coding: utf-8 -*-
-# Create your views here.rtn.core.views
-from django.shortcuts import render_to_response
+# coding: utf-8
+from __future__ import absolute_import
+
 from django import template as django_template
+from django.shortcuts import render_to_response
 
 from m3_ext.context_processors import DesktopProcessor
 

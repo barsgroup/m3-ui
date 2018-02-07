@@ -7,6 +7,7 @@ from __future__ import unicode_literals
 from os.path import dirname
 from os.path import isdir
 from os.path import join
+import sys
 
 from fabric.api import local
 from fabric.colors import green
@@ -54,20 +55,24 @@ def pylint():
         lcd(SRC_DIR),
     ):
         print(green(u'PyLint (compartibility mode)', bold=True))
-        if local('python -3 -Werrors -m compileall m3').return_code != 0:
-            abort()
+        if sys.version_info.major == 2:
+            cmd = 'python -3 -Werror -m compileall ' + PROJECT_PACKAGE
+        else:
+            cmd = 'python -m compileall ' + PROJECT_PACKAGE
+        if local(cmd).return_code != 0:
+            abort('Python 3 incompartible')
         if local(
             'pylint --py3k "{}"'
             .format(join(SRC_DIR, PROJECT_PACKAGE))
         ).return_code != 0:
-            abort()
+            abort('Python 3 incompartible')
 
         print(green(u'PyLint', bold=True))
         if local(
             'pylint "--rcfile={}/pylint.rc" "{}"'
             .format(PROJECT_DIR, PROJECT_PACKAGE)
         ).return_code != 0:
-            abort()
+            abort('Pylint checks failed')
 
 
 @task

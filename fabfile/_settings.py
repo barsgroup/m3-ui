@@ -9,7 +9,7 @@ from os.path import join
 
 
 #: Имя пакета с проектом.
-PROJECT_PACKAGE = 'm3_ui'
+PROJECT_PACKAGE = 'm3_ext'
 
 
 #: Папка проекта.

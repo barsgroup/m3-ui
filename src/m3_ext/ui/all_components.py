@@ -1,17 +1,14 @@
-# -*- coding: utf-8 -*-
-"""
-Created on 13.04.2011
+# coding: utf-8
+from __future__ import absolute_import
 
-@author: prefer
-"""
+from .containers import *
+from .controls import *
+from .fields import *
+from .menus import *
+from .misc import *
+from .panels import *
+from .windows import *
 
-from containers import *
-from controls import *
-from fields import *
-from menus import *
-from misc import *
-from panels import *
-from windows import *
 
 try:
     from kladr.addrfield import ExtAddrComponent
