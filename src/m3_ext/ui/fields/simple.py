@@ -10,6 +10,7 @@ from m3 import date2str
 
 from .base import BaseExtField
 from .base import BaseExtTriggerField
+import six
 
 
 #==============================================================================
@@ -414,9 +415,9 @@ class ExtHTMLEditor(BaseExtField):
 
     def render_base_config(self):
         if self.value:
-            if not isinstance(self.value, basestring):
+            if not isinstance(self.value, six.string_types):
                 # Если value не строка, то пытаемся привести к unicode
-                self.value = unicode(self.value)
+                self.value = six.text_type(self.value)
             self.value = self.value.replace('\\', '\\\\')
         super(ExtHTMLEditor, self).render_base_config()
 

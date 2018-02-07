@@ -17,6 +17,9 @@ from m3 import M3JSONEncoder
 from m3.actions import Action
 from m3.actions import ControllerCache
 from m3_django_compat import get_installed_apps
+import six
+from six.moves import map
+from six.moves import filter
 
 
 logger = getLogger('django')
@@ -88,9 +91,9 @@ class DesktopElementCollection(object):
                 # на всякий случай клонируем
                 item = item.clone()
                 item.subitems = list(sorted(
-                    itertools.ifilter(
+                    filter(
                         bool,
-                        itertools.imap(
+                        map(
                             prepared,
                             item.subitems)),
                     key=self.sorting_key
@@ -177,9 +180,18 @@ class BaseDesktopElement(object):
     def __eq__(self, other):
         return isinstance(other, BaseDesktopElement) and self.id == other.id
 
-    def __cmp__(self, other):
-        assert isinstance(other, BaseDesktopElement)
-        return cmp(self.index, other.index) or cmp(self.name, other.name)
+    def __hash__(self):
+        return hash(self.id)
+
+    def __lt__(self, other):
+        assert isinstance(other, BaseDesktopElement), type(other)
+
+        if self.index == other.index:
+            result = self.name < other.name
+        else:
+            result = self.index < other.index
+
+        return result
 
     def clone(self, *args, **kwargs):
         """
@@ -274,7 +286,7 @@ class DesktopShortcut(DesktopLauncher):
             if not getattr(pack, 'title', None):
                 pack.title = getattr(pack.parent, 'title', '???')
         else:
-            if isinstance(pack, basestring):
+            if isinstance(pack, six.string_types):
                 # Пробуем найти как пак
                 pack = ControllerCache.find_pack(pack)
                 if not pack:
@@ -545,7 +557,7 @@ class DesktopLoader(object):
             cls.TOOLBOX,
             cls.TOPTOOLBAR
         )
-        if isinstance(metarole, basestring):
+        if isinstance(metarole, six.string_types):
             metarole = get_metarole(metarole)
         assert isinstance(metarole, UserMetarole)
 
@@ -612,7 +624,7 @@ def add_desktop_launcher(
         launcher = root  # мы в ланчеры, значится, будем добавлять самого рута.
 
     for metarole in cleaned_metaroles:
-        if isinstance(metarole, basestring):
+        if isinstance(metarole, six.string_types):
             metarole = get_metarole(metarole)
         if metarole:
             for place in cleaned_places:

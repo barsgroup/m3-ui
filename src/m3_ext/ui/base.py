@@ -15,6 +15,7 @@ from m3_ext.ui import normalize
 from m3_ext.ui import render_component
 
 from .helpers import _render_globals
+import six
 
 
 class ExtComponentException(Exception):
@@ -45,10 +46,10 @@ class ListenerMap(object):
 
             def items(self):
                 if not disable:
-                    return self._data.items()
+                    return list(self._data.items())
                 return [
                     (k, v if k not in manageable else None)
-                    for (k, v) in self._data.iteritems()
+                    for (k, v) in six.iteritems(self._data)
                 ]
 
             def __getitem__(self, key):
@@ -185,7 +186,7 @@ class BaseExtComponent(object):
         :raise: Exception
         """
         try:
-            unicode(string)
+            six.text_type(string)
         except UnicodeDecodeError:
             raise Exception('"%s" is not unicode' % string)
         else:
@@ -216,7 +217,7 @@ class BaseExtComponent(object):
         elif callable(item):
             res = self.__check_unicode(item())
 
-        elif isinstance(item, basestring):
+        elif isinstance(item, six.string_types):
 
             # если в строке уже есть апостроф, то будет очень больно.
             # поэтому replace
@@ -225,7 +226,7 @@ class BaseExtComponent(object):
         elif isinstance(item, bool):
             res = str(item).lower()
 
-        elif isinstance(item, (int, float, decimal.Decimal, long)):
+        elif isinstance(item, (int, float, decimal.Decimal, int)):
             res = item
 
         elif isinstance(item, datetime.date):
@@ -247,7 +248,7 @@ class BaseExtComponent(object):
 
         elif hasattr(item, '__unicode__'):
             return self._put_base_value(
-                src_list, extjs_name, unicode(item), condition, depth)
+                src_list, extjs_name, six.text_type(item), condition, depth)
         else:
             # Эээээ... Выводится для себя
             raise ExtComponentException(

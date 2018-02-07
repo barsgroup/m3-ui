@@ -12,6 +12,7 @@ from m3_ext.ui.containers.base import BaseExtContainer
 from m3_ext.ui.controls.base import BaseExtControl
 
 from ..helpers import _render_globals
+import six
 
 
 class ExtWindowRenderer(object):
@@ -130,7 +131,7 @@ class BaseExtWindow(ExtUIComponent):
         """
         return '{%s}' % ','.join([
             '%s:"%s"' % (k, v)
-            for k, v in self.layout_config.iteritems()
+            for k, v in six.iteritems(self.layout_config)
         ])
 
     def render_base_config(self):

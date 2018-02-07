@@ -11,6 +11,7 @@ from django.utils.safestring import mark_safe
 from m3 import M3JSONEncoder
 
 from m3_ext.ui import render_template
+import six
 
 
 def paginated_json_data(query, start=0, limit=25):
@@ -42,7 +43,7 @@ def _render_globals(component):
     if component.template_globals:
         context = {'component': component, 'window': component}
 
-        if isinstance(component.template_globals, basestring):
+        if isinstance(component.template_globals, six.string_types):
             result = render_template(component.template_globals, context)
 
         elif isinstance(component.template_globals, Iterable):

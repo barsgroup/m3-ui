@@ -10,6 +10,7 @@ from m3_ext.ui.base import BaseExtComponent
 from m3_ext.ui.base import ExtUIComponent
 
 from .base import BaseExtPanel
+import six
 
 
 class ExtGrid(BaseExtPanel):
@@ -456,7 +457,7 @@ class BaseExtGridColumn(ExtUIComponent):
                 lst.append('%s:%s' % (key, val.render()))
             elif isinstance(val, bool):
                 lst.append('%s:%s' % (key, str(val).lower()))
-            elif isinstance(val, (int, str, unicode)):
+            elif isinstance(val, (int, str, six.text_type)):
                 lst.append('%s:%s' % (key, val))
             else:  # пусть как хочет так и рендерится
                 lst.append('%s:%s' % (key, val))

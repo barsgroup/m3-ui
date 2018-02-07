@@ -17,6 +17,7 @@ from m3_ext.ui.base import BaseExtComponent
 from m3_ext.ui.containers.base import BaseExtPanel
 
 from ..helpers import _render_globals
+import six
 
 
 try:
@@ -117,7 +118,7 @@ class ExtForm(BaseExtPanel):
             персональной информацией. Он не должен биндится,
             т.к. предназначен для обработки в personal.middleware
             """
-            return unicode(value)[:2] == u'##'
+            return six.text_type(value)[:2] == u'##'
 
         def _assign_value(value, item):
             """
@@ -125,14 +126,14 @@ class ExtForm(BaseExtPanel):
             """
             if isinstance(item, fields.ExtStringField):
                 if value:
-                    item.value = unicode(value)
+                    item.value = six.text_type(value)
                 else:
                     item.value = u''
 
             elif isinstance(item, simple.ExtAdvTimeField):
                 item.value = '%02d:%02d:%02d' % (
                     value.hour, value.minute, value.second
-                ) if not is_secret_token(value) else unicode(value)
+                ) if not is_secret_token(value) else six.text_type(value)
 
             elif isinstance(item, simple.ExtDateTimeField):
                 if isinstance(value, datetime.datetime):
@@ -151,7 +152,7 @@ class ExtForm(BaseExtPanel):
                 if isinstance(value, (datetime.date, datetime.datetime)):
                     item.value = '%02d.%02d.%04d' % (
                         value.day, value.month, value.year
-                    ) if not is_secret_token(value) else unicode(value)
+                    ) if not is_secret_token(value) else six.text_type(value)
                 else:
                     item.value = value
 
@@ -159,7 +160,7 @@ class ExtForm(BaseExtPanel):
                 if isinstance(value, (datetime.time, datetime.datetime)):
                     item.value = '%02d:%02d' % (
                         value.hour, value.minute
-                    ) if not is_secret_token(value) else unicode(value)
+                    ) if not is_secret_token(value) else six.text_type(value)
                 else:
                     item.value = value
 
@@ -212,9 +213,9 @@ class ExtForm(BaseExtPanel):
                 # либо вызывать специальную функцию
                 # внутри экземпляра комбобокса.
                 if callable(item.bind_rule_reverse):
-                    item.value = unicode(item.bind_rule_reverse(value))
+                    item.value = six.text_type(item.bind_rule_reverse(value))
                 elif isinstance(item.bind_rule_reverse, dict):
-                    item.value = unicode(item.bind_rule_reverse.get(value))
+                    item.value = six.text_type(item.bind_rule_reverse.get(value))
                 else:
                     raise ValueError(
                         'Invalid attribute type bind_rule_reverse.'
@@ -225,7 +226,7 @@ class ExtForm(BaseExtPanel):
                 fields.ExtFileUploadField,
                 fields.ExtImageUploadField
             )):
-                item.value = unicode(value)
+                item.value = six.text_type(value)
                 # Относительную URL ссылку до статики
                 if value:
                     item.file_url = value.url.lstrip('/')
@@ -236,7 +237,7 @@ class ExtForm(BaseExtPanel):
                 if isinstance(item, fields.ExtImageUploadField):
                     if hasattr(settings, 'MEDIA_ROOT') and item.thumbnail:
                         ffile = os.path.join(
-                            settings.MEDIA_ROOT, unicode(value))
+                            settings.MEDIA_ROOT, six.text_type(value))
                         dir_ = os.path.dirname(ffile)
                         file_name = os.path.basename(ffile)
 
@@ -249,7 +250,7 @@ class ExtForm(BaseExtPanel):
                             item.thumbnail_size = thumb.size
 
             else:
-                item.value = unicode(value)
+                item.value = six.text_type(value)
 
         def get_value(obj, names):
             """
@@ -508,7 +509,7 @@ class ExtForm(BaseExtPanel):
                 else:
                     val = None
             elif isinstance(item, fields.ExtStringField):
-                val = unicode(val) if val is not None else None
+                val = six.text_type(val) if val is not None else None
             elif isinstance(item, simple.ExtAdvTimeField):
                 if val and val.strip():
                     d = datetime.datetime.strptime(val, "%H:%M:%S")
@@ -567,7 +568,7 @@ class ExtForm(BaseExtPanel):
                 if item.type == fields.ExtHiddenField.INT:
                     val = try_to_int(val)
                 elif item.type == fields.ExtHiddenField.STRING:
-                    val = unicode(val)
+                    val = six.text_type(val)
             return val
 
         # список m2m полей модели нужен,

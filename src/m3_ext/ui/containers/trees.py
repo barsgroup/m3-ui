@@ -1,14 +1,14 @@
 # coding: utf-8
 from __future__ import absolute_import
 
-from base import BaseExtPanel
-
 from m3_ext.ui.base import BaseExtComponent
 from m3_ext.ui.base import ExtUIComponent
 from m3_ext.ui.containers import ExtGridBooleanColumn
 from m3_ext.ui.containers import ExtGridColumn
 from m3_ext.ui.containers import ExtGridDateColumn
 from m3_ext.ui.containers import ExtGridNumberColumn
+
+from .base import BaseExtPanel
 
 
 #==============================================================================

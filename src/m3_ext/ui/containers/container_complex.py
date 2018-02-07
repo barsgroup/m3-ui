@@ -5,6 +5,7 @@ from m3_ext.ui.base import ExtUIComponent
 
 from .base import BaseExtContainer
 from .containers import ExtContainer
+from six.moves import range
 
 
 class ExtContainerTable(BaseExtContainer):
@@ -157,7 +158,7 @@ class ExtContainerTable(BaseExtContainer):
 
     def __init_table(self):
         self.__table = [
-            range(self.__columns_count)
+            list(range(self.__columns_count))
             for col in range(self.__rows_count)
         ]
 
