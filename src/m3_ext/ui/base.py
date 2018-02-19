@@ -246,7 +246,7 @@ class BaseExtComponent(object):
                     d_tmp[k] = prop[k]
             res = d_tmp
 
-        elif hasattr(item, '__unicode__'):
+        elif hasattr(item, '__unicode__' if six.PY2 else '__str__'):
             return self._put_base_value(
                 src_list, extjs_name, six.text_type(item), condition, depth)
         else:
