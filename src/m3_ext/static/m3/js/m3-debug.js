@@ -10114,6 +10114,38 @@ Ext.applyIf(RegExp, {
 });
 ﻿Ext.ns('Ext.ux.grid');
 
+if (![].includes) {
+    // Полифилл для Array.includes
+    Array.prototype.includes = function(searchElement) {
+        'use strict';
+        var O = Object(this);
+        var len = parseInt(O.length) || 0;
+        if (len === 0) {
+            return false;
+        }
+        var n = parseInt(arguments[1]) || 0;
+        var k;
+        if (n >= 0) {
+            k = n;
+        } else {
+            k = len + n;
+            if (k < 0) {
+                k = 0;
+            }
+        }
+        while (k < len) {
+            var currentElement = O[k];
+            if (searchElement === currentElement ||
+                 (searchElement !== searchElement && currentElement !== currentElement)
+            ) {
+                return true;
+            }
+            k++;
+        }
+        return false;
+    };
+}
+
 Ext.ux.grid.LockingGridColumnWithHeaderGroup = Ext.extend(Ext.util.Observable, {
 
     constructor: function (config) {
@@ -11725,6 +11757,76 @@ Ext.ux.grid.LockingGridColumnWithHeaderGroup = Ext.extend(Ext.util.Observable, {
             var lw = this.getLockedWidth();
             this.lockedInnerHd.firstChild.style.width = lw;
             this.lockedInnerHd.firstChild.firstChild.style.width = lw;
+
+            if (Ext.isChrome) {
+                // Пересчитываем ширину группирующих ячеек т.к. по какой-то
+                // причине Chrome не совсем точно следует css-правилу width
+
+                var headers = this.el.select('.x-grid3-header-offset').elements;
+
+                for (var headerIdx = 0; headerIdx < headers.length; headerIdx++) {
+                    var header = headers[headerIdx];
+
+                    // Идём по таблицам с заголовками в обратном порядке (от нижней к верхней)
+                    // высчитывая ширину группирующих ячеек на основании реальной ширины нижестоящих ячеек
+                    var tables = Array.prototype.slice.call(header.children, 0).reverse();
+
+                    for (var tableIdx = 1; tableIdx < tables.length; tableIdx++) {
+                        var groupTable = tables[tableIdx];
+                        var downTable = tables[tableIdx-1];
+
+                        var gCells = groupTable.querySelectorAll('td.x-grid3-gcell');
+
+                        if (gCells.length <= 0) {
+                            continue
+                        }
+
+                        // Собираем идентификаторы группирующих ячеек,
+                        // чтобы определить границы группировки в нижестоящих ячейках
+                        var headerColumnClasses = [];
+
+                        for (var i = 0; i < gCells.length; i++) {
+                            var gCell = gCells[i];
+                            headerColumnClasses.push(gCell.classList[2]);
+                        }
+
+                        for (var i = 0; i < gCells.length; i++) {
+                            // Проходим по группирующим ячейкам, и складываем ширину
+                            var gCell = gCells[i];
+
+                            var firstSub = downTable.querySelectorAll('.' + gCell.classList[2])[0];
+                            var subcolumns = [firstSub];
+
+                            var currentSub = firstSub.nextElementSibling;
+
+                            // Если следующий элемент не относится к колонке с группирующей ячекой
+                            // то значит что он всё ещё принадлежит этой
+                            while (currentSub && !headerColumnClasses.includes(currentSub.classList[2])) {
+                                subcolumns.push(currentSub);
+                                currentSub = currentSub.nextElementSibling;
+                            }
+
+                            var totalWidth = 0;
+
+                            for (var j = 0; j < subcolumns.length; j++) {
+                                var subcolumn = subcolumns[j];
+                                try {
+                                    var colWidth = subcolumn.getBoundingClientRect().width;
+                                } catch (err) {
+                                    var colWidth = subcolumn.getWidth();
+                                }
+                                totalWidth += parseFloat(colWidth);
+                            }
+
+                            if (!(Ext.isBorderBox || (Ext.isWebKit && !Ext.isSafari2 && !Ext.isChrome))) {
+                                totalWidth = Math.max(totalWidth - this.borderWidth, 0);
+                            }
+
+                            gCell.style.width = totalWidth + 'px';
+                        }
+                    }
+                }
+            }
         },
 
         updateTotalSummary: function () {
@@ -15716,9 +15818,13 @@ Ext.ux.form.FileUploadField = Ext.extend(Ext.form.TextField,  {
      * Множественный выбор файлов
      */
     ,multiple: false
-    
+
     ,constructor: function(baseConfig, params){
         if (params) {
+            this.hideClearButton = params.hideClearButton || false;
+            this.hideUploadButton = params.hideUploadButton || false;
+            this.hideDownloadButton = params.hideDownloadButton || false;
+
             if (params.prefixUploadField) {
                 this.prefixUploadField = params.prefixUploadField;
             }
@@ -15789,6 +15895,7 @@ Ext.ux.form.FileUploadField = Ext.extend(Ext.form.TextField,  {
             ,tooltip: {
                 text:'Выбрать файл'
                 ,width: 150
+            ,hidden: this.hideUploadButton
             }
         }));
 
@@ -15799,7 +15906,7 @@ Ext.ux.form.FileUploadField = Ext.extend(Ext.form.TextField,  {
             ,iconCls: this.iconClsClearFile
             ,handler: this.clickClearField
             ,scope: this
-            ,hidden: this.value ? false : true
+            ,hidden: !(this.value && !this.hideClearButton)
             ,tooltip: {
                 text:'Очистить'
                 ,width: 65
@@ -15830,7 +15937,7 @@ Ext.ux.form.FileUploadField = Ext.extend(Ext.form.TextField,  {
             ,iconCls: this.iconClsDownloadFile
             ,handler: this.clickDownload
             ,scope: this
-            ,hidden: this.value ? false : true
+            ,hidden: !(this.value && !this.hideDownloadButton)
              ,tooltip: {
                 text:'Загрузить'
                 ,width: 65
