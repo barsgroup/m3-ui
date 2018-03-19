@@ -21,7 +21,7 @@ def add_file(src_file, dst_files, folder):
             file_names = ffile.split('.')
             if len(file_names) > 0 and file_names[-1] in conf.FILE_EXTENSIONS:
                 if DEBUG:   
-                    print ffile
+                    print(ffile)
                             
                 file_path = os.path.join(folder, ffile)
 
@@ -106,4 +106,4 @@ if __name__ == '__main__':
         DEBUG = True 
     
     main()
-    print "Job done"
+    print("Job done")
