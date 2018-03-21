@@ -1,4 +1,5 @@
 # coding:utf-8
+from __future__ import print_function
 
 import sys
 import os
@@ -8,6 +9,7 @@ import subprocess
 import conf
 
 DEBUG = False
+
 
 def add_file(src_file, dst_files, folder):
     """
@@ -32,6 +34,7 @@ def add_file(src_file, dst_files, folder):
                 except IOError:
                     continue
 
+
 def compile_production(src_file):
     """
     Компиляция google closure
@@ -41,6 +44,7 @@ def compile_production(src_file):
         (src_file, new_file_name))
     popen = subprocess.Popen(command, shell = True,)
     popen.wait()
+
 
 def main():
     """
@@ -59,7 +63,6 @@ def main():
             add_file(src_file, [file_,], conf.OUR_EXTJS_EXTENSIONS_FOLDER)
             add_file(src_file, [file_,], conf.OUR_OTHER_JS_FOLDER)
 
-
     new_file_name = os.path.join(conf.INNER_JS_FOLDER, conf.FILE_NAME)
     with codecs.open(new_file_name, 'w+', encoding='utf-8',
                      buffering=0) as new_file:
@@ -70,7 +73,6 @@ def main():
         # Загрузка внешних файлов c высоким приоритетом
         add_file(new_file, conf.HIGH_PRIORITY_OUTER, conf.OUTER_JS_FOLDER)
 
-        
         # Загрузка остальных внешних файлов
         add_file(new_file, [f for f in sorted(os.listdir(conf.OUTER_JS_FOLDER)) 
                             if f not in conf.HIGH_PRIORITY_OUTER],
@@ -99,6 +101,7 @@ def main():
         
     if not DEBUG:
         compile_production(new_file_name)
+
 
 if __name__ == '__main__':
     
