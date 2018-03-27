@@ -381,6 +381,11 @@ class ExtFileUploadField(BaseExtField):
         super(ExtFileUploadField, self).__init__(*args, **kwargs)
         self.file_url = None
 
+        # Скрытие кнопок
+        self.hide_clear_button = False
+        self.hide_upload_button = False
+        self.hide_download_button = False
+
         # Пример использования:
         # possible_file_extensions = ('png', 'jpeg', 'gif', 'bmp')
 
@@ -406,6 +411,9 @@ class ExtFileUploadField(BaseExtField):
         self._put_params_value('prefixUploadField', ExtFileUploadField.PREFIX)
         self._put_params_value('fileUrl', self.file_url)
         self._put_params_value('multiple', self.multiple)
+        self._put_params_value('hideClearButton', self.hide_clear_button)
+        self._put_params_value('hideUploadButton', self.hide_upload_button)
+        self._put_params_value('hideDownloadButton', self.hide_download_button)
         self._put_params_value(
             'possibleFileExtensions', self.render_possible_file_extensions())
 
