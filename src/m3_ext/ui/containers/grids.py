@@ -427,6 +427,9 @@ class BaseExtGridColumn(ExtUIComponent):
         # Признак того, скрыта ли колонка или нет
         self.hidden = False
 
+        # Возможность разрешить скрывать/показывать колонку
+        self.hideable = True
+
         # Признак не активности
         self.read_only = False
 
@@ -482,6 +485,7 @@ class BaseExtGridColumn(ExtUIComponent):
             ('align', self.align),
             ('editor', self.editor.render if self.editor else None),
             ('hidden', self.hidden),
+            ('hideable', self.hideable),
             ('readOnly', self.read_only),
             ('colspan', self.colspan),
             ('fixed', self.fixed),

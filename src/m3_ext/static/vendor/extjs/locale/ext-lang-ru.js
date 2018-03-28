@@ -290,6 +290,16 @@ if(Ext.form.BasicForm){
   Ext.form.BasicForm.prototype.waitTitle = "Пожалуйста подождите...";
 }
 
+if (Ext.ux.tree.TreeGridSorter) {
+  Ext.apply(Ext.ux.tree.TreeGridSorter.prototype, {
+    sortAscText  : "Сортировать по возрастанию",
+    sortDescText : "Сортировать по убыванию",
+    lockText     : "Закрепить столбец",
+    unlockText   : "Снять закрепление столбца",
+    columnsText  : "Столбцы"
+  }); 
+}
+
 if(Ext.grid.GridView){
   Ext.apply(Ext.grid.GridView.prototype, {
     sortAscText  : "Сортировать по возрастанию",
