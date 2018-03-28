@@ -295,9 +295,14 @@ if (Ext.ux.tree.TreeGridSorter) {
     sortAscText  : "Сортировать по возрастанию",
     sortDescText : "Сортировать по убыванию",
     lockText     : "Закрепить столбец",
-    unlockText   : "Снять закрепление столбца",
-    columnsText  : "Столбцы"
+    unlockText   : "Снять закрепление столбца"
   }); 
+}
+
+if (Ext.ux.tree.TreeGrid) {
+  Ext.apply(Ext.ux.tree.TreeGrid.prototype, {
+    columnsText  : "Столбцы"
+  });
 }
 
 if(Ext.grid.GridView){
