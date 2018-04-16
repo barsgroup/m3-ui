@@ -20,18 +20,25 @@ from django.core.exceptions import SuspiciousOperation
 from django.template import TemplateDoesNotExist
 from django.utils._os import safe_join
 from m3_django_compat import BaseLoader
+import six
 
 
 # At compile time, cache the directories to search.
-fs_encoding = sys.getfilesystemencoding() or sys.getdefaultencoding()
 template_dir_ext = os.path.join(
     os.path.dirname(__file__), 'templates')
 template_dir_gears = os.path.join(
     os.path.dirname(__file__), '../gears/templates')
-app_template_dirs = (
-    template_dir_ext.decode(fs_encoding),
-    template_dir_gears.decode(fs_encoding),
-)
+if six.PY2:
+    fs_encoding = sys.getfilesystemencoding() or sys.getdefaultencoding()
+    app_template_dirs = (
+        template_dir_ext.decode(fs_encoding),
+        template_dir_gears.decode(fs_encoding),
+    )
+else:
+    app_template_dirs = (
+        template_dir_ext,
+        template_dir_gears,
+    )
 
 
 def get_template_sources(template_name, template_dirs=None):
@@ -66,9 +73,13 @@ class Loader(BaseLoader):
 def load_template_source(template_name, template_dirs=None):
     for filepath in get_template_sources(template_name, template_dirs):
         try:
-            return (
-                open(filepath).read().decode(settings.FILE_CHARSET), filepath
-            )
+            if six.PY2:
+                return (
+                    open(filepath).read().decode(settings.FILE_CHARSET),
+                    filepath
+                )
+            else:
+                return open(filepath).read(), filepath
         except IOError:
             pass
     raise TemplateDoesNotExist(template_name)
