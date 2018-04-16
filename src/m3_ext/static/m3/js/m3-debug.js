@@ -1230,13 +1230,26 @@ Ext.extend(Ext.ux.grid.GridHeaderFilters, Ext.util.Observable,
 		
 		return fc;
 	},
-	
+
+	setIsNotRendered: function(el){
+        if(el.items){
+            for(var subEl in el.items){
+			    this.setIsNotRendered(el.items[subEl]);
+		    }
+        }else if(el.rendered){
+            el.rendered = false;
+        }
+    },
+
 	renderFilters: function()
 	{
 		if(!this.fcc)
 			return;
 		for(var cid in this.fcc)
 		{
+            if(Ext.isIE){
+                this.setIsNotRendered(this.fcc[cid]);
+            }
 			this.renderFilterContainer(cid, this.fcc[cid]);
 		}
 		this.setFilters(this.filters);
@@ -9138,13 +9151,26 @@ Ext.ux.tree.TreeHeaderFilters = Ext.extend(Ext.util.Observable, {
 		
 		return fc;
 	},
-	
+
+	setIsNotRendered: function(el){
+        if(el.items){
+            for(var subEl in el.items){
+			    this.setIsNotRendered(el.items[subEl]);
+		    }
+        }else if(el.rendered){
+            el.rendered = false;
+        }
+    },
+
 	renderFilters: function()
 	{
 		if(!this.fcc)
 			return;
 		for(var cid in this.fcc)
 		{
+			if(Ext.isIE){
+                this.setIsNotRendered(this.fcc[cid]);
+            }
 			this.renderFilterContainer(cid, this.fcc[cid]);
 		}
 		this.setFilters(this.filters);
