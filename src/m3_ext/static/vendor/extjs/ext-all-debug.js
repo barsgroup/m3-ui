@@ -15912,7 +15912,7 @@ Ext.layout.BoxLayout = Ext.extend(Ext.layout.ContainerLayout, {
             
             
             
-            if (Ext.isIE9m && Ext.isStrict && ret.width == 0){
+            if ((Ext.isIE9m || Ext.isIE10 || Ext.isIE11) && Ext.isStrict && ret.width == 0){
                 ret =  target.getStyleSize();
             }
 
