@@ -1,8 +1,12 @@
 # coding: utf-8
 import os
 
-from pip.download import PipSession
-from pip.req.req_file import parse_requirements
+try:  # pip version >= 10.0
+    from pip._internal.req import parse_requirements
+    from pip._internal.download import PipSession
+except ImportError:  # pip version < 10.0
+    from pip.req import parse_requirements
+    from pip.download import PipSession
 from setuptools import setup, find_packages
 
 
