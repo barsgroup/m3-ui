@@ -1,20 +1,6 @@
 # coding: utf-8
 import os
-
-try:  # pip version >= 10.0
-    from pip._internal.req import parse_requirements
-    from pip._internal.download import PipSession
-except ImportError:  # pip version < 10.0
-    from pip.req import parse_requirements
-    from pip.download import PipSession
 from setuptools import setup, find_packages
-
-
-def _get_requirements(file_name):
-    pip_session = PipSession()
-    requirements = parse_requirements(file_name, session=pip_session)
-
-    return tuple(str(requirement.req) for requirement in requirements)
 
 
 def _read(fname):
@@ -33,7 +19,12 @@ setup(
     package_dir={'': 'src'},
     packages=find_packages('src'),
     description=_read('DESCRIPTION'),
-    install_requires=_get_requirements('REQUIREMENTS'),
+    install_requires=(
+        'six>=1.11,<2',
+        'm3-builder>=1.1,<2',
+        'm3-core>=3.0,<3.1',
+        'm3-django-compat>=1.2.3',
+    ),
     long_description=_read('README'),
     include_package_data=True,
     classifiers=[

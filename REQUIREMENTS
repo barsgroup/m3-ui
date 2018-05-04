@@ -1,4 +1,1 @@
-six>=1.11,<2
-m3-builder>=1.1,<2
-m3-core>=2.2.14,<3
-m3-django-compat>=1.5.0,<2
+.

@@ -226,7 +226,7 @@ class BaseExtComponent(object):
         elif isinstance(item, bool):
             res = str(item).lower()
 
-        elif isinstance(item, (int, float, decimal.Decimal, long)):
+        elif isinstance(item, (six.integer_types, float, decimal.Decimal)):
             res = item
 
         elif isinstance(item, datetime.date):
