@@ -1,23 +1,14 @@
 # coding: utf-8
-import os
+from os.path import dirname
+from os.path import join
 
-from pip.download import PipSession
-from pip.req.req_file import parse_requirements
-from setuptools import setup, find_packages
-
-
-def _get_requirements(file_name):
-    pip_session = PipSession()
-    requirements = parse_requirements(file_name, session=pip_session)
-
-    return tuple(str(requirement.req) for requirement in requirements)
+from setuptools import find_packages
+from setuptools import setup
 
 
-def _read(fname):
-    try:
-        return open(os.path.join(os.path.dirname(__file__), fname)).read()
-    except IOError:
-        return ''
+def _read(file_name):
+    with open(join(dirname(__file__), file_name)) as f:
+        return f.read()
 
 
 setup(
@@ -29,7 +20,6 @@ setup(
     package_dir={'': 'src'},
     packages=find_packages('src'),
     description=_read('DESCRIPTION'),
-    install_requires=_get_requirements('REQUIREMENTS'),
     long_description=_read('README'),
     include_package_data=True,
     classifiers=[
@@ -57,7 +47,14 @@ setup(
         'http://pypi.bars-open.ru/simple/m3-builder',
     ),
     setup_requires=(
-        'm3-builder>=1.1,<2',
+        'm3-builder>=1.2.0,<2',
     ),
-    set_build_info=os.path.dirname(__file__),
+    install_requires=(
+        'six>=1.11,<2',
+        'm3-builder>=1.2.0,<2',
+        'm3-django-compat>=1.5.1,<2',
+        'django>=1.4,<2',
+        'm3-core>=2.2.16,<3',
+    ),
+    set_build_info=dirname(__file__),
 )
