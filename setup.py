@@ -20,10 +20,10 @@ setup(
     packages=find_packages('src'),
     description=_read('DESCRIPTION'),
     install_requires=(
-        'six>=1.11,<2',
-        'm3-builder>=1.1,<2',
-        'm3-core>=3.0,<3.1',
-        'm3-django-compat>=1.2.3',
+        'six>=1.11',
+        'm3-builder>=1.2',
+        'm3-core>=3.1',
+        'm3-django-compat>=1.5.1',
     ),
     long_description=_read('README'),
     include_package_data=True,
@@ -52,7 +52,7 @@ setup(
         'http://pypi.bars-open.ru/simple/m3-builder',
     ),
     setup_requires=(
-        'm3-builder>=1.1,<2',
+        'm3-builder>=1.2',
     ),
     set_build_info=os.path.dirname(__file__),
 )
