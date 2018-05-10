@@ -1,12 +1,7 @@
-#coding:utf-8
-"""
-Created on 27.02.2010
-
-@author: akvarats
-"""
+# coding: utf-8
+from __future__ import absolute_import
 
 from m3_ext.ui.base import ExtUIComponent
-
 from m3_ext.ui.misc import ExtDataStore
 
 

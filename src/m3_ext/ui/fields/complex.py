@@ -1,23 +1,23 @@
-#coding:utf-8
-"""
-Created on 27.02.2010
+# coding: utf-8
+from __future__ import absolute_import
 
-@author: prefer
-"""
-import os
 import json
+import os
 
 from django.conf import settings
 from django.utils.html import escapejs
-
-from base import BaseExtField
-
 from m3 import actions
-from m3_ext.ui.misc import ExtJsonStore
-from m3_ext.ui.fields.base import BaseExtTriggerField
-from m3_ext.ui.base import BaseExtComponent, ExtUIComponent
 from m3.actions import ControllerCache
-from m3.actions.interfaces import ISelectablePack, IMultiSelectablePack
+from m3.actions.interfaces import IMultiSelectablePack
+from m3.actions.interfaces import ISelectablePack
+
+from m3_ext.ui.base import BaseExtComponent
+from m3_ext.ui.base import ExtUIComponent
+from m3_ext.ui.fields.base import BaseExtTriggerField
+from m3_ext.ui.misc import ExtJsonStore
+import six
+
+from .base import BaseExtField
 
 
 #==============================================================================
@@ -279,7 +279,7 @@ class ExtDictSelectField(BaseExtTriggerField):
         контроллерах одновременно.
         @param ppack: Имя класса пака или класс пака.
         """
-        assert isinstance(ppack, basestring) or hasattr(ppack, '__bases__'), (
+        assert isinstance(ppack, six.string_types) or hasattr(ppack, '__bases__'), (
             'Argument %s must be a basestring or class' % ppack)
         ppack = ControllerCache.find_pack(ppack)
         assert ppack, 'Pack %s not found in ControllerCache' % ppack
@@ -381,6 +381,11 @@ class ExtFileUploadField(BaseExtField):
         super(ExtFileUploadField, self).__init__(*args, **kwargs)
         self.file_url = None
 
+        # Скрытие кнопок
+        self.hide_clear_button = False
+        self.hide_upload_button = False
+        self.hide_download_button = False
+
         # Пример использования:
         # possible_file_extensions = ('png', 'jpeg', 'gif', 'bmp')
 
@@ -395,17 +400,20 @@ class ExtFileUploadField(BaseExtField):
 
     def render_possible_file_extensions(self):
         p = self.possible_file_extensions
-        assert isinstance(p, (basestring, list, tuple)), (
+        assert isinstance(p, (six.string_types, list, tuple)), (
             u'File extensions argument must be '
             u'type of basestring, tuple or list'
         )
-        return ','.join(p) if not isinstance(p, basestring) else p
+        return ','.join(p) if not isinstance(p, six.string_types) else p
 
     def render_params(self):
         super(ExtFileUploadField, self).render_params()
         self._put_params_value('prefixUploadField', ExtFileUploadField.PREFIX)
         self._put_params_value('fileUrl', self.file_url)
         self._put_params_value('multiple', self.multiple)
+        self._put_params_value('hideClearButton', self.hide_clear_button)
+        self._put_params_value('hideUploadButton', self.hide_upload_button)
+        self._put_params_value('hideDownloadButton', self.hide_download_button)
         self._put_params_value(
             'possibleFileExtensions', self.render_possible_file_extensions())
 
@@ -581,7 +589,7 @@ class ExtMultiSelectField(ExtDictSelectField):
         if not value:
             value = []
 
-        if isinstance(value, basestring):
+        if isinstance(value, six.string_types):
             value = json.loads(value)
 
         if isinstance(value, (list, tuple)):
@@ -596,7 +604,7 @@ class ExtMultiSelectField(ExtDictSelectField):
 
     @pack.setter
     def pack(self, ppack):
-        assert isinstance(ppack, basestring) or hasattr(ppack, '__bases__'), (
+        assert isinstance(ppack, six.string_types) or hasattr(ppack, '__bases__'), (
             'Argument %s must be a basestring or class' % ppack)
         ppack_class = ControllerCache.find_pack(ppack)
         assert isinstance(ppack_class, IMultiSelectablePack), (

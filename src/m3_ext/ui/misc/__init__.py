@@ -1,6 +1,9 @@
-#coding:utf-8
+# coding: utf-8
 """
 Дополнительный функционал
 """
-from store import ExtDataStore, ExtJsonStore
-from label import ExtLabel
+from __future__ import absolute_import
+
+from .label import ExtLabel
+from .store import ExtDataStore
+from .store import ExtJsonStore

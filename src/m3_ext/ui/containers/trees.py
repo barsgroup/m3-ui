@@ -1,15 +1,14 @@
-#coding:utf-8
-"""
-Created on 11.3.2010
+# coding: utf-8
+from __future__ import absolute_import
 
-@author: prefer
-"""
+from m3_ext.ui.base import BaseExtComponent
+from m3_ext.ui.base import ExtUIComponent
+from m3_ext.ui.containers import ExtGridBooleanColumn
+from m3_ext.ui.containers import ExtGridColumn
+from m3_ext.ui.containers import ExtGridDateColumn
+from m3_ext.ui.containers import ExtGridNumberColumn
 
-from base import BaseExtPanel
-from m3_ext.ui.base import ExtUIComponent, BaseExtComponent
-from m3_ext.ui.containers import (
-    ExtGridColumn, ExtGridBooleanColumn, ExtGridDateColumn, ExtGridNumberColumn
-)
+from .base import BaseExtPanel
 
 
 #==============================================================================
@@ -65,6 +64,9 @@ class ExtTree(BaseExtPanel):
 
         # Разрешить только драгить (перемещать из дерево)
         self.enable_drag = False
+
+        # Указывает на необходимость создания сортировки в дереве
+        self.enable_sort = True
 
         # перечень плагинов
         self.plugins = []

@@ -1,20 +1,16 @@
-#coding:utf-8
-"""
-Created on 3.3.2010
-
-@author: prefer
-"""
-import json
-import abc
-import datetime
+# coding: utf-8
+from __future__ import absolute_import
 
 from decimal import Decimal
+import abc
+import datetime
+import json
 
 from m3_ext.ui import normalize
-
 from m3_ext.ui.base import BaseExtComponent
 
-from base_store import BaseExtStore
+from .base_store import BaseExtStore
+import six
 
 
 class ExtDataStore(BaseExtStore):
@@ -146,7 +142,7 @@ class ExtJsonStore(BaseExtStore):
 
         res = ['{name: "%s"}' % self.id_property]
         for col in self.__columns:
-            if isinstance(col, basestring):
+            if isinstance(col, six.string_types):
                 if col != self.id_property:
                     res.append('{name: "%s"}' % col)
             else:
@@ -217,12 +213,10 @@ new Ext.data.JsonWriter({
         return result
 
 
-class ExtDataReader(BaseExtComponent):
+class ExtDataReader(six.with_metaclass(abc.ABCMeta, BaseExtComponent)):
     """
     Получает ответ от сервера и декодирует его в  массив Record-ов
     """
-
-    __metaclass__ = abc.ABCMeta
 
     def __init__(self, *args, **kwargs):
         super(ExtDataReader, self).__init__(*args, **kwargs)
@@ -256,7 +250,7 @@ class ExtDataReader(BaseExtComponent):
             res_value = '""'
         elif isinstance(value, bool):
             res_value = str(value).lower()
-        elif isinstance(value, (int, Decimal, float, long)):
+        elif isinstance(value, (int, Decimal, float, int)):
             res_value = str(value)
         elif isinstance(value, datetime.date):
             res_value = 'new Date("%s")' % value.ctime()
@@ -315,7 +309,7 @@ class ExtJsonReader(ExtDataReader):
             (self.id_property, self.id_property)
         ]
         for col in self.get_fields():
-            if isinstance(col, basestring):
+            if isinstance(col, six.string_types):
                 if col != self.id_property:
                     res.append('{name: "%s", mapping: "%s"}' % (col, col))
             else:
@@ -377,7 +371,7 @@ class ExtArrayReader(ExtDataReader):
         # если такая колонка встречается, то пропускаем её
         ind = 1
         for i, col in enumerate(self.get_fields()):
-            if isinstance(col, basestring):
+            if isinstance(col, six.string_types):
                 if col != self.id_property:
                     res.append('{name: "%s", mapping: %d}' % (col, ind+i))
                 else:

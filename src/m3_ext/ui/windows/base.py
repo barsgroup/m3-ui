@@ -1,20 +1,18 @@
-#coding: utf-8
-"""
-Created on 25.02.2010
+# coding: utf-8
+from __future__ import absolute_import
 
-@author: akvarats
-"""
 import weakref
 
 from django.conf import settings
-
 from m3.actions import ActionContext
 
-from m3_ext.ui.base import ExtUIComponent
 from m3_ext.ui import render_template
-
+from m3_ext.ui.base import ExtUIComponent
 from m3_ext.ui.containers.base import BaseExtContainer
 from m3_ext.ui.controls.base import BaseExtControl
+
+from ..helpers import _render_globals
+import six
 
 
 class ExtWindowRenderer(object):
@@ -133,7 +131,7 @@ class BaseExtWindow(ExtUIComponent):
         """
         return '{%s}' % ','.join([
             '%s:"%s"' % (k, v)
-            for k, v in self.layout_config.iteritems()
+            for k, v in six.iteritems(self.layout_config)
         ])
 
     def render_base_config(self):
@@ -236,12 +234,7 @@ class BaseExtWindow(ExtUIComponent):
                 item.action_context.m3_window_id = self.client_id
 
     def render_globals(self):
-        if self.template_globals:
-            return render_template(
-                self.template_globals,
-                {'component': self, 'window': self}
-            )
-        return ''
+        return _render_globals(self)
 
     def find_by_name(self, name):
         """

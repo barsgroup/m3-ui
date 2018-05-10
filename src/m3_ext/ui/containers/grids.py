@@ -1,15 +1,16 @@
-#coding:utf-8
-"""
-Created on 3.3.2010
+# coding: utf-8
+from __future__ import absolute_import
 
-@author: prefer
-"""
+from collections import OrderedDict
 import json
-from django.conf import settings
-from django.utils.datastructures import SortedDict
 
-from m3_ext.ui.base import ExtUIComponent, BaseExtComponent
-from base import BaseExtPanel
+from django.conf import settings
+
+from m3_ext.ui.base import BaseExtComponent
+from m3_ext.ui.base import ExtUIComponent
+
+from .base import BaseExtPanel
+import six
 
 
 class ExtGrid(BaseExtPanel):
@@ -76,7 +77,7 @@ class ExtGrid(BaseExtPanel):
         # признак отображения вертикальных линий в гриде
         self.column_lines = True
 
-        #Если True не рендерим drag and drop, выключаем editor
+        # Если True не рендерим drag and drop, выключаем editor
         self.read_only = False
 
         # Метка. Использовать только если задан layout=form
@@ -86,7 +87,7 @@ class ExtGrid(BaseExtPanel):
 
         # protected
         self.show_banded_columns = False
-        self.banded_columns = SortedDict()
+        self.banded_columns = OrderedDict()
 
     def t_render_plugins(self):
         """
@@ -94,7 +95,9 @@ class ExtGrid(BaseExtPanel):
         """
         res = []
         for plugin in self.plugins:
-            res.append(plugin.render() if hasattr(plugin, 'render') else plugin)
+            res.append(
+                plugin.render() if hasattr(plugin, 'render') else plugin
+            )
 
         return '[%s]' % ','.join(res)
 
@@ -178,7 +181,7 @@ class ExtGrid(BaseExtPanel):
         if not column:
             column = BlankBandColumn()
         # Колонки хранятся в списках внутки сортированного словаря,
-        #чтобы их можно было
+        # чтобы их можно было
         # извечь по возрастанию уровней
         column.colspan = colspan
         level_list = self.banded_columns.get(level, [])
@@ -263,7 +266,6 @@ class ExtGrid(BaseExtPanel):
     def col_model(self, value):
         self.__cm = value
         self.__cm.grid = self
-
 
     @property
     def handler_click(self):
@@ -425,6 +427,9 @@ class BaseExtGridColumn(ExtUIComponent):
         # Признак того, скрыта ли колонка или нет
         self.hidden = False
 
+        # Возможность разрешить скрывать/показывать колонку
+        self.hideable = True
+
         # Признак не активности
         self.read_only = False
 
@@ -455,7 +460,7 @@ class BaseExtGridColumn(ExtUIComponent):
                 lst.append('%s:%s' % (key, val.render()))
             elif isinstance(val, bool):
                 lst.append('%s:%s' % (key, str(val).lower()))
-            elif isinstance(val, (int, str, unicode)):
+            elif isinstance(val, (int, str, six.text_type)):
                 lst.append('%s:%s' % (key, val))
             else:  # пусть как хочет так и рендерится
                 lst.append('%s:%s' % (key, val))
@@ -480,6 +485,7 @@ class BaseExtGridColumn(ExtUIComponent):
             ('align', self.align),
             ('editor', self.editor.render if self.editor else None),
             ('hidden', self.hidden),
+            ('hideable', self.hideable),
             ('readOnly', self.read_only),
             ('colspan', self.colspan),
             ('fixed', self.fixed),

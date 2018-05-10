@@ -1,9 +1,6 @@
-#coding:utf-8
-"""
-Created on 27.02.2010
+# coding: utf-8
+from __future__ import absolute_import
 
-@author: akvarats
-"""
 from m3_ext.ui.base import ExtUIComponent
 
 

@@ -1,11 +1,9 @@
-#coding: utf-8
-"""
-Created on 25.02.2010
+# coding: utf-8
+from __future__ import absolute_import
 
-@author: akvarats
-"""
+from django.template.loader import render_to_string
 
-from base import BaseExtWindow
+from .base import BaseExtWindow
 
 
 class ExtWindow(BaseExtWindow):
@@ -42,3 +40,25 @@ class ExtWindow(BaseExtWindow):
             'params': params}
 
         return 'new %s' % res if not self._is_function_render else res
+
+
+class BaseConfirmWindow(object):
+    u"""Базовое окно для отображения подтверждения.
+
+    Простое окно Ext.Msg.confirm.
+    """
+
+    def __init__(self):
+        self.template = 'base-confirm-window.js'
+        self.params = {}
+
+    def set_params(self, **params):
+        u"""Установка параметров окна.
+
+        :param params: параметры которые затем отдаются в контекст окна
+                       допустимые параметры: text, url, params
+        """
+        self.params.update(params)
+
+    def get_script(self):
+        return render_to_string(self.template, self.params)

@@ -1,17 +1,22 @@
 # coding: utf-8
 """
 Модуль с преднастроенными панелями-гридами
-
-Created on 26.05.2010
-
-@author: akvarats
 """
+from __future__ import absolute_import
+
+from itertools import chain
 import json
 from itertools import chain
 
-from m3_ext.ui import containers, controls, menus, misc, render_component
-from m3_ext.ui.base import ExtUIComponent, BaseExtComponent
 from m3.actions.urls import get_url
+
+from m3_ext.ui import containers
+from m3_ext.ui import controls
+from m3_ext.ui import menus
+from m3_ext.ui import misc
+from m3_ext.ui import render_component
+from m3_ext.ui.base import BaseExtComponent
+from m3_ext.ui.base import ExtUIComponent
 from m3_ext.ui.containers.grids import ExtGridCheckBoxSelModel
 from m3_ext.ui.fields import ExtSearchField
 

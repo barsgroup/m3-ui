@@ -1,4 +1,4 @@
-#coding: utf-8
+# coding: utf-8
 
 from unittest.case import TestCase
 from selenium import webdriver

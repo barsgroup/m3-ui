@@ -30,7 +30,7 @@ Ext.m3.ObjectGrid = Ext.extend(Ext.m3.GridPanel, {
 		Ext.m3.ObjectGrid.superclass.initComponent.call(this);
 		var store = this.getStore();
 		store.baseParams = Ext.applyIf(store.baseParams || {}, this.actionContextJson || {});
-
+        this.on('beforestatesave', this.onBeforeStateSave);
 
 		this.addEvents(
 			/**
@@ -405,6 +405,14 @@ Ext.m3.ObjectGrid = Ext.extend(Ext.m3.GridPanel, {
         	}
         }
 		return baseConf;
+    }
+    /**
+     * Запуск перерисовки грида, чтобы поля
+     * фильтрации принимали корректные размеры
+     * при динамическом добавлении
+     */
+    ,onBeforeStateSave: function(){
+        this.fireEvent('resize');
     }
 });
 

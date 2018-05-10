@@ -1,30 +1,32 @@
-#coding:utf-8
-"""
-:Created: Nov 18, 2010
+# coding: utf-8
+u"""Классы для работы первично отображаемого интерфейса MIS.
 
-:Author: prefer
-
-Классы для работы первично отображаемого интерфейса MIS.
 Включают список модулей в меню "Пуск" и список модулей на "Рабочем столе"
 """
+from __future__ import absolute_import
 
-import threading
-import inspect
-import itertools
-import warnings
+from importlib import import_module
+from logging import getLogger
 from uuid import uuid4
+import itertools
+import threading
+import warnings
 
 from django.conf import settings
-from django.utils.importlib import import_module
-from django.contrib.auth.models import User, AnonymousUser
-try:
-    from django.utils.log import logger
-except ImportError:
-    from django.utils.log import getLogger
-    logger = getLogger('django')
+from m3 import M3JSONEncoder
+from m3.actions import Action
+from m3.actions import ControllerCache
+from m3_django_compat import get_installed_apps
+import six
+from six.moves import map
+from six.moves import filter
+
+
+logger = getLogger('django')
+
 
 try:
-    from m3_users import GENERIC_USER, SUPER_ADMIN
+    from m3_users.app_meta import GENERIC_USER, SUPER_ADMIN
     from m3_users.helpers import get_assigned_metaroles_query
     from m3_users.metaroles import UserMetarole, get_metarole
 except ImportError:
@@ -46,9 +48,6 @@ except ImportError:
 
     def get_metarole(code):
         return UserMetarole()
-
-from m3.actions import ControllerCache, Action, ActionPack
-from m3 import M3JSONEncoder
 
 
 # Константы: "Разделитель", "Блок с текущим временем", "Заполняющий блок"
@@ -92,9 +91,9 @@ class DesktopElementCollection(object):
                 # на всякий случай клонируем
                 item = item.clone()
                 item.subitems = list(sorted(
-                    itertools.ifilter(
+                    filter(
                         bool,
-                        itertools.imap(
+                        map(
                             prepared,
                             item.subitems)),
                     key=self.sorting_key
@@ -181,9 +180,18 @@ class BaseDesktopElement(object):
     def __eq__(self, other):
         return isinstance(other, BaseDesktopElement) and self.id == other.id
 
-    def __cmp__(self, other):
-        assert isinstance(other, BaseDesktopElement)
-        return cmp(self.index, other.index) or cmp(self.name, other.name)
+    def __hash__(self):
+        return hash(self.id)
+
+    def __lt__(self, other):
+        assert isinstance(other, BaseDesktopElement), type(other)
+
+        if self.index == other.index:
+            result = self.name < other.name
+        else:
+            result = self.index < other.index
+
+        return result
 
     def clone(self, *args, **kwargs):
         """
@@ -278,7 +286,7 @@ class DesktopShortcut(DesktopLauncher):
             if not getattr(pack, 'title', None):
                 pack.title = getattr(pack.parent, 'title', '???')
         else:
-            if isinstance(pack, basestring):
+            if isinstance(pack, six.string_types):
                 # Пробуем найти как пак
                 pack = ControllerCache.find_pack(pack)
                 if not pack:
@@ -341,10 +349,10 @@ class DesktopLoader(object):
                 cls._cache = {}
                 # Из инитов всех приложения
                 # пытаемся выполнить register_desktop_menu
-                for app_name in settings.INSTALLED_APPS:
+                for app_name in get_installed_apps():
                     try:
                         module = import_module('.app_meta', app_name)
-                    except ImportError, err:
+                    except ImportError as err:
                         if err.args[0].find('No module named') == -1 or (
                                 err.args[0].find('app_meta') == -1):
                             logger.exception(
@@ -435,12 +443,12 @@ class DesktopLoader(object):
         :param sorting: функция сортировки
         :type sorting: callable
         """
-        assert isinstance(user, (User, AnonymousUser))
+        from django.contrib.auth.models import AnonymousUser
 
         roles = []
         if not isinstance(user, AnonymousUser):
             roles.extend(get_assigned_metaroles_query(user))
-            if user.is_superuser:
+            if getattr(user, 'is_superuser', False):
                 roles.append(SUPER_ADMIN)
 
         cls.populate_desktop(desktop, roles, sorting)
@@ -542,23 +550,23 @@ class DesktopLoader(object):
                 for role in metarole.get_owner_metaroles():
                     insert_for_role(role, element, processed_metaroles)
 
-        #===============================================
+        # ===============================================
         assert place in (
             cls.DESKTOP,
             cls.START_MENU,
             cls.TOOLBOX,
             cls.TOPTOOLBAR
         )
-        if isinstance(metarole, basestring):
+        if isinstance(metarole, six.string_types):
             metarole = get_metarole(metarole)
         assert isinstance(metarole, UserMetarole)
 
         insert_for_role(metarole, element, processed_metaroles=[])
 
 
-#==============================================================================
+# =============================================================================
 # Разные полезные шорткаты
-#==============================================================================
+# =============================================================================
 
 def add_desktop_launcher(
     name='', url='', icon='', path=None, metaroles=None, places=None
@@ -616,7 +624,7 @@ def add_desktop_launcher(
         launcher = root  # мы в ланчеры, значится, будем добавлять самого рута.
 
     for metarole in cleaned_metaroles:
-        if isinstance(metarole, basestring):
+        if isinstance(metarole, six.string_types):
             metarole = get_metarole(metarole)
         if metarole:
             for place in cleaned_places:

@@ -1,4 +1,4 @@
-#coding: utf-8
+# coding: utf-8
 from django import http
 
 from m3_ext.ui.containers.containers import ExtToolBar, ExtStaticToolBarItem, ExtTextToolBarItem, ExtRadioGroup

@@ -1,9 +1,6 @@
-#coding:utf-8
-"""
-Created on 25.02.2010
+# coding: utf-8
+from __future__ import absolute_import
 
-@author: prefer <telepenin@bars-open.ru>
-"""
 from m3.actions.context import ActionContext
 
 from m3_ext.ui.base import ExtUIComponent

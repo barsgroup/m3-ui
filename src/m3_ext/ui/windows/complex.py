@@ -1,19 +1,15 @@
-#coding: utf-8
+# coding: utf-8
+from __future__ import absolute_import
 
-"""
-Created on 9.03.10
-"""
-
+from m3_ext.ui.containers import ExtContextMenu
+from m3_ext.ui.containers import ExtGrid
+from m3_ext.ui.containers import ExtToolBar
+from m3_ext.ui.containers import ExtTree
 from m3_ext.ui.containers.grids import ExtGridCheckBoxSelModel
-from m3_ext.ui.fields import ExtSearchField
 from m3_ext.ui.controls import ExtButton
-from m3_ext.ui.containers import (
-    ExtContextMenu,
-    ExtToolBar,
-    ExtTree,
-    ExtGrid
-)
-from base import BaseExtWindow
+from m3_ext.ui.fields import ExtSearchField
+
+from .base import BaseExtWindow
 
 
 #==============================================================================

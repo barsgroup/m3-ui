@@ -1,11 +1,9 @@
-#coding: utf-8
-"""
-Created on 26.05.2010
+# coding: utf-8
+from __future__ import absolute_import
 
-@author: akvarats
-"""
-from base import BaseExtWindow
 from m3_ext.ui import panels
+
+from .base import BaseExtWindow
 
 
 #==============================================================================

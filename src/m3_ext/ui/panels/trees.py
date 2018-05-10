@@ -1,15 +1,16 @@
 # coding: utf-8
 """
 Модуль с преднастроенными панелями-деевьями
-
-Created on 25.06.2010
-
-@author: prefer
 """
+from __future__ import absolute_import
 
-from m3_ext.ui import containers, controls, menus, render_component
-from m3_ext.ui.fields import ExtSearchField
 from m3.actions.urls import get_url
+
+from m3_ext.ui import containers
+from m3_ext.ui import controls
+from m3_ext.ui import menus
+from m3_ext.ui import render_component
+from m3_ext.ui.fields import ExtSearchField
 
 
 class ExtObjectTree(containers.ExtTree):

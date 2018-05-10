@@ -85,7 +85,13 @@ Ext.extend(Ext.ux.grid.MultiGrouping, Ext.util.Observable, {
             grid.on('afterrender',this.onRender,this);
             
             this.reorderer = new Ext.ux.ToolbarReorderer({
-                owner:this,
+                owner: this,
+                movedTask: new Ext.util.DelayedTask(function(){
+                    this.tbar.items.each(function(btn){
+                        btn.el.dom.style.left = '';
+                    });
+                    this.tbar.doLayout();
+                }, this),
                 createItemDD: function(button) {
                     if (button.dd != undefined) {
                         return;
@@ -173,26 +179,25 @@ Ext.extend(Ext.ux.grid.MultiGrouping, Ext.util.Observable, {
 
                             tbar_box = tbar.getEl().getBox();
                             el_y = el.getY();
-                            if (el_y<tbar_box.y | el_y>tbar_box.y + tbar_box.height){
+                            if ((el_y < tbar_box.y) || (el_y > tbar_box.y + tbar_box.height)) {
                                 this.owner.owner.deleteGroupingButton(button);
-                            }
-                            else{
-                            
-                            el.moveTo(me.buttonXCache[button.id], el.getY(), {
-                                duration: me.animationDuration,
-                                scope   : this,
-                                callback: function() {
-                                    button.resumeEvents();
-                                    if (button.menu) {
-                                        button.menu.un('beforeshow', menuDisabler, me);
+                            } else {
+                                el.moveTo(me.buttonXCache[button.id], el.getY(), {
+                                    duration: me.animationDuration,
+                                    scope   : this,
+                                    callback: function() {
+                                        me.movedTask.delay(200);
+                                        button.resumeEvents();
+                                        if (button.menu) {
+                                            button.menu.un('beforeshow', menuDisabler, me);
+                                        }
+
+                                        tbar.fireEvent('reordered', button, tbar);
                                     }
-                                    
-                                    tbar.fireEvent('reordered', button, tbar);
-                                }
-                            });
+                                });
                             
-                            el.setStyle('zIndex', this.startZIndex);
-                        }
+                                el.setStyle('zIndex', this.startZIndex);
+                            }
                         }
                     });
                 },
@@ -200,12 +205,12 @@ Ext.extend(Ext.ux.grid.MultiGrouping, Ext.util.Observable, {
                 onMovedLeft: function(item, newIndex, oldIndex) {
                     var tbar  = this.target,
                         items = tbar.items.items;
-                    
+
+                    this.movedTask.cancel();
                     if (newIndex != undefined && newIndex != oldIndex) {
                         //move the button currently under drag to its new location
                         tbar.remove(item, false);
                         tbar.insert(newIndex, item);
-                        
                         //set the correct x location of each item in the toolbar
                         this.updateButtonXCache();
                         for (var index = 0; index < items.length; index++) {

@@ -1,14 +1,9 @@
-#coding:utf-8
-"""
-Created on 27.02.2010
+# coding: utf-8
+from __future__ import absolute_import
 
-@author: akvarats
-@author: prefer <telepenin@bars-open.ru>
-"""
 from m3_ext.ui.base import ExtUIComponent
-from m3_ext.ui.controls import ExtButton
 
-from base import BaseExtContainer
+from .base import BaseExtContainer
 
 
 #==============================================================================

@@ -32,6 +32,28 @@ if (!Function.prototype.bind) {
 }
 
 /**
+ * Необходимо для фикса ошибки "parentNode null or not an object" в IE10
+ */
+Ext.override(Ext.Element, {
+
+    /**
+    * Inserts this element after the passed element in the DOM
+    * @param {Mixed} el The element to insert after
+    * @return {Ext.Element} this
+    *
+    * @overrides  to fix IE issue of "parentNode null or not an object".
+    */
+    insertAfter: function(el){
+        el = Ext.getDom(el);
+        if (el && el.parentNode) {
+            el.parentNode.insertBefore(this.dom, el.nextSibling);
+        }
+        return this;
+    }
+});
+
+
+/**
  * Нужно для правильной работы окна
  */
 Ext.onReady(function () {
@@ -575,21 +597,6 @@ Ext.override(Ext.grid.GridView, {
         }
 
         return true;
-    }
-});
-
-/**
- * Вставка в DOM после переданного элемента.
- * Фикс для IE10-IE11 "parentNode null or not an object".
- */
-
-Ext.override(Ext.Element, {
-    insertAfter: function(el){
-        el = Ext.getDom(el);
-        if (el && el.parentNode) {
-            el.parentNode.insertBefore(this.dom, el.nextSibling);
-        }
-        return this;
     }
 });
 

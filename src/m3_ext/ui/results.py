@@ -1,15 +1,19 @@
-# -*- coding: utf-8 -*-
+# coding: utf-8
 """
 Результаты выполнения Action`s
 """
+from __future__ import absolute_import
+
+import json
+
 from django import http
+from m3.actions import ActionResult as _ActionResult
+from m3.actions import BaseContextedResult as _BaseContextedResult
+from m3.actions import OperationResult as _OperationResult
+from m3_django_compat import get_request_params
 
-from m3.actions import (
-    ActionResult as _ActionResult,
-    BaseContextedResult as _BaseContextedResult,
-)
-
-import helpers as _helpers
+from . import helpers as _helpers
+from .windows.window import BaseConfirmWindow
 
 
 class ExtUIScriptResult(_BaseContextedResult):
@@ -66,3 +70,40 @@ class ExtGridDataQueryResult(_ActionResult):
         return http.HttpResponse(
             _helpers.paginated_json_data(
                 self.data, self.start, self.limit))
+
+
+class ConfirmWindowResult(_OperationResult):
+    """Результат, содержащий запрос на подтверждение выполнения действия.
+
+    Позволяет возвращать результат, который отобразит окно подтверждения
+    выполнения действия с последующим выполнением этого действия.
+
+    :param basestring text: Текст сообщения
+    :param basestring url: callback url
+    :param dict params: словарь дополнительных параметров для передачи
+                        в HTTP запросе
+    :param bool prevent_escape: не экранировать спец. символы в text
+    :param request: объект HTTP запроса, для копирования его параметров
+    :type request: django.http.HttpRequest
+    """
+
+    #: Класс окна, которое увидит пользователь при возврате ConfirmWindowResult
+    window_cls = BaseConfirmWindow
+
+    def __init__(
+            self, text=None, url=None, params=None, request=None,
+            prevent_escape=False, *args, **kwargs):
+        super(ConfirmWindowResult, self).__init__(*args, **kwargs)
+
+        params = params or {}
+        if request:
+            params.update(get_request_params(request))
+
+        window = self.window_cls()
+
+        window.set_params(
+            text=text, url=url, params=json.dumps(params),
+            prevent_escape=prevent_escape,
+        )
+
+        self.code = window.get_script()

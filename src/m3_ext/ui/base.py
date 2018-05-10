@@ -1,20 +1,21 @@
-#coding:utf-8
+# coding: utf-8
 """
 Модуль с базовыми классами/интерфейсами, которые необходимы
 для работы подсистемы m3_ext_demo.ui
-
-Created on 01.03.2010
-
-@author: akvarats
-@author: prefer
 """
+from __future__ import absolute_import
 
 import datetime
 import decimal
 
-from m3_ext.ui import render_template, render_component
-from m3_ext.ui import generate_client_id, normalize
 from m3 import date2str
+
+from m3_ext.ui import generate_client_id
+from m3_ext.ui import normalize
+from m3_ext.ui import render_component
+
+from .helpers import _render_globals
+import six
 
 
 class ExtComponentException(Exception):
@@ -45,10 +46,10 @@ class ListenerMap(object):
 
             def items(self):
                 if not disable:
-                    return self._data.items()
+                    return list(self._data.items())
                 return [
                     (k, v if k not in manageable else None)
-                    for (k, v) in self._data.iteritems()
+                    for (k, v) in six.iteritems(self._data)
                 ]
 
             def __getitem__(self, key):
@@ -119,11 +120,7 @@ class BaseExtComponent(object):
         Рендерит и возвращает js-код, который помещен в template_globals
         :rtype: str
         """
-        if self.template_globals:
-            return render_template(
-                self.template_globals,
-                {'component': self, 'self': self})
-        return ''
+        return _render_globals(self)
 
     def pre_render(self):
         """
@@ -189,7 +186,7 @@ class BaseExtComponent(object):
         :raise: Exception
         """
         try:
-            unicode(string)
+            six.text_type(string)
         except UnicodeDecodeError:
             raise Exception('"%s" is not unicode' % string)
         else:
@@ -220,7 +217,7 @@ class BaseExtComponent(object):
         elif callable(item):
             res = self.__check_unicode(item())
 
-        elif isinstance(item, basestring):
+        elif isinstance(item, six.string_types):
 
             # если в строке уже есть апостроф, то будет очень больно.
             # поэтому replace
@@ -229,7 +226,7 @@ class BaseExtComponent(object):
         elif isinstance(item, bool):
             res = str(item).lower()
 
-        elif isinstance(item, (int, float, decimal.Decimal, long)):
+        elif isinstance(item, (six.integer_types, float, decimal.Decimal)):
             res = item
 
         elif isinstance(item, datetime.date):
@@ -249,9 +246,9 @@ class BaseExtComponent(object):
                     d_tmp[k] = prop[k]
             res = d_tmp
 
-        elif hasattr(item, '__unicode__'):
+        elif hasattr(item, '__unicode__' if six.PY2 else '__str__'):
             return self._put_base_value(
-                src_list, extjs_name, unicode(item), condition, depth)
+                src_list, extjs_name, six.text_type(item), condition, depth)
         else:
             # Эээээ... Выводится для себя
             raise ExtComponentException(

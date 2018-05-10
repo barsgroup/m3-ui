@@ -1,14 +1,11 @@
 # coding: utf-8
-
-
-__author__ = 'prefer'
-
 import json
 
 from django import http
 
 from datetime import datetime
 
+from m3_django_compat import get_request_params
 from m3_ext.ui.containers import ExtGrid, ExtContextMenu, ExtGridColumn, ExtTabPanel, ExtPanel, ExtFieldSet, \
     ExtPagingBar, ExtContainerTable, ExtGridCellSelModel, ExtGridLockingColumnModel, \
     ExtGridLockingView
@@ -1370,7 +1367,9 @@ def locking_grouping_grid(request):
 
 @url(r'^data/object-grid')
 def object_grid_with_selection_data(request):
-    start, limit = int(request.REQUEST.get('start', 0)), int(request.REQUEST.get('limit', 50))
+    request_params = get_request_params(request)
+    start = int(request_params.get('start', 0))
+    limit = int(request_params.get('limit', 50))
 
     res = []
     for i in xrange(150):

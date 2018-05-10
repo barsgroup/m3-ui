@@ -1,19 +1,16 @@
-#coding: utf-8
-"""
-Created on 27.02.2010
+# coding: utf-8
+from __future__ import absolute_import
 
-@author: akvarats
-@author: prefer
-"""
-
-from datetime import datetime, date
+from datetime import date
+from datetime import datetime
 
 from django.conf import settings
 from django.utils.html import escapejs
-
 from m3 import date2str
 
-from base import BaseExtField, BaseExtTriggerField
+from .base import BaseExtField
+from .base import BaseExtTriggerField
+import six
 
 
 #==============================================================================
@@ -41,10 +38,19 @@ class ExtStringField(BaseExtField):
         # форматирует строку при вводе
         self.input_mask = None
 
+        # префикс поля, добавляет к строке
+        # неудаляемые символы при вводе
+        # НЕ РАБОТАЕТ совместно с маской ввода
+        self.prefix = None
+
         self.init_component(*args, **kwargs)
 
     def render_base_config(self):
-        if self.input_mask:
+        if self.prefix:
+            unmask_len = self.max_length - len(self.prefix)
+            prefix = self.prefix + 'A'*unmask_len
+            self.plugins.append("new Ext.m3.InputTextMask('%s')" % prefix)
+        elif self.input_mask:
             self.plugins.append("new Ext.ux.Mask('%s')" % self.input_mask)
 
         # Экранирование значений с обратным слешем
@@ -94,8 +100,16 @@ class ExtDateField(BaseExtField):
         # Разрешает перехват нажатий клавиш
         self.enable_key_events = False
 
+        # Если превышена максимальная дата,
+        # то будет отображаться этот текст
+        self.max_text = None
+
         # Максимальная возможная дата
         self.max_value = None
+
+        # Если превышена минимальная дата,
+        # то будет отображаться этот текст
+        self.min_text = None
 
         # Минимально возможная дата
         self.min_value = None
@@ -125,6 +139,8 @@ class ExtDateField(BaseExtField):
         self._put_config_value('startDay', self.start_day)
         self._put_config_value('maxValue', self.max_value)
         self._put_config_value('minValue', self.min_value)
+        self._put_config_value('maxText', self.max_text)
+        self._put_config_value('minText', self.min_text)
         self._put_config_value('editable', self.editable)
 
     def render_params(self):
@@ -403,9 +419,9 @@ class ExtHTMLEditor(BaseExtField):
 
     def render_base_config(self):
         if self.value:
-            if not isinstance(self.value, basestring):
+            if not isinstance(self.value, six.string_types):
                 # Если value не строка, то пытаемся привести к unicode
-                self.value = unicode(self.value)
+                self.value = six.text_type(self.value)
             self.value = self.value.replace('\\', '\\\\')
         super(ExtHTMLEditor, self).render_base_config()
 
@@ -425,6 +441,9 @@ class ExtDisplayField(BaseExtField):
     """
     def __init__(self, *args, **kwargs):
         super(ExtDisplayField, self).__init__(*args, **kwargs)
+        # Флаг для экранирования значения
+        self.html_encode = False
+
         self.init_component(*args, **kwargs)
 
     def render_base_config(self):
@@ -434,6 +453,8 @@ class ExtDisplayField(BaseExtField):
         # излишне
         if self.read_only:
             self._set_config_value('cls', None)
+
+        self._put_config_value('htmlEncode', self.html_encode)
 
     def render(self):
         try:

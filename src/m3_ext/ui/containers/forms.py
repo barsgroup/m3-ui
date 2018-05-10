@@ -1,40 +1,35 @@
-#coding:utf-8
-'''
-Created on 25.02.2010
+# coding: utf-8
+from __future__ import absolute_import
 
-@author: akvarats
-'''
-
+from logging import getLogger
 import datetime
 import decimal
-import os
 import json
+import os
+
+from django.conf import settings
+from django.core.files.base import ContentFile
+from m3.actions.interfaces import IMultiSelectablePack
+from m3.actions.interfaces import ISelectablePack
+from m3_django_compat import ModelOptions
+
+from m3_ext.ui.base import BaseExtComponent
+from m3_ext.ui.containers.base import BaseExtPanel
+
+from ..helpers import _render_globals
+import six
+
 
 try:
     from PIL import Image  # require PIL module
 except ImportError:
-    class _FakeImage(object):
-        """
-        Заглушка для PIL.Image
-        """
+    class Image(object):
+        u"""Заглушка для PIL.Image."""
         def __getattr__(self, attr):
             raise ImportError("PIL not installed!")
-    Image = _FakeImage
 
-from django.core.files.base import ContentFile
-from django.conf import settings
-try:
-    from django.utils.log import logger
-except ImportError:
-    from django.utils.log import getLogger
-    logger = getLogger('django')
 
-from m3_ext.ui import render_template
-from m3.actions.interfaces import ISelectablePack, IMultiSelectablePack
-from m3_ext.ui.base import ExtUIComponent, BaseExtComponent
-
-from m3_ext.ui.containers.base import BaseExtPanel
-
+logger = getLogger('django')
 
 
 def _is_field(obj):
@@ -123,7 +118,7 @@ class ExtForm(BaseExtPanel):
             персональной информацией. Он не должен биндится,
             т.к. предназначен для обработки в personal.middleware
             """
-            return unicode(value)[:2] == u'##'
+            return six.text_type(value)[:2] == u'##'
 
         def _assign_value(value, item):
             """
@@ -131,14 +126,14 @@ class ExtForm(BaseExtPanel):
             """
             if isinstance(item, fields.ExtStringField):
                 if value:
-                    item.value = unicode(value)
+                    item.value = six.text_type(value)
                 else:
                     item.value = u''
 
             elif isinstance(item, simple.ExtAdvTimeField):
                 item.value = '%02d:%02d:%02d' % (
                     value.hour, value.minute, value.second
-                ) if not is_secret_token(value) else unicode(value)
+                ) if not is_secret_token(value) else six.text_type(value)
 
             elif isinstance(item, simple.ExtDateTimeField):
                 if isinstance(value, datetime.datetime):
@@ -157,7 +152,7 @@ class ExtForm(BaseExtPanel):
                 if isinstance(value, (datetime.date, datetime.datetime)):
                     item.value = '%02d.%02d.%04d' % (
                         value.day, value.month, value.year
-                    ) if not is_secret_token(value) else unicode(value)
+                    ) if not is_secret_token(value) else six.text_type(value)
                 else:
                     item.value = value
 
@@ -165,7 +160,7 @@ class ExtForm(BaseExtPanel):
                 if isinstance(value, (datetime.time, datetime.datetime)):
                     item.value = '%02d:%02d' % (
                         value.hour, value.minute
-                    ) if not is_secret_token(value) else unicode(value)
+                    ) if not is_secret_token(value) else six.text_type(value)
                 else:
                     item.value = value
 
@@ -218,9 +213,9 @@ class ExtForm(BaseExtPanel):
                 # либо вызывать специальную функцию
                 # внутри экземпляра комбобокса.
                 if callable(item.bind_rule_reverse):
-                    item.value = unicode(item.bind_rule_reverse(value))
+                    item.value = six.text_type(item.bind_rule_reverse(value))
                 elif isinstance(item.bind_rule_reverse, dict):
-                    item.value = unicode(item.bind_rule_reverse.get(value))
+                    item.value = six.text_type(item.bind_rule_reverse.get(value))
                 else:
                     raise ValueError(
                         'Invalid attribute type bind_rule_reverse.'
@@ -231,7 +226,7 @@ class ExtForm(BaseExtPanel):
                 fields.ExtFileUploadField,
                 fields.ExtImageUploadField
             )):
-                item.value = unicode(value)
+                item.value = six.text_type(value)
                 # Относительную URL ссылку до статики
                 if value:
                     item.file_url = value.url.lstrip('/')
@@ -242,7 +237,7 @@ class ExtForm(BaseExtPanel):
                 if isinstance(item, fields.ExtImageUploadField):
                     if hasattr(settings, 'MEDIA_ROOT') and item.thumbnail:
                         ffile = os.path.join(
-                            settings.MEDIA_ROOT, unicode(value))
+                            settings.MEDIA_ROOT, six.text_type(value))
                         dir_ = os.path.dirname(ffile)
                         file_name = os.path.basename(ffile)
 
@@ -255,7 +250,7 @@ class ExtForm(BaseExtPanel):
                             item.thumbnail_size = thumb.size
 
             else:
-                item.value = unicode(value)
+                item.value = six.text_type(value)
 
         def get_value(obj, names):
             """
@@ -292,15 +287,14 @@ class ExtForm(BaseExtPanel):
         for field in all_fields:
             if not field.name:
                 continue
-            assert not isinstance(field.name, unicode), (
-                'The names of all fields must not be instance of unicode')
-            assert isinstance(field.name, str) and len(field.name) > 0, (
+            field_name = str(field.name)
+            assert field_name, (
                 'The names of all fields must be set for a successful '
-                'assignment. Check the definition of the form.')
+                'assignment. Check the definition of the form.'
+            )
             # заполним атрибуты только те, которые не в списке исключаемых
-            if not field.name in exclusion:
-
-                names = field.name.split('.')
+            if field_name not in exclusion:
+                names = field_name.split('.')
                 new_val, has_attr = get_value(obj, names)
                 if has_attr:
                     new_val = new_val if new_val is not None else ''
@@ -515,7 +509,7 @@ class ExtForm(BaseExtPanel):
                 else:
                     val = None
             elif isinstance(item, fields.ExtStringField):
-                val = unicode(val) if val is not None else None
+                val = six.text_type(val) if val is not None else None
             elif isinstance(item, simple.ExtAdvTimeField):
                 if val and val.strip():
                     d = datetime.datetime.strptime(val, "%H:%M:%S")
@@ -567,19 +561,21 @@ class ExtForm(BaseExtPanel):
 
             elif isinstance(item, fields.ExtDictSelectField):
                 val = try_to_int(val)
+                if val == 'false':
+                    val = False
 
             elif isinstance(item, fields.ExtHiddenField):
                 if item.type == fields.ExtHiddenField.INT:
                     val = try_to_int(val)
                 elif item.type == fields.ExtHiddenField.STRING:
-                    val = unicode(val)
+                    val = six.text_type(val)
             return val
 
         # список m2m полей модели нужен,
         # чтобы проверить возможность их сохранения
         try:
             list_of_m2m = [
-                x[0].name for x in obj._meta.get_m2m_with_model()]
+                x[0].name for x in ModelOptions(obj).get_m2m_with_model()]
         except AttributeError:
             list_of_m2m = []
 
@@ -588,27 +584,24 @@ class ExtForm(BaseExtPanel):
         for field in all_fields:
             if not field.name:
                 continue
-            assert not isinstance(field.name, unicode), (
-                'The names of all fields '
-                'must not be instance of unicode'
-            )
-            assert isinstance(field.name, str) and len(field.name) > 0, (
+            field_name = str(field.name)
+            assert field_name, (
                 'The names of all fields must be set for a successful'
                 ' assignment. Check the definition of the form.'
             )
 
             # заполним атрибуты только те, которые не в списке исключаемых
-            if not field.name in exclusion:
+            if not field_name in exclusion:
                 # запрещаем пытаться сохранять many2many для объекта без pk
                 if hasattr(obj, 'pk'):
-                    if obj.pk is None and field.name in list_of_m2m:
+                    if obj.pk is None and field_name in list_of_m2m:
                         raise ValueError(' '.join(
                             ["'%s' instance needs to have a primary" % (
                                 obj.__class__.__name__),
                              "key value before a many-to-many "
                              "relationship can be used."]))
 
-                names = field.name.split('.')
+                names = field_name.split('.')
                 set_field(obj, names, convert_value(field), field)
 
     @property
@@ -694,12 +687,7 @@ class ExtPanel(BaseExtPanel):
         """
         Рендерит и возвращает js-код, который помещен в template_globals
         """
-        if self.template_globals:
-            return render_template(
-                self.template_globals,
-                {'component': self, 'self': self, 'panel': self})
-
-        return ''
+        return _render_globals(self)
 
     @property
     def items(self):

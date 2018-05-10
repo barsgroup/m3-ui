@@ -34,9 +34,13 @@ Ext.ux.form.FileUploadField = Ext.extend(Ext.form.TextField,  {
      * Множественный выбор файлов
      */
     ,multiple: false
-    
+
     ,constructor: function(baseConfig, params){
         if (params) {
+            this.hideClearButton = params.hideClearButton || false;
+            this.hideUploadButton = params.hideUploadButton || false;
+            this.hideDownloadButton = params.hideDownloadButton || false;
+
             if (params.prefixUploadField) {
                 this.prefixUploadField = params.prefixUploadField;
             }
@@ -107,6 +111,7 @@ Ext.ux.form.FileUploadField = Ext.extend(Ext.form.TextField,  {
             ,tooltip: {
                 text:'Выбрать файл'
                 ,width: 150
+            ,hidden: this.hideUploadButton
             }
         }));
 
@@ -117,7 +122,7 @@ Ext.ux.form.FileUploadField = Ext.extend(Ext.form.TextField,  {
             ,iconCls: this.iconClsClearFile
             ,handler: this.clickClearField
             ,scope: this
-            ,hidden: this.value ? false : true
+            ,hidden: !(this.value && !this.hideClearButton)
             ,tooltip: {
                 text:'Очистить'
                 ,width: 65
@@ -148,7 +153,7 @@ Ext.ux.form.FileUploadField = Ext.extend(Ext.form.TextField,  {
             ,iconCls: this.iconClsDownloadFile
             ,handler: this.clickDownload
             ,scope: this
-            ,hidden: this.value ? false : true
+            ,hidden: !(this.value && !this.hideDownloadButton)
              ,tooltip: {
                 text:'Загрузить'
                 ,width: 65

@@ -1,6 +1,7 @@
-#coding:utf-8
+# coding: utf-8
+from __future__ import absolute_import
 
-from window import ExtWindow
-from edit_window import ExtEditWindow
-from complex import ExtDictionaryWindow
-from lists import BaseExtListWindow
+from .complex import ExtDictionaryWindow
+from .edit_window import ExtEditWindow
+from .lists import BaseExtListWindow
+from .window import ExtWindow

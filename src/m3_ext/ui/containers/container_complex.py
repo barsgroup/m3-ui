@@ -1,13 +1,11 @@
-#coding:utf-8
-"""
-Created on 21.04.2010
-
-@author: prefer <telepenin@bars-open.ru>
-"""
+# coding: utf-8
+from __future__ import absolute_import
 
 from m3_ext.ui.base import ExtUIComponent
-from containers import ExtContainer
-from base import BaseExtContainer
+
+from .base import BaseExtContainer
+from .containers import ExtContainer
+from six.moves import range
 
 
 class ExtContainerTable(BaseExtContainer):
@@ -160,7 +158,7 @@ class ExtContainerTable(BaseExtContainer):
 
     def __init_table(self):
         self.__table = [
-            range(self.__columns_count)
+            list(range(self.__columns_count))
             for col in range(self.__rows_count)
         ]
 
