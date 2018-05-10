@@ -6841,12 +6841,12 @@ Ext.m3.AddrField = Ext.extend(Ext.Container, {
     }
 	, generateTextAddr: function(place, street, house, corps, flat, zipcode) {
 		/* Формирование текстового представления полного адреса */
-
 		var addr_text = '';
+        if (place) {
+            addr_text = place.addr_name;
+        }
 		if (street != undefined) {
-			addr_text = place.addr_name+', '+street.socr+' '+street.name;
-		} else {
-			addr_text = place.addr_name;
+			addr_text = addr_text+', '+street.socr+' '+street.name;
 		}
 		// проставим индекс
 		if (zipcode != '') {

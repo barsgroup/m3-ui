@@ -163,8 +163,14 @@ class ExtContainerTable(BaseExtContainer):
         ]
 
     def find_by_name(self, name):
+        """
+        Осуществляет поиск экземпляра во вложенных объектах
+        по имени экземпляра и возвращает его, если тот был найден
+        :param name: имя экземпляра
+        :type name: str
+        """
         for item in self.items:
-            if hasattr(item, 'name') and name == item.name:
+            if hasattr(item, 'name') and name == getattr(item, 'name'):
                 return item
 
             if hasattr(item, 'find_by_name'):

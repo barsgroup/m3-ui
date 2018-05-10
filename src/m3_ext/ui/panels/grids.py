@@ -6,6 +6,7 @@ from __future__ import absolute_import
 
 from itertools import chain
 import json
+from itertools import chain
 
 from m3.actions.urls import get_url
 
