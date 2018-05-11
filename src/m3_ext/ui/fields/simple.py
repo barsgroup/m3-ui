@@ -57,7 +57,7 @@ class ExtStringField(BaseExtField):
         # Кавычки, апострафы, символы переноса строки и т.д. отрежутся функцией normalize в helpers/__init__.py
         # TODO нужно разобраться почему иногда по-умолчанию приходит None, вместо пустой строки.
         if self.value:
-            if not isinstance(self.value, (str, unicode)):
+            if not isinstance(self.value, six.string_types):
                 raise RuntimeError(
                     'Field "{0}" should have string value, but gets {1} "{2}"'
                     ''.format(self.name, type(self.value), repr(self.value)))
