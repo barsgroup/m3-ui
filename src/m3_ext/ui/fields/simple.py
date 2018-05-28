@@ -155,6 +155,30 @@ class ExtDateField(BaseExtField):
         return 'createAdvancedDataField({%s},{%s})' % (base_config, params)
 
 
+class ExtMultipleDateField(ExtDateField):
+    """Поле ввода даты с множественным выбором."""
+
+    def __init__(self, *args, **kwargs):
+        super(ExtMultipleDateField, self).__init__(*args, **kwargs)
+
+        # Запрещает ввод дат вручную
+        self.editable = False
+        # Разделитель для дат
+        self.delimiter = ','
+        self.init_component(*args, **kwargs)
+
+    def render(self):
+        try:
+            self.render_base_config()
+            self.render_params()
+        except UnicodeDecodeError as msg:
+            raise Exception(msg)
+
+        base_config = self._get_config_str()
+        params = self._get_params_str()
+        return 'createMultipleDateField({%s},{%s})' % (base_config, params)
+
+
 class ExtNumberField(BaseExtField):
     """
     Поле ввода числового значения

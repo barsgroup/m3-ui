@@ -12,6 +12,7 @@ from .complex import ExtSearchField
 from .simple import ExtCheckBox
 from .simple import ExtComboBox
 from .simple import ExtDateField
+from .simple import ExtMultipleDateField
 from .simple import ExtDisplayField
 from .simple import ExtHiddenField
 from .simple import ExtNumberField

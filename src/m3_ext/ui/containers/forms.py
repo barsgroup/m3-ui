@@ -16,6 +16,8 @@ from m3_django_compat import ModelOptions
 from m3_ext.ui.base import BaseExtComponent
 from m3_ext.ui.containers.base import BaseExtPanel
 
+from objectpack.models import ModelProxy
+from objectpack.models import MultipleDateMixin
 from ..helpers import _render_globals
 import six
 
@@ -429,11 +431,18 @@ class ExtForm(BaseExtPanel):
             :param field: поле
             :type field: потомок m3_ext.ui.fields.complex.BaseExtField
             """
+            original_obj = obj
 
-            # hasattr не работает для dict'a
+            # hasattr не работает для dict'a и прокси-моделей
             has_attr = (
                 hasattr(obj, names[0])
                 if not isinstance(obj, dict) else names[0] in obj)
+
+            # Для прокси-моделей hasattr не ищет в основной модели
+            if isinstance(obj, ModelProxy):
+                original_obj = obj._object
+                has_attr = hasattr(obj.model, names[0])
+
             if has_attr:
                 if len(names) == 1:
                     if isinstance(obj, dict):
@@ -443,7 +452,22 @@ class ExtForm(BaseExtPanel):
                         fields.ExtImageUploadField
                     )):
                         save_image(obj, names[0], field)
+                    elif isinstance(field, fields.ExtMultipleDateField):
+                        RelatedModel = obj.model._meta.get_field(field.name).rel.to
+                        related_name = getattr(RelatedModel, 'related_model_field')
+                        date_name = getattr(RelatedModel, 'multi_date_field')
 
+                        if related_name and date_name:
+                            RelatedModel.objects.filter(
+                                **{'%s_id' % related_name: obj.id}
+                            ).all().delete()
+                            for val in value:
+                                related_obj = RelatedModel()
+                                setattr(related_obj, date_name, val)
+                                # Присваиваем через _id, т.к. если obj - инстанс
+                                # прокси-модели, не проходит Django-валидация связи
+                                setattr(related_obj, '%s_id' % related_name, obj.id)
+                                related_obj.clean_and_save()
                     else:
                         # Для id нельзя присваивать пустое значение!
                         # Иначе модели не будет сохраняться
@@ -516,6 +540,15 @@ class ExtForm(BaseExtPanel):
                     val = d.time()
                 else:
                     val = None
+
+            elif isinstance(item, fields.ExtMultipleDateField):
+                if val:
+                    val = (
+                        datetime.datetime.strptime(d.strip(), '%d.%m.%Y')
+                        for d in val.split(item.delimiter)
+                    )
+                else:
+                    val = ()
             elif isinstance(item, simple.ExtDateTimeField):
                 if val and val.strip():
                     val = datetime.datetime.strptime(val, '%d.%m.%Y %H:%M:%S')
