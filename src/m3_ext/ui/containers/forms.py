@@ -135,6 +135,9 @@ class ExtForm(BaseExtPanel):
                     value.hour, value.minute, value.second
                 ) if not is_secret_token(value) else six.text_type(value)
 
+            elif isinstance(item, fields.ExtMultipleDateField):
+                item.value = value
+
             elif isinstance(item, simple.ExtDateTimeField):
                 if isinstance(value, datetime.datetime):
                     item.value = '%02d.%02d.%04d %02d:%02d:%02d' % (
@@ -516,6 +519,15 @@ class ExtForm(BaseExtPanel):
                     val = d.time()
                 else:
                     val = None
+
+            elif isinstance(item, fields.ExtMultipleDateField):
+                if val:
+                    val = tuple(
+                        datetime.datetime.strptime(d.strip(), '%d.%m.%Y')
+                        for d in val.split(item.delimiter)
+                    )
+                else:
+                    val = ()
             elif isinstance(item, simple.ExtDateTimeField):
                 if val and val.strip():
                     val = datetime.datetime.strptime(val, '%d.%m.%Y %H:%M:%S')
@@ -694,7 +706,7 @@ class ExtPanel(BaseExtPanel):
         return self._items
 
 
-#==============================================================================
+# =============================================================================
 class ExtTitlePanel(ExtPanel):
     """
     Расширенная панель с возможностью добавления контролов в заголовок.

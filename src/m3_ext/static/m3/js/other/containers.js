@@ -65,3 +65,11 @@ function createAdvancedScrollComboBox(baseConfig, params){
 function createAdvancedDataField(baseConfig, params){
 	return new Ext.m3.AdvancedDataField(baseConfig, params);
 }
+
+/**
+ * Создание своего переопределенного компонента MultipleDateField
+ * @param {Object} baseConfig
+ */
+function createMultipleDateField(baseConfig, params){
+	return new Ext.m3.MultipleDateField(baseConfig, params);
+}

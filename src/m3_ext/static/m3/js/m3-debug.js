@@ -4094,8 +4094,6 @@ Ext.m3.ComboBox =  Ext.extend(Ext.form.ComboBox,{
  */
 Ext.m3.GridPanel = Ext.extend(Ext.grid.GridPanel, {
 	constructor: function(baseConfig, params){
-//		console.log(baseConfig);
-//		console.log(params);
 		
 		// Добавлене selection model если нужно
 		var selModel = params.selModel;
@@ -4177,15 +4175,12 @@ Ext.m3.GridPanel = Ext.extend(Ext.grid.GridPanel, {
 	 * Обработчик исключений хранилица
 	 */
 	storeException: function (proxy, type, action, options, response, arg){
-		//console.log(proxy, type, action, options, response, arg);
 		uiAjaxFailMessage(response, options);
 	}
 });
 
 Ext.m3.EditorGridPanel = Ext.extend(Ext.grid.EditorGridPanel, {
   constructor: function(baseConfig, params){
-//    console.log(baseConfig);
-//    console.log(params);
     
     // Добавлене selection model если нужно
     var selModel = params.selModel;
@@ -4266,7 +4261,6 @@ Ext.m3.EditorGridPanel = Ext.extend(Ext.grid.EditorGridPanel, {
 	 * Обработчик исключений хранилица
 	 */
 	,storeException: function (proxy, type, action, options, response, arg){
-		//console.log(proxy, type, action, options, response, arg);
 		if (type == 'remote' && action != Ext.data.Api.actions.read) {
 		  if (response.raw.message) {
   		  Ext.Msg.show({
@@ -7686,7 +7680,6 @@ Ext.m3.AdvancedDataField = Ext.extend(Ext.form.DateField, {
 		this.initBaseTrigger()
 	},
 	initTrigger : function(){
-
         var ts = this.trigger.select('.x-form-trigger', true);
         var triggerField = this;
         ts.each(function(t, all, index){
@@ -7732,7 +7725,7 @@ Ext.m3.AdvancedDataField = Ext.extend(Ext.form.DateField, {
 	   В суперклассе Ext.form.TriggerField данный метод перекрывается пустой функцией,
    	   видимо для того, чтобы все изменения и событие change происходили только при нажатии на триггеры,
  	   но данное поведение весьма неудобно в колоночных фильтрах, где требуется корректное срабатывание
-           blur и change при потере фокуса.
+       blur и change при потере фокуса.
 	   Данная реализация метода взята из базового класса Ext.formField
 	*/
 	    this.beforeBlur();
@@ -7753,8 +7746,155 @@ Ext.m3.AdvancedDataField = Ext.extend(Ext.form.DateField, {
 
 });
 
-Ext.reg('m3-date', Ext.m3.AdvancedDataField );
 
+/**
+ * Компонент поля даты.
+ * Добавлена возможность множественного выбора даты.
+ */
+
+Ext.m3.MultipleDateField = Ext.extend(
+    Ext.m3.AdvancedDataField,
+    {
+        selectedDates: {},
+        csvSelectedDates: '',
+        clsHighlightClass: 'x-date-selected',
+
+        constructor: function(baseConfig, params){
+            this.delimiter = params.delimiter;
+            Ext.m3.MultipleDateField.superclass.constructor.call(this, baseConfig, params);
+        },
+
+        initComponent: function () {
+            Ext.m3.MultipleDateField.superclass.initComponent.call(this);
+            var me = this;
+            // Выставляет даты из значений с сервера
+            this.csvSelectedDates = this.value;
+            if (this.value) {
+                var selectedDates = this.csvSelectedDates.split(this.delimiter);
+                selectedDates.forEach(function(date){
+                    var dateValue = new Date(date);
+                    me.setDateSelected(me, dateValue);
+                });
+                this.highlightDates();
+            }
+
+            // Добавляет события для обработки множественного выбора
+            this.on('select', this.handleSelectionChanged, this);
+            this.on('afterrender', this.highlightDates, this);
+        },
+
+        /* Отрисовываем выбранные даты при открытии датапикера */
+        onTriggerClick: function() {
+            Ext.m3.MultipleDateField.superclass.onTriggerClick.call(this);
+            this.highlightDates();
+        },
+
+        /* Переопределение базового метода Ext.form.DateField для отмены закрытия датапикера после клика */
+        onSelect: function(m, d){
+            this.fireEvent('select', this, d);
+            this.setValue(d);
+        },
+
+        /* Добавляет дату в список выбранных */
+        setDateSelected: function(cmp, date){
+            this.selectedDates[date.toDateString()] = this.formatDate(this.parseDate(date));
+            this.csvSelectedDates = Object.values(this.selectedDates).join(', ');
+        },
+
+        /* Установка даты как выбранной или не выбранной */
+        handleSelectionChanged: function (cmp, date) {
+            if (this.selectedDates[date.toDateString()])
+                delete this.selectedDates[date.toDateString()];
+            else
+                this.selectedDates[date.toDateString()] = this.formatDate(this.parseDate(date));
+            this.highlightDates();
+            this.csvSelectedDates = Object.values(this.selectedDates).join(', ');
+        },
+
+        /* Установка стиля даты как выбранной или не выбранной */
+        highlightDates: function () {
+            var me = this;
+            if (!me.menu) return;
+            picker = me.menu.picker;
+            if (!picker.cells) return;
+            picker.cells.each(function (item) {
+                var date = new Date(item.dom.firstChild.dateValue).toDateString();
+                if (me.selectedDates[date]) {
+                    if (item.getAttribute('class').indexOf(me.clsHighlightClass) === -1) {
+                        item.addClass(me.clsHighlightClass)
+                    }
+                } else {
+                    item.removeClass(me.clsHighlightClass);
+                }
+            });
+        },
+
+        /* Переопределенный базовый метод для установки значений через запятую */
+        setValue : function(date){
+            return Ext.form.DateField.superclass.setValue.call(this, this.csvSelectedDates);
+        },
+
+        /* Выполняет проверку даты */
+        checkOneDate: function(value) {
+            var errors = [];
+
+            value = this.formatDate(value);
+
+            if (value.length < 1) {
+                 return errors;
+            }
+
+            var svalue = value;
+            value = this.parseDate(value);
+            if (!value) {                errors.push(String.format(this.invalidText, svalue, this.format));
+                return errors;
+            }
+
+            var time = value.getTime();
+            if (this.minValue && time < this.minValue.clearTime().getTime()) {
+                errors.push(String.format(this.minText, this.formatDate(this.minValue)));
+            }
+
+            if (this.maxValue && time > this.maxValue.clearTime().getTime()) {
+                errors.push(String.format(this.maxText, this.formatDate(this.maxValue)));
+            }
+
+            if (this.disabledDays) {
+                var day = value.getDay();
+
+                for(var i = 0; i < this.disabledDays.length; i++) {
+                    if (day === this.disabledDays[i]) {
+                        errors.push(this.disabledDaysText);
+                        break;
+                    }
+                }
+            }
+
+            var fvalue = this.formatDate(value);
+            if (this.disabledDatesRE && this.disabledDatesRE.test(fvalue)) {
+                errors.push(String.format(this.disabledDatesText, fvalue));
+            }
+
+            return errors;
+        },
+
+        /* Переопределенный базовый метод для корректной валидации значений через запятую */
+        getErrors: function() {
+            var errors;
+            var me = this;
+            Object.values(this.selectedDates).forEach(function(date) {
+                errors = me.checkOneDate(date);
+                if (errors) {
+                    return errors;
+                }
+            });
+            return [];
+        }
+    }
+);
+
+Ext.reg('m3-multiple-date', Ext.m3.MultipleDateField);
+Ext.reg('m3-date', Ext.m3.AdvancedDataField );
 'use strict';
 
 Ext.m3.AdvancedScrollComboBox = Ext.extend(Ext.m3.AdvancedComboBox, {
@@ -16360,6 +16500,14 @@ function createAdvancedScrollComboBox(baseConfig, params){
  */
 function createAdvancedDataField(baseConfig, params){
 	return new Ext.m3.AdvancedDataField(baseConfig, params);
+}
+
+/**
+ * Создание своего переопределенного компонента MultipleDateField
+ * @param {Object} baseConfig
+ */
+function createMultipleDateField(baseConfig, params){
+	return new Ext.m3.MultipleDateField(baseConfig, params);
 }
 /**
  * Здесь нужно перегружать объекты и дополнять функционал.

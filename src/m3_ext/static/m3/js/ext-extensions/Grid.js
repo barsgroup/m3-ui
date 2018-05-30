@@ -4,8 +4,6 @@
  */
 Ext.m3.GridPanel = Ext.extend(Ext.grid.GridPanel, {
 	constructor: function(baseConfig, params){
-//		console.log(baseConfig);
-//		console.log(params);
 		
 		// Добавлене selection model если нужно
 		var selModel = params.selModel;
@@ -87,15 +85,12 @@ Ext.m3.GridPanel = Ext.extend(Ext.grid.GridPanel, {
 	 * Обработчик исключений хранилица
 	 */
 	storeException: function (proxy, type, action, options, response, arg){
-		//console.log(proxy, type, action, options, response, arg);
 		uiAjaxFailMessage(response, options);
 	}
 });
 
 Ext.m3.EditorGridPanel = Ext.extend(Ext.grid.EditorGridPanel, {
   constructor: function(baseConfig, params){
-//    console.log(baseConfig);
-//    console.log(params);
     
     // Добавлене selection model если нужно
     var selModel = params.selModel;
@@ -176,7 +171,6 @@ Ext.m3.EditorGridPanel = Ext.extend(Ext.grid.EditorGridPanel, {
 	 * Обработчик исключений хранилица
 	 */
 	,storeException: function (proxy, type, action, options, response, arg){
-		//console.log(proxy, type, action, options, response, arg);
 		if (type == 'remote' && action != Ext.data.Api.actions.read) {
 		  if (response.raw.message) {
   		  Ext.Msg.show({
