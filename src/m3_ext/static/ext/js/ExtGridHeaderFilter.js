@@ -492,6 +492,12 @@ Ext.extend(Ext.ux.grid.GridHeaderFilters, Ext.util.Observable,
 		fcc.width = td.getWidth() - 3;
 		var fc = new Ext.Container(fcc);
 		fc.render(td);
+		// FIXME: Ext.isIE не позволяет определить IE11 и старше, поэтому
+		// используется определение этих браузеров "по-месту".
+		if (Ext.isIE || window.navigator.userAgent.match(/(Trident|Edge)/)) {
+			fc.setWidth(fcc.width < 3 ? 0 : fcc.width - 3);
+			fc.doLayout(false, true);
+		}
 		//Container cache
 		this.filterContainers[columnId] = fc;
 		//Fields cache	
