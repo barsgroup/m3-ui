@@ -118,12 +118,12 @@ Ext.m3.AdvancedDataField = Ext.extend(Ext.form.DateField, {
 Ext.m3.MultipleDateField = Ext.extend(
     Ext.m3.AdvancedDataField,
     {
-        selectedDates: {},
-        csvSelectedDates: '',
         clsHighlightClass: 'x-date-selected',
 
         constructor: function(baseConfig, params){
             this.delimiter = params.delimiter;
+            this.selectedDates = {};
+            this.csvSelectedDates = '';
             Ext.m3.MultipleDateField.superclass.constructor.call(this, baseConfig, params);
         },
 
