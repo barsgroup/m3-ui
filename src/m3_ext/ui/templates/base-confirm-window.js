@@ -32,6 +32,11 @@
                     success: function(res, opt) {
                         if (observable.fireEvent('afterrequest', res, opt)) {
                             mask.hide();
+                            var result = Ext.util.JSON.decode(res.responseText);
+                            if (result.success && '{{m3_window_id}}'){
+                                var parent_win = Ext.getCmp('{{m3_window_id}}');
+                                parent_win.close(true);
+                            }
                             smart_eval(res.responseText);
                         }
                     },
