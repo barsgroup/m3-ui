@@ -83,6 +83,7 @@ class ConfirmWindowResult(_OperationResult):
     :param dict params: словарь дополнительных параметров для передачи
                         в HTTP запросе
     :param bool prevent_escape: не экранировать спец. символы в text
+    :param window_id: id родительского окна
     :param request: объект HTTP запроса, для копирования его параметров
     :type request: django.http.HttpRequest
     """
@@ -92,7 +93,7 @@ class ConfirmWindowResult(_OperationResult):
 
     def __init__(
             self, text=None, url=None, params=None, request=None,
-            prevent_escape=False, *args, **kwargs):
+            prevent_escape=False, window_id='', *args, **kwargs):
         super(ConfirmWindowResult, self).__init__(*args, **kwargs)
 
         params = params or {}
@@ -104,6 +105,7 @@ class ConfirmWindowResult(_OperationResult):
         window.set_params(
             text=text, url=url, params=json.dumps(params),
             prevent_escape=prevent_escape,
+            m3_window_id=window_id,
         )
 
         self.code = window.get_script()
