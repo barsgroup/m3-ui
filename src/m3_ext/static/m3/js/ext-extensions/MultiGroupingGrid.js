@@ -335,14 +335,8 @@ Ext.extend(Ext.ux.grid.MultiGrouping, Ext.util.Observable, {
 
             this.grid.on('resize', function(grid, width, height, e){
                 // после изменения порядка группировки при изменении размеров
-                // окошка происходил наезд кнопок группировки друг на друга,
-                // так как не очищался css-атрибут left
-                var items = grid.grouper.tbar.items.items;
-                for (var i = 0; i < items.length; i++){
-                    if (items[i].el){
-                        items[i].el.setStyle('left', 'auto');
-                    }
-                }
+                // окошка происходил наезд кнопок группировки друг на друга
+                grid.groupPlugin.resetLayout(grid.grouper.tbar);
             });
         }
 	},
@@ -545,6 +539,7 @@ Ext.extend(Ext.ux.grid.MultiGrouping, Ext.util.Observable, {
 				}
 	        }
 		}
+		this.resetLayout(this.tbar);
 	},
 	/**
 	 * Перед загрузкой выставим параметры загрузки
@@ -735,6 +730,20 @@ Ext.extend(Ext.ux.grid.MultiGrouping, Ext.util.Observable, {
             this.grid.getSelectionModel().selectRow(this.grid.store.totalLength-1);
     		e.stopEvent();
     		}
+    },
+    /**
+	 * после различных событий происходил наезд кнопок группировки
+     * друг на друга, так как не очищался css-атрибут left
+	 * @param {Ext.Toolbar} tbar Параметры события нажатия клавиши
+	 */
+    resetLayout: function(tbar) {
+        if (tbar) {
+            var items = tbar.items.items;
+            for (var i = 0; i < items.length; i++)
+                if (items[i].el)
+                    items[i].el.setStyle('left', 'auto');
+            tbar.layout.container.doLayout();
+        }
     }
 });
 
