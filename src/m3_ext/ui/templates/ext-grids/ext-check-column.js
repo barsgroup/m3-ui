@@ -10,5 +10,6 @@
 	{%if component.editor %} ,editor: {{ component.render_editor }} {%endif%}
 	,fixed: {{ component.fixed|lower }}
     ,hidden: {{ component.hidden|lower }}
+	{%if component.extra %} ,{{component.t_render_extra|safe}} {%endif%}
 	{%if component.column_renderer %} ,renderer: {{ component.column_renderer }}{%endif%}
 }
