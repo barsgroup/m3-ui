@@ -32,30 +32,39 @@ Ext.ux.form.ImageUploadField = Ext.extend(Ext.form.FileUploadField,  {
             if (params.thumbnail) {
                 this.thumbnail = params.thumbnail;
             }
-            
-        if (params.fileUrl) {
-            var mass = params.fileUrl.split('/');
+
+            // Проброс fileUrl в initComponent
+            if (params.fileUrl) {
+                this.fileUrl = params.fileUrl;
+            }
+        }        
+        
+        Ext.ux.form.ImageUploadField.superclass.constructor.call(this, baseConfig, params);
+    }
+    ,initComponent: function() {
+        Ext.ux.form.ImageUploadField.superclass.initComponent.call(this);
+        if (this.fileUrl) {
+            var mass = this.fileUrl.split('/');
             var dir = mass.slice(0, mass.length - 1);
             var file_name = mass[mass.length-1];
             var prefix = this.prefixThumbnailImg || '';
             var url = String.format('{0}/{1}{2}', dir.join('/'), prefix, file_name);
-            
+
+            var tipId = 'preview_tip_window_to_' + this.id;
             this.previewTip = new Ext.QuickTip({
-                id: 'preview_tip_window',  
-                html: String.format('<a href="{0}" rel="lightbox"><image src="{1}" WIDTH={2} HEIGHT={3} OnClick=Ext.getCmp("preview_tip_window").hide()></a>', 
-                        params.fileUrl,
+                id: tipId,
+                html: String.format('<a href="{0}" rel="lightbox"><image src="{1}" WIDTH={2} HEIGHT={3} OnClick=Ext.getCmp("{4}").hide()></a>',
+                        this.fileUrl,
                         this.getFileUrl(url),
                         this.thumbnailWidth,
-                        this.thumbnailHeight)
+                        this.thumbnailHeight,
+                        tipId)
                 ,autoHide: false
                 ,width: this.thumbnailWidth + 10
                 ,height: this.thumbnailHeight + 10
             });
         }
-        }        
-        
-        Ext.ux.form.ImageUploadField.superclass.constructor.call(this, baseConfig, params);
-    }     
+    }
     ,renderHelperBtn: function(){
         if (this.thumbnail) {
             this.buttonPreview = new Ext.Button({
