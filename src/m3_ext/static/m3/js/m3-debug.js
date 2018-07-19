@@ -17152,3 +17152,28 @@ Ext.override(Ext.Element, {
     }
 });
 
+/**
+* Предотвращает баг при котором показывается множество тултипов из-за
+* задержки показывания при проведении мышкой по нескольким элементам по очереди
+* например в гриде
+*/
+Ext.ToolTip.override({
+    onMouseMove : function(e){
+        var t = this.delegate ? e.getTarget(this.delegate) : this.triggerElement = true;
+        if (t) {
+            this.targetXY = e.getXY();
+            if (t === this.triggerElement) {
+                if(!this.hidden && this.trackMouse){
+                    this.setPagePosition(this.getTargetXY());
+                }
+            } else {
+                this.hide();
+                this.lastActive = new Date(0);
+                this.onTargetOver(e);
+            }
+        } else if (!this.closable) {
+            this.clearTimer('show');
+            this.hide();
+        }
+    }
+});
