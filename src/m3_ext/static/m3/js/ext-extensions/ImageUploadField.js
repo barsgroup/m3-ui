@@ -111,7 +111,6 @@ Ext.ux.form.ImageUploadField = Ext.extend(Ext.form.FileUploadField,  {
     }
     ,onDestroy: function(){
         Ext.ux.form.ImageUploadField.superclass.onDestroy.call(this);
-        Ext.destroy(Ext.QuickTips.getQuickTip());
     }
 });
 // Регистрация lightbox
