@@ -51,7 +51,7 @@ Ext.ux.form.ImageUploadField = Ext.extend(Ext.form.FileUploadField,  {
             var url = String.format('{0}/{1}{2}', dir.join('/'), prefix, file_name);
 
             var tipId = 'preview_tip_window_to_' + this.id;
-            this.previewTip = new Ext.QuickTip({
+            Ext.QuickTips.register({
                 id: tipId,
                 html: String.format('<a href="{0}" rel="lightbox"><image src="{1}" WIDTH={2} HEIGHT={3} OnClick=Ext.getCmp("{4}").hide()></a>',
                         params.fileUrl,
@@ -88,7 +88,7 @@ Ext.ux.form.ImageUploadField = Ext.extend(Ext.form.FileUploadField,  {
     ,clickHelperBtn: function(){
         var el = this.getEl();
         var xy = el.getXY()
-        this.previewTip.showAt([xy[0], xy[1] + el.getHeight()]);
+        Ext.QuickTips.getQuickTip().showAt([xy[0], xy[1] + el.getHeight()]);
     }
     ,createFileInput : function() {
         this.fileInput = this.wrap.createChild({
@@ -111,7 +111,6 @@ Ext.ux.form.ImageUploadField = Ext.extend(Ext.form.FileUploadField,  {
     }
     ,onDestroy: function(){
         Ext.ux.form.ImageUploadField.superclass.onDestroy.call(this);
-        Ext.destroy(this.previewTip);
     }
 });
 // Регистрация lightbox
