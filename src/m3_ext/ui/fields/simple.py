@@ -175,6 +175,9 @@ class ExtNumberField(BaseExtField):
         # Разделитель целой и дробной части
         self.decimal_separator = None
 
+        # Включение разбиения числа на тысячные разряды
+        self.use_thousand_separator = True
+
         # Разделитель тысячных частей
         self.thousand_separator = None
 
@@ -212,6 +215,8 @@ class ExtNumberField(BaseExtField):
     def render_base_config(self):
         super(ExtNumberField, self).render_base_config()
         self._put_config_value('decimalSeparator', self.decimal_separator)
+        self._put_config_value(
+            'useThousandSeparator', self.use_thousand_separator)
         self._put_config_value('thousandSeparator', self.thousand_separator)
         self._put_config_value('allowDecimals', self.allow_decimals)
         self._put_config_value('allowNegative', self.allow_negative)
