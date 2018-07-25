@@ -292,7 +292,7 @@ class ExtToolbarMenu(ExtUIComponent):
     def render(self):
         res = 'id:"%s"' % self.client_id
         if self.text:
-            res = 'text: "%s"' % self.text
+            res += ',text: "%s"' % self.text
         if self.icon_cls:
             res += ',iconCls: "%s"' % self.icon_cls
         if self.tooltip_text:
