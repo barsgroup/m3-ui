@@ -421,7 +421,10 @@ Ext.extend(Ext.ux.grid.MultiGrouping, Ext.util.Observable, {
         // При явном вызове destroy event'ы не отсылаются. Удалим dragSource вручную.
         button.dd.destroy();
         button.destroy();
-        this.doGroup(this.getGroupColumns())
+        this.doGroup(this.getGroupColumns());
+        // надо подождать прогрузку, прежде чем обрабатывать атрибут left
+        var el = this;
+        setTimeout(function () {el.resetLayout(el.tbar)}, 500);
     },
     /**
      * Событие отрисовки панели группировки
