@@ -4113,7 +4113,7 @@ Ext.m3.GridPanel = Ext.extend(Ext.grid.GridPanel, {
 		var funcContMenu;
 		if (params.menus.contextMenu && 
 			params.menus.contextMenu instanceof Ext.menu.Menu) {
-			
+
 			funcContMenu = function(e){
 				e.stopEvent();
 	            params.menus.contextMenu.showAt(e.getXY())
@@ -4195,28 +4195,31 @@ Ext.m3.EditorGridPanel = Ext.extend(Ext.grid.EditorGridPanel, {
     if (selModel && selModel instanceof Ext.grid.CheckboxSelectionModel) {
       gridColumns.columns.unshift(selModel);
     }
-    
-    // Навешивание обработчиков на контекстное меню если нужно 
+
+    // Навешивание обработчиков на контекстное меню если нужно
     var funcContMenu;
-    if (params.menus.contextMenu && 
+    if (params.menus.contextMenu &&
       params.menus.contextMenu instanceof Ext.menu.Menu) {
-      
+
       funcContMenu = function(e){
         e.stopEvent();
-              params.menus.contextMenu.showAt(e.getXY())
+		params.menus.contextMenu.showAt(e.getXY())
       }
     } else {
       funcContMenu = Ext.emptyFn;
     }
-    
+
     var funcRowContMenu;
-    if (params.menus.rowContextMenu && 
+    if (params.menus.rowContextMenu &&
       params.menus.contextMenu instanceof Ext.menu.Menu) {
-      
+
       funcRowContMenu = function(grid, index, e){
         e.stopEvent();
-                this.getSelectionModel().selectRow(index);
-                params.menus.rowContextMenu.showAt(e.getXY())
+        var selectionModel = this.getSelectionModel();
+		if (selectionModel instanceof Ext.grid.RowSelectionModel){
+        	selectionModel.selectRow(index);
+        	params.menus.rowContextMenu.showAt(e.getXY());
+		}
       }
     } else {
       funcRowContMenu = Ext.emptyFn;
