@@ -213,6 +213,13 @@ class BaseExtTriggerField(BaseExtField):
         # изменение ширины выпадающего списка
         self.resizable = False
 
+        # механизм с помощью которого компонент будет скрыт
+        # поддерживает:
+        #           visibility(css visibility),
+        #           offsets (отрицательная позиция смещения),
+        #           display(css display)
+        self.hide_mode = 'visibility'
+
     def set_store(self, store):
         self.mode = 'local' if isinstance(store, ExtDataStore) else 'remote'
         self.__store = store
@@ -287,7 +294,7 @@ class BaseExtTriggerField(BaseExtField):
 
         super(BaseExtTriggerField, self).render_base_config()
 
-        for args in (
+        base_args = [
             ('displayField', self.display_field),
             ('valueField', self.value_field),
             ('hiddenName', self.hidden_name),
@@ -306,6 +313,13 @@ class BaseExtTriggerField(BaseExtField):
             ('store', self.t_render_store, self.get_store()),
             ('listWidth', self.list_width, self.list_width),
             ('tpl', self.list_tpl, self.list_tpl),
-            ('resizable', self.resizable, self.resizable),
-        ):
+            ('resizable', self.resizable, self.resizable)
+        ]
+
+        if self.hidden:
+            base_args.append(
+                ('hideMode', self.hide_mode)
+            )
+
+        for args in base_args:
             self._put_config_value(*args)
