@@ -218,7 +218,7 @@ class BaseExtTriggerField(BaseExtField):
         #           visibility(css visibility),
         #           offsets (отрицательная позиция смещения),
         #           display(css display)
-        self.hide_mode = 'visibility'
+        self.hide_mode = 'offsets'
 
     def set_store(self, store):
         self.mode = 'local' if isinstance(store, ExtDataStore) else 'remote'
