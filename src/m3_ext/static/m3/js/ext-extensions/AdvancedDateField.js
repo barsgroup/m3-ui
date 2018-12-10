@@ -160,7 +160,11 @@ Ext.m3.MultipleDateField = Ext.extend(
         /* Добавляет дату в список выбранных */
         setDateSelected: function(cmp, date){
             this.selectedDates[date.toDateString()] = this.formatDate(this.parseDate(date));
-            this.csvSelectedDates = Object.values(this.selectedDates).join(', ');
+            var me = this;
+            var dates = Object.keys(me.selectedDates).map(function(key) {
+                return me.selectedDates[key];
+            });
+            this.csvSelectedDates = dates.join(', ');
         },
 
         /* Установка даты как выбранной или не выбранной */
@@ -170,7 +174,11 @@ Ext.m3.MultipleDateField = Ext.extend(
             else
                 this.selectedDates[date.toDateString()] = this.formatDate(this.parseDate(date));
             this.highlightDates();
-            this.csvSelectedDates = Object.values(this.selectedDates).join(', ');
+            var me = this;
+            var dates = Object.keys(me.selectedDates).map(function(key) {
+                return me.selectedDates[key];
+            });
+            this.csvSelectedDates = dates.join(', ');
         },
 
         /* Установка стиля даты как выбранной или не выбранной */
@@ -244,7 +252,10 @@ Ext.m3.MultipleDateField = Ext.extend(
         getErrors: function() {
             var errors;
             var me = this;
-            Object.values(this.selectedDates).forEach(function(date) {
+            var dates = Object.keys(me.selectedDates).map(function(key) {
+                return me.selectedDates[key];
+            });
+            dates.forEach(function(date) {
                 errors = me.checkOneDate(date);
                 if (errors) {
                     return errors;
