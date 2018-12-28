@@ -7111,6 +7111,7 @@ Ext.m3.AdvancedComboBox = Ext.extend(Ext.m3.ComboBox, {
              *   this - Сам компонент
              *   id - Значение
              *   text - Текстовое представление значения
+             *   extraData - Словарь с дополнительными данными из выборанного значения
              * Возвр. значения:
              *   true - обработка продолжается
              *   false - отмена обработки
@@ -7446,9 +7447,9 @@ Ext.m3.AdvancedComboBox = Ext.extend(Ext.m3.ComboBox, {
                         var win = smart_eval(response.responseText);
                         if (win) {
 
-                            win.on('closed_ok', function (id, displayText) {
-                                if (this.fireEvent('afterselect', this, id, displayText)) {
-                                    this.addRecordToStore(id, displayText);
+                            win.on('closed_ok', function (id, displayText, additionalInfo) {
+                                if (this.fireEvent('afterselect', this, id, displayText, additionalInfo)) {
+                                    this.addRecordToStore(id, displayText, additionalInfo);
                                 }
                             }, this);
                             if (mask) {
