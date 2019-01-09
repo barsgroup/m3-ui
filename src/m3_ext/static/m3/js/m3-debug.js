@@ -15567,7 +15567,7 @@ Ext.override(Ext.form.ComboBox, {
  * см m3.css - стр. 137 .m3-grey-field
  */
 (function () {
-    var setReadOnlyField = Ext.form.Field.prototype.setReadOnly.bind({});
+    var setReadOnlyField = Ext.form.Field.prototype.setReadOnly;
 
     function restoreClass(readOnly) {
         if (readOnly) {
@@ -15582,7 +15582,7 @@ Ext.override(Ext.form.ComboBox, {
     Ext.define('Ext.form.Field', {
         override: 'Ext.form.Field',
         setReadOnly: function (readOnly) {
-            setReadOnlyField(readOnly);
+            setReadOnlyField.call(this, readOnly);
             restoreClass.call(this, readOnly);
         }
     });
