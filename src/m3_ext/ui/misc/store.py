@@ -242,22 +242,19 @@ class ExtDataReader(six.with_metaclass(abc.ABCMeta, BaseExtComponent)):
             self._fields.append(field)
 
     def convert_value(self, value):
-        """
-        Конвертирует данные в JS строку
-        """
-
+        """Конвертирует данные в JS строку."""
         if value is None:
-            res_value = '""'
-        elif isinstance(value, bool):
-            res_value = str(value).lower()
-        elif isinstance(value, (int, Decimal, float, int)):
-            res_value = str(value)
+            result = '""'
+        elif isinstance(value, (int, float)):
+            result = json.dumps(value)
+        elif isinstance(value, Decimal):
+            result = str(value)
         elif isinstance(value, datetime.date):
-            res_value = 'new Date("%s")' % value.ctime()
+            result = 'new Date("%s")' % value.ctime()
         else:
-            res_value = '"%s"' % normalize(value)
+            result = '"%s"' % normalize(value)
 
-        return res_value
+        return result
 
     @abc.abstractmethod
     def _render_data(self, data):
