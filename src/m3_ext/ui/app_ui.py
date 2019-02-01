@@ -21,6 +21,8 @@ import six
 from six.moves import map
 from six.moves import filter
 
+from .signals import desktop_loader_after_populate
+
 
 logger = getLogger('django')
 
@@ -452,6 +454,7 @@ class DesktopLoader(object):
                 roles.append(SUPER_ADMIN)
 
         cls.populate_desktop(desktop, roles, sorting)
+        desktop_loader_after_populate.send(sender=cls)
 
     @classmethod
     def populate_desktop(cls, desktop, roles=None, sorting=DEFAULT_SORTING):
