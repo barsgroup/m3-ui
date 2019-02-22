@@ -323,8 +323,10 @@ class ExtObjectGrid(containers.ExtGrid):
         if not self.url_data and self.action_data:
             self.url_data = get_url(self.action_data)
 
-        context_json = (
-            self.action_context.json if self.action_context else None)
+        context_json = None
+        if self.action_context:
+            self.action_context.grid_id = self.client_id
+            context_json = self.action_context.json
 
         self._put_params_value(
             'actions',
