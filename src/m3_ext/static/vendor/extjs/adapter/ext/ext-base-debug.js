@@ -75,11 +75,12 @@ Ext.apply = function(o, c, defaults){
         isSafari2 = isSafari && check(/applewebkit\/4/), // unique to Safari 2
         isSafari3 = isSafari && check(/version\/3/),
         isSafari4 = isSafari && check(/version\/4/),
-        isIE = !isOpera && check(/msie/),
+        isIE = !isOpera && (check(/msie/) || check(/trident/)),
         isIE7 = isIE && ((check(/msie 7/) && docMode != 8 && docMode != 9 && docMode != 10) || docMode == 7),
         isIE8 = isIE && ((check(/msie 8/) && docMode != 7 && docMode != 9 && docMode != 10) || docMode == 8),
         isIE9 = isIE && ((check(/msie 9/) && docMode != 7 && docMode != 8 && docMode != 10) || docMode == 9),
         isIE10 = isIE && ((check(/msie 10/) && docMode != 7 && docMode != 8 && docMode != 9) || docMode == 10),
+        isIE11 = isIE && ((check(/trident\/7\.0/) && docMode != 7 && docMode != 8 && docMode != 9 && docMode != 10) || docMode == 11),
         isIE6 = isIE && check(/msie 6/),
         isIE9m = isIE && (isIE6 || isIE7 || isIE8 || isIE9),
         isGecko = !isWebKit && check(/gecko/),
@@ -1205,7 +1206,13 @@ function(el){
          * @type Boolean
          */
         isIE10 : isIE10,
-        
+
+        /**
+         * True if the detected browser is Internet Explorer 11.x
+         * @type Boolean
+         */
+        isIE11 : isIE11,
+
         /**
          * True if the detected browser is Internet Explorer 9.x or lower
          * @type Boolean
