@@ -240,6 +240,14 @@ class ExtPagingBar(BaseExtContainer):
         self._put_config_value('displayInfo', self.display_info)
         self._put_config_value('displayMsg', self.display_message)
         self._put_config_value('emptyMsg', self.empty_message)
+        if self.items:
+            self._put_config_value('items', self.t_render_items)
+
+    @property
+    def items(self):
+        """Список вложенных компонентов."""
+
+        return self._items
 
     def render(self):
         assert getattr(self, '_ext_name'), (
