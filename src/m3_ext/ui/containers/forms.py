@@ -194,7 +194,15 @@ class ExtForm(BaseExtPanel):
                         'Pack %s must provide ISelectablePack interface' %
                         bind_pack
                     )
-                    if hasattr(bind_pack, 'get_record'):
+                    if hasattr(bind_pack, 'get_display_record'):
+                        attrs = set(item.fields)
+                        attrs.add(item.value_field)
+                        attrs.add(item.display_field)
+                        record = bind_pack.get_display_record(value,
+                                                              list(attrs))
+                        if record:
+                            item.set_value_from_model(record)
+                    elif hasattr(bind_pack, 'get_record'):
                         record = bind_pack.get_record(value)
                         if record:
                             item.set_value_from_model(record)
