@@ -1,5 +1,8 @@
 ## История изменений
 
+**2.0.8.7**
+- Исправлена ошибка с неработающим параметром hide_label у ExtCheckBox
+
 **2.0.8.6**
 - Добавлен вызов get_display_record в биндинге ExtDictSelectField
 
