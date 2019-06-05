@@ -317,10 +317,7 @@ class ExtCheckBox(BaseExtField):
         self._put_config_value('boxLabel', self.box_label, self.box_label)
 
     def render(self):
-        try:
-            self.render_base_config()
-        except UnicodeDecodeError as msg:
-            raise Exception(msg)
+        self.render_base_config()
 
         base_config = self._get_config_str()
         return 'new Ext.form.Checkbox({%s})' % base_config
