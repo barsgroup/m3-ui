@@ -302,9 +302,6 @@ class ExtCheckBox(BaseExtField):
     def __init__(self, *args, **kwargs):
         super(ExtCheckBox, self).__init__(*args, **kwargs)
 
-        #TODO: Необходимо отрефакторить под внутриклассовый рендеринг
-        self.template = 'ext-fields/ext-checkbox.js'
-
         # Признак того, что значение выбрано
         self.checked = False
 
@@ -312,6 +309,18 @@ class ExtCheckBox(BaseExtField):
         self.box_label = None
 
         self.init_component(*args, **kwargs)
+
+    def render_base_config(self):
+        super(ExtCheckBox, self).render_base_config()
+
+        self._put_config_value('checked', self.checked, self.checked)
+        self._put_config_value('boxLabel', self.box_label, self.box_label)
+
+    def render(self):
+        self.render_base_config()
+
+        base_config = self._get_config_str()
+        return 'new Ext.form.Checkbox({%s})' % base_config
 
     @property
     def handler_check(self):
