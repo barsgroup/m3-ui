@@ -21,7 +21,7 @@ Ext.m3.AdvancedDataField = Ext.extend(Ext.form.DateField, {
 
 		this.hideTriggerToday = false;
 
-		if (params.hideTriggerToday) {
+		if (params && params.hideTriggerToday) {
 			this.hideTriggerToday = true;
 		}
 
