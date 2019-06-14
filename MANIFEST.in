@@ -3,7 +3,7 @@ graft src
 global-exclude *.pyc
 global-exclude __pycache__
 
-include README
-include DESCRIPTION
+include README.rst
+include DESCRIPTION.rst
 include REQUIREMENTS
 include version.conf
