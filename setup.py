@@ -19,8 +19,7 @@ setup(
     author_email='bars@bars-open.ru',
     package_dir={'': 'src'},
     packages=find_packages('src'),
-    description=_read('DESCRIPTION'),
-    long_description=_read('README'),
+    description=_read('DESCRIPTION.rst'),
     include_package_data=True,
     classifiers=[
         'Intended Audience :: Developers',
