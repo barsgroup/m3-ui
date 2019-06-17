@@ -7219,7 +7219,13 @@ Ext.m3.AdvancedComboBox = Ext.extend(Ext.m3.ComboBox, {
         this.baseTriggers[2].hide = this.hideTriggerDictSelect || this.readOnly || this.disabled;
         this.baseTriggers[3].hide = this.hideTriggerDictEdit || this.readOnly || this.disabled;
 
-        if (!Ext3.util.JSON.decode(this.getValue()).length) {
+        var recordValue;
+        try {
+        	recordValue = Ext.decode(this.getValue());
+        } catch (err) {
+        	recordValue = this.getValue();
+        }
+        if (!recordValue.length) {
             this.baseTriggers[0].hide = true;
             this.baseTriggers[3].hide = true;
         }
@@ -7583,7 +7589,13 @@ Ext.m3.AdvancedComboBox = Ext.extend(Ext.m3.ComboBox, {
     showTriggers: function (show) {
 
         if (show) {
-            if (Ext3.util.JSON.decode(this.getValue()).length) {
+        	var recordValue;
+        	try {
+        		recordValue = Ext.decode(this.getValue());
+        	} catch (err) {
+        		recordValue = this.getValue();
+        	}
+            if (recordValue.length) {
                 this.showClearBtn();
                 this.showEditBtn();
             }
