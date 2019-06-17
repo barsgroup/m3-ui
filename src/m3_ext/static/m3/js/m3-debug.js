@@ -7225,7 +7225,7 @@ Ext.m3.AdvancedComboBox = Ext.extend(Ext.m3.ComboBox, {
         } catch (err) {
         	recordValue = this.getValue();
         }
-        if (!recordValue.length) {
+        if (!recordValue) {
             this.baseTriggers[0].hide = true;
             this.baseTriggers[3].hide = true;
         }
@@ -7595,7 +7595,7 @@ Ext.m3.AdvancedComboBox = Ext.extend(Ext.m3.ComboBox, {
         	} catch (err) {
         		recordValue = this.getValue();
         	}
-            if (recordValue.length) {
+            if (recordValue) {
                 this.showClearBtn();
                 this.showEditBtn();
             }
