@@ -15,11 +15,7 @@ from __future__ import absolute_import
 import os
 import sys
 
-from django.conf import settings
-from django.core.exceptions import SuspiciousOperation
-from django.template import TemplateDoesNotExist
-from django.utils._os import safe_join
-from m3_django_compat import BaseLoader
+from django.template.loaders.filesystem import Loader as BaseLoader
 import six
 
 
@@ -41,47 +37,10 @@ else:
     )
 
 
-def get_template_sources(template_name, template_dirs=None):
-    """
-    Returns the absolute paths to "template_name", when appended to each
-    directory in "template_dirs". Any paths that don't lie inside one of the
-    template dirs are excluded from the result set, for security reasons.
-    """
-    if not template_dirs:
-        template_dirs = app_template_dirs
-    for template_dir in template_dirs:
-        try:
-            yield safe_join(template_dir, template_name)
-        except UnicodeDecodeError:
-            # The template dir name was a bytestring that wasn't valid UTF-8.
-            raise
-        # В Django <1.8.X safe_join выбрасывает ValueError
-        # В Django >=1.8.X safe_join выбрасывает SuspiciousOperation
-        except (SuspiciousOperation, ValueError):
-            # The joined path was located outside of template_dir.
-            pass
-
-
 class Loader(BaseLoader):
 
-    is_usable = True
-
-    def load_template_source(self, template_name, template_dirs=None):
-        return load_template_source(template_name, template_dirs)
-
-
-def load_template_source(template_name, template_dirs=None):
-    for filepath in get_template_sources(template_name, template_dirs):
-        try:
-            if six.PY2:
-                return (
-                    open(filepath).read().decode(settings.FILE_CHARSET),
-                    filepath
-                )
-            else:
-                return open(filepath).read(), filepath
-        except IOError:
-            pass
-    raise TemplateDoesNotExist(template_name)
-
-load_template_source.is_usable = True
+    def __init__(self, engine, dirs=None):
+        # если нам не передали конкретный источник шаблонов
+        if dirs is None:
+            dirs = app_template_dirs
+        super().__init__(engine, dirs)
