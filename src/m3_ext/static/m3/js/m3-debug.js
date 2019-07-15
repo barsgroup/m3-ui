@@ -16337,6 +16337,17 @@ Ext.ux.form.FileUploadField = Ext.extend(Ext.form.TextField,  {
     ,setReadOnly: function(readOnly){
          Ext.ux.form.FileUploadField.superclass.setReadOnly.call(this, readOnly);
     }
+    //override
+    ,validate: function() {
+        var isValid = Ext.ux.form.FileUploadField.superclass.validate.call(this);
+        if (!this.allowBlank){
+            if (isValid) {
+                this.addClass('m3-grey-field');
+            } else {
+                this.removeClass('m3-grey-field');
+            }
+        }
+    }
 });
 
 Ext.reg('fileuploadfield', Ext.ux.form.FileUploadField);
