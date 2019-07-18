@@ -368,6 +368,7 @@ Ext.ux.form.FileUploadField = Ext.extend(Ext.form.TextField,  {
                 this.removeClass('m3-grey-field');
             }
         }
+        return isValid
     }
 });
 
