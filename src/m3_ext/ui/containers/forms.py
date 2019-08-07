@@ -328,12 +328,15 @@ class ExtForm(BaseExtPanel):
             """
             if hasattr(obj, name):
                 l_field = getattr(obj, name)
-                if (
-                    l_field and
-                    os.path.exists(l_field.path) and
+                if l_field and (
+                    # Загружается новый файл
                     (
-                        os.path.basename(l_field.file.name)
-                    ).lower() != (field.value).lower()
+                        os.path.exists(l_field.path)
+                        and os.path.basename(l_field.file.name).lower() !=
+                        field.value.lower()
+                    )
+                    # Файл удаляется
+                    or not field.value
                 ):
                     # Сначало нужно удалить thumbnail картинки
                     if isinstance(field, fields.ExtImageUploadField) and (
@@ -358,6 +361,7 @@ class ExtForm(BaseExtPanel):
                     l_field.delete(save=False)
 
                 if field.memory_file:
+                    # Прислали новый файл
                     cont_file = ContentFile(field.memory_file.read())
                     name_file = field.memory_file.name
 
