@@ -5,33 +5,40 @@
 
 Необходимость данного шаблона обусловлена спецификой реализации
 template-loaders в django.
-
-Для корректной работы загрузчика в settings.py прикладного приложения
-необходимо добавить строку 'm3_ext_demo.ui.js_template_loader.load_template_source'
-в tuple TEMPLATE_LOADERS
 """
-from __future__ import absolute_import
 
-import os
-import sys
+from os.path import join as join_path, dirname
 
 from django.conf import settings
-from django.core.exceptions import SuspiciousOperation
 from django.template import TemplateDoesNotExist
 from django.utils._os import safe_join
+from django.core.exceptions import SuspiciousOperation
 from m3_django_compat import BaseLoader
+import six
 
 
 # At compile time, cache the directories to search.
-fs_encoding = sys.getfilesystemencoding() or sys.getdefaultencoding()
-template_dir_ext = os.path.join(
-    os.path.dirname(__file__), 'templates')
-template_dir_gears = os.path.join(
-    os.path.dirname(__file__), '../gears/templates')
-app_template_dirs = (
-    template_dir_ext.decode(fs_encoding),
-    template_dir_gears.decode(fs_encoding),
-)
+module_dir = dirname(__file__)
+
+if six.PY2:
+    # Пути должны быть закодированы в UTF-8
+    # Во втором питоне module_dir содержит str в системной кодировке,
+    # поэтому ее надо правильно декодировать
+    import sys
+
+    fs_encoding = sys.getfilesystemencoding() or sys.getdefaultencoding()
+    template_dir_ext = join_path(module_dir, 'templates')
+    template_dir_gears = join_path(dirname(module_dir), 'gears', 'templates')
+    app_template_dirs = (
+        template_dir_ext.decode(fs_encoding),
+        template_dir_gears.decode(fs_encoding),
+    )
+else:
+    # В третьем питоне str сразу содержит текст в нужной кодировке
+    app_template_dirs = (
+        join_path(module_dir, 'templates'),
+        join_path(dirname(module_dir), 'gears', 'templates'),
+    )
 
 
 def get_template_sources(template_name, template_dirs=None):
@@ -66,11 +73,24 @@ class Loader(BaseLoader):
 def load_template_source(template_name, template_dirs=None):
     for filepath in get_template_sources(template_name, template_dirs):
         try:
-            return (
-                open(filepath).read().decode(settings.FILE_CHARSET), filepath
-            )
+            if six.PY2:
+                # Во втором питоне read() считает строку в байтовом виде,
+                # и декодирует ее в unicode, с кодировкой из
+                # settings.FILE_CHARSET
+                template = open(filepath).read().decode(settings.FILE_CHARSET)
+            else:
+                # В третьем питоне можно указать кодировку файла до открытия,
+                # метод read() вернет уже декодированную str
+                template = open(filepath, encoding=settings.FILE_CHARSET).read()
+
+                # В Django 2.2 settings.FILE_CHARSET вообще устарело,
+                # все файлы, которые Django считывает с диска, сразу
+                # должны быть в UTF-8.
+                # При обновлении надо будет это все выкинуть
+            return (template, filepath)
         except IOError:
             pass
     raise TemplateDoesNotExist(template_name)
 
 load_template_source.is_usable = True
+
