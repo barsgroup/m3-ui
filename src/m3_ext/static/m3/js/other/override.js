@@ -650,3 +650,14 @@ Ext.ToolTip.override({
         }
     }
 });
+
+/**
+* Унифицирует поведение в современных браузерах.
+* В старых версиях firefox на платформах отличных от Windows, была нужна
+* обработка события keypress. Сейчас нормально работает keydown.
+*/
+Ext.apply(Ext.EventManager, {
+        useKeydown: Ext.isWebKit ?
+            Ext.num(navigator.userAgent.match(/AppleWebKit\/(\d+)/)[1]) >= 525 :
+            !Ext.isOpera
+});
