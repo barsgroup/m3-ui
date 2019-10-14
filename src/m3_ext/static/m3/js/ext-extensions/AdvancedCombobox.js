@@ -135,14 +135,7 @@ Ext.m3.AdvancedComboBox = Ext.extend(Ext.m3.ComboBox, {
         }
 
         // Значения по-умолчанию
-        if (this.defaultRecord) {
-            var record = new Ext.data.Record(this.defaultRecord);
-            this.setRecord(record);
-        } else {
-            if (this.defaultValue && this.defaultText) {
-                this.addRecordToStore(this.defaultValue, this.defaultText);
-            }
-        }
+        this.initDefault();
 
         this.validator = this.validateField;
 
@@ -187,6 +180,19 @@ Ext.m3.AdvancedComboBox = Ext.extend(Ext.m3.ComboBox, {
 
         this.getStore().baseParams = Ext.applyIf({start: 0, limit: this.defaultLimit }, this.getStore().baseParams);
         this.triggerAction = 'all';
+    },
+    /**
+     * Установка значений по-умолчанию
+     */
+    initDefault: function () {
+        if (this.defaultRecord) {
+            var record = new Ext.data.Record(this.defaultRecord);
+            this.setRecord(record);
+        } else {
+            if (this.defaultValue && this.defaultText) {
+                this.addRecordToStore(this.defaultValue, this.defaultText);
+            }
+        }
     },
     // см. TwinTriggerField
     getTrigger: function (index) {
