@@ -7079,14 +7079,7 @@ Ext.m3.AdvancedComboBox = Ext.extend(Ext.m3.ComboBox, {
         }
 
         // Значения по-умолчанию
-        if (this.defaultRecord) {
-            var record = new Ext.data.Record(this.defaultRecord);
-            this.setRecord(record);
-        } else {
-            if (this.defaultValue && this.defaultText) {
-                this.addRecordToStore(this.defaultValue, this.defaultText);
-            }
-        }
+        this.initDefault();
 
         this.validator = this.validateField;
 
@@ -7131,6 +7124,19 @@ Ext.m3.AdvancedComboBox = Ext.extend(Ext.m3.ComboBox, {
 
         this.getStore().baseParams = Ext.applyIf({start: 0, limit: this.defaultLimit }, this.getStore().baseParams);
         this.triggerAction = 'all';
+    },
+    /**
+     * Установка значений по-умолчанию
+     */
+    initDefault: function () {
+        if (this.defaultRecord) {
+            var record = new Ext.data.Record(this.defaultRecord);
+            this.setRecord(record);
+        } else {
+            if (this.defaultValue && this.defaultText) {
+                this.addRecordToStore(this.defaultValue, this.defaultText);
+            }
+        }
     },
     // см. TwinTriggerField
     getTrigger: function (index) {
@@ -13330,19 +13336,44 @@ Ext.m3.MultiSelectField = Ext.extend(Ext.m3.AdvancedComboBox, {
     initComponent:function() {
         this.checkedItems = [];
         this.hideTriggerDictEdit = true;
-
+        this.displayField = 'name';
+        this.defaultValue = Ext.decode(this.defaultValue);
         if (!this.tpl) {
              this.tpl = '<tpl for="."><div class="x-combo-list-item x-multi-combo-item">' +
             '<img src="' + Ext.BLANK_IMAGE_URL + '" class="{[this.getImgClass(values)]}" />' +
             '<div>{' + this.displayField + '}</div></div></tpl>';
-            
+
             this.tpl = new Ext.XTemplate(this.tpl, {
                 getImgClass: this.getCheckboxCls.createDelegate(this)
             })
 
         }
 
-       Ext.m3.MultiSelectField.superclass.initComponent.apply(this);
+        Ext.m3.MultiSelectField.superclass.initComponent.apply(this);
+    },
+
+    initDefault: function () {
+        if (this.defaultRecord) {
+            Ext.each(this.defaultRecord, function(item, index) {
+                var record = new Ext.data.Record();
+                record.data[this.valueField] = item.data[this.valueField];
+                record.data[this.displayField] = item.data[this.displayField];
+                this.setRecord(record);
+            }, this);
+            return;
+        }
+        if (this.defaultValue) {
+            var store = this.getStore();
+            Ext.each(this.defaultValue, function(item, index) {
+                var storePosition = store.find(this.valueField, item);
+                if (storePosition >= 0) {
+                    this.setRecord(store.getAt(storePosition));
+                }
+            }, this);
+        }
+        if (this.view) {
+            this.view.refresh();
+        }
     },
 
     setValue:function(v) {
@@ -13397,7 +13428,7 @@ Ext.m3.MultiSelectField = Ext.extend(Ext.m3.AdvancedComboBox, {
 			            this.checkedItems.push(r);
 			            return false;
 			        }
-			    }, this);					
+			    }, this);
 		    }, this);
         }
         else if (this.value) {
@@ -13412,7 +13443,7 @@ Ext.m3.MultiSelectField = Ext.extend(Ext.m3.AdvancedComboBox, {
                     !( val[this.displayField] && val[this.valueField] )){
                     continue;
                 }
-                
+
                 record = new Ext.data.Record();
                 record.data[this.valueField] = val[this.valueField];
                 record.data[this.displayField] = val[this.displayField];
@@ -13448,14 +13479,14 @@ Ext.m3.MultiSelectField = Ext.extend(Ext.m3.AdvancedComboBox, {
     },
 
     getCheckedRecords:function() {
-        return this.checkedItems;    
+        return this.checkedItems;
     },
 
     onSelect : function (record, checkedIndex) {
         var index;
 
         index = this.findCheckedRecord(record);
-        
+
         if (this.fireEvent("beforeselect", this, record, checkedIndex) !== false) {
 			if (index === -1) {
 			    this.checkedItems.push(record);
