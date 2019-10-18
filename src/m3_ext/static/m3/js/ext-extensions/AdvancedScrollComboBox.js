@@ -6,6 +6,8 @@ Ext.m3.AdvancedScrollComboBox = Ext.extend(Ext.m3.AdvancedComboBox, {
 
         // Количество записей, прокрученных вниз, в выпадающем списке
         this.scrolled = 0;
+        this.loading = false;
+        this.loadScrollPercent = 0.8;
 
         Ext.m3.AdvancedScrollComboBox.superclass.constructor.call(this, baseConfig, params);
 
@@ -43,9 +45,10 @@ Ext.m3.AdvancedScrollComboBox = Ext.extend(Ext.m3.AdvancedComboBox, {
 
         e.stopPropagation();
         this.elem = t;
-        if (item && scrollLimit > 0 && this.store.getCount() !== this.store.getTotalCount()) {
-            cached = (t.scrollTop + t.offsetHeight) / item.offsetHeight >> 0;
-            if ((cached - this.scrolled) === scrollLimit) {
+        if (!this.loading && item && scrollLimit > 0 && this.store.getCount() !== this.store.getTotalCount()) {
+            cached = target.childElementCount;
+            if ((target.scrollTop + target.offsetHeight) / target.scrollHeight > this.loadScrollPercent) {
+                this.loading = true;
                 this.scrolled = cached;
                 bufferParams = Ext.applyIf(
                     {
@@ -91,6 +94,7 @@ Ext.m3.AdvancedScrollComboBox = Ext.extend(Ext.m3.AdvancedComboBox, {
                 }
             }
         }
+        this.loading = false;
     },
 
     /**
