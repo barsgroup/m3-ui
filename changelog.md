@@ -1,5 +1,8 @@
 ## История изменений
 
+**2.2.72**
+- Исправлена функция подгрузки в AdvancedScrollComboBox
+
 **2.2.71**
 - Исправлена инициализация поля displayField в MultiSelectField
 

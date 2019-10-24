@@ -46,8 +46,8 @@ Ext.m3.AdvancedScrollComboBox = Ext.extend(Ext.m3.AdvancedComboBox, {
         e.stopPropagation();
         this.elem = t;
         if (!this.loading && item && scrollLimit > 0 && this.store.getCount() !== this.store.getTotalCount()) {
-            cached = target.childElementCount;
-            if ((target.scrollTop + target.offsetHeight) / target.scrollHeight > this.loadScrollPercent) {
+            cached = t.childElementCount;
+            if ((t.scrollTop + t.offsetHeight) / t.scrollHeight > this.loadScrollPercent) {
                 this.loading = true;
                 this.scrolled = cached;
                 bufferParams = Ext.applyIf(
