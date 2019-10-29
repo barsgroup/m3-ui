@@ -13364,14 +13364,29 @@ Ext.m3.MultiSelectField = Ext.extend(Ext.m3.AdvancedComboBox, {
                 record.data[this.displayField] = item.data[this.displayField];
                 this.setRecord(record);
             }, this);
-            return;
         }
         if (this.defaultValue) {
             var store = this.getStore();
             Ext.each(this.defaultValue, function(item, index) {
-                var storePosition = store.find(this.valueField, item);
-                if (storePosition >= 0) {
-                    this.setRecord(store.getAt(storePosition));
+                var record;
+                // Если возможно, получаем существующую запись из хранилища
+                // иначе пытаемся создать новую. При этом может быть передан
+                // как массив объектов, так и массив ключей
+                if (typeof(item) !== 'object' || !( item[this.displayField] && item[this.valueField] )){
+                    record = store.getAt(store.find(this.valueField, item));
+                    if (record) {
+                        this.setRecord(record);
+                    }
+                } else {
+                    record = store.getAt(store.find(this.valueField, item[this.valueField]));
+                    if (!record && item[this.displayField] && item[this.valueField]) {
+                        record = new Ext.data.Record();
+                        record.data[this.valueField] = item[this.valueField];
+                        record.data[this.displayField] = item[this.displayField];
+                    }
+                    if (record) {
+                        this.setRecord(record);
+                    }
                 }
             }, this);
         }
@@ -13426,34 +13441,31 @@ Ext.m3.MultiSelectField = Ext.extend(Ext.m3.AdvancedComboBox, {
             //Случай, если контрол используется как локальный комбобокс
             //со множественным выбором
             values = Ext.util.JSON.decode(this.value);
-            this.store.each(function (r) {
-			    Ext.each(values, function (value) {
-			        if (r.get(this.valueField) == value) {
-			            this.checkedItems.push(r);
-			            return false;
-			        }
-			    }, this);
-		    }, this);
+            Ext.each(values, function(item, index) {
+                var record = this.store.getAt(this.store.find(this.valueField, item));
+                if (record && !this.checkedItems.includes(record)) {
+                    this.setRecord(record);
+                }
+            }, this);
         }
         else if (this.value) {
             //Попробуем создать значения из того что нам прислали с сервера
             //ожидаем что там будут некие объекты с полями значения и отображения
             values = Ext.util.JSON.decode(this.value);
-
-            for (;i < values.length; i++) {
-                val = values[i];
-
-                if (typeof(val) !== 'object' ||
-                    !( val[this.displayField] && val[this.valueField] )){
-                    continue;
+            Ext.each(values, function(item, index) {
+                if (typeof(item) === 'object' && item[this.displayField] && item[this.valueField]) {
+                    var record;
+                    if (this.store) {
+                        record = this.store.getAt(this.store.find(this.valueField, item[this.valueField]));
+                    }
+                    if (!record) {
+                        record = new Ext.data.Record();
+                        record.data[this.valueField] = item[this.valueField];
+                        record.data[this.displayField] = item[this.displayField];
+                    }
+                    this.setRecord(record);
                 }
-
-                record = new Ext.data.Record();
-                record.data[this.valueField] = val[this.valueField];
-                record.data[this.displayField] = val[this.displayField];
-
-                this.checkedItems.push(record);
-            }
+            }, this);
         }
 
        Ext.m3.MultiSelectField.superclass.initValue.call(this);
