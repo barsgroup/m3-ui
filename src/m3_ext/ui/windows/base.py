@@ -124,6 +124,9 @@ class BaseExtWindow(ExtUIComponent):
         # Атрибуты специфичные для form layout
         self.label_width = self.label_align = self.label_pad = None
 
+        # Id контейнера окна
+        self.render_to = None
+
     def t_render_layout_config(self):
         """
         Рендерит конфиг, если указан layout
@@ -160,6 +163,7 @@ class BaseExtWindow(ExtUIComponent):
             ('labelWidth', self.label_width),
             ('labelAlign', self.label_align),
             ('labelPad', self.label_pad),
+            ('renderTo', self.render_to),
         ):
             self._put_config_value(*args)
 
