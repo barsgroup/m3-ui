@@ -6,6 +6,7 @@
 		{% if component.modal %}, modal: true {% endif %}
 		{% if component.maximized %}, maximized: true {% endif %}
 		{% if component.minimized %}, minimized: true {% endif %}
+		{% if component.render_to %}, renderTo: '{{ component.render_to }}'{% endif %}
 		
 		{% ifnotequal component.t_get_minimizable "None" %}
 		,minimizable: {{component.t_get_minimizable|lower }}
