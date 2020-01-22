@@ -7025,7 +7025,7 @@ Ext.m3.AdvancedComboBox = Ext.extend(Ext.m3.ComboBox, {
                 hide: null
             },
             {
-                iconCls: '',
+                iconCls: 'x-form-dropdown-trigger',
                 handler: null,
                 hide: null
             },
