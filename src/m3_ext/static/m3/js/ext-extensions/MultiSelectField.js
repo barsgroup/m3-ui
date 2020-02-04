@@ -59,7 +59,8 @@ Ext.m3.MultiSelectField = Ext.extend(Ext.m3.AdvancedComboBox, {
                         this.setRecord(record);
                     }
                 } else {
-                    record = store.getAt(store.find(this.valueField, item[this.valueField]));
+                    // Поиск записи в store, при помощи regex с точным совпадением
+                    record = store.getAt(store.find(this.valueField, item[this.valueField], 0, false, false, true));
                     if (!record && item[this.displayField] && item[this.valueField]) {
                         record = new Ext.data.Record();
                         record.data[this.valueField] = item[this.valueField];
