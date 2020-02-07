@@ -661,3 +661,13 @@ Ext.apply(Ext.EventManager, {
             Ext.num(navigator.userAgent.match(/AppleWebKit\/(\d+)/)[1]) >= 525 :
             !Ext.isOpera
 });
+
+/**
+ * Добавление возможности указать флаг exactMatch для поиска точного совпадения.
+ */
+Ext.data.Store.override({
+    find: function(property, value, start, anyMatch, caseSensitive, exactMatch) {
+        var fn = this.createFilterFn(property, value, anyMatch, caseSensitive, exactMatch);
+        return fn ? this.data.findIndexBy(fn, null, start) : -1;
+    }
+});
