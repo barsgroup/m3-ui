@@ -20,16 +20,18 @@ Ext.m3.AdvancedScrollComboBox = Ext.extend(Ext.m3.AdvancedComboBox, {
              sortInfo: this.store.sortInfo
         });
         this.bufferStore.on('load', this.onBufferLoad, this);
+        this.on('expand', this.onExpand, this);
 
         this.elem = undefined;
     },
 
     initComponent: function(){
         var store;
-    		Ext.m3.AdvancedScrollComboBox.superclass.initComponent.call(this);
-    		store = this.getStore();
-    		store.on('load', this.onStoreLoad, this);
-  	},
+
+    	Ext.m3.AdvancedScrollComboBox.superclass.initComponent.call(this);
+    	store = this.getStore();
+    	store.on('load', this.onStoreLoad, this);
+    },
 
     /**
      * Обработчик события прокрутки списка
@@ -69,9 +71,11 @@ Ext.m3.AdvancedScrollComboBox = Ext.extend(Ext.m3.AdvancedComboBox, {
         var bufferRecords = [],
             nodes,
             node;
+
         // Перегрузим данные из буферного стора в основной
         this.bufferStore.each(function(b) {
             var isPush = true;
+
             // Исключим повторение записей в основном сторе
             this.store.data.each(function(s) {
                 if (s===b.data) {
@@ -107,12 +111,23 @@ Ext.m3.AdvancedScrollComboBox = Ext.extend(Ext.m3.AdvancedComboBox, {
 
     /**
      * Вызывает метод выпадающего меню у комбобокса
-     **/
+     */
     onTriggerDropDownClick: function () {
         Ext.m3.AdvancedScrollComboBox.superclass.onTriggerDropDownClick.call(this);
         // Назначим обработчик события onScroll
         if (this.innerList) {
             this.mon(this.innerList, 'scroll', this.onScroll, this);
         }
+    },
+
+    /**
+     * Обработчик события открытия выпадающего списка
+     *
+     * @param t {Ext.m3.AdvancedScrollComboBox}     The target of the event
+     */
+    onExpand: function (t) {
+        var inp = $('#' + t.id);
+        t.doQuery(inp.val(), true);
     }
+
 });
