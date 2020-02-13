@@ -20,6 +20,9 @@ Ext.m3.AdvancedScrollComboBox = Ext.extend(Ext.m3.AdvancedComboBox, {
              sortInfo: this.store.sortInfo
         });
         this.bufferStore.on('load', this.onBufferLoad, this);
+        this.isValid = true;
+        this.on('valid', this.onValid, this);
+        this.on('invalid', this.onInvalid, this);
         this.on('expand', this.onExpand, this);
 
         this.elem = undefined;
@@ -121,13 +124,34 @@ Ext.m3.AdvancedScrollComboBox = Ext.extend(Ext.m3.AdvancedComboBox, {
     },
 
     /**
+     * Обработчик события ввода допустимого значения
+     *
+     * @param t {Ext.m3.AdvancedScrollComboBox}     The target of the event
+     */
+    onValid: function(t) {
+        t.isValid = true;
+    },
+
+    /**
+     * Обработчик события ввода недопустимого значения
+     *
+     * @param t {Ext.m3.AdvancedScrollComboBox}     The target of the event
+     * @param m {String}
+     */
+    onInvalid: function(t, m) {
+        t.isValid = false;
+    },
+
+    /**
      * Обработчик события открытия выпадающего списка
      *
      * @param t {Ext.m3.AdvancedScrollComboBox}     The target of the event
      */
     onExpand: function (t) {
         var inp = $('#' + t.id);
-        t.doQuery(inp.val(), true);
+        if (!t.isValid) {
+            t.doQuery(inp.val(), true);
+        }
     }
 
 });
