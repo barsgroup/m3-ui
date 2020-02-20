@@ -47854,6 +47854,12 @@ Ext.grid.GridView = Ext.extend(Ext.util.Observable, {
                 cssCls = i == last ? 'x-grid3-cell-last ' : '';
             }
 
+
+            if(colModel.columns[i].cls) {
+                cssCls = cssCls + colModel.columns[i].cls;
+            }
+
+
             properties = {
                 id     : colModel.getColumnId(i),
                 value  : colModel.getColumnHeader(i) || '',
