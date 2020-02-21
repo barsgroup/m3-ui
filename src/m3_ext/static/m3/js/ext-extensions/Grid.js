@@ -58,11 +58,17 @@ Ext.m3.GridPanel = Ext.extend(Ext.grid.GridPanel, {
 			,rowcontextmenu: funcRowContMenu
 			,beforerender: function(){
 				var bbar = this.getBottomToolbar();
-				if (bbar && bbar instanceof Ext.PagingToolbar){
+				var pageBar =
+					bbar && bbar.items && bbar.items.items &&
+					bbar.items.items.find(function(item) {
+						return item instanceof Ext.PagingToolbar;
+					}) ||
+					bbar;
+				if (pageBar && pageBar instanceof Ext.PagingToolbar) {
 					var store = this.getStore();
-					store.setBaseParam('start',0);
-					store.setBaseParam('limit',bbar.pageSize);
-					bbar.bind(store);
+					store.setBaseParam('start', 0);
+					store.setBaseParam('limit', pageBar.pageSize);
+					pageBar.bind(store);
 				}
 			}	
 		},
