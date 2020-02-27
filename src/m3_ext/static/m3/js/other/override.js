@@ -533,8 +533,54 @@ Ext.override(Ext.form.TriggerField, {
  *     colModel.setColumnWidth(i, Math.max(grid.minColumnWidth, Math.floor(colWidth + colWidth * fraction)), true);
  * стало:
  *     colModel.setColumnWidth(i, Math.floor(colWidth + colWidth * fraction), true);
+
+ *  Добавлено проставление стилей заголовкам колонок грида
  */
 Ext.override(Ext.grid.GridView, {
+    renderHeaders : function() {
+        var colModel   = this.cm,
+            templates  = this.templates,
+            headerTpl  = templates.hcell,
+            properties = {},
+            colCount   = colModel.getColumnCount(),
+            last       = colCount - 1,
+            cells      = [],
+            i, cssCls;
+
+        for (i = 0; i < colCount; i++) {
+            if (i == 0) {
+                cssCls = 'x-grid3-cell-first ';
+            } else {
+                cssCls = i == last ? 'x-grid3-cell-last ' : '';
+            }
+
+            if(colModel.columns[i].cls) {
+                cssCls = cssCls + colModel.columns[i].cls;
+            }
+
+            properties = {
+                id     : colModel.getColumnId(i),
+                value  : colModel.getColumnHeader(i) || '',
+                style  : this.getColumnStyle(i, true),
+                css    : cssCls,
+                tooltip: this.getColumnTooltip(i)
+            };
+
+            if (colModel.config[i].align == 'right') {
+                properties.istyle = 'padding-right: 16px;';
+            } else {
+                delete properties.istyle;
+            }
+
+            cells[i] = headerTpl.apply(properties);
+        }
+
+        return templates.header.apply({
+            cells : cells.join(""),
+            tstyle: String.format("width: {0};", this.getTotalWidth())
+        });
+    },
+
     fitColumns: function (preventRefresh, onlyExpand, omitColumn) {
         var grid = this.grid,
             colModel = this.cm,
