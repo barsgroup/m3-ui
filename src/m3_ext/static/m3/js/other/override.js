@@ -582,7 +582,7 @@ Ext.override(Ext.grid.GridView, {
                 cssCls = i == last ? 'x-grid3-cell-last ' : '';
             }
 
-            if(colModel.columns[i].cls) {
+            if(colModel.config[i].cls) {
                 cssCls = cssCls + colModel.columns[i].cls;
             }
 
