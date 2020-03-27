@@ -7950,9 +7950,9 @@ Ext.m3.AdvancedScrollComboBox = Ext.extend(Ext.m3.AdvancedComboBox, {
              sortInfo: this.store.sortInfo
         });
         this.bufferStore.on('load', this.onBufferLoad, this);
-        this.isValid = true;
-        this.on('valid', this.onValid, this);
-        this.on('invalid', this.onInvalid, this);
+        this.isCorrect = true;
+        this.on('correct', this.onCorrect, this);
+        this.on('incorrect', this.onIncorrect, this);
         this.on('expand', this.onExpand, this);
 
         this.elem = undefined;
@@ -8058,8 +8058,8 @@ Ext.m3.AdvancedScrollComboBox = Ext.extend(Ext.m3.AdvancedComboBox, {
      *
      * @param t {Ext.m3.AdvancedScrollComboBox}     The target of the event
      */
-    onValid: function(t) {
-        t.isValid = true;
+    onCorrect: function(t) {
+        t.isCorrect = true;
     },
 
     /**
@@ -8068,8 +8068,8 @@ Ext.m3.AdvancedScrollComboBox = Ext.extend(Ext.m3.AdvancedComboBox, {
      * @param t {Ext.m3.AdvancedScrollComboBox}     The target of the event
      * @param m {String}
      */
-    onInvalid: function(t, m) {
-        t.isValid = false;
+    onIncorrect: function(t, m) {
+        t.isCorrect = false;
     },
 
     /**
@@ -8079,7 +8079,7 @@ Ext.m3.AdvancedScrollComboBox = Ext.extend(Ext.m3.AdvancedComboBox, {
      */
     onExpand: function (t) {
         var inp = $('#' + t.id);
-        if (!t.isValid) {
+        if (!t.isCorrect) {
             t.doQuery(inp.val(), true);
         }
     }
