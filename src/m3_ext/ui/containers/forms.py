@@ -283,7 +283,10 @@ class ExtForm(BaseExtPanel):
                         return obj[names[0]], True
                     else:
                         value = getattr(obj, names[0])
-                        return value() if callable(value) else value, True
+                        if callable(value) and not hasattr(value, 'model'):
+                            return value(), True
+                        else:
+                            return value, True
                 else:
                     nested = (
                         getattr(obj, names[0])
