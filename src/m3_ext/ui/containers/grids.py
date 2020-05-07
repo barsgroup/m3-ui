@@ -641,11 +641,13 @@ class ExtGridRowSelModel(BaseExtGridSelModel):
     """
     def __init__(self, *args, **kwargs):
         super(ExtGridRowSelModel, self).__init__(*args, **kwargs)
-        self.single_select = False
+        self.single_select = True
         self.init_component(*args, **kwargs)
 
     def render(self):
-        single_sel = 'singleSelect: true' if self.single_select else ''
+        single_sel = 'singleSelect: true'
+        if not self.single_select:
+            single_sel = 'singleSelect: false'
         return 'new Ext.grid.RowSelectionModel({ %s })' % single_sel
 
 
