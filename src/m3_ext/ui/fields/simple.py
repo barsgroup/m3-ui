@@ -121,15 +121,24 @@ class ExtDateField(BaseExtField):
 
         self.init_component(*args, **kwargs)
 
-    def render_base_config(self):
+    def _get_python_format(self):
+        """Формат преобразования к строке."""
+        return getattr(settings, 'PYTHON_DATE_FORMAT', '%d.%m.%Y')
+
+    def _format_value(self):
+        """Преобразование значения к строке."""
         if isinstance(self.value, datetime) or isinstance(self.value, date):
-            value = date2str(self.value)
+            value = date2str(
+                self.value, self._get_python_format()
+            )
         else:
             value = self.value
+        return value
 
+    def render_base_config(self):
         super(ExtDateField, self).render_base_config()
         self._put_config_value('format', self.format)
-        self._put_config_value('value', value)
+        self._put_config_value('value', self._format_value())
         self._put_config_value(
             'enableKeyEvents', self.enable_key_events, self.enable_key_events)
         self._put_config_value('startDay', self.start_day)
@@ -493,6 +502,9 @@ class ExtDateTimeField(ExtDateField):
     """
     Поле ввода даты-времени
     """
+
+    def _get_python_format(self):
+        return getattr(settings, 'PYTHON_DATETIME_FORMAT', '%d.%m.%Y %H:%M:%S')
 
     def render(self):
         try:
