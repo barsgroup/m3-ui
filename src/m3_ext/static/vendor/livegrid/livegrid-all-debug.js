@@ -1659,7 +1659,7 @@ Ext.extend(Ext.ux.grid.livegrid.GridView, Ext.grid.GridView, {
             suspendLoadEvent : true
         };
 
-        this.fireEvent('beforebuffer', this, this.ds, index,
+        this.fireEvent('beforebuffer', this, this.ds, this.rowIndex,
             Math.min(this.ds.totalLength, this.visibleRows-this.rowClipped),
             this.ds.totalLength, opts
         );
