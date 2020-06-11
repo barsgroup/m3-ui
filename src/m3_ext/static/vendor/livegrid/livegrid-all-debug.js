@@ -1659,7 +1659,7 @@ Ext.extend(Ext.ux.grid.livegrid.GridView, Ext.grid.GridView, {
             suspendLoadEvent : true
         };
 
-        this.fireEvent('beforebuffer', this, this.ds, index,
+        this.fireEvent('beforebuffer', this, this.ds, this.rowIndex,
             Math.min(this.ds.totalLength, this.visibleRows-this.rowClipped),
             this.ds.totalLength, opts
         );
@@ -1800,6 +1800,7 @@ Ext.extend(Ext.ux.grid.livegrid.GridView, Ext.grid.GridView, {
         if (hiddenRows == 0) {
             this.scroller.setWidth(elWidth);
             liveScrollerDom.style.display = 'none';
+            this.rowIndex = 0;
             return;
         } else {
             this.scroller.setWidth(elWidth-this.getScrollOffset());
