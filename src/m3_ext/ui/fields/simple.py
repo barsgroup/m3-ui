@@ -5,7 +5,6 @@ from datetime import date
 from datetime import datetime
 
 from django.conf import settings
-from django.utils.html import escapejs
 from m3 import date2str
 
 from .base import BaseExtField
@@ -61,7 +60,6 @@ class ExtStringField(BaseExtField):
                 raise RuntimeError(
                     'Field "{0}" should have string value, but gets {1} "{2}"'
                     ''.format(self.name, type(self.value), repr(self.value)))
-            self.value = self.value.replace('\\', '\\\\')
 
         super(ExtStringField, self).render_base_config()
         self._put_config_value('inputType', self.input_type)
@@ -434,7 +432,6 @@ class ExtHTMLEditor(BaseExtField):
             if not isinstance(self.value, six.string_types):
                 # Если value не строка, то пытаемся привести к unicode
                 self.value = six.text_type(self.value)
-            self.value = self.value.replace('\\', '\\\\')
         super(ExtHTMLEditor, self).render_base_config()
 
     def render(self):
