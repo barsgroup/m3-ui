@@ -9185,13 +9185,16 @@ Ext.ux.tree.TreeHeaderFilters = Ext.extend(Ext.util.Observable, {
 					{
 						//Legacy mode and deprecated. Use applyMode = "enter" or applyFilterEvent
 						// kirov - через листенеры удобно новые объекты делать, иначе через события
+
 						if (fc.hasListener != undefined) {
 							if (!fc.hasListener('change')) {
 								fc.on('change',function(field)
 									{
 										var t = field.getXType();
-										if(t=='combo' || t=='datefield'){ //avoid refresh twice for combo select 
-										return;
+										if((t=='combo' || t=='datefield' || t=='m3-select') && this.checkHasValue(field)) {
+											//Предотвращает двойное обновление грида, проверка на наличие значения
+											//дает возможность обновить грид если значение в фильтре отсутствует.
+											return;
 										}else{
 											this.applyFilter(field);
 										}
@@ -9305,6 +9308,10 @@ Ext.ux.tree.TreeHeaderFilters = Ext.extend(Ext.util.Observable, {
 				containerCfg.items.push(tempCont);
 			}
 		}
+	},
+	checkHasValue: function(field){
+		var value = this.getFieldValue(field)
+		return !(value === null || value === "" || value === undefined);
 	},
     getHeaderCell: function(columnId){
     	var cols = this.tree.columns,
@@ -9498,7 +9505,14 @@ Ext.ux.tree.TreeHeaderFilters = Ext.extend(Ext.util.Observable, {
 		{
 			vals[name] = this.filters[name];
 		}
-		status["gridHeaderFilters"] = vals;
+		if (status === null){
+			// если переменная status не определенна, то нет возможности установить атрибут
+			// падает ошибка
+			status = new Object;
+			status["gridHeaderFilters"] = vals;
+		}else{
+			status["gridHeaderFilters"] = vals;
+		}
 		return true;
 	},
    
