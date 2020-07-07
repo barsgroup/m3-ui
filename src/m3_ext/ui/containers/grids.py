@@ -3,6 +3,7 @@ from __future__ import absolute_import
 
 from collections import OrderedDict
 import json
+import weakref
 
 from django.conf import settings
 
@@ -667,11 +668,19 @@ class ExtGridDefaultColumnModel(BaseExtComponent):
     """
     Модель колонок для грида по-умолчанию
     """
-    # TODO: Этот класс, т.к. ссылка на грид порождает цикличную связь
     def __init__(self, *args, **kwargs):
         super(ExtGridDefaultColumnModel, self).__init__(*args, **kwargs)
-        self.grid = None
+        self.__grid = None
         self.init_component(*args, **kwargs)
+
+    @property
+    def grid(self):
+        if self.__grid is not None:
+            return self.__grid()
+
+    @grid.setter
+    def grid(self, value):
+        self.__grid = weakref.ref(value)
 
     def render(self):
         return 'new Ext.grid.ColumnModel({columns:%s})' % (
@@ -682,11 +691,19 @@ class ExtGridLockingColumnModel(BaseExtComponent):
     """
     Модель колонок для грида блокирования
     """
-    # TODO: Этот класс, т.к. ссылка на грид порождает цикличную связь
     def __init__(self, *args, **kwargs):
         super(ExtGridLockingColumnModel, self).__init__(*args, **kwargs)
         self.grid = None
         self.init_component(*args, **kwargs)
+
+    @property
+    def grid(self):
+        if self.__grid is not None:
+            return self.__grid()
+
+    @grid.setter
+    def grid(self, value):
+        self.__grid = weakref.ref(value)
 
     def render(self):
         return 'new Ext.ux.grid.LockingColumnModel({columns:%s})' % (
