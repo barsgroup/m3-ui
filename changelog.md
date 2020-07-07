@@ -1,4 +1,8 @@
 ## История изменений
+**2.2.90**
+- Удалены циклические ссылки в ExtGridDefaultColumnModel, ExtContextMenu,
+  ExtSearchField.
+
 **2.2.89**
 - Исправлена ошибка двойного обновления грида при использовании TreeHeaderFilters.
 

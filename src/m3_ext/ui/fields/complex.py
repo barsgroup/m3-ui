@@ -3,6 +3,7 @@ from __future__ import absolute_import
 
 import json
 import os
+import weakref
 
 from django.conf import settings
 from django.utils.html import escapejs
@@ -349,8 +350,17 @@ class ExtSearchField(BaseExtField):
         super(ExtSearchField, self).__init__(*args, **kwargs)
         self.query_param = None
         self.empty_text = None
-        self.component_for_search = None
+        self.__component_for_search = None
         self.init_component(*args, **kwargs)
+
+    @property
+    def component_for_search(self):
+        if self.__component_for_search is not None:
+            return self.__component_for_search()
+
+    @component_for_search.setter
+    def component_for_search(self, value):
+        self.__component_for_search = weakref.ref(value)
 
     def render_base_config(self):
         super(ExtSearchField, self).render_base_config()

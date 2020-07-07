@@ -1,6 +1,8 @@
 # coding: utf-8
 from __future__ import absolute_import
 
+import weakref
+
 from m3_ext.ui.base import ExtUIComponent
 
 from .base import BaseExtContainer
@@ -23,9 +25,18 @@ class ExtContextMenu(BaseExtContainer):
         # TODO: В методе ExtContextMenuItem.render
         # параметр container не используется
         # Но может передоваться
-        self.container = None
+        self.__container = None
 
         self.init_component(*args, **kwargs)
+
+    @property
+    def container(self):
+        if self.__container is not None:
+            return self.__container()
+
+    @container.setter
+    def container(self, value):
+        self.__container = weakref.ref(value)
 
     def add_item(self, **kwargs):
         """
