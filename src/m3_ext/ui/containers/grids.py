@@ -693,7 +693,7 @@ class ExtGridLockingColumnModel(BaseExtComponent):
     """
     def __init__(self, *args, **kwargs):
         super(ExtGridLockingColumnModel, self).__init__(*args, **kwargs)
-        self.grid = None
+        self.__grid = None
         self.init_component(*args, **kwargs)
 
     @property

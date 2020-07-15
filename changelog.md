@@ -1,4 +1,8 @@
 ## История изменений
+**2.2.91**
+- Добавлена поддержка django 2.2.
+- Исправление конфликта имен атрибута и свойства grid в ExtGridLockingColumnModel.
+
 **2.2.90**
 - Удалены циклические ссылки в ExtGridDefaultColumnModel, ExtContextMenu,
   ExtSearchField.
