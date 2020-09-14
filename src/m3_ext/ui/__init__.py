@@ -35,8 +35,6 @@ def normalize(s):
     :rtype: str
     """
     return s.replace(
-        '\\', '\\\\'
-    ).replace(
         '\r', '\\r'
     ).replace(
         '\n', '\\n'
