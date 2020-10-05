@@ -25,12 +25,15 @@ Ext.ux.MonthPickerPlugin = Ext.extend(Ext.util.Observable,{
         Date.defaults.d = this.oldDateDefaults;
         return ret;
     }
+    ,setPickerDataValue: function(picker){
+        picker.activeDate = picker.activeDate.getFirstDateOfMonth();
+        if (picker.value) {
+            picker.value = picker.value.getFirstDateOfMonth();
+        }
+    }
     ,onClick: function(e, el, opt) {
         var p = this.picker.menu.picker;
-        p.activeDate = p.activeDate.getFirstDateOfMonth();
-        if (p.value) {
-            p.value = p.value.getFirstDateOfMonth();
-        }
+        this.setPickerDataValue(p);
 
         p.showMonthPicker();
 
@@ -112,5 +115,21 @@ Ext.ux.MonthPickerPlugin = Ext.extend(Ext.util.Observable,{
 
     ,updateHidden: function() {
         this.picker.hiddenField.dom.value = this.formatHiddenDate(this.picker.getValue());
+    }
+});
+
+Ext.ux.LastDayMonthPickerPlugin = Ext.extend(Ext.ux.MonthPickerPlugin,{
+    setPickerDataValue: function(picker){
+        picker.activeDate = picker.activeDate.getLastDateOfMonth();
+        if (picker.value) {
+            picker.value = picker.value.getLastDateOfMonth();
+        }
+    }
+   ,updateHidden: function(){
+        var value = this.picker.getValue();
+        if (value) {
+            value = value.getLastDateOfMonth();
+        }
+        this.picker.hiddenField.dom.value = this.formatHiddenDate(value);
     }
 });
