@@ -3753,6 +3753,7 @@ Ext.ux.grid.livegrid.CheckboxSelectionModel = Ext.extend(Ext.ux.grid.livegrid.Ro
     id : 'checker',
     headerCheckbox : null,
     markAll : false,
+    fullShiftSelect: false,
 
     constructor : function(cfg)
     {
@@ -3774,6 +3775,10 @@ Ext.ux.grid.livegrid.CheckboxSelectionModel = Ext.extend(Ext.ux.grid.livegrid.Ro
         // <
 
         this.sortable = false;
+
+        if (cfg.fullShiftSelect){
+            this.fullShiftSelect = true;
+        }
 
         Ext.ux.grid.livegrid.CheckboxSelectionModel.superclass.constructor.call(this);
     },
@@ -3848,9 +3853,11 @@ Ext.ux.grid.livegrid.CheckboxSelectionModel = Ext.extend(Ext.ux.grid.livegrid.Ro
      */
     handleMouseDown : function(g, rowIndex, e)
     {
-        if (e.shiftKey) {
+        if (!this.fullShiftSelect && e.shiftKey) {
             return;
         }
+
+        e.ctrlKey = true;  //kirov чтобы не сбрасывалось существующее выделение
 
         this.markAll = false;
 

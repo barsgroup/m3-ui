@@ -748,11 +748,13 @@ class ExtLiveGridCheckBoxSelModel(ExtGridCheckBoxSelModel):
         super(ExtLiveGridCheckBoxSelModel, self).__init__(*args, **kwargs)
         self.single_select = False
         self.check_only = False
+        self.full_shift_select = False
         self.init_component(*args, **kwargs)
 
     def render(self):
         self._put_config_value('singleSelect', self.single_select)
         self._put_config_value('checkOnly', self.check_only)
+        self._put_config_value('fullShiftSelect', self.full_shift_select)
         return 'new Ext.ux.grid.livegrid.CheckboxSelectionModel({ %s })' % (
             self._get_config_str())
 
