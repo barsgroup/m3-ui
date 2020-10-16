@@ -9185,7 +9185,6 @@ Ext.ux.tree.TreeHeaderFilters = Ext.extend(Ext.util.Observable, {
 					{
 						//Legacy mode and deprecated. Use applyMode = "enter" or applyFilterEvent
 						// kirov - через листенеры удобно новые объекты делать, иначе через события
-
 						if (fc.hasListener != undefined) {
 							if (!fc.hasListener('change')) {
 								fc.on('change',function(field)
@@ -17402,5 +17401,28 @@ Ext.data.Store.override({
     find: function(property, value, start, anyMatch, caseSensitive, exactMatch) {
         var fn = this.createFilterFn(property, value, anyMatch, caseSensitive, exactMatch);
         return fn ? this.data.findIndexBy(fn, null, start) : -1;
+    }
+});
+
+/**
+ * Исправляет отрисовку таблиц с многоуровневыми заголовками в браузерах на WebKit.
+ */
+Ext.ux.grid.ColumnHeaderGroup.override({
+
+    getGroupStyle: function(group, gcol) {
+        var width = 0, hidden = true;
+        for (var i = gcol, len = gcol + group.colspan; i < len; i++) {
+            if (!this.cm.isHidden(i)) {
+                var cw = this.cm.getColumnWidth(i);
+                if (typeof cw == 'number') {
+                    width += cw;
+                }
+                hidden = false;
+            }
+        }
+        return {
+            width: (Ext.isBorderBox ? width : Math.max(width - this.borderWidth, 0)) + 'px',
+            hidden: hidden
+        };
     }
 });
