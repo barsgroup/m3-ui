@@ -2294,7 +2294,7 @@ Ext.ux.grid.LockingHeaderGroupGridView = Ext.extend(Ext.grid.GridView, {
             }
         }
         return {
-            width: (Ext.isBorderBox ? width : Math.max(width - this.borderWidth, 0)) + 'px',
+            width: (Ext.isBorderBox || (Ext.isWebKit && !Ext.isSafari2) ? width : Math.max(width - this.borderWidth, 0)) + 'px',
             hidden: hidden
         };
     },
@@ -9185,6 +9185,7 @@ Ext.ux.tree.TreeHeaderFilters = Ext.extend(Ext.util.Observable, {
 					{
 						//Legacy mode and deprecated. Use applyMode = "enter" or applyFilterEvent
 						// kirov - через листенеры удобно новые объекты делать, иначе через события
+
 						if (fc.hasListener != undefined) {
 							if (!fc.hasListener('change')) {
 								fc.on('change',function(field)
