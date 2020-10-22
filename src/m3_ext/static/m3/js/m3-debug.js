@@ -2294,7 +2294,7 @@ Ext.ux.grid.LockingHeaderGroupGridView = Ext.extend(Ext.grid.GridView, {
             }
         }
         return {
-            width: (Ext.isBorderBox ? width : Math.max(width - this.borderWidth, 0)) + 'px',
+            width: (Ext.isBorderBox || (Ext.isWebKit && !Ext.isSafari2) ? width : Math.max(width - this.borderWidth, 0)) + 'px',
             hidden: hidden
         };
     },
@@ -17401,5 +17401,28 @@ Ext.data.Store.override({
     find: function(property, value, start, anyMatch, caseSensitive, exactMatch) {
         var fn = this.createFilterFn(property, value, anyMatch, caseSensitive, exactMatch);
         return fn ? this.data.findIndexBy(fn, null, start) : -1;
+    }
+});
+
+/**
+ * Исправляет отрисовку таблиц с многоуровневыми заголовками в браузерах на WebKit.
+ */
+Ext.ux.grid.ColumnHeaderGroup.override({
+
+    getGroupStyle: function(group, gcol) {
+        var width = 0, hidden = true;
+        for (var i = gcol, len = gcol + group.colspan; i < len; i++) {
+            if (!this.cm.isHidden(i)) {
+                var cw = this.cm.getColumnWidth(i);
+                if (typeof cw == 'number') {
+                    width += cw;
+                }
+                hidden = false;
+            }
+        }
+        return {
+            width: (Ext.isBorderBox ? width : Math.max(width - this.borderWidth, 0)) + 'px',
+            hidden: hidden
+        };
     }
 });

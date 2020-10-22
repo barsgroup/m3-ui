@@ -745,3 +745,26 @@ Ext.data.Store.override({
         return fn ? this.data.findIndexBy(fn, null, start) : -1;
     }
 });
+
+/**
+ * Исправляет отрисовку таблиц с многоуровневыми заголовками в браузерах на WebKit.
+ */
+Ext.ux.grid.ColumnHeaderGroup.override({
+
+    getGroupStyle: function(group, gcol) {
+        var width = 0, hidden = true;
+        for (var i = gcol, len = gcol + group.colspan; i < len; i++) {
+            if (!this.cm.isHidden(i)) {
+                var cw = this.cm.getColumnWidth(i);
+                if (typeof cw == 'number') {
+                    width += cw;
+                }
+                hidden = false;
+            }
+        }
+        return {
+            width: (Ext.isBorderBox ? width : Math.max(width - this.borderWidth, 0)) + 'px',
+            hidden: hidden
+        };
+    }
+});
