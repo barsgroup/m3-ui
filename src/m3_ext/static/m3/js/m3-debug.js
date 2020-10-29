@@ -13501,7 +13501,7 @@ Ext.m3.MultiSelectField = Ext.extend(Ext.m3.AdvancedComboBox, {
             //со множественным выбором
             values = Ext.util.JSON.decode(this.value);
             Ext.each(values, function(item, index) {
-                var record = this.store.getAt(this.store.find(this.valueField, item));
+                var record = this.store.getAt(this.store.find(this.valueField, item, 0, false, false, true));
                 if (record && !this.checkedItems.includes(record)) {
                     this.setRecord(record);
                 }
