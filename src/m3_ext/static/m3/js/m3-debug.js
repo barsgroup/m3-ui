@@ -16531,7 +16531,9 @@ Ext.onReady(function () {
                 if (this.tmpModal && this.parentWindow) {
                     this.parentWindow.un('activate', this.activateChildWindow, this);
                     this.parentWindow.setDisabled(false);
-                    this.parentWindow.toFront();
+                    if (this.parentWindow === this.manager.getActive()) {
+                        this.parentWindow.toFront();
+                    }
 
                     if (window.AppDesktop) {
                         var el = AppDesktop.getDesktop().taskbar.tbPanel.getTabWin(this.parentWindow);
