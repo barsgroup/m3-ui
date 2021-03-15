@@ -18,10 +18,6 @@ html, body {
 	background-image: url( ../images/taskbar/black/startbutton-icon.gif ) !important;
 }
 
-.bogus {
-	background-image: url( ../images/bogus.png ) !important;
-}
-
 .logout {
 	background-image: url( ../images/logout.gif ) !important;
 }
@@ -220,7 +216,7 @@ html, body {
 	margin: 0;
 }
 
-/* D prefer 28.03.10 - Нужно отображать футер! 
+/* D prefer 28.03.10 - Нужно отображать футер!
 .x-window-maximized .x-window-bc {
 	height:0;
 }
@@ -594,7 +590,7 @@ td.ux-taskButtons-edge {
 .ext-ie #x-shortcuts td img {
     background:transparent !important;
 }
-/* 
+/*
 #x-shortcuts dt a:hover {
     text-decoration:underline;
 }
@@ -604,9 +600,8 @@ td.ux-taskButtons-edge {
     background-image:url( ../images/grid.png ) !important;
 }
 .users-list {
-    background-image:url( ../images/users-list-16x16.png ) !important;
+	background-image:url( ../images/users-list-16x16.png ) !important;
 }
-
 /*
 #users-list-shortcut img {
     width:48px;
