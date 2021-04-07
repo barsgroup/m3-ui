@@ -6,6 +6,7 @@
 .pydevproject
 .settings
 .coverage
+.mypy_cache
 
 *.log
 
