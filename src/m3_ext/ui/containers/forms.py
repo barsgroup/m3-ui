@@ -249,8 +249,14 @@ class ExtForm(BaseExtPanel):
                             (fields.ExtImageUploadField.MIN_THUMBNAIL_PREFIX +
                                 file_name))
                         if os.path.exists(thumb_file):
-                            thumb = Image.open(thumb_file)
-                            item.thumbnail_size = thumb.size
+                            try:
+                                thumb = Image.open(thumb_file)
+                            except IOError as e:
+                                logger.exception(str(e))
+                                thumb = None
+
+                            if thumb:
+                                item.thumbnail_size = thumb.size
 
             else:
                 item.value = six.text_type(value)
@@ -371,9 +377,9 @@ class ExtForm(BaseExtPanel):
                     if isinstance(field, fields.ExtImageUploadField):
                         try:
                             img = Image.open(l_field.path)
-                        except IOError:
+                        except IOError as e:
                             # Кроме логирования ничего не нужно
-                            logger.exception()
+                            logger.exception(str(e))
                             return
 
                         width, height = img.size
