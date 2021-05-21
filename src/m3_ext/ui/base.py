@@ -452,6 +452,9 @@ class ExtUIComponent(BaseExtComponent):
         # CSS стиль для label
         self.label_style = {}
 
+        # Разделитель для label
+        self.label_separator = None
+        
     def t_render_style(self):
         """
         :deprecated: Использовать рендеринг в render_base_config
@@ -491,6 +494,7 @@ class ExtUIComponent(BaseExtComponent):
         if self.label_style:
             self._put_config_value('labelStyle', self.t_render_label_style())
         self._put_config_value('hideLabel', self.hide_label, self.hide_label)
+        self._put_config_value('labelSeparator', self.label_separator, self.label_separator is not None)
 
     def make_read_only(
             self, access_off=True, exclude_list=(), *args, **kwargs):
