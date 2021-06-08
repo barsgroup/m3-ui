@@ -49,6 +49,9 @@ class BaseExtContainer(ExtUIComponent):
         # True - компонент изначально свернут
         self.collapsed = False
 
+        # Признак неактивности
+        self.read_only = False
+
     def t_render_items(self):
         """
         :deprecated: Рекомендуется использовать render_base_config
@@ -115,9 +118,12 @@ class BaseExtContainer(ExtUIComponent):
         self._put_config_value('labelWidth', self.label_width)
         self._put_config_value('labelAlign', self.label_align)
         self._put_config_value('labelPad', self.label_pad)
+        self._put_config_value('readOnly', self.read_only, self.read_only)
 
     def _make_read_only(
             self, access_off=True, exclude_list=(), *args, **kwargs):
+        self.read_only = access_off
+
         if self._items:
             for item in self._items:
                 if hasattr(item, "make_read_only") and callable(
