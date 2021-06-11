@@ -16908,7 +16908,7 @@ var restoreClass = function (readOnly) {
 
 Ext.override(Ext.form.Field, {
     setReadOnly: function (readOnly) {
-        if(!(this.ownerCt && this.ownerCt.readOnly)){
+        if(readOnly || !(this.ownerCt && this.ownerCt.readOnly)){
             setReadOnlyField.call(this, readOnly);
             restoreClass.call(this, readOnly);
         }
@@ -16918,7 +16918,7 @@ Ext.override(Ext.form.Field, {
 var setReadOnlyTriggerField = Ext.form.TriggerField.prototype.setReadOnly;
 Ext.override(Ext.form.TriggerField, {
     setReadOnly: function (readOnly) {
-        if(!(this.ownerCt && this.ownerCt.readOnly)){
+        if(readOnly || !(this.ownerCt && this.ownerCt.readOnly)){
             setReadOnlyTriggerField.call(this, readOnly);
             restoreClass.call(this, readOnly);
         }

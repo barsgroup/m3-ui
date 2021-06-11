@@ -29,7 +29,9 @@
     	{% if component.buttom_bar %} ,bbar: {{ component.t_render_buttom_bar|safe }} {% endif %}
     	{% if component.footer_bar %} ,fbar: {{ component.t_render_footer_bar|safe }} {% endif %}
      	{% if component.base_cls %} ,baseCls: '{{ component.base_cls }}' {% else %} ,baseCls:'x-plain' {% endif %}
-        
+
+		, readOnly: {% if component.read_only %} true {% else %} false {% endif %}
+
         ,items: {{ component.t_render_items|safe }}
     });
     {% if component.focused_field %}
